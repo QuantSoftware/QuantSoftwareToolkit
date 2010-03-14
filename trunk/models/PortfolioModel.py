@@ -1,4 +1,3 @@
-import numpy
 import tables as pt #@UnresolvedImport
 import PositionModel as Position
 
