@@ -1,8 +1,8 @@
-import numpy
 import tables as pt #@UnresolvedImport
+import numpy as np
 
 class PositionModel(pt.IsDescription):
-    timestamp = pt.Time32Col()
+    timestamp = pt.Time64Col()
     symbol = pt.StringCol(4) 
     shares = pt.Int32Col()
     open_price = pt.Int32Col()
