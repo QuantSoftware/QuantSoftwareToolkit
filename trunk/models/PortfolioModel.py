@@ -5,8 +5,6 @@ class PortfolioModel(pt.IsDescription):
 	cash = pt.Int32Col()
 	positions = Position.PositionModel()    #creates a nested table of positions
 
-        
-
 def classTest():        
     h5f = pt.openFile('PortfolioTest.h5', mode = "w")
     group = h5f.createGroup("/", 'tester')
