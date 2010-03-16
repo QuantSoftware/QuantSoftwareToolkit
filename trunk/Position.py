@@ -13,9 +13,14 @@ class Position:
     def __init__(self):
         self.positionFile = pt.openFile('PositionModel.h5', mode = "w")
         self.position = positionFile.createTable('/', 'position', PositionModel)
-    
+
     def addPosition(self,timestamp,symbol,shares,open_price):
-        pass
+        row = self.position.row
+        row['timestamp'] = timestamp
+        row['symbol'] = symbol 
+        row['shares'] = shares
+        row['open_price'] = open_price
+        row.append()     
     
     def close(self):
         self.positionFile.close()

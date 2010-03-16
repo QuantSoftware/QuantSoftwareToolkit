@@ -53,6 +53,6 @@ class Order:
             row['quantity'] = quantity
             row['price'] = price
             row.update()
-    
+        
     def close(self):
         self.orderFile.close()
