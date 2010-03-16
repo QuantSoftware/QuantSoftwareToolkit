@@ -1,7 +1,7 @@
 import models.PortfolioModel, models.PositionModel, models.OrderModel, models.StockPriceModel
 import tables as pt
 from optparse import OptionParser
-import sys
+import sys, time
 
 
 
@@ -11,6 +11,8 @@ class Simulator():
     portfolioFile=None; positionFile=None; orderFile=None; stockPriceFile=None
     def __init__(self, initialPortfolio, strategy, startTime, endTime, interval):
         # NOTE: As written currently, strategy is a method
+        self.strategy = strategy
+        
         self.portfolioFile = pt.openFile('PortfolioModel.h5', mode = "w")
         self.positionFile = pt.openFile('PositionModel.h5', mode = "w")
         self.orderFile = pt.openFile('OrderModel.h5', mode = "w")
@@ -21,8 +23,14 @@ class Simulator():
         self.order = orderFile.createTable('/', 'order', self.OrderModel)
         self.stockPrice = stockPriceFile.createTable('/', 'stockPrice', self.StockPriceModel)
     
-    def run(self):
+    def execute(self,commands):
         pass
+    
+    def run(self):
+        currTime = startTime
+        while currTime < endTime and currTime < time.time():
+            self.execute(self.strategy(currtime, self.portfolio))
+            currTime += timeStep
         
     def close(self):
         self.portfolioFile.close()
