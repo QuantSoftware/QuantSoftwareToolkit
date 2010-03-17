@@ -8,14 +8,14 @@ class PriceData(pt.IsDescription):
     adj_close = pt.Float32Col()
     close = pt.Float32Col()
     volume = pt.Int32Col()
-    
-class StockPriceModel(pt.IsDescription):
-    symbol = pt.StringCol(4)           #4 char string; Ticker
-    exchange = pt.StringCol(10)         #10 char string; NYSE or NASDAQ
     timestamp = pt.Time64Col()         #timestamp of price
     when_available = pt.Time64Col()    #time when data is available to simulator
-    interval = pt.Time64Col()          #interval since previous data point
-    data = PriceData()                 #creates a nested table for PriceData (see above)
+    interval = pt.Time64Col()          #market close time - market open time
+    
+class StockPriceModel(pt.IsDescription):
+    symbol = pt.StringCol(30)           #30 char string; Ticker
+    exchange = pt.StringCol(10)         #10 char string; NYSE, NASDAQ, etc.
+    data = PriceData()                  #creates a nested table for PriceData (see above)
  
     
 def classTest():        

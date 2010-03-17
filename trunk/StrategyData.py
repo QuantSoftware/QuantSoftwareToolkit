@@ -1,5 +1,5 @@
 import models.StockPriceModel, tables as pt
-
+#WARNING DATA MODEL IS CHANGING METHODS WILL NEED TO BE MODIFIED
 '''
 Based on the model:
 PriceData:
