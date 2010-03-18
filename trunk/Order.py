@@ -1,11 +1,14 @@
 import models.OrderModel, tables as pt
+#play with iterator vs object for newOrder
+
 '''
 Based on the model:
 FillModel:
     timestamp = pt.Time64Col()
     quantity = pt.Int32Col()
     price = pt.Float32Col()
-
+    commission = pt.Float32Col()
+    
 OrderModel:
     shares = pt.Int32Col()
     symbol = pt.StringCol(4)
