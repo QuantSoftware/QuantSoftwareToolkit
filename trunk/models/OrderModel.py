@@ -4,8 +4,9 @@ import time
 class FillModel(pt.IsDescription):
     timestamp = pt.Time64Col()
     quantity = pt.Int32Col()
-    price = pt.Float32Col()
-
+    cashChange = pt.Float32Col()
+    commission = pt.Float32Col()
+    
 class OrderModel(pt.IsDescription):
     shares = pt.Int32Col()
     symbol = pt.StringCol(4)

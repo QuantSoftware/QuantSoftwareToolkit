@@ -1,4 +1,4 @@
-import models.PortfolioModel, models.PositionModel, models.OrderModel, models.StockPriceModel
+import models.PortfolioModel, models.PositionModel, models.OrderModel, models.StrategyDataModel
 import tables as pt
 from optparse import OptionParser
 import sys, time
@@ -7,22 +7,216 @@ import sys, time
 
 
 class Simulator():
-    portfolio=None; position=None; order=None; stockPrice=None
-    portfolioFile=None; positionFile=None; orderFile=None; stockPriceFile=None
-    def __init__(self, initialPortfolio, strategy, startTime, endTime, interval):
+    def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare):
         # NOTE: As written currently, strategy is a method
         self.strategy = strategy
+        self.startTime = startTime
+        self.endTime = endTime
+        self.interval = interval
+        self.minCom = minCom
+        self.comPerShare = comPerShare
         
-        self.portfolioFile = pt.openFile('PortfolioModel.h5', mode = "w")
-        self.positionFile = pt.openFile('PositionModel.h5', mode = "w")
-        self.orderFile = pt.openFile('OrderModel.h5', mode = "w")
-        self.stockPriceFile = pt.openFile('StockPriceModel.h5', mode = "w")
-        
-        self.portfolio = portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
-        self.position = positionFile.createTable('/', 'position', self.PositionModel)
-        self.order = orderFile.createTable('/', 'order', self.OrderModel)
-        self.stockPrice = stockPriceFile.createTable('/', 'stockPrice', self.StockPriceModel)
+        self.portfolio = Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
+        self.position = Position()   #positionFile.createTable('/', 'position', self.PositionModel)
+        self.order = Order()   #orderFile.createTable('/', 'order', self.OrderModel)
+        self.strategyData = StrategyData()   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
     
+    def calcCommission(self, volume):
+        return max(minCom,volume * self.comPerShare)
+    
+    def buyStock(self, newOrder, limitPrice = None):
+        '''
+        function takes in an instance of Order executes the changes to the portfolio and adds the order to the order table
+        newOrder: an instance of Order representing the new order
+        Note: The Order should not be added to the order table before calling this function
+        '''
+        
+        #buyTransaction needs to be expanded and put in here instead.
+        '''
+        ORDER:
+        row['shares'] = shares
+        row['symbol'] = symbol
+        row['order_type'] = orderType
+        row['duration'] = duration
+        row['timestamp'] = timestamp
+        row['close_type'] = closeType
+        '''  
+        #purchase = Position(timestamp, self.symbol, quantity, price)
+        #self.position.append(purchase)         
+        self.order.append(newOrder)
+        ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
+            
+        if newOrder.order_type == 'moo':
+            #market order open
+            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_open')
+            cost = newOrder.shares * price + self.calcCommission(newOrder.shares)
+            if(cost>self.portfolio.currCash):
+                #Not enough cash to buy stock
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = -price
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.buyTransaction(newOrder)
+            #add position
+            self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        elif newOrder.order_type == 'moc':
+            #market order close
+            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_close')
+            cost = newOrder.shares * price + self.calcCommission(newOrder.shares)
+            if(cost>self.portfolio.currCash):
+                #Not enough cash to buy stock
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = -price
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.buyTransaction(newOrder)
+            #add position
+            self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        elif newOrder.order_type == 'limit':
+            #limit order
+            price = limitPrice
+            cost = newOrder.shares * price + self.calcCommission(newOrder.shares)
+            if ((limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
+                #limit price outside of daily range
+                return None
+            if(cost>self.portfolio.currCash):
+                #Not enough cash to buy stock
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = -price
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.buyTransaction(newOrder)
+            #add position
+            self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        elif newOrder.order_type == 'vwap':
+            #volume weighted average price
+            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_open')
+            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_close')
+            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_high')
+            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_low')
+            price = price / 4.
+            cost = newOrder.shares * price + self.calcCommission(newOrder.shares)
+            if(cost>self.portfolio.currCash):
+                #Not enough cash to buy stock
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = -price
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.buyTransaction(newOrder) 
+            #add position
+            self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        else:
+            #throw invalid type error
+            raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
+        
+    def sellStock(self,newOrder):
+        """
+        Comments 'n stuff go here.
+        """
+        #sellTransaction needs to be expanded and put here instead.
+        self.order.append(newOrder)
+        ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
+            
+        if newOrder.order_type == 'moo':
+            #market order open
+            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_open')
+            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
+            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+                #Not enough shares owned to sell requested amount
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = profit
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.sellTransaction(newOrder)
+            #remove positions according to lifo/fifo
+            
+            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        elif newOrder.order_type == 'moc':
+            #market order close
+            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_close')
+            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
+            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+                #Not enough shares owned to sell requested amount
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = profit
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.sellTransaction(newOrder)
+            #remove positions according to lifo/fifo
+            
+            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        elif newOrder.order_type == 'limit':
+            #limit order
+            price = limitPrice
+            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
+            if ((limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
+                #limit price outside of daily range
+                return None
+            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+                #Not enough shares owned to sell requested amount
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = profit
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.sellTransaction(newOrder)
+            #remove positions according to lifo/fifo
+            
+            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        elif newOrder.order_type == 'vwap':
+            #volume weighted average price
+            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_open')
+            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_close')
+            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_high')
+            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_low')
+            price = price / 4.
+            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
+            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+                #Not enough shares owned to sell requested amount
+                return None
+            #__execute trade__
+            #populate fill field in order
+            newOrder.fill.timestamp = ts
+            newOrder.fill.quantity = newOrder.shares
+            newOrder.fill.cashChange = profit
+            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            #add trade to portfolio
+            self.portfolio.sellTransaction(newOrder)
+            #remove positions according to lifo/fifo
+            
+            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+        else:
+            #throw invalid type error
+            raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
+
+            
     def execute(self,commands):
         pass
     
@@ -36,7 +230,7 @@ class Simulator():
         self.portfolioFile.close()
         self.positionFile.close()
         self.orderFile.close()
-        self.stockPriceFile.close()
+        self.strategyDataFile.close()
 
 
 
