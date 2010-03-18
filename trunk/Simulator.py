@@ -63,10 +63,9 @@ def main():
         stratName = args[2]
     else:
         stratName = "strategyMain"
-    f = open(configFile, 'r')
-    g = open("default.ini", 'r')
     
-    for thisFile in [g,f]:
+    for fileName in ["default.ini",configFile]:
+        thisFile = open(fileName,'r')
         for line in thisFile.readlines():
             # Separate the command in the config file from the arguments
             if not ('#' in line):
