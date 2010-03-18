@@ -18,7 +18,7 @@ class Portfolio:
         self.currCash = cash
         self.currStocks = stocks
     
-   
+
     def buyStock(self, newOrder):
         '''
         function takes in an instance of Order executes the changes to the portfolio and adds the order to the order table
