@@ -11,6 +11,7 @@ class Simulator():
         # NOTE: As written currently, strategy is a method
         self.strategy = strategy
         self.startTime = startTime
+        self.currTimestamp = startTime
         self.endTime = endTime
         self.interval = interval
         self.minCom = minCom
@@ -24,10 +25,10 @@ class Simulator():
     def calcCommission(self, volume):
         return max(minCom,volume * self.comPerShare)
     
-    def buyStock(self, newOrder, limitPrice = None):
+    def buyStock(self, newOrderDetails):
         '''
-        function takes in an instance of Order executes the changes to the portfolio and adds the order to the order table
-        newOrder: an instance of Order representing the new order
+        function takes in an instance of OrderDetails, executes the changes to the portfolio and adds the order to the order table
+        newOrderDetails: an instance of OrderDetails representing the new order
         Note: The Order should not be added to the order table before calling this function
         '''
         
@@ -43,7 +44,7 @@ class Simulator():
         '''  
         #purchase = Position(timestamp, self.symbol, quantity, price)
         #self.position.append(purchase)         
-        self.order.append(newOrder)
+        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType)
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
             
         if newOrder.order_type == 'moo':
@@ -82,9 +83,9 @@ class Simulator():
             self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'limit':
             #limit order
-            price = limitPrice
+            price = newOrderDetails.limitPrice
             cost = newOrder.shares * price + self.calcCommission(newOrder.shares)
-            if ((limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
+            if ((newOrderDetails.limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( newOrderDetails.limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
                 #limit price outside of daily range
                 return None
             if(cost>self.portfolio.currCash):
@@ -124,13 +125,14 @@ class Simulator():
         else:
             #throw invalid type error
             raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
-        
-    def sellStock(self,newOrder):
+        return price
+    
+    def sellStock(self,newOrderDetails):
         """
         Comments 'n stuff go here.
         """
         #sellTransaction needs to be expanded and put here instead.
-        self.order.append(newOrder)
+        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType)
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
             
         if newOrder.order_type == 'moo':
@@ -171,9 +173,9 @@ class Simulator():
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'limit':
             #limit order
-            price = limitPrice
+            price = newOrderDetails.limitPrice
             profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
-            if ((limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
+            if ((newOrderDetails.limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( newOrderDetails.limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
                 #limit price outside of daily range
                 return None
             if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
@@ -215,16 +217,42 @@ class Simulator():
         else:
             #throw invalid type error
             raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
-
+        return price
             
     def execute(self,commands):
-        pass
+        # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
+        # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
+        # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
+        for sellStock in commands[0]:
+            if len(sellStock) == 5:
+                sellOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])
+            else:
+                sellOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
+            result = self.sellStock(sellOrder)
+            if noisy:
+                if result:
+                    print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
+                else:
+                    print "Did not succeed in selling %d shares of %s for %f as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],result,sellStock[2],sellStock[3],self.currTimestamp)
+        
+        for buyStock in commands[1]:
+            if len(buyStock) == 5:
+                buyOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])
+            else:
+                buyOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
+            result = self.buyStock(buyOrder)
+            if noisy:
+                if result:
+                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
+                else:
+                    print "Did not succeed in buying %d shares of %s for %f as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],result,sellStock[2],sellStock[3],self.currTimestamp)
+
     
     def run(self):
-        currTime = startTime
-        while currTime < endTime and currTime < time.time():
-            self.execute(self.strategy(currtime, self.portfolio))
-            currTime += timeStep
+        self.currTimestamp = self.startTime
+        while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
+            self.execute(self.strategy(self.portfolio))
+            self.currTimestamp += self.timeStep
         
     def close(self):
         self.portfolioFile.close()
