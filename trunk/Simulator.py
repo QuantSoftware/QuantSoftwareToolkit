@@ -44,7 +44,7 @@ class Simulator():
         '''  
         #purchase = Position(timestamp, self.symbol, quantity, price)
         #self.position.append(purchase)         
-        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType)
+        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
             
         if newOrder.order_type == 'moo':
@@ -83,9 +83,9 @@ class Simulator():
             self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'limit':
             #limit order
-            price = newOrderDetails.limitPrice
+            price = newOrder.limit_price
             cost = newOrder.shares * price + self.calcCommission(newOrder.shares)
-            if ((newOrderDetails.limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( newOrderDetails.limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
+            if ((newOrder.limit_price > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( newOrder.limit_price < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
                 #limit price outside of daily range
                 return None
             if(cost>self.portfolio.currCash):
@@ -132,7 +132,7 @@ class Simulator():
         Comments 'n stuff go here.
         """
         #sellTransaction needs to be expanded and put here instead.
-        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType)
+        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
             
         if newOrder.order_type == 'moo':
@@ -173,9 +173,9 @@ class Simulator():
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'limit':
             #limit order
-            price = newOrderDetails.limitPrice
+            price = newOrder.limit_price
             profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
-            if ((newOrderDetails.limitPrice > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( newOrderDetails.limitPrice < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
+            if ((newOrder.limit_price > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( newOrder.limit_price < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
                 #limit price outside of daily range
                 return None
             if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
@@ -246,12 +246,14 @@ class Simulator():
                     print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
                 else:
                     print "Did not succeed in buying %d shares of %s for %f as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],result,sellStock[2],sellStock[3],self.currTimestamp)
-
+        for order in self.orders:
+            pass
+        
     
     def run(self):
         self.currTimestamp = self.startTime
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
-            self.execute(self.strategy(self.portfolio))
+            self.execute(self.strategy(self.portfolio,self.currTimeStamp,self.strategyData))
             if noisy:
                 print "Strategy at %d completed successfully." % self.currTimestamp
             self.currTimestamp += self.timeStep

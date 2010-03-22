@@ -16,6 +16,7 @@ OrderModel:
     duration = pt.Time64Col()
     timestamp = pt.Time64Col()
     close_type = pt.StringCol(4)       #lifo or fifo
+    limit_price = pt.Float32Col()
     fill = FillModel()
 '''
 
@@ -24,7 +25,7 @@ class Order:
         self.orderFile = pt.openFile('OrderModel.h5', mode = "w")
         self.order = orderFile.createTable('/', 'order', OrderModel)
     
-    def addOrder(self,timestamp,shares,symbol,orderType,duration,closeType): 
+    def addOrder(self,timestamp,shares,symbol,orderType,duration,closeType,limitPrice = 0): 
         ''' 
         adds a new unfulfilled order to the orders table
         timestamp: the exact timestamp when the order was submitted
@@ -43,6 +44,7 @@ class Order:
         row['duration'] = duration
         row['timestamp'] = timestamp
         row['close_type'] = closeType
+        row['limit_price'] = limitPrice
         row.append()
         return row
         

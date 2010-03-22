@@ -14,6 +14,7 @@ class OrderModel(pt.IsDescription):
     duration = pt.Time64Col()
     timestamp = pt.Time64Col()
     close_type = pt.StringCol(4)       #lifo or fifo
+    limit_price = pt.Float32Col()
     fill = FillModel()
         
 def classTest():        
