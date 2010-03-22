@@ -33,6 +33,8 @@ class Order:
         orderType: they type of order (moo, moc, limit, vwap)
         duration: the length of time the order is valid for
         closeType: sell first or sell last (lifo,fifo)
+        
+        returns a reference to the row
         '''  
         row = self.order.row
         row['shares'] = shares
@@ -42,6 +44,7 @@ class Order:
         row['timestamp'] = timestamp
         row['close_type'] = closeType
         row.append()
+        return row
         
     def fillOrder(self, timestamp, rowIterator, quantity, price):
         ''' 
