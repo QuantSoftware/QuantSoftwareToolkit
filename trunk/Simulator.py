@@ -252,7 +252,11 @@ class Simulator():
         self.currTimestamp = self.startTime
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
             self.execute(self.strategy(self.portfolio))
+            if noisy:
+                print "Strategy at %d completed successfully." % self.currTimestamp
             self.currTimestamp += self.timeStep
+        if noisy:
+            print "Simulation complete."
         
     def close(self):
         self.portfolioFile.close()
@@ -381,14 +385,13 @@ def main():
     if noisy:
         print "Config file parsed successfully.  Starting simulation."
     
-    # CREATE PORTFOLIO HERE
-    myPort = None
     
     # Add the strategies subdirectory to the system path so Python can find the module
     sys.path.append(sys.path[0] + '/strategies')
     myStrategy = eval("__import__('%s').%s" % (args[1],stratName) )
     
-    mySim = Simulator(myPort, myStrategy, startTime, endTime, timeStep)
+    mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare)
+
     mySim.run()
 
 # This ensures the main function runs automatically when the program is run from the command line, but 
