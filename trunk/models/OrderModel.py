@@ -13,7 +13,7 @@ class OrderModel(pt.IsDescription):
     order_type = pt.StringCol(5)       #moo moc limit vwap
     duration = pt.Time64Col()
     timestamp = pt.Time64Col()
-    close_type = pt.StringCol(4)       #lifo or fifo
+    close_type = pt.StringCol(4)       #lifo or fifo for a sell, none for a buy
     limit_price = pt.Float32Col()
     fill = FillModel()
         

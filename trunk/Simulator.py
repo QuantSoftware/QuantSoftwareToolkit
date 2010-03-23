@@ -25,7 +25,7 @@ class Simulator():
     def calcCommission(self, volume):
         return max(minCom,volume * self.comPerShare)
     
-    def buyStock(self, newOrderDetails):
+    def buyStock(self, newOrder):
         '''
         function takes in an instance of OrderDetails, executes the changes to the portfolio and adds the order to the order table
         newOrderDetails: an instance of OrderDetails representing the new order
@@ -44,7 +44,7 @@ class Simulator():
         '''  
         #purchase = Position(timestamp, self.symbol, quantity, price)
         #self.position.append(purchase)         
-        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
+        #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
             
         if newOrder.order_type == 'moo':
@@ -127,12 +127,12 @@ class Simulator():
             raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
         return price
     
-    def sellStock(self,newOrderDetails):
+    def sellStock(self,newOrder):
         """
         Comments 'n stuff go here.
         """
         #sellTransaction needs to be expanded and put here instead.
-        newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
+        #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
             
         if newOrder.order_type == 'moo':
@@ -228,26 +228,46 @@ class Simulator():
                 sellOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])
             else:
                 sellOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
-            result = self.sellStock(sellOrder)
+            newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
+            result = self.sellStock(newOrder)
             if noisy:
                 if result:
                     print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
                 else:
-                    print "Did not succeed in selling %d shares of %s for %f as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],result,sellStock[2],sellStock[3],self.currTimestamp)
+                    print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],sellStock[2],sellStock[3]+self.currTimestamp,self.currTimestamp)
         
         for buyStock in commands[1]:
             if len(buyStock) == 5:
-                buyOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])
+                buyOrder = OrderDetails(buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])
             else:
-                buyOrder = OrderDetails(sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
-            result = self.buyStock(buyOrder)
+                buyOrder = OrderDetails(buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4],buyStock[5])
+            newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
+            result = self.buyStock(newOrder)
             if noisy:
                 if result:
-                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
+                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
                 else:
-                    print "Did not succeed in buying %d shares of %s for %f as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],result,sellStock[2],sellStock[3],self.currTimestamp)
-        for order in self.orders:
-            pass
+                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
+        for order in self.orders.iterrow:
+            if order.duration + order.timestamp <= self.currTimestamp:
+                if order.fill == None:
+                    #Have unfilled, valid orders
+                    if order['close_type'].upper() == "NONE":
+                        #is a buy
+                        result = self.buyStock(order)
+                        if noisy:
+                            if result:
+                                print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                            else:
+                                print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                    else:
+                        result = self.sellStock(order)
+                        if noisy:
+                            if result:
+                                print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                            else:
+                                print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                                
         
     
     def run(self):
