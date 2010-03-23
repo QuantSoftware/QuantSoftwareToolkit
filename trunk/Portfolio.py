@@ -23,21 +23,33 @@ class Portfolio:
         '''
         order: the order (we know is valid at this point) to execute on the portfolio
         '''
-        self.currCash -= order.commission + order.price * order.quantity
-        self.currStocks.remove()
+        self.currCash -= order['fill']['commission'] + order['fill']['price'] * order['fill']['quantity']
+        if order['symbol'] in self.currStocks.keys():
+            self.currStocks[order['symbol']] += order['fill']['quantity']
+        else:
+            self.currStocks[order['symbol']] = order['fill']['quantity']
+        
     def sellTransaction(self,order):
         '''
         see buyTransaction for now
         
         '''
-        pass
+        self.currCash += -order['fill']['commission'] + order['fill']['price'] * order['fill']['quantity']
+        if order['symbol'] in self.currStocks:
+            self.currStocks[order['symbol']] -= order['fill']['quantity']
+            if self.currStocks[order['symbol']] == 0:
+                del self.currStocks[order['symbol']]
+        else:
+            self.currStocks[order['symbol']] = -order['fill']['quantity']
     
     def hasStock(self,symbol,volume):
         """
         Returns a boolean of whether or not the appropriate amount of the given stock
         exist in the portfolio.
         """
-        pass
+        if not order['symbol'] in self.currStocks:
+            return False
+        return self.currStocks[order['symbol']] >= volume
     
     def close(self):
         self.portfolioFile.close()
