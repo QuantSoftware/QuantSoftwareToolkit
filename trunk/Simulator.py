@@ -17,13 +17,31 @@ class Simulator():
         self.minCom = minCom
         self.comPerShare = comPerShare
         
+        self.times =  [] # eventual list for timestamps
+        
         self.portfolio = Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
         self.position = Position()   #positionFile.createTable('/', 'position', self.PositionModel)
         self.order = Order()   #orderFile.createTable('/', 'order', self.OrderModel)
         self.strategyData = StrategyData()   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
     
+    def addTimeStamps(self):
+        #Not sure how to iterate through all stock data - probably not indexing correctly
+        temp = []
+        for i in range(len(self.strategyData)): # Read through all stock data
+            if self.strategyData[i].timestamp not in temp:
+                temp.append(self.strategyData[i].timestamp) # add unique timestamps to list
+        return temp
+    
     def calcCommission(self, volume):
         return max(minCom,volume * self.comPerShare)
+    
+    # NOTE : I am somewhat unclear on exactly everything is stored/how to access the data
+    def getExecutionTimestamp(self):
+        #Ideally, we trade as soon as we can
+        idealTime = self.currTimestamp + self.interval
+        if idealTime < (self.strategyData.data.when_available): # We don't have the data yet
+            idealTime = self.strategyData.data.when_available + self.interval # Wait til available and go at next interval
+        return idealTime
     
     def buyStock(self, newOrder):
         '''
@@ -268,8 +286,7 @@ class Simulator():
                             else:
                                 print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
                                 
-        
-    
+                                  
     def run(self):
         self.currTimestamp = self.startTime
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
@@ -413,7 +430,8 @@ def main():
     myStrategy = eval("__import__('%s').%s" % (args[1],stratName) )
     
     mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare)
-
+    # Add the timestamps
+    mySim.times = mySim.addTimeStamps()
     mySim.run()
 
 # This ensures the main function runs automatically when the program is run from the command line, but 
