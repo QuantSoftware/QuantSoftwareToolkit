@@ -1,4 +1,4 @@
-import models.StrategyDataModel, tables as pt
+import models.StrategyDataModel, tables as pt, numpy as np
 #WARNING DATA MODEL IS CHANGING METHODS WILL NEED TO BE MODIFIED
 '''
 Based on the model:
@@ -28,8 +28,30 @@ class StrategyData:
         else:
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
             self.strategyData = self.strategyDataFile.root.tester.testTable
+        self.timestampsIndex = self.findTimestamps()
+        self.stocksIndex = self.findStocks()   
+        #self.pricesArray = self.populateArray()
         
-
+    def populateArray(self):
+        array = np.ndarray(len(self.timestampsIndex),len(self.stocksIndex),6)
+        for stock in self.stocksIndex:
+            pass
+    
+    def findTimestamps(self):
+        temp = []
+        for i in self.strategyData.iterrows():
+            if i['data/timestamp'] not in temp:
+                temp.append(i['data/timestamp'])
+        temp.sort()
+        return temp
+        
+    def findStocks(self):
+        temp = []
+        for i in self.strategyData.iterrows():
+            if i['symbol'] not in temp:
+                temp.append(i['symbol'])
+        temp.sort()
+        return temp
     
     def getStocks(self, startTime=None, endTime=None, ticker=None):
         '''
@@ -40,28 +62,38 @@ class StrategyData:
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock   
         '''
-        str = ''
-        if(startTime!=None):
-            str+='data/timestamp>=%i'%startTime
-        if(endTime!=None):
-            if(str!= ''):
-                str+=' and data/timestamp<=%i'%endTime
-            else:
-                str+='data/timestamp<=%i'%endTime
-        if(ticker!=None):          
-            if(str!= ''):
-                str+=' and symbol==' +'"'+ticker+'"'
-            else:
-                str+='symbol==' +'"'+ticker+'"'
-        if(str == ''):
-            result = self.strategyData.iterrows()              
+        
+#    for row in p.table.where('id==4'):
+#        if row['nest/f1'] == 10:
+#          print row
+        tempList = []
+        if(ticker!=None):    
+            for row in self.strategyData.where('symbol=="%s"'%ticker):
+                if(startTime!=None and endTime!=None):
+                    if(row['data/timestamp']>=startTime and row['data/timestamp']<=endTime):
+                        tempList.append(row)
+                elif(startTime!=None):
+                    if(row['data/timestamp']>=startTime):
+                        tempList.append(row)
+                elif(endTime!=None):
+                    if(row['data/timestamp']<=endTime):
+                        tempList.append(row)
+                else: #no time given
+                    tempList.append(row)    
         else:
-            #pytables throws an error if there are no results
-            try:
-                result = self.strategyData.where(str)
-            except: 
-                result = []
-        return result
+            for row in self.strategyData.iterrows():
+                if(startTime!=None and endTime!=None):
+                    if(row['data/timestamp']>=startTime and row['data/timestamp']<=endTime):
+                        tempList.append(row)
+                elif(startTime!=None):
+                    if(row['data/timestamp']>=startTime):
+                        tempList.append(row)
+                elif(endTime!=None):
+                    if(row['data/timestamp']<=endTime):
+                        tempList.append(row)
+                else: #no time given
+                    tempList.append(row)                    
+        return tempList
     
     def getPrice(self, timestamp, ticker, description):
         '''
@@ -101,6 +133,11 @@ class StrategyData:
     def close(self):
         self.strategyDataFile.close()
  
+
+def methodTest():
+    strat = StrategyData('models/PriceTestData.h5')
+    print strat.getStocks(startTime=0, ticker='KO')
+methodTest()
     
 def classTest():
     '''
