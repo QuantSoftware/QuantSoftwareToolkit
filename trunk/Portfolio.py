@@ -1,5 +1,5 @@
-import models.PortfolioModel, StockPrice, Simulator, tables as pt
-
+import StrategyData, Simulator, tables as pt
+from models.PortfolioModel import PortfolioModel
 '''
 Based on the model:
 PortfolioModel:
@@ -14,7 +14,9 @@ class Portfolio:
         stocks: dictionary representing all of the stocks a user has {}
         '''
         self.portfolioFile = pt.openFile('PortfolioModel.h5', mode = "w")
-        self.portfolio = portfolioFile.createTable('/', 'portfolio', PortfolioModel)
+        group = self.portfolioFile.createGroup("/", 'root')
+        
+        self.portfolio = self.portfolioFile.createTable(group, 'portfolio', PortfolioModel)
         self.currCash = cash
         self.currStocks = stocks
     

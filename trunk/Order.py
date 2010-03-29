@@ -1,4 +1,5 @@
-import models.OrderModel, tables as pt
+import tables as pt
+from models.OrderModel import OrderModel
 #play with iterator vs object for newOrder
 
 '''
@@ -23,7 +24,7 @@ OrderModel:
 class Order:
     def __init__(self):
         self.orderFile = pt.openFile('OrderModel.h5', mode = "w")
-        self.order = orderFile.createTable('/', 'order', OrderModel)
+        self.order = self.orderFile.createTable('/', 'order', OrderModel)
     
     def addOrder(self,timestamp,shares,symbol,orderType,duration,closeType,limitPrice = 0): 
         ''' 

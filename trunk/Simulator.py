@@ -2,7 +2,7 @@ import models.PortfolioModel, models.PositionModel, models.OrderModel, models.St
 import tables as pt
 from optparse import OptionParser
 import sys, time
-
+import Portfolio, Position, Order, StrategyData
 
 
 
@@ -19,17 +19,21 @@ class Simulator():
         
         self.times =  [] # eventual list for timestamps
         
-        self.portfolio = Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
-        self.position = Position()   #positionFile.createTable('/', 'position', self.PositionModel)
-        self.order = Order()   #orderFile.createTable('/', 'order', self.OrderModel)
-        self.strategyData = StrategyData('models/PriceTestData.h5')   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
+        self.portfolio = Portfolio.Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
+        self.position = Position.Position()   #positionFile.createTable('/', 'position', self.PositionModel)
+        self.order = Order.Order()   #orderFile.createTable('/', 'order', self.OrderModel)
+        self.strategyData = StrategyData.StrategyData('models/PriceTestData.h5')   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
     
     def addTimeStamps(self):
         #Not sure how to iterate through all stock data - probably not indexing correctly
         temp = []
-        for i in range(len(self.strategyData)): # Read through all stock data
-            if self.strategyData[i].timestamp not in temp:
-                temp.append(self.strategyData[i].timestamp) # add unique timestamps to list
+        for i in self.strategyData.strategyData.iterrows():
+            if i['data/timestamp'] not in temp:
+                temp.append(i['data/timestamp'])
+        temp.sort()
+        #for i in range(len(self.strategyData)): # Read through all stock data
+        #    if self.strategyData[i].timestamp not in temp:
+        #        temp.append(self.strategyData[i].timestamp) # add unique timestamps to list
         return temp
     
     def calcCommission(self, volume):
@@ -266,7 +270,7 @@ class Simulator():
                     print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
                 else:
                     print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
-        for order in self.orders.iterrow:
+        for order in self.order.order.iterrows():
             if order.duration + order.timestamp <= self.currTimestamp:
                 if order.fill == None:
                     #Have unfilled, valid orders
@@ -290,19 +294,19 @@ class Simulator():
     def run(self):
         self.currTimestamp = self.startTime
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
-            self.execute(self.strategy(self.portfolio,self.currTimeStamp,self.strategyData))
+            self.execute(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
             if noisy:
                 print "Strategy at %d completed successfully." % self.currTimestamp
-            self.currTimestamp += self.timeStep
+            self.currTimestamp += self.interval
         if noisy:
             print "Simulation complete."
         self.close()
         
     def close(self):
-        self.portfolioFile.close()
-        self.positionFile.close()
-        self.orderFile.close()
-        self.strategyDataFile.close()
+        self.portfolio.close()
+        self.position.close()
+        self.order.close()
+        self.strategyData.close()
 
 
 
@@ -421,8 +425,7 @@ def main():
                     noisy = True
                 elif command != '':
                         print "Unrecognized command '%s'.  Note: some commands may not yet be implemented.  E-mail pdohogne3@gatech.edu if a command is missing." % command
-    f.close()
-    g.close()
+        thisFile.close()
     if noisy:
         print "Config file parsed successfully.  Starting simulation."
     

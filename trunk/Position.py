@@ -1,5 +1,5 @@
-import models.PositionModel, tables as pt
-
+import tables as pt
+from models.PositionModel import PositionModel
 '''
 Based on the model:
 PositionModel:
@@ -12,7 +12,7 @@ PositionModel:
 class Position:
     def __init__(self):
         self.positionFile = pt.openFile('PositionModel.h5', mode = "w")
-        self.position = positionFile.createTable('/', 'position', PositionModel)
+        self.position = self.positionFile.createTable('/', 'position', PositionModel)
 
     def addPosition(self,timestamp,symbol,shares,open_price):
         row = self.position.row
