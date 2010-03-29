@@ -25,24 +25,24 @@ class Portfolio:
         '''
         order: the order (we know is valid at this point) to execute on the portfolio
         '''
-        self.currCash -= order['fill']['commission'] + order['fill']['price'] * order['fill']['quantity']
+        self.currCash -= order['fill/commission'] + order['fill/cashChange'] * order['fill/quantity']
         if order['symbol'] in self.currStocks.keys():
-            self.currStocks[order['symbol']] += order['fill']['quantity']
+            self.currStocks[order['symbol']] += order['fill/quantity']
         else:
-            self.currStocks[order['symbol']] = order['fill']['quantity']
+            self.currStocks[order['symbol']] = order['fill/quantity']
         
     def sellTransaction(self,order):
         '''
         see buyTransaction for now
         
         '''
-        self.currCash += -order['fill']['commission'] + order['fill']['price'] * order['fill']['quantity']
+        self.currCash += -order['fill/commission'] + order['fill/cashChange'] * order['fill/quantity']
         if order['symbol'] in self.currStocks:
-            self.currStocks[order['symbol']] -= order['fill']['quantity']
+            self.currStocks[order['symbol']] -= order['fill/quantity']
             if self.currStocks[order['symbol']] == 0:
                 del self.currStocks[order['symbol']]
         else:
-            self.currStocks[order['symbol']] = -order['fill']['quantity']
+            self.currStocks[order['symbol']] = -order['fill/quantity']
     
     def hasStock(self,symbol,volume):
         """

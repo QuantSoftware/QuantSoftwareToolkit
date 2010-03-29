@@ -7,7 +7,7 @@ Based on the model:
 FillModel:
     timestamp = pt.Time64Col()
     quantity = pt.Int32Col()
-    price = pt.Float32Col()
+    cashChange = pt.Float32Col()
     commission = pt.Float32Col()
     
 OrderModel:
@@ -46,7 +46,8 @@ class Order:
         row['timestamp'] = timestamp
         row['close_type'] = closeType
         row['limit_price'] = limitPrice
-        row.append()
+        #row.append()
+        #self.order.flush()
         return row
         
     def fillOrder(self, timestamp, rowIterator, quantity, price):

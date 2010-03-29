@@ -120,7 +120,7 @@ class StrategyData:
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock   
         '''
-        rows = getStocks(startTime, endTime, ticker)
+        rows = self.getStocks(startTime, endTime, ticker)
         result = []
         if(description==None):
             for row in rows:
@@ -137,7 +137,7 @@ class StrategyData:
 def methodTest():
     strat = StrategyData('models/PriceTestData.h5')
     print strat.getStocks(startTime=0, ticker='KO')
-methodTest()
+#methodTest()
     
 def classTest():
     '''
