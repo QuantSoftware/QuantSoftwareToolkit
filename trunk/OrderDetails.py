@@ -1,4 +1,4 @@
-class OrderDetails:
+class OrderDetail:
     """
     This is simply a holder class to easily pass all necessary order information between methods
     This could also be easily implemented as a type rather than a class
