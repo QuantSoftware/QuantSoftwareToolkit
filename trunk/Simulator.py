@@ -16,6 +16,7 @@ class Simulator():
         self.interval = interval
         self.minCom = minCom
         self.comPerShare = comPerShare
+        self.timeStampIndex = 0
         
         self.times =  [] # eventual list for timestamps
         
@@ -25,28 +26,20 @@ class Simulator():
         self.strategyData = StrategyData.StrategyData('models/PriceTestData.h5')   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
     
     def addTimeStamps(self):
-        #Not sure how to iterate through all stock data - probably not indexing correctly
         temp = []
         for i in self.strategyData.strategyData.iterrows():
             if i['data/timestamp'] not in temp:
                 temp.append(i['data/timestamp'])
         temp.sort()
-        #for i in range(len(self.strategyData)): # Read through all stock data
-        #    if self.strategyData[i].timestamp not in temp:
-        #        temp.append(self.strategyData[i].timestamp) # add unique timestamps to list
         return temp
     
     def calcCommission(self, volume):
         return max(minCom,volume * self.comPerShare)
     
-    # NOTE : I am somewhat unclear on exactly everything is stored/how to access the data
     def getExecutionTimestamp(self):
-        #Ideally, we trade as soon as we can
-        idealTime = self.currTimestamp + self.interval
-        if idealTime < (self.strategyData.strategyData['data/when_available']): # We don't have the data yet
-            idealTime = self.strategyData.strategyData['data/when_available'] + self.interval # Wait til available and go at next interval
+        idealTime = self.times[self.timeStampIndex + 1]
         return idealTime
-    
+        
     def buyStock(self, newOrder):
         '''
         function takes in an instance of OrderDetails, executes the changes to the portfolio and adds the order to the order table
@@ -298,6 +291,7 @@ class Simulator():
             if noisy:
                 print "Strategy at %d completed successfully." % self.currTimestamp
             self.currTimestamp += self.interval
+            self.timeStampIndex += 1
         if noisy:
             print "Simulation complete."
         self.close()
