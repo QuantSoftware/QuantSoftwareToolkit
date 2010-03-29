@@ -27,3 +27,6 @@ def classTest():
         print row['positions/symbol'] #note the way to access an item in the nested table
     print table[:] #note, alternate way to print
     h5f.close()
+
+
+#classTest()

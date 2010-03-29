@@ -1,4 +1,4 @@
-import models.StockPriceModel, tables as pt
+import models.StrategyDataModel, tables as pt
 #WARNING DATA MODEL IS CHANGING METHODS WILL NEED TO BE MODIFIED
 '''
 Based on the model:
@@ -23,10 +23,12 @@ class StockPriceModel(pt.IsDescription):
 class StrategyData:
     def __init__(self,dataFile = None):
         if dataFile == None:
-            self.stockPriceFile = pt.openFile('StockPriceModel.h5', mode = "w")
-            self.stockPrice = stockPriceFile.createTable('/', 'stockPrice', StockPriceModel)
+            self.strategyDataFile = pt.openFile('StrategyDataModel.h5', mode = "w")
+            self.strategyData = self.strategyDataFile.createTable('/', 'strategyData', StrategyDataModel)
         else:
-            self.stockPriceFile = dataFile
+            self.strategyDataFile = pt.openFile(dataFile, mode = "r")
+            self.strategyData = self.strategyDataFile.root.tester.testTable
+        
 
     
     def getStocks(self, startTime=None, endTime=None, ticker=None):
@@ -52,11 +54,11 @@ class StrategyData:
             else:
                 str+='symbol==' +'"'+ticker+'"'
         if(str == ''):
-            result = self.stockPrice.iterrows()              
+            result = self.strategyData.iterrows()              
         else:
             #pytables throws an error if there are no results
             try:
-                result = self.stockPrice.where(str)
+                result = self.strategyData.where(str)
             except: 
                 result = []
         return result
@@ -72,7 +74,7 @@ class StrategyData:
         st='timestamp==%i'%timestamp
         st+=' and symbol==' +'"'+ticker+'"'
         try:
-            row = self.stockPrice.where(st)
+            row = self.strategyData.where(st)
             result = row['data/%s'%description]
         except:
             result = None
@@ -97,7 +99,7 @@ class StrategyData:
         return result
     
     def close(self):
-        self.stockPriceFile.close()
+        self.strategyDataFile.close()
  
     
 def classTest():
