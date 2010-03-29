@@ -22,7 +22,7 @@ class Simulator():
         self.portfolio = Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
         self.position = Position()   #positionFile.createTable('/', 'position', self.PositionModel)
         self.order = Order()   #orderFile.createTable('/', 'order', self.OrderModel)
-        self.strategyData = StrategyData()   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
+        self.strategyData = StrategyData('models/PriceTestData.h5')   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
     
     def addTimeStamps(self):
         #Not sure how to iterate through all stock data - probably not indexing correctly
@@ -296,6 +296,7 @@ class Simulator():
             self.currTimestamp += self.timeStep
         if noisy:
             print "Simulation complete."
+        self.close()
         
     def close(self):
         self.portfolioFile.close()
@@ -328,7 +329,8 @@ def main():
         stratName = args[2]
     else:
         stratName = "strategyMain"
-    
+    #print sys.path
+    open(configFile,'r')
     for fileName in ["default.ini",configFile]:
         thisFile = open(fileName,'r')
         for line in thisFile.readlines():

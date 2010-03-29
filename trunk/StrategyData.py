@@ -2,24 +2,25 @@ import models.StockPriceModel, tables as pt
 #WARNING DATA MODEL IS CHANGING METHODS WILL NEED TO BE MODIFIED
 '''
 Based on the model:
-PriceData:
+class PriceData(pt.IsDescription):
     adj_high = pt.Float32Col()
     adj_low = pt.Float32Col()
     adj_open = pt.Float32Col()
     adj_close = pt.Float32Col()
     close = pt.Float32Col()
     volume = pt.Int32Col()
-    
-StockPriceModel:
-    symbol = pt.StringCol(4)           #4 char string; Ticker
-    exchange = pt.StringCol(10)         #10 char string; NYSE or NASDAQ
     timestamp = pt.Time64Col()         #timestamp of price
     when_available = pt.Time64Col()    #time when data is available to simulator
-    interval = pt.Time64Col()          #interval since previous data point
-    data = PriceData()     
+    interval = pt.Time64Col()          #market close time - market open time
+    
+class StockPriceModel(pt.IsDescription):
+    symbol = pt.StringCol(30)           #30 char string; Ticker
+    exchange = pt.StringCol(10)         #10 char string; NYSE, NASDAQ, etc.
+    data = PriceData()                  #creates a nested table for PriceData (see above)
+  
 '''
 
-class StockPrice:
+class StrategyData:
     def __init__(self,dataFile = None):
         if dataFile == None:
             self.stockPriceFile = pt.openFile('StockPriceModel.h5', mode = "w")
@@ -39,12 +40,12 @@ class StockPrice:
         '''
         str = ''
         if(startTime!=None):
-            str+='timestamp>=%i'%startTime
+            str+='data/timestamp>=%i'%startTime
         if(endTime!=None):
             if(str!= ''):
-                str+=' and timestamp<=%i'%endTime
+                str+=' and data/timestamp<=%i'%endTime
             else:
-                str+='timestamp<=%i'%endTime
+                str+='data/timestamp<=%i'%endTime
         if(ticker!=None):          
             if(str!= ''):
                 str+=' and symbol==' +'"'+ticker+'"'
@@ -68,10 +69,10 @@ class StockPrice:
         description: the field from data that is desired IE. adj_high
         NOTE: If the data is incorrect or invalid, the function will return None    
         '''
-        str='timestamp==%i'%timestamp
-        str+=' and symbol==' +'"'+ticker+'"'
+        st='timestamp==%i'%timestamp
+        st+=' and symbol==' +'"'+ticker+'"'
         try:
-            row = self.stockPricewhere(str)
+            row = self.stockPrice.where(st)
             result = row['data/%s'%description]
         except:
             result = None
