@@ -43,8 +43,8 @@ class Simulator():
     def getExecutionTimestamp(self):
         #Ideally, we trade as soon as we can
         idealTime = self.currTimestamp + self.interval
-        if idealTime < (self.strategyData.data.when_available): # We don't have the data yet
-            idealTime = self.strategyData.data.when_available + self.interval # Wait til available and go at next interval
+        if idealTime < (self.strategyData.strategyData['data/when_available']): # We don't have the data yet
+            idealTime = self.strategyData.strategyData['data/when_available'] + self.interval # Wait til available and go at next interval
         return idealTime
     
     def buyStock(self, newOrder):
