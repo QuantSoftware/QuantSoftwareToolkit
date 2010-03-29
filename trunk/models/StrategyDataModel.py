@@ -17,6 +17,43 @@ class StockPriceModel(pt.IsDescription):
     exchange = pt.StringCol(10)         #10 char string; NYSE, NASDAQ, etc.
     data = PriceData()                  #creates a nested table for PriceData (see above)
  
+
+def generateDataFile():
+    import random
+    random.seed(1)    
+    #86400 seconds in a day
+    stocks = ['KO','AAPL','GOOG','MSFT']
+    
+    h5f = pt.openFile('PriceTestData.h5', mode = "w")
+    group = h5f.createGroup("/", 'tester')
+    table = h5f.createTable(group, 'testTable', StockPriceModel)
+    row = table.row
+
+    for i in range(100,200):
+        for stock in stocks:
+            adjOpen = random.random() * random.randint(1,100)   
+            adjClose = random.random() * random.randint(1,100) 
+            row['exchange'] = 'NYSE'
+            row['symbol'] = stock
+            row['data/adj_open'] = adjOpen 
+            row['data/adj_close'] = adjClose
+            row['data/adj_high'] = max(adjOpen,adjClose) * random.randint(1,5)
+            row['data/adj_low'] = min(adjOpen,adjClose) / random.randint(1,5)
+            row['data/close'] = adjClose
+            row['data/volume'] = random.randint(1000,10000)
+            row['data/timestamp'] = i*86400
+            row['data/when_available'] = i*86400
+            row['data/interval'] = 86400            
+            row.append()
+            table.flush()
+    h5f.close()
+#generateDataFile()
+def showData():
+    h5f = pt.openFile('PriceTestData.h5', mode = "r")
+    table = h5f.root.tester.testTable
+        
+    for row in table.iterrows():
+        print row
     
 def classTest():        
     #populate data file

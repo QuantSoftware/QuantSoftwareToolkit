@@ -46,4 +46,4 @@ def classTest():
         print row['shares'], row['symbol'], row['order_type'],\
         row['duration'], row['timestamp'], row['close_type']
     h5f.close()
-classTest()
+#classTest()
