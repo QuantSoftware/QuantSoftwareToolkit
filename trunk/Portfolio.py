@@ -49,9 +49,9 @@ class Portfolio:
         Returns a boolean of whether or not the appropriate amount of the given stock
         exist in the portfolio.
         """
-        if not order['symbol'] in self.currStocks:
+        if not symbol in self.currStocks:
             return False
-        return self.currStocks[order['symbol']] >= volume
+        return self.currStocks[symbol] >= volume
     
     def close(self):
         self.portfolioFile.close()
