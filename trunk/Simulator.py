@@ -282,6 +282,7 @@ class Simulator():
                 else:
                     print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
                     #print newOrder
+        count = 0
         for order in self.order.order.iterrows():
             if order['duration'] + order['timestamp'] <= self.currTimestamp:
                 if order['fill/timestamp'] == 0:
@@ -291,9 +292,10 @@ class Simulator():
                         result = self.buyStock(order,new=False)
                         if noisy:
                             if result:
-                                print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                                print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp,count)
                             else:
-                                print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                                print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp,count)
+                        count += 1
                     else:
                         result = self.sellStock(order)
                         if noisy:
