@@ -14,20 +14,32 @@ def classTest():
     table = h5f.createTable(group, 'testTable', PositionModel)
     row = table.row
     for i in range(10):
-        row['timestamp'] = 1000
-        row['symbol'] = "KO"
+        row['timestamp'] = 1000*i
+        row['symbol'] = "KO%s"%i
         row['shares'] = 100
         row['open_price'] = 25
         row.append()
+    table.flush()
+    lst = []  
+    for row in table.iterrows():
+        dct = {}  
+        print row
+        dct['timestamp'] = row['timestamp']
+        dct['symbol'] = row['symbol']
+        dct['shares'] = row['shares']
+        dct['open_price'] = row['open_price']
+        lst.append(dct)        
     h5f.close()
+    print lst
+    print lst[0]['timestamp']
     
     h5f = pt.openFile('PositionTest.h5', mode = "r")
     table = h5f.root.tester.testTable
-    for row in table.iterrows():
-        print row['timestamp'], row['symbol'], row['shares'], row['open_price']  
-    result = [ row['timestamp'] for row in table 
-              if row['symbol'] == 'KO' and row['shares']==100 ] 
-    print result
+    #for row in table.iterrows():
+    #    print row['timestamp'], row['symbol'], row['shares'], row['open_price']  
+    #result = [ row['timestamp'] for row in table 
+    #          if row['symbol'] == 'KO' and row['shares']==100 ] 
+    #print result
     #for row in table.where('(symbol=="%s"%ticker) and shares==100',ticker):
     #   print row['timestamp'],
     #note the where clause, the condition is in quotes
