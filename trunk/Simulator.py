@@ -310,7 +310,7 @@ class Simulator():
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
             self.execute(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
             if noisy:
-                print "Strategy at %d completed successfully." % self.currTimestamp
+                print "\nStrategy at %d completed successfully.\n\n" % self.currTimestamp
             self.currTimestamp += self.interval
             self.timeStampIndex += 1
         if noisy:
