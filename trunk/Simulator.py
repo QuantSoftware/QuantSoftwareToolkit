@@ -64,7 +64,7 @@ class Simulator():
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
         if newOrder['order_type'] == 'moo':
             #market order open
-            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_open')
+            price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
             if(cost>self.portfolio.currCash):
                 #Not enough cash to buy stock
@@ -174,58 +174,58 @@ class Simulator():
         #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
             
-        if newOrder.order_type == 'moo':
+        if newOrder['order_type'] == 'moo':
             #market order open
-            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_open')
-            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
-            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
+            profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+            if(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                 #Not enough shares owned to sell requested amount
                 return None
             #__execute trade__
             #populate fill field in order
-            newOrder.fill.timestamp = ts
-            newOrder.fill.quantity = newOrder.shares
-            newOrder.fill.cashChange = profit
-            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            newOrder['fill/timestamp'] = ts
+            newOrder['fill/quantity'] = newOrder['shares']
+            newOrder['fill/cashChange'] = profit
+            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
             
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
-        elif newOrder.order_type == 'moc':
+        elif newOrder['order_type'] == 'moc':
             #market order close
-            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_close')
-            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
-            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+            price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
+            profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+            if(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                 #Not enough shares owned to sell requested amount
                 return None
             #__execute trade__
             #populate fill field in order
-            newOrder.fill.timestamp = ts
-            newOrder.fill.quantity = newOrder.shares
-            newOrder.fill.cashChange = profit
-            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            newOrder['fill/timestamp'] = ts
+            newOrder['fill/quantity'] = newOrder['shares']
+            newOrder['fill/cashChange'] = profit
+            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
             
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
-        elif newOrder.order_type == 'limit':
+        elif newOrder['order_type'] == 'limit':
             #limit order
-            price = newOrder.limit_price
-            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
-            if ((newOrder.limit_price > strategyData.getPrice(ts, newOrder.symbol, 'adj_high')) or ( newOrder.limit_price < strategyData.getPrice(ts, newOrder.symbol, 'adj_low'))):
+            price = newOrder['limit_price']
+            profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+            if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                 #limit price outside of daily range
                 return None
-            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+            if(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                 #Not enough shares owned to sell requested amount
                 return None
             #__execute trade__
             #populate fill field in order
-            newOrder.fill.timestamp = ts
-            newOrder.fill.quantity = newOrder.shares
-            newOrder.fill.cashChange = profit
-            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            newOrder['fill/timestamp'] = ts
+            newOrder['fill/quantity'] = newOrder['shares']
+            newOrder['fill/cashChange'] = profit
+            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
@@ -233,21 +233,21 @@ class Simulator():
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'vwap':
             #volume weighted average price
-            price = strategyData.getPrice(ts, newOrder.symbol, 'adj_open')
-            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_close')
-            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_high')
-            price += strategyData.getPrice(ts, newOrder.symbol, 'adj_low')
+            price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
+            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
+            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
+            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
             price = price / 4.
-            profit = newOrder.shares * price - self.calcCommission(newOrder.shares)
-            if(self.portfolio.hasStock(newOrder.symbol,newOrder.shares)):
+            profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+            if(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                 #Not enough shares owned to sell requested amount
                 return None
             #__execute trade__
             #populate fill field in order
-            newOrder.fill.timestamp = ts
-            newOrder.fill.quantity = newOrder.shares
-            newOrder.fill.cashChange = profit
-            newOrder.fill.commission = self.calcCommission(newOrder.shares)
+            newOrder['fill/timestamp'] = ts
+            newOrder['fill/quantity'] = newOrder['shares']
+            newOrder['fill/cashChange'] = profit
+            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
@@ -262,30 +262,6 @@ class Simulator():
         # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
         # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
         # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
-        for sellStock in commands[0]:
-            if len(sellStock) == 6:
-                newOrder = self.order.addOrder(self.currTimestamp,sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
-            else:
-                newOrder = self.order.addOrder(self.currTimestamp,sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])            
-            result = self.sellStock(newOrder)
-            if noisy:
-                if result:
-                    print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
-                else:
-                    print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],sellStock[2],sellStock[3]+self.currTimestamp,self.currTimestamp)
-        
-        for buyStock in commands[1]:
-            if len(buyStock) == 6:
-                newOrder = self.order.addOrder(self.currTimestamp,buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4],buyStock[5])
-            else:
-                newOrder = self.order.addOrder(self.currTimestamp,buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])            
-            result = self.buyStock(newOrder)
-            if noisy:
-                if result:
-                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
-                else:
-                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
-                    #print newOrder
         count = 0
         for order in self.order.order.iterrows():
             #print "order time of expiration:", order['duration'] + order['timestamp']
@@ -310,6 +286,32 @@ class Simulator():
                             else:
                                 print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
             count += 1
+        
+        for sellStock in commands[0]:
+            if len(sellStock) == 6:
+                newOrder = self.order.addOrder(self.currTimestamp,sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
+            else:
+                newOrder = self.order.addOrder(self.currTimestamp,sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])            
+            result = self.sellStock(newOrder)
+            if noisy:
+                if result:
+                    print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
+                else:
+                    print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],sellStock[2],sellStock[3]+self.currTimestamp,self.currTimestamp)
+        
+        for buyStock in commands[1]:
+            if len(buyStock) == 6:
+                newOrder = self.order.addOrder(self.currTimestamp,buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4],buyStock[5])
+            else:
+                newOrder = self.order.addOrder(self.currTimestamp,buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])            
+            result = self.buyStock(newOrder)
+            if noisy:
+                if result:
+                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
+                else:
+                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
+                    #print newOrder
+        
                                   
     def run(self):
         self.currTimestamp = self.startTime

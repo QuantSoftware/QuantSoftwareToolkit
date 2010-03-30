@@ -71,7 +71,7 @@ class StrategyData:
     def getStocks(self, startTime=None, endTime=None, ticker=None):
         '''
         Returns iterable pytables row objects based on the given parameters
-        Can be called independantly or used as part of the getPrices function
+        Can be called independently or used as part of the getPrices function
         description: the field from data that is desired IE. adj_high
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
