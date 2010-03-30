@@ -13,8 +13,9 @@ import random
 def myStrategy(portfolio,timestamp,stockInfo):
     sellData = []
     buyData = []
-    #print stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp)
+    print stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp)
     for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp):
+        #print stock
         if stock['data/adj_open'] < stock['data/adj_close'] and (stock['data/adj_high'] - stock['data/adj_close']) > (stock['data/adj_open'] - stock['data/adj_close']):
             buyData.append((stock['data/volume']/2,stock['symbol'],'moc',172800,'none'))
     for stock in portfolio.currStocks:
