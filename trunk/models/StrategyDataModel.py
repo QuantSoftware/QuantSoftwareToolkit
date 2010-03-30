@@ -51,10 +51,12 @@ def generateDataFile():
 def showData():
     h5f = pt.openFile('PriceTestData.h5', mode = "r")
     table = h5f.root.tester.testTable
-        
+    i = 0    
     for row in table.iterrows():
-        print row
-    
+        if i<10:
+            print row['data/adj_close']
+        i+=1
+        
 def classTest():        
     #populate data file
     h5f = pt.openFile('StockPriceTest.h5', mode = "w")

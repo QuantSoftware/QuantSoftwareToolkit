@@ -118,13 +118,10 @@ class StrategyData:
         description: the field from data that is desired IE. adj_high
         NOTE: If the data is incorrect or invalid, the function will return None    
         '''
-        st='timestamp==%i'%timestamp
-        st+=' and symbol==' +'"'+ticker+'"'
-        try:
-            row = self.strategyData.where(st)
-            result = row['data/%s'%description]
-        except:
-            result = None
+        st= 'symbol==' +'"'+ticker+'"'
+        for row in self.strategyData.where(st):
+            if row['data/timestamp']==timestamp:
+                result = row['data/%s'%description]
         return result
         
     def getPrices(self, startTime=None, endTime=None, ticker=None, description=None):
