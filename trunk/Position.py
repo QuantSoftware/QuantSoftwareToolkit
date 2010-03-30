@@ -30,42 +30,53 @@ class Position:
         Removes/modifies positions until the total number of shares have been removed
         NOTE: Method assumes that verification of valid sell has already been completed
         '''
-        rowsIter = self.position.where("symbol==%s"%symbol)
         rows = []
-        for row in rowsIter:
-            rows.append(row)
+        for row in self.position.where("symbol==%s"%symbol):
+            rows.append(self.cloneRow(row))
         if(closeType=='fifo'):
-            i = 0            
-            while(shares>0):
+            i = 0
+            row = rows[i]
+            posShares = row['shares']            
+            while(shares>posShares):
+                shares-=posShares
+                i+=1
                 row = rows[i]
-                posShares = row.shares
-                if(posShares>shares):
-                    newShares = posShares-shares
-                    row.shares = newShares
-                    row.update()
-                else:
-                    shares-=posShares
-                    i+=1
+                posShares = row['shares']
             self.position.removeRows(0,i)
+            self.position.flush()
+            for row in self.position.iterrows(0,1):
+                newShares = posShares-shares
+                row['shares'] = newShares
+                row.update()
             self.position.flush()
                 
         elif(closeType=='lifo'):
             i = len(rows)-1
-            while(shares>0):
+            row = rows[i]
+            posShares = row['shares']            
+            while(shares>posShares):
+                shares-=posShares
+                i-=1
                 row = rows[i]
-                posShares = row.shares
-                if(posShares>shares):
-                    newShares = posShares-shares
-                    row.shares = newShares
-                    row.update()
-                else:
-                    shares-=posShares
-                    i-=1
+                posShares = row['shares']
             self.position.removeRows(i+1,len(rows))
+            self.position.flush()
+            for row in self.position.iterrows(i,i+1):
+                newShares = posShares-shares
+                row['shares'] = newShares
+                row.update()
             self.position.flush()
         else:
             #invalid type
             raise TypeError("Not an existing close type '%s'." % str(newOrder.order_type))
+  
+    def cloneRow(self,row):
+        dct = {}  
+        dct['timestamp'] = row['timestamp']
+        dct['symbol'] = row['symbol']
+        dct['shares'] = row['shares']
+        dct['open_price'] = row['open_price']     
+        return dct
     
     def close(self):
         self.positionFile.close()
