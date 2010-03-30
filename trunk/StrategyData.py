@@ -53,6 +53,21 @@ class StrategyData:
         temp.sort()
         return temp
     
+    def cloneRow(self,row):
+        dct = {}  
+        dct['symbol'] = row['symbol']
+        dct['exchange'] = row['exchange']
+        dct['data/adj_high'] = row['data/adj_high']
+        dct['data/adj_low'] = row['data/adj_low']
+        dct['data/adj_open'] = row['data/adj_open']
+        dct['data/adj_close'] = row['data/adj_close']
+        dct['data/close'] = row['data/close']
+        dct['data/volume'] = row['data/volume']
+        dct['data/timestamp'] = row['data/timestamp']
+        dct['data/when_available'] = row['data/when_available']
+        dct['data/interval'] = row['data/interval']            
+        return dct
+    
     def getStocks(self, startTime=None, endTime=None, ticker=None):
         '''
         Returns iterable pytables row objects based on the given parameters
@@ -71,28 +86,28 @@ class StrategyData:
             for row in self.strategyData.where('symbol=="%s"'%ticker):
                 if(startTime!=None and endTime!=None):
                     if(row['data/timestamp']>=startTime and row['data/timestamp']<=endTime):
-                        tempList.append(row)
+                        tempList.append(self.cloneRow(row))
                 elif(startTime!=None):
                     if(row['data/timestamp']>=startTime):
-                        tempList.append(row)
+                        tempList.append(self.cloneRow(row))
                 elif(endTime!=None):
                     if(row['data/timestamp']<=endTime):
-                        tempList.append(row)
+                        tempList.append(self.cloneRow(row))
                 else: #no time given
-                    tempList.append(row)    
+                    tempList.append(self.cloneRow(row))    
         else:
             for row in self.strategyData.iterrows():
                 if(startTime!=None and endTime!=None):
                     if(row['data/timestamp']>=startTime and row['data/timestamp']<=endTime):
-                        tempList.append(row)
+                        tempList.append(self.cloneRow(row))
                 elif(startTime!=None):
                     if(row['data/timestamp']>=startTime):
-                        tempList.append(row)
+                        tempList.append(self.cloneRow(row))
                 elif(endTime!=None):
                     if(row['data/timestamp']<=endTime):
-                        tempList.append(row)
+                        tempList.append(self.cloneRow(row))
                 else: #no time given
-                    tempList.append(row)                    
+                    tempList.append(self.cloneRow(row))                    
         return tempList
     
     def getPrice(self, timestamp, ticker, description):
