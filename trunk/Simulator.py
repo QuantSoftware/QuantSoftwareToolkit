@@ -3,7 +3,6 @@ import tables as pt
 from optparse import OptionParser
 import sys, time
 import Portfolio, Position, Order, StrategyData
-from OrderDetails import OrderDetail as OrderDetails
 
 
 class Simulator():
@@ -37,7 +36,9 @@ class Simulator():
         return max(minCom,volume * self.comPerShare)
     
     def getExecutionTimestamp(self):
-        idealTime = self.times[self.timeStampIndex + 1]
+        while self.times[self.timeStampIndex]<=self.currTimestamp:
+            self.timeStampIndex += 1
+        idealTime = self.times[self.timeStampIndex]
         return idealTime
         
     def buyStock(self, newOrder,new = True):
@@ -85,7 +86,9 @@ class Simulator():
             #market order close
             price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
             cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
+            print self.portfolio.currCash, self.calcCommission(newOrder['shares']), cost
             if(cost>self.portfolio.currCash):
+                #print newOrder
                 #Not enough cash to buy stock
                 if new:
                     newOrder.append()
@@ -98,6 +101,7 @@ class Simulator():
             newOrder['fill/cashChange'] = -price
             newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
             #add trade to portfolio
+            #print newOrder
             self.portfolio.buyTransaction(newOrder)
             #add position
             self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
@@ -284,7 +288,10 @@ class Simulator():
                     #print newOrder
         count = 0
         for order in self.order.order.iterrows():
-            if order['duration'] + order['timestamp'] <= self.currTimestamp:
+            #print "order time of expiration:", order['duration'] + order['timestamp']
+            #print "currTimestamp:", self.currTimestamp
+            if (order['duration'] + order['timestamp']) >= self.currTimestamp:
+                #print order['fill']
                 if order['fill/timestamp'] == 0:
                     #Have unfilled, valid orders
                     if order['close_type'].upper() == "NONE":
@@ -295,7 +302,6 @@ class Simulator():
                                 print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp,count)
                             else:
                                 print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp,count)
-                        count += 1
                     else:
                         result = self.sellStock(order)
                         if noisy:
@@ -303,7 +309,7 @@ class Simulator():
                                 print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
                             else:
                                 print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
-                                
+            count += 1
                                   
     def run(self):
         self.currTimestamp = self.startTime
@@ -312,7 +318,6 @@ class Simulator():
             if noisy:
                 print "\nStrategy at %d completed successfully.\n\n" % self.currTimestamp
             self.currTimestamp += self.interval
-            self.timeStampIndex += 1
         if noisy:
             print "Simulation complete."
         self.close()
