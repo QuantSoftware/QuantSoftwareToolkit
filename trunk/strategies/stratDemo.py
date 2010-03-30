@@ -21,5 +21,6 @@ def myStrategy(portfolio,timestamp,stockInfo):
     for stock in portfolio.currStocks:
         if (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low')[0]) > (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open')[0]):
             sellData.append((portfolio.currStocks[stock]/2,stock,'moo',172800,'fifo'))
+            #print portfolio.currStocks[stock]
     return (sellData,buyData)
     
