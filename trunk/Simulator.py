@@ -193,7 +193,7 @@ class Simulator():
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
-            
+            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'moc':
             #market order close
@@ -214,7 +214,7 @@ class Simulator():
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
-            
+            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'limit':
             #limit order
@@ -241,7 +241,7 @@ class Simulator():
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
-            
+            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'vwap':
             #volume weighted average price
@@ -266,7 +266,7 @@ class Simulator():
             #add trade to portfolio
             self.portfolio.sellTransaction(newOrder)
             #remove positions according to lifo/fifo
-            
+            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
             #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         else:
             #throw invalid type error
