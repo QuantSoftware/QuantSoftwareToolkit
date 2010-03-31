@@ -15,7 +15,6 @@ class Position:
         self.position = self.positionFile.createTable('/', 'position', PositionModel)
 
     def addPosition(self,timestamp,symbol,shares,open_price):
-        print 'RUNNING ADD POS'
         row = self.position.row
         row['timestamp'] = timestamp
         row['symbol'] = symbol 
@@ -32,14 +31,20 @@ class Position:
         Removes/modifies positions until the total number of shares have been removed
         NOTE: Method assumes that verification of valid sell has already been completed
         '''
+        rowIndexes = []
         rows = []
-        print 'REMOVING POSITIONS'
-        for row in self.position.iterrows():
-            print 'ROW:', row
-        for row in self.position.where("symbol==%s"%symbol):
-            print row
+        debug = 0
+        if debug:
+            print 'REMOVING POSITIONS'
+            print 'REMOVE:',symbol,shares,closeType
+            for row in self.position.iterrows():
+                print 'CURRROWS:', row
+        for row in self.position.where("symbol=='%s'"%symbol):
+            print 'SELEROWS:', row if debug else ''   
             rows.append(self.cloneRow(row))
+            rowIndexes.append(row.nrow)
         if(closeType=='fifo'):
+            print 'FIFO', row if debug else ''
             i = 0
             row = rows[i]
             posShares = row['shares']            
@@ -48,29 +53,47 @@ class Position:
                 i+=1
                 row = rows[i]
                 posShares = row['shares']
-            self.position.removeRows(0,i)
-            self.position.flush()
-            for row in self.position.iterrows(0,1):
-                newShares = posShares-shares
-                row['shares'] = newShares
-                row.update()
+            cnt=0
+            while cnt<i:                
+                self.position.removeRows(rowIndexes[cnt]-cnt,rowIndexes[cnt]-cnt+1)
+                self.position.flush()
+                cnt+=1
+                print 'ROWREMOVED', row if debug else ''
+            cnt=0
+            for newRow in self.position.where('(symbol=="%s") & (timestamp==%i)'%(symbol,row['timestamp'])):
+                if(cnt==0):
+                    newShares = posShares-shares
+                    newRow['shares'] = newShares
+                    newRow.update()
+                    print 'UPDATEDROW(FIFO):', newRow if debug else ''
+                cnt+=1
             self.position.flush()
                 
         elif(closeType=='lifo'):
             i = len(rows)-1
             row = rows[i]
-            posShares = row['shares']            
+            posShares = row['shares']        
             while(shares>posShares):
                 shares-=posShares
                 i-=1
                 row = rows[i]
                 posShares = row['shares']
-            self.position.removeRows(i+1,len(rows))
-            self.position.flush()
-            for row in self.position.iterrows(i,i+1):
-                newShares = posShares-shares
-                row['shares'] = newShares
-                row.update()
+            cnt=0
+            i+=1
+            while i<len(rows)-1:
+                self.position.removeRows(rowIndexes[i]-cnt,rowIndexes[i]-cnt+1)
+                self.position.flush()
+                i+=1
+                cnt+=1
+                print 'ROWREMOVED', row if debug else ''
+            cnt=0
+            for newRow in self.position.where('(symbol=="%s") & (timestamp==%i)'%(symbol,row['timestamp'])):
+                if(cnt==0):
+                    newShares = posShares-shares
+                    newRow['shares'] = newShares
+                    newRow.update()
+                    print 'UPDATEDROW(LIFO):', newRow if debug else ''
+                cnt+=1
             self.position.flush()
         else:
             #invalid type

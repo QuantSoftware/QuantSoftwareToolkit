@@ -5,7 +5,7 @@ class PositionModel(pt.IsDescription):
     timestamp = pt.Time64Col()
     symbol = pt.StringCol(4) 
     shares = pt.Int32Col()
-    open_price = pt.Int32Col()
+    open_price = pt.Float32Col()
     
         
 def classTest():        
