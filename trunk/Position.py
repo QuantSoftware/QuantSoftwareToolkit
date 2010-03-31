@@ -15,12 +15,14 @@ class Position:
         self.position = self.positionFile.createTable('/', 'position', PositionModel)
 
     def addPosition(self,timestamp,symbol,shares,open_price):
+        print 'RUNNING ADD POS'
         row = self.position.row
         row['timestamp'] = timestamp
         row['symbol'] = symbol 
         row['shares'] = shares
         row['open_price'] = open_price
-        row.append()     
+        row.append()
+        self.position.flush()
     
     def removePosition(self, symbol, shares, closeType):
         '''
@@ -31,7 +33,11 @@ class Position:
         NOTE: Method assumes that verification of valid sell has already been completed
         '''
         rows = []
+        print 'REMOVING POSITIONS'
+        for row in self.position.iterrows():
+            print 'ROW:', row
         for row in self.position.where("symbol==%s"%symbol):
+            print row
             rows.append(self.cloneRow(row))
         if(closeType=='fifo'):
             i = 0
