@@ -40,11 +40,13 @@ class Position:
             for row in self.position.iterrows():
                 print 'CURRROWS:', row
         for row in self.position.where("symbol=='%s'"%symbol):
-            print 'SELEROWS:', row if debug else ''   
+            if debug:
+                print 'SELEROWS:', row  
             rows.append(self.cloneRow(row))
             rowIndexes.append(row.nrow)
         if(closeType=='fifo'):
-            print 'FIFO', row if debug else ''
+            if debug:
+                print 'FIFO', row
             i = 0
             row = rows[i]
             posShares = row['shares']            
@@ -58,14 +60,16 @@ class Position:
                 self.position.removeRows(rowIndexes[cnt]-cnt,rowIndexes[cnt]-cnt+1)
                 self.position.flush()
                 cnt+=1
-                print 'ROWREMOVED', row if debug else ''
+                if debug:
+                    print 'ROWREMOVED', row
             cnt=0
             for newRow in self.position.where('(symbol=="%s") & (timestamp==%i)'%(symbol,row['timestamp'])):
                 if(cnt==0):
                     newShares = posShares-shares
                     newRow['shares'] = newShares
                     newRow.update()
-                    print 'UPDATEDROW(FIFO):', newRow if debug else ''
+                    if debug:
+                        print 'UPDATEDROW(FIFO):', newRow
                 cnt+=1
             self.position.flush()
                 
@@ -85,14 +89,16 @@ class Position:
                 self.position.flush()
                 i+=1
                 cnt+=1
-                print 'ROWREMOVED', row if debug else ''
+                if debug:
+                    print 'ROWREMOVED', row
             cnt=0
             for newRow in self.position.where('(symbol=="%s") & (timestamp==%i)'%(symbol,row['timestamp'])):
                 if(cnt==0):
                     newShares = posShares-shares
                     newRow['shares'] = newShares
                     newRow.update()
-                    print 'UPDATEDROW(LIFO):', newRow if debug else ''
+                    if debug:
+                        print 'UPDATEDROW(LIFO):', newRow
                 cnt+=1
             self.position.flush()
         else:
