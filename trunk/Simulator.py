@@ -26,9 +26,20 @@ class Simulator():
     
     def addTimeStamps(self):
         temp = []
+
+        if timersActive:
+            print 'Generating valid timestamps'
+            cnt = 0
+            cycTime = time.time()
         for i in self.strategyData.strategyData.iterrows():
             if i['data/timestamp'] not in temp:
                 temp.append(i['data/timestamp'])
+            if timersActive:
+                if(cnt%1000000==0):
+                    print '%i rows finished: %i secs elapsed'%(cnt,time.time()-cycTime)
+                cnt+=1
+        if timersActive:
+            print 'all rows added: %i secs elapsed'%(time.time()-cycTime)        
         temp.sort()
         return temp
     
@@ -65,96 +76,112 @@ class Simulator():
         if newOrder['order_type'] == 'moo':
             #market order open
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
-            cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
-            if(cost>self.portfolio.currCash):
-                #Not enough cash to buy stock
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = -price
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            self.portfolio.buyTransaction(newOrder)
-            #add position
-            self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
+                if(cost>self.portfolio.currCash):
+                    #Not enough cash to buy stock
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = -price
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
+                self.portfolio.buyTransaction(newOrder)
+                #add position
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
         elif newOrder['order_type'] == 'moc':
             #market order close
             price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
-            cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
-            print self.portfolio.currCash, self.calcCommission(newOrder['shares']), cost
-            if(cost>self.portfolio.currCash):
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
+                #print self.portfolio.currCash, self.calcCommission(newOrder['shares']), cost
+                if(cost>self.portfolio.currCash):
+                    #print newOrder
+                    #Not enough cash to buy stock
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = -price
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
                 #print newOrder
-                #Not enough cash to buy stock
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = -price
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            #print newOrder
-            self.portfolio.buyTransaction(newOrder)
-            #add position
-            self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+                self.portfolio.buyTransaction(newOrder)
+                #add position
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
         elif newOrder['order_type'] == 'limit':
             #limit order
             price = newOrder['limit_price']
-            cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
-            if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
-                #limit price outside of daily range
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            if(cost>self.portfolio.currCash):
-                #Not enough cash to buy stock
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = -price
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            self.portfolio.buyTransaction(newOrder)
-            #add position
-            self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
+                if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
+                    #limit price outside of daily range
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                if(cost>self.portfolio.currCash):
+                    #Not enough cash to buy stock
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = -price
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
+                self.portfolio.buyTransaction(newOrder)
+                #add position
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
         elif newOrder['order_type'] == 'vwap':
             #volume weighted average price
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
-            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
-            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
-            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
-            price = price / 4.
-            cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
-            if(cost>self.portfolio.currCash):
-                #Not enough cash to buy stock
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = -price
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            self.portfolio.buyTransaction(newOrder) 
-            #add position
-            self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
+                price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
+                price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
+                price = price / 4.
+                cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
+                if(cost>self.portfolio.currCash):
+                    #Not enough cash to buy stock
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = -price
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
+                self.portfolio.buyTransaction(newOrder) 
+                #add position
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
         else:
             #throw invalid type error
             #print type(newOrder)
@@ -177,97 +204,113 @@ class Simulator():
         if newOrder['order_type'] == 'moo':
             #market order open
             price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
-            # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
-            if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])): # NEW
-                #Not enough shares owned to sell requested amount
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = price #NEW
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            self.portfolio.sellTransaction(newOrder)
-            #remove positions according to lifo/fifo
-            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
-            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
+                if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])): # NEW
+                    #Not enough shares owned to sell requested amount
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = price #NEW
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
+                self.portfolio.sellTransaction(newOrder)
+                #remove positions according to lifo/fifo
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
+                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'moc':
             #market order close
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
-            #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
-            if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
-                #Not enough shares owned to sell requested amount
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = price
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            self.portfolio.sellTransaction(newOrder)
-            #remove positions according to lifo/fifo
-            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
-            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+                if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
+                    #Not enough shares owned to sell requested amount
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = price
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
+                self.portfolio.sellTransaction(newOrder)
+                #remove positions according to lifo/fifo
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
+                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'limit':
             #limit order
             price = newOrder['limit_price']
-            #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
-            if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
-                #limit price outside of daily range
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
-                #Not enough shares owned to sell requested amount
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = price
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            self.portfolio.sellTransaction(newOrder)
-            #remove positions according to lifo/fifo
-            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
-            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+                if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
+                    #limit price outside of daily range
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
+                    #Not enough shares owned to sell requested amount
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = price
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
+                self.portfolio.sellTransaction(newOrder)
+                #remove positions according to lifo/fifo
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
+                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'vwap':
             #volume weighted average price
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
-            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
-            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
-            price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
-            price = price / 4.
-            #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
-            if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
-                #Not enough shares owned to sell requested amount
-                if new:
-                    newOrder.append()
-                    self.order.order.flush()
-                return None
-            #__execute trade__
-            #populate fill field in order
-            newOrder['fill/timestamp'] = ts
-            newOrder['fill/quantity'] = newOrder['shares']
-            newOrder['fill/cashChange'] = price
-            newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
-            #add trade to portfolio
-            self.portfolio.sellTransaction(newOrder)
-            #remove positions according to lifo/fifo
-            self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
-            #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
+            if price == None:
+                if noisy:
+                    print "Price data unavailable for",ts,newOrder['symbol']
+            else:
+                price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
+                price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
+                price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
+                price = price / 4.
+                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+                if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
+                    #Not enough shares owned to sell requested amount
+                    if new:
+                        newOrder.append()
+                        self.order.order.flush()
+                    return None
+                #__execute trade__
+                #populate fill field in order
+                newOrder['fill/timestamp'] = ts
+                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/cashChange'] = price
+                newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
+                #add trade to portfolio
+                self.portfolio.sellTransaction(newOrder)
+                #remove positions according to lifo/fifo
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
+                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         else:
             #throw invalid type error
             raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
@@ -334,14 +377,28 @@ class Simulator():
         
                                   
     def run(self):
+        if timersActive:
+            print "Simulation timer started."
+            totalTime = time.time()
+            cycTime = time.time()
         self.currTimestamp = self.startTime
+        i=1
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
             self.execute(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
             if noisy:
-                print "\nStrategy at %d completed successfully.\n\n" % self.currTimestamp
+                print "\nStrategy at %d completed successfully." % self.currTimestamp
+                print "Current portfolio value: %i."%self.portfolio.currCash
+                print "Current stocks: %s.\n\n"%self.portfolio.currStocks
+            if timersActive:
+                print "Strategy at %i took %i secs"%(self.currTimestamp,(time.time()-cycTime))
+                i+=1
+                cycTime = time.time()
+              
             self.currTimestamp += self.interval
         if noisy:
             print "Simulation complete."
+        if timersActive:
+            print "Simulation complete in %i seconds."%(time.time() - totalTime)
         self.close()
         
     def close(self):
@@ -353,10 +410,9 @@ class Simulator():
 
 
 cash = 0; comPerShare = 0.0; minCom = 0.; startTime = 0; endTime = 0; timeStep = 0; maxEffect = 0.; decayCycles = 0
-noisy = False
-
+noisy = False; timersActive = False
 def main():
-    global cash,comPerShare,minCom,startTime,endTime,timeStep,maxEffect,decayCycles,noisy
+    global cash,comPerShare,minCom,startTime,endTime,timeStep,maxEffect,decayCycles,noisy,timersActive
     # NOTE: the OptionParser class is currently not necessary, as we can just access sys.argv[1:], but if we
     # want to implement optional arguments, this will make it considerably easier.
     parser = OptionParser()
@@ -465,6 +521,8 @@ def main():
                             print "DECAY CYCLES REQUIRES AN INTEGER INPUT"
                 elif command == "NOISY":
                     noisy = True
+                elif command == "TIMER":
+                    timersActive = True
                 elif command != '':
                         print "Unrecognized command '%s'.  Note: some commands may not yet be implemented.  E-mail pdohogne3@gatech.edu if a command is missing." % command
         thisFile.close()
@@ -479,6 +537,7 @@ def main():
     mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare)
     # Add the timestamps
     mySim.times = mySim.addTimeStamps()
+    self.strategyData.populateArray(mySim.times)
     mySim.run()
 
 # This ensures the main function runs automatically when the program is run from the command line, but 

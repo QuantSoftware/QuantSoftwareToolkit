@@ -3,7 +3,7 @@ import numpy as np
 
 class PositionModel(pt.IsDescription):
     timestamp = pt.Time64Col()
-    symbol = pt.StringCol(4) 
+    symbol = pt.StringCol(30) 
     shares = pt.Int32Col()
     open_price = pt.Float32Col()
     
