@@ -9,7 +9,7 @@ class FillModel(pt.IsDescription):
     
 class OrderModel(pt.IsDescription):
     shares = pt.Int32Col()
-    symbol = pt.StringCol(4)
+    symbol = pt.StringCol(30)
     order_type = pt.StringCol(5)       #moo moc limit vwap
     duration = pt.Time64Col()
     timestamp = pt.Time64Col()

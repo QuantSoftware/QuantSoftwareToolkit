@@ -1,4 +1,5 @@
 import models.StrategyDataModel, tables as pt, numpy as np
+from numpy import NaN 
 #WARNING DATA MODEL IS CHANGING METHODS WILL NEED TO BE MODIFIED
 '''
 Based on the model:
@@ -22,37 +23,36 @@ class StockPriceModel(pt.IsDescription):
 
 class StrategyData:
     def __init__(self,dataFile = None):
+        #for pytables
         if dataFile == None:
             self.strategyDataFile = pt.openFile('StrategyDataModel.h5', mode = "w")
             self.strategyData = self.strategyDataFile.createTable('/', 'strategyData', StrategyDataModel)
         else:
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
             self.strategyData = self.strategyDataFile.root.tester.testTable
-        self.timestampsIndex = self.findTimestamps()
-        self.stocksIndex = self.findStocks()   
-        #self.pricesArray = self.populateArray()
+            
+        #for array
+        self.prevTsIdx = 0
+        self.symbolIndex = np.array()
+        self.timestampIndex = np.array()
+        self.descriptionIndex = np.array(['adj_high','adj_low','adj_open','adj_close','close','volume'])
         
-    def populateArray(self):
-        array = np.ndarray(len(self.timestampsIndex),len(self.stocksIndex),6)
-        for stock in self.stocksIndex:
-            pass
-    
-    def findTimestamps(self):
-        temp = []
-        for i in self.strategyData.iterrows():
-            if i['data/timestamp'] not in temp:
-                temp.append(i['data/timestamp'])
-        temp.sort()
-        return temp
+    def populateArray(self, timestamps):
+        self.timestampIndex = np.array(timestamps)
+        self.symbolIndex = self.findStocks()   
+        self.priceArray = np.ndarray(self.timestampIndex.size,self.symbolIndex.size,self.descriptionIndex.size)
+        for symbol in self.symbolIndex:
+            for time in self.timestampsIndex:
+                pass
         
     def findStocks(self):
         temp = []
         for i in self.strategyData.iterrows():
             if i['symbol'] not in temp:
-                temp.append(i['symbol'])
+                temp.append(cloneRow(i)['symbol'])
         temp.sort()
         return temp
-    
+        
     def cloneRow(self,row):
         dct = {}  
         dct['symbol'] = row['symbol']
@@ -70,9 +70,8 @@ class StrategyData:
     
     def getStocks(self, startTime=None, endTime=None, ticker=None):
         '''
-        Returns iterable pytables row objects based on the given parameters
+        Returns a list of dictionaries that mimic the pytables rows in accessing
         Can be called independently or used as part of the getPrices function
-        description: the field from data that is desired IE. adj_high
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock   
@@ -112,21 +111,20 @@ class StrategyData:
     
     def getPrice(self, timestamp, ticker, description):
         '''
-        table: the table that contains the stock data (stockPrice table from simulator usually)
         timestamp: the exact timestamp of the desired stock data
         ticker: the ticker/symbol of the stock
         description: the field from data that is desired IE. adj_high
         NOTE: If the data is incorrect or invalid, the function will return None    
         '''
-        st= 'symbol==' +'"'+ticker+'"'
-        for row in self.strategyData.where(st):
+        result = None
+        for row in self.strategyData.where('symbol=="%s"'%ticker):
             if row['data/timestamp']==timestamp:
                 result = row['data/%s'%description]
         return result
         
     def getPrices(self, startTime=None, endTime=None, ticker=None, description=None):
         '''
-        Returns a list of prices for the given description or a tuple of prices if no description is given
+        Returns a list of prices for the given description or a list of tuples of prices if no description is given
         description: the field from data that is desired IE. adj_high
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
@@ -144,6 +142,40 @@ class StrategyData:
     
     def close(self):
         self.strategyDataFile.close()
+ 
+    def getStocksArray(self, startTime=None, endTime=None, ticker=None):
+        tickerIdx = self.symbolIndex.searchSorted(ticker)
+        if self.priceArray[tickerIdx] != ticker:
+            tickerIdx =  None       
+        if startTime != None:
+            startIdx = self.symbolIndex.searchSorted(startTime)
+        else:
+            startIdx = None
+        if endTime != None:
+            endIdx = self.descriptionIndex.searchSorted(endTime)
+        else:
+            endIdx = None
+        if tickerIdx != None:
+            return self.priceArray[tickerIdx,startIdx:endIdx,:]
+        else:
+            return self.priceArray[:,startIdx:endIdx,:]
+
+   
+        return self.priceArray[tickerIdx,startTime:endTime,]
+        
+        
+    def getPriceArray(self, timestamp, ticker, description):
+        tsIdx = self.timestampIndex.searchSorted(ticker)
+        if self.priceArray[tsIdx] != timestamp:
+            return NaN
+        tickerIdx = self.symbolIndex.searchSorted(ticker)
+        if self.priceArray[tickerIdx] != ticker:
+            return NaN
+        descIdx = self.descriptionIndex.searchSorted(ticker)
+        if self.priceArray[descriptionIdx] != description:
+            return NaN
+        return self.priceArray[tickerIdx,startIdx,descIdx]
+ 
  
 
 def methodTest():

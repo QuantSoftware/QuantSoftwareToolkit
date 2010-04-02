@@ -22,14 +22,17 @@ def generateDataFile():
     import random
     random.seed(1)    
     #86400 seconds in a day
-    stocks = ['KO','AAPL','GOOG','MSFT']
+    stocks = []
+    for i in range(10): #stocks
+        stocks.append('stock%i'%i)
     
     h5f = pt.openFile('PriceTestData.h5', mode = "w")
     group = h5f.createGroup("/", 'tester')
     table = h5f.createTable(group, 'testTable', StockPriceModel)
     row = table.row
 
-    for i in range(100,200):
+    for i in range(100): #timestamps
+        j = 0
         for stock in stocks:
             adjOpen = random.random() * random.randint(1,100)   
             adjClose = random.random() * random.randint(1,100) 
@@ -43,11 +46,16 @@ def generateDataFile():
             row['data/volume'] = random.randint(1000,10000)
             row['data/timestamp'] = i*86400
             row['data/when_available'] = i*86400
-            row['data/interval'] = 86400            
+            row['data/interval'] = 86400         
             row.append()
             table.flush()
+        if i%10==0:
+            print i,
+        if i%100==0:
+            print ''
     h5f.close()
 #generateDataFile()
+
 def showData():
     h5f = pt.openFile('PriceTestData.h5', mode = "r")
     table = h5f.root.tester.testTable
