@@ -86,7 +86,7 @@ class Simulator():
             #market order close
             price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
             cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
-            print self.portfolio.currCash, self.calcCommission(newOrder['shares']), cost
+            #print "Buy attempt:\n\tCash on hand: %d, total price of stock: %d" % (self.portfolio.currCash, cost)
             if(cost>self.portfolio.currCash):
                 #print newOrder
                 #Not enough cash to buy stock
@@ -338,10 +338,13 @@ class Simulator():
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
             self.execute(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
             if noisy:
-                print "\nStrategy at %d completed successfully.\n\n" % self.currTimestamp
+                print "\nStrategy at %d completed successfully." % self.currTimestamp
+                print "Cash on hand: $%.2f\n\n" % self.portfolio.currCash
             self.currTimestamp += self.interval
         if noisy:
             print "Simulation complete."
+            print "Cash on hand: $%.2f" % self.portfolio.currCash
+            print "Ending stocks:", self.portfolio.currStocks
         self.close()
         
     def close(self):
