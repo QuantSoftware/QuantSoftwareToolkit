@@ -6,7 +6,7 @@ import Portfolio, Position, Order, StrategyData
 
 
 class Simulator():
-    def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare):
+    def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare,isTable):
         # NOTE: As written currently, strategy is a method
         self.strategy = strategy
         self.startTime = startTime
@@ -22,7 +22,7 @@ class Simulator():
         self.portfolio = Portfolio.Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
         self.position = Position.Position()   #positionFile.createTable('/', 'position', self.PositionModel)
         self.order = Order.Order()   #orderFile.createTable('/', 'order', self.OrderModel)
-        self.strategyData = StrategyData.StrategyData('models/PriceTestData.h5')   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
+        self.strategyData = StrategyData.StrategyData('models/PriceTestData.h5',isTable)   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
     
     def addTimeStamps(self):
         temp = []
@@ -47,9 +47,9 @@ class Simulator():
         return max(minCom,volume * self.comPerShare)
     
     def getExecutionTimestamp(self):
-        while self.times[self.timeStampIndex]<=self.currTimestamp:
+        while self.times[self.timeStampIndex]<self.currTimestamp:
             self.timeStampIndex += 1
-        idealTime = self.times[self.timeStampIndex]
+        idealTime = self.times[self.timeStampIndex+1]
         return idealTime
         
     def buyStock(self, newOrder,new = True):
@@ -321,60 +321,63 @@ class Simulator():
         self.order.order.flush()
         return price
             
-    def execute(self,commands):
-        # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
-        # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
-        # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
+    def execute(self):
         count = 0
         for order in self.order.order.iterrows():
             #print "order time of expiration:", order['duration'] + order['timestamp']
             #print "currTimestamp:", self.currTimestamp
-            if (order['duration'] + order['timestamp']) >= self.currTimestamp:
-                #print order['fill']
-                if order['fill/timestamp'] == 0:
-                    #Have unfilled, valid orders
-                    if order['close_type'].upper() == "NONE":
-                        #is a buy
-                        result = self.buyStock(order,new=False)
-                        if noisy:
-                            if result:
-                                print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp,count)
-                            else:
-                                print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp,count)
-                    else:
-                        result = self.sellStock(order,new = False)
-                        if noisy:
-                            if result:
-                                print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
-                            else:
-                                print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+            if (order['timestamp'] < self.currTimestamp):
+                if (order['duration'] + order['timestamp']) >= self.currTimestamp:
+                    #print order['fill']
+                    if order['fill/timestamp'] == 0:
+                        #Have unfilled, valid orders
+                        if order['close_type'].upper() == "NONE":
+                            #is a buy
+                            result = self.buyStock(order,new=False)
+                            if noisy:
+                                if result:
+                                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp,count)
+                                else:
+                                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp,count)
+                        else:
+                            result = self.sellStock(order,new = False)
+                            if noisy:
+                                if result:
+                                    print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                                else:
+                                    print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
             count += 1
         
+        
+    def addOrders(self,commands):
+        # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
+        # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
+        # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
         for sellStock in commands[0]:
             if len(sellStock) == 6:
-                newOrder = self.order.addOrder(self.currTimestamp,sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
             else:
-                newOrder = self.order.addOrder(self.currTimestamp,sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])            
-            result = self.sellStock(newOrder)
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])            
+            """result = self.sellStock(newOrder)
             if noisy:
                 if result:
                     print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
                 else:
                     print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],sellStock[2],sellStock[3]+self.currTimestamp,self.currTimestamp)
-        
+            """
+            
         for buyStock in commands[1]:
             if len(buyStock) == 6:
-                newOrder = self.order.addOrder(self.currTimestamp,buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4],buyStock[5])
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4],buyStock[5])
             else:
-                newOrder = self.order.addOrder(self.currTimestamp,buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])            
-            result = self.buyStock(newOrder)
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])            
+            """result = self.buyStock(newOrder)
             if noisy:
                 if result:
                     print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
                 else:
                     print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
-                    #print newOrder
-        
+            """        #print newOrder
                                   
     def run(self):
         if timersActive:
@@ -383,8 +386,9 @@ class Simulator():
             cycTime = time.time()
         self.currTimestamp = self.startTime
         i=1
-        while self.currTimestamp < self.endTime and self.currTimestamp < time.time():
-            self.execute(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
+        while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
+            self.execute()
+            self.addOrders(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
             if noisy:
                 print "\nStrategy at %d completed successfully." % self.currTimestamp
                 print "Current portfolio value: %i."%self.portfolio.currCash
@@ -410,7 +414,7 @@ class Simulator():
 
 
 cash = 0; comPerShare = 0.0; minCom = 0.; startTime = 0; endTime = 0; timeStep = 0; maxEffect = 0.; decayCycles = 0
-noisy = False; timersActive = False
+noisy = False; timersActive = False; isTable = False
 def main():
     global cash,comPerShare,minCom,startTime,endTime,timeStep,maxEffect,decayCycles,noisy,timersActive
     # NOTE: the OptionParser class is currently not necessary, as we can just access sys.argv[1:], but if we
@@ -519,6 +523,16 @@ def main():
                             decayCycles = int(vals[0])
                         except ValueError:
                             print "DECAY CYCLES REQUIRES AN INTEGER INPUT"
+                elif comand == "DATATYPE":
+                    if len(vals) != 1:
+                        print "NEED EXACTLY ONE PARAMETER FOR DATATYPE."
+                    else:
+                        if vals[0] == "TABLE":
+                            isTable == True
+                        elif vals[0] == "ARRAY":
+                            isTable == False
+                        else:
+                            print "%s IS NOT A VALID PARAMETER FOR DATATYPE." % vals[0]
                 elif command == "NOISY":
                     noisy = True
                 elif command == "TIMER":
@@ -534,10 +548,13 @@ def main():
     sys.path.append(sys.path[0] + '/strategies')
     myStrategy = eval("__import__('%s').%s" % (args[1],stratName) )
     
-    mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare)
+    mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare,isTable)
     # Add the timestamps
-    mySim.times = mySim.addTimeStamps()
-    self.strategyData.populateArray(mySim.times)
+    if isTable:
+        mySim.times = mySim.addTimeStamps()
+    else:
+        mySim.times = mySim.strategyData.timestampIndex
+    #self.strategyData.populateArray(mySim.times)
     mySim.run()
 
 # This ensures the main function runs automatically when the program is run from the command line, but 
