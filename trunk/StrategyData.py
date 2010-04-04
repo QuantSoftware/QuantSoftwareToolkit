@@ -200,21 +200,20 @@ def generateRandomArray():
     import random
     random.seed(1)    
     #86400 seconds in a day
-    timestamps = np.array()
-    stocks = np.array()
+    timestamps = np.array([])
+    stocks = np.array([])
     for i in range(100,500): #timestamps
-        timestamps.append(i*86400)
+        np.append(timestamps,i*86400)
     for i in range(100): #stocks
-        stocks.append('stock%i'%i)
-    
-    priceArray = np.ndarray( timestamps.size, stocks.size)
+        np.append(stocks,'stock%i'%i)
+    priceArray = np.ndarray( shape=(timestamps.size, stocks.size))
     for i in range(timestamps.size):    
         for j in range(stocks.size):
             row = {}
             adjOpen = random.random() * random.randint(1,100)   
             adjClose = random.random() * random.randint(1,100) 
             row['exchange'] = 'NYSE'
-            row['symbol'] = stock
+            row['symbol'] = stocks[j]
             row['adj_open'] = adjOpen 
             row['adj_close'] = adjClose
             row['adj_high'] = max(adjOpen,adjClose) * random.randint(1,5)
