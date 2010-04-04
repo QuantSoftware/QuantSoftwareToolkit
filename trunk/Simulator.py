@@ -52,7 +52,7 @@ class Simulator():
         idealTime = self.times[self.timeStampIndex+1]
         return idealTime
         
-    def buyStock(self, newOrder,new = True):
+    def buyStock(self, newOrder):
         '''
         function takes in an instance of OrderDetails, executes the changes to the portfolio and adds the order to the order table
         newOrderDetails: an instance of OrderDetails representing the new order
@@ -83,9 +83,6 @@ class Simulator():
                 cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -109,9 +106,6 @@ class Simulator():
                 if(cost>self.portfolio.currCash):
                     #print newOrder
                     #Not enough cash to buy stock
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -134,15 +128,9 @@ class Simulator():
                 cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
                 if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -168,9 +156,6 @@ class Simulator():
                 cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -186,14 +171,11 @@ class Simulator():
             #throw invalid type error
             #print type(newOrder)
             raise TypeError("Not an existing trade type '%s'." % str(newOrder['order_type']))
-        if new:
-            newOrder.append()
-        else:
-            newOrder.update()
+        newOrder.update()
         self.order.order.flush()
         return price
     
-    def sellStock(self,newOrder,new = True):
+    def sellStock(self,newOrder):
         """
         Comments 'n stuff go here.
         """
@@ -211,9 +193,6 @@ class Simulator():
                 # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])): # NEW
                     #Not enough shares owned to sell requested amount
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -236,9 +215,6 @@ class Simulator():
                 #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                     #Not enough shares owned to sell requested amount
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -261,15 +237,9 @@ class Simulator():
                 #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                     #Not enough shares owned to sell requested amount
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -296,9 +266,6 @@ class Simulator():
                 #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                     #Not enough shares owned to sell requested amount
-                    if new:
-                        newOrder.append()
-                        self.order.order.flush()
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -314,10 +281,7 @@ class Simulator():
         else:
             #throw invalid type error
             raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
-        if new:
-            newOrder.append()
-        else:
-            newOrder.update()
+        newOrder.update()
         self.order.order.flush()
         return price
             
@@ -333,14 +297,14 @@ class Simulator():
                         #Have unfilled, valid orders
                         if order['close_type'].upper() == "NONE":
                             #is a buy
-                            result = self.buyStock(order,new=False)
+                            result = self.buyStock(order)
                             if noisy:
                                 if result:
                                     print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp,count)
                                 else:
                                     print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp,count)
                         else:
-                            result = self.sellStock(order,new = False)
+                            result = self.sellStock(order)
                             if noisy:
                                 if result:
                                     print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
@@ -358,6 +322,8 @@ class Simulator():
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
             else:
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])            
+            newOrder.append()
+            self.order.order.flush()
             """result = self.sellStock(newOrder)
             if noisy:
                 if result:
@@ -371,6 +337,8 @@ class Simulator():
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4],buyStock[5])
             else:
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])            
+            newOrder.append()
+            self.order.order.flush()
             """result = self.buyStock(newOrder)
             if noisy:
                 if result:
