@@ -34,7 +34,7 @@ class StrategyData:
             self.priceArray = np.ndarray(self.timestampIndex.size,self.symbolIndex.size)
         else:
             print 'You must specify type of dataFile: "pytables" or "array"'
-        self.priceArray = generateRandomArray()
+        (self.timestampIndex, self.symbolIndex, self.priceArray) = generateRandomArray()
         
     def populateArray(self):
         for symbol in self.symbolIndex:
@@ -57,7 +57,7 @@ class StrategyData:
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock   
         '''
-        if isTables:
+        if isTable:
             tempList = []
             if(ticker!=None):    
                 for row in self.strategyData.where('symbol=="%s"'%ticker):
@@ -87,7 +87,7 @@ class StrategyData:
                         tempList.append(self.cloneRow(row))                    
             return tempList
         else:
-            getStocksArray(startTime, endTime, ticker)
+            return self.getStocksArray(startTime, endTime, ticker)
     
     def getPrice(self, timestamp, ticker, description, isTable=False):
         '''
@@ -103,7 +103,7 @@ class StrategyData:
                     result = row[description]
             return result
         else:
-            return getPriceArray(timestamp, ticker, description)
+            return self.getPriceArray(timestamp, ticker, description)
         
     def getPrices(self, startTime=None, endTime=None, ticker=None, description=None, isTables=False):
         '''
@@ -124,7 +124,7 @@ class StrategyData:
                     result.append(self.cloneRow(row)[description])
             return result
         else:
-            return getPricesArray(startTime, endTime, ticker, description)
+            return self.getPricesArray(startTime, endTime, ticker, description)
     
     def cloneRow(self,row):
         ''' 
@@ -143,38 +143,44 @@ class StrategyData:
         dct['when_available'] = row['when_available']
         dct['interval'] = row['interval']            
         return dct
-    
-    
  
     def getStocksArray(self, startTime=None, endTime=None, ticker=None):
-        tickerIdx = self.symbolIndex.searchSorted(ticker)
-        if self.priceArray[tickerIdx] != ticker:
-            tickerIdx =  None       
+        #print "GSA ST ET TKER", startTime, endTime, ticker
+        if ticker != None:
+            tickerIdx = self.symbolIndex.searchsorted(ticker)
+            if tickerIdx >= self.symbolIndex or self.symbolIndex[tickerIdx] != ticker:
+                tickerIdx =  None 
+        else:
+            tickerIdx = None      
         if startTime != None:
-            startIdx = self.symbolIndex.searchSorted(startTime)
+            startIdx = self.timestampIndex.searchsorted(startTime)
         else:
             startIdx = None
         if endTime != None:
-            endIdx = self.descriptionIndex.searchSorted(endTime)
+            endIdx = self.timestampIndex.searchsorted(endTime)
         else:
             endIdx = None
         if tickerIdx != None:
-            return self.priceArray[tickerIdx,startIdx:endIdx,:]
+            #print "with tkrIdx",startIdx, endIdx+1, tickerIdx, self.priceArray[startIdx:endIdx+1,tickerIdx][0]
+            return self.priceArray[startIdx:endIdx+1,tickerIdx]#[0]
         else:
-            return self.priceArray[:,startIdx:endIdx,:]
+            #print 'no tkrIdx',startIdx, endIdx+1, self.priceArray[startIdx:endIdx+1,:][0]
+            return self.priceArray[startIdx:endIdx+1,:][0]
         
         
     def getPriceArray(self, timestamp, ticker, description):
-        tsIdx = self.timestampIndex.searchSorted(ticker)
-        if self.priceArray[tsIdx] != timestamp:
-            return NaN
-        tickerIdx = self.symbolIndex.searchSorted(ticker)
-        if self.priceArray[tickerIdx] != ticker:
-            return NaN
-        descIdx = self.descriptionIndex.searchSorted(ticker)
-        if self.priceArray[descriptionIdx] != description:
-            return NaN
-        return self.priceArray[tickerIdx,startIdx,descIdx]
+        tsIdx = self.timestampIndex.searchsorted(timestamp)
+        #print 'TSIDX', tsIdx
+        if tsIdx >= self.timestampIndex.size or self.timestampIndex[tsIdx] != timestamp:
+            #print 'first none'
+            return None #NaN  
+        tickerIdx = self.symbolIndex.searchsorted(ticker)
+        #print "TICKERIDX", tickerIdx
+        #print ticker, self.symbolIndex[tickerIdx]
+        if tickerIdx >= self.symbolIndex.size or self.symbolIndex[tickerIdx] != ticker:
+            #print 'second none'
+            return None #NaN
+        return self.priceArray[tsIdx,tickerIdx][description]
  
     def getPricesArray(self, startTime=None, endTime=None, ticker=None, description=None):
         '''
@@ -185,11 +191,13 @@ class StrategyData:
         ticker: the ticker/symbol of the stock   
         '''
         rows = self.getStocksArray(startTime, endTime, ticker)
+        #print 'ROWS',rows
         result = []
         if(description==None):
             result = rows
         else:
             for row in rows:
+                #print 'ROW', row
                 result.append(row[description])
         return result 
 
@@ -202,11 +210,12 @@ def generateRandomArray():
     #86400 seconds in a day
     timestamps = np.array([])
     stocks = np.array([])
-    for i in range(100,500): #timestamps
-        np.append(timestamps,i*86400)
-    for i in range(100): #stocks
-        np.append(stocks,'stock%i'%i)
-    priceArray = np.ndarray( shape=(timestamps.size, stocks.size))
+    for i in range(10,5000): #timestamps
+        timestamps = np.append(timestamps,i*86400)
+    for i in range(5000): #stocks
+        stocks = np.append(stocks,'stock%.6i'%i)
+
+    priceArray = np.ndarray( shape=(timestamps.size, stocks.size), dtype=np.object)
     for i in range(timestamps.size):    
         for j in range(stocks.size):
             row = {}
@@ -228,7 +237,9 @@ def generateRandomArray():
             print i,
         if i%100==0:
             print ''
-    return priceArray
+    print ''
+    #print priceArray
+    return (timestamps, stocks, priceArray)
 
 def methodTest():
     strat = StrategyData('models/PriceTestData.h5')
