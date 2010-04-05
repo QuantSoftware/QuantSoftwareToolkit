@@ -15,9 +15,9 @@ def myStrategy(portfolio,timestamp,stockInfo):
     buyData = []
     #print stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp)
     for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp):
-        #print stock
-        if stock['data/adj_open'] < stock['data/adj_close'] and (stock['data/adj_high'] - stock['data/adj_close']) > (stock['data/adj_open'] - stock['data/adj_close']):
-            buyData.append((stock['data/volume']/2,stock['symbol'],'moc',172800,'none'))
+        if stock['adj_open'] < stock['adj_close'] and (stock['adj_high'] - stock['adj_close']) > (stock['adj_open'] - stock['adj_close']):
+            #print 'STRATSTOCK',stock
+            buyData.append((stock['volume']/2,stock['symbol'],'moc',172800,'none'))
     for stock in portfolio.currStocks:
         if (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low')[0]) > (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open')[0]):
             sellData.append((portfolio.currStocks[stock]/2,stock,'moo',172800,'fifo'))

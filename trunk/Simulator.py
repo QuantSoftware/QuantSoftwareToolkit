@@ -6,7 +6,7 @@ import Portfolio, Position, Order, StrategyData
 
 
 class Simulator():
-    def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare,isTable):
+    def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare, isTable):
         # NOTE: As written currently, strategy is a method
         self.strategy = strategy
         self.startTime = startTime
@@ -78,7 +78,7 @@ class Simulator():
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             if price == None:
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
             else:
                 cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
                 if(cost>self.portfolio.currCash):
@@ -99,7 +99,7 @@ class Simulator():
             price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
             if price == None:
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
             else:
                 cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
                 #print self.portfolio.currCash, self.calcCommission(newOrder['shares']), cost
@@ -123,7 +123,7 @@ class Simulator():
             price = newOrder['limit_price']
             if price == None:
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
             else:
                 cost = newOrder['shares'] * price + self.calcCommission(newOrder['shares'])
                 if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
@@ -147,7 +147,7 @@ class Simulator():
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             if price == None:
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
             else:
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
@@ -288,6 +288,7 @@ class Simulator():
     def execute(self):
         count = 0
         for order in self.order.order.iterrows():
+            #print 'ORDER:',order
             #print "order time of expiration:", order['duration'] + order['timestamp']
             #print "currTimestamp:", self.currTimestamp
             if (order['timestamp'] < self.currTimestamp):
@@ -300,14 +301,14 @@ class Simulator():
                             result = self.buyStock(order)
                             if noisy:
                                 if result:
-                                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp,count)
+                                    print "Succeeded in buying %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
                                 else:
-                                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp,count)
+                                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                         else:
                             result = self.sellStock(order)
                             if noisy:
                                 if result:
-                                    print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                                    print "Succeeded in selling %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
                                 else:
                                     print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
             count += 1
@@ -339,6 +340,7 @@ class Simulator():
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])            
             newOrder.append()
             self.order.order.flush()
+            #print 'NEWORDER:',newOrder
             """result = self.buyStock(newOrder)
             if noisy:
                 if result:
@@ -351,33 +353,38 @@ class Simulator():
         if timersActive:
             print "Simulation timer started."
             totalTime = time.time()
-            cycTime = time.time()
+            cycTime = time.clock()
         self.currTimestamp = self.startTime
         i=1
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
             self.execute()
             self.addOrders(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
-            if noisy:
-                print "\nStrategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %i."%self.portfolio.currCash
-                print "Current stocks: %s.\n\n"%self.portfolio.currStocks
-            if timersActive:
-                print "Strategy at %i took %i secs"%(self.currTimestamp,(time.time()-cycTime))
+            if timersActive and not noisy:
+                print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 i+=1
-                cycTime = time.time()
-              
+                cycTime = time.clock()
+            if noisy and not timersActive:
+                print "\nStrategy at %d completed successfully." % self.currTimestamp
+                print "Current portfolio value: %.2f."%self.portfolio.currCash
+                print "Current stocks: %s.\n\n"%self.portfolio.currStocks
+            if noisy and timersActive:
+                print "\nStrategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
+                print "Strategy at %d completed successfully." % self.currTimestamp
+                print "Current portfolio value: %.2f."%self.portfolio.currCash
+                print "Current stocks: %s.\n\n"%self.portfolio.currStocks
+                i+=1
+                cycTime = time.clock()  
+            
             self.currTimestamp += self.interval
         if noisy:
             print "Simulation complete."
         if timersActive:
             print "Simulation complete in %i seconds."%(time.time() - totalTime)
-        self.close()
-        
-    def close(self):
         self.portfolio.close()
         self.position.close()
         self.order.close()
-        self.strategyData.close()
+        if isTable:
+            self.strategyData.close()
 
 
 
@@ -395,7 +402,7 @@ def main():
     args = parser.parse_args()[1]
     
     if len(args) != 3 and len(args) != 2:
-        print "FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING INCOMPETENT USER."
+        print "FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING."
         return
     
     configFile = args[0]
@@ -419,12 +426,12 @@ def main():
                 # Parse commands, look for correct number of arguments, do rudimentary error checking, apply to simulator as appropriate
                 if command == 'CASH':
                     if len(vals) != 1:
-                        print "WRONG NUMBER OF ARGUMENTS FOR CASH!!  RAAAAWR!"
+                        print "WRONG NUMBER OF ARGUMENTS FOR CASH!"
                     else:
                         try:
                             cash = float(vals[0])
                         except ValueError:
-                            print "ARGUMENT FOR CASH IS NOT A FLOAT!! RAAAWR!"
+                            print "ARGUMENT FOR CASH IS NOT A FLOAT!"
                 
                 # Code for handling stocks in a starting portfolio.  Implementation not correct; removing for the time being.
 #                elif command == "STOCK":
@@ -491,7 +498,7 @@ def main():
                             decayCycles = int(vals[0])
                         except ValueError:
                             print "DECAY CYCLES REQUIRES AN INTEGER INPUT"
-                elif comand == "DATATYPE":
+                elif command == "DATATYPE":
                     if len(vals) != 1:
                         print "NEED EXACTLY ONE PARAMETER FOR DATATYPE."
                     else:
@@ -516,7 +523,7 @@ def main():
     sys.path.append(sys.path[0] + '/strategies')
     myStrategy = eval("__import__('%s').%s" % (args[1],stratName) )
     
-    mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare,isTable)
+    mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare, isTable)
     # Add the timestamps
     if isTable:
         mySim.times = mySim.addTimeStamps()
