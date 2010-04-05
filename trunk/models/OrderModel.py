@@ -6,6 +6,7 @@ class FillModel(pt.IsDescription):
     quantity = pt.Int32Col()
     cashChange = pt.Float32Col()
     commission = pt.Float32Col()
+    impactCost = pt.Float32Col()
     
 class OrderModel(pt.IsDescription):
     shares = pt.Int32Col()
