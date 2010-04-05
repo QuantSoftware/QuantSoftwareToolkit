@@ -210,9 +210,9 @@ def generateRandomArray():
     #86400 seconds in a day
     timestamps = np.array([])
     stocks = np.array([])
-    for i in range(10,5000): #timestamps
+    for i in range(10,100): #timestamps
         timestamps = np.append(timestamps,i*86400)
-    for i in range(5000): #stocks
+    for i in range(30): #stocks
         stocks = np.append(stocks,'stock%.6i'%i)
 
     priceArray = np.ndarray( shape=(timestamps.size, stocks.size), dtype=np.object)
