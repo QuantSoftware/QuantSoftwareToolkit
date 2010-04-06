@@ -19,15 +19,15 @@ class StrategyDataModel(pt.IsDescription):
 '''
 
 class StrategyData:
-    def __init__(self,dataFile = None, type = None):
+    def __init__(self,dataFile = None, isTable = False):
         #for pytables
         if dataFile == None:
             self.strategyDataFile = pt.openFile('StrategyDataModel.h5', mode = "w")
             self.strategyData = self.strategyDataFile.createTable('/', 'strategyData', StrategyDataModel)
-        elif(dataFile != None and type == 'pytables'):
+        elif(dataFile != None and isTable == True):
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
             self.strategyData = self.strategyDataFile.root.tester.testTable
-        elif(dataFile != None and type == 'array'):
+        elif(dataFile != None and isTable == False):
             self.prevTsIdx = 0
             self.symbolIndex = np.array()
             self.timestampIndex = np.array()
@@ -260,3 +260,4 @@ def classTest():
     print price
     prices = getPrices('adj_high',ticker='KO')
     print prices
+#classTest()
