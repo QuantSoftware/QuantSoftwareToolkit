@@ -25,7 +25,9 @@ class Portfolio:
         '''
         order: the order (we know is valid at this point) to execute on the portfolio
         '''
-        self.currCash += -order['fill/commission'] + order['fill/cashChange'] * order['fill/quantity']
+        # Subtract the impact cost - it cost more because you inflated the price buying so much
+        # cashChange is NEGATIVE when passed in 
+        self.currCash += -order['fill/commission'] + (order['fill/cashChange'] * order['fill/quantity']) - order['fill/impactCost']
         if order['symbol'] in self.currStocks.keys():
             self.currStocks[order['symbol']] += order['fill/quantity']
         else:
@@ -36,7 +38,10 @@ class Portfolio:
         see buyTransaction for now
         
         '''
-        self.currCash += -order['fill/commission'] + order['fill/cashChange'] * order['fill/quantity']
+        # Subtract effect - gain less money
+        # cashChange is POSITIVE when passed in 
+        self.currCash += -order['fill/commission'] + (order['fill/cashChange'] * order['fill/quantity']) - order['fill/impactCost']
+        
         if order['symbol'] in self.currStocks:
             self.currStocks[order['symbol']] -= order['fill/quantity']
             if self.currStocks[order['symbol']] == 0:
