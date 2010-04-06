@@ -55,7 +55,8 @@ class StrategyData:
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock   
+        ticker: the ticker/symbol of the stock
+        isTable: Using PyTables version (opposed to NumPy array version)
         '''
         if isTable:
             tempList = []
@@ -94,7 +95,8 @@ class StrategyData:
         timestamp: the exact timestamp of the desired stock data
         ticker: the ticker/symbol of the stock
         description: the field from data that is desired IE. adj_high
-        NOTE: If the data is incorrect or invalid, the function will return None    
+        NOTE: If the data is incorrect or invalid, the function will return None  
+        isTable: Using PyTables version (opposed to NumPy array version)  
         '''
         if isTable:
             result = None
@@ -111,7 +113,8 @@ class StrategyData:
         description: the field from data that is desired IE. adj_high
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock   
+        ticker: the ticker/symbol of the stock 
+        isTable: Using PyTables version (opposed to NumPy array version)  
         '''
         if isTables:
             rows = self.getStocks(startTime, endTime, ticker)
@@ -145,6 +148,14 @@ class StrategyData:
         return dct
  
     def getStocksArray(self, startTime=None, endTime=None, ticker=None):
+        '''
+        Returns a list of dictionaries that mimic the pytables rows in accessing
+        Can be called independently or used as part of the getPrices function
+        startTime: checks stocks >= startTime
+        endTime: checks stocks <= endTime
+        ticker: the ticker/symbol of the stock
+        isTable: Using PyTables version (opposed to NumPy array version)
+        '''
         #print "GSA ST ET TKER", startTime, endTime, ticker
         if ticker != None:
             tickerIdx = self.symbolIndex.searchsorted(ticker)
@@ -169,6 +180,13 @@ class StrategyData:
         
         
     def getPriceArray(self, timestamp, ticker, description):
+        '''
+        timestamp: the exact timestamp of the desired stock data
+        ticker: the ticker/symbol of the stock
+        description: the field from data that is desired IE. adj_high
+        NOTE: If the data is incorrect or invalid, the function will return None  
+        isTable: Using PyTables version (opposed to NumPy array version)  
+        '''
         tsIdx = self.timestampIndex.searchsorted(timestamp)
         #print 'TSIDX', tsIdx
         if tsIdx >= self.timestampIndex.size or self.timestampIndex[tsIdx] != timestamp:
@@ -188,7 +206,7 @@ class StrategyData:
         description: the field from data that is desired IE. adj_high
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock   
+        ticker: the ticker/symbol of the stock  
         '''
         rows = self.getStocksArray(startTime, endTime, ticker)
         #print 'ROWS',rows
@@ -198,7 +216,7 @@ class StrategyData:
         else:
             for row in rows:
                 #print 'ROW', row
-                result.append(row[description])
+                result.append({description:row[description],'timestamp':row[timestamp],'symbol':row[symbol]})
         return result 
 
     def close(self):
