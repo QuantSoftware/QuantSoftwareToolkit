@@ -53,13 +53,12 @@ class Simulator():
         idealTime = self.times[self.timeStampIndex+1]
         return idealTime
         
-    def calcEffect(self, maxVol, share):
+    def calcEffect(self, maxVol, shares):
         return float(shares)/maxVol * self.maxEffect
         
     def getVolumePerDay(self, symbol, timestamp):  
         # Call with startTime = endTime = desired timestamp to get just that timestamp
         stocks = self.strategyData.getStocks(timestamp, timestamp, symbol, self.isTable)
-        print stocks
         myStockasDict = stocks[0] #Grab the first dictionary in the list
         vol = myStockasDict['volume'] # Get the volume
         return vol    
@@ -100,7 +99,6 @@ class Simulator():
                     newOrder['shares'] = maxVol4Day
                     newOrder.update()
                     self.order.order.flush()
-                
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
                 cost = (newOrder['shares'] * price + (newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']))) + self.calcCommission(newOrder['shares'])
@@ -280,7 +278,7 @@ class Simulator():
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
                     newOrder.update()
-                    self.order.order.flush() 
+                    self.order.order.flush()
                 #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                     #Not enough shares owned to sell requested amount
