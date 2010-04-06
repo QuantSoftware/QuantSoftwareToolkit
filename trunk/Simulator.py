@@ -98,6 +98,8 @@ class Simulator():
             else:
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
@@ -128,6 +130,8 @@ class Simulator():
             else: 
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost the more you buy.
                 cost = (newOrder['shares'] * price + (newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']))) + self.calcCommission(newOrder['shares'])
@@ -160,6 +164,8 @@ class Simulator():
             else:
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost the more you buy.
                 cost = (newOrder['shares'] * price + (newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']))) + self.calcCommission(newOrder['shares'])
@@ -192,6 +198,8 @@ class Simulator():
             else:
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
@@ -241,6 +249,8 @@ class Simulator():
             else:
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])): # NEW
                     #Not enough shares owned to sell requested amount
@@ -268,7 +278,9 @@ class Simulator():
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']        
             else:
                 if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day 
+                    newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush() 
                 #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
                     #Not enough shares owned to sell requested amount
@@ -297,6 +309,8 @@ class Simulator():
             else:
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
@@ -328,6 +342,8 @@ class Simulator():
             else:
                 if newOrder['shares'] > maxVol4Day:
                     newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
