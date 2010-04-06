@@ -29,9 +29,9 @@ class StrategyData:
             self.strategyData = self.strategyDataFile.root.tester.testTable
         elif(dataFile != None and isTable == False):
             self.prevTsIdx = 0
-            self.symbolIndex = np.array([])
-            self.timestampIndex = np.array([])
-            self.priceArray = np.ndarray(self.timestampIndex.size,self.symbolIndex.size)
+            #self.symbolIndex = np.array([])
+            #self.timestampIndex = np.array([])
+            #self.priceArray = np.ndarray(self.timestampIndex.size,self.symbolIndex.size)
         else:
             print 'You must specify type of dataFile: "pytables" or "array"'
         (self.timestampIndex, self.symbolIndex, self.priceArray) = generateRandomArray()
