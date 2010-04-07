@@ -1,4 +1,4 @@
-import tables as pt, numpy as np
+import tables as pt, numpy as np, cPickle
 from models.StrategyDataModel import StrategyDataModel
 from numpy import NaN 
 '''
@@ -19,22 +19,18 @@ class StrategyDataModel(pt.IsDescription):
 '''
 
 class StrategyData:
-    def __init__(self,dataFile = None, isTable = False):
+    def __init__(self,dataFile,isTable = False):
         #for pytables
-        if dataFile == None:
-            self.strategyDataFile = pt.openFile('StrategyDataModel.h5', mode = "w")
-            self.strategyData = self.strategyDataFile.createTable('/', 'strategyData', StrategyDataModel)
-        elif(dataFile != None and isTable == True):
+        if(isTable == True):
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
             self.strategyData = self.strategyDataFile.root.tester.testTable
-        elif(dataFile != None and isTable == False):
+        elif(isTable == False):
             self.prevTsIdx = 0
-            #self.symbolIndex = np.array([])
-            #self.timestampIndex = np.array([])
-            #self.priceArray = np.ndarray(self.timestampIndex.size,self.symbolIndex.size)
-        else:
-            print 'You must specify type of dataFile: "pytables" or "array"'
-        (self.timestampIndex, self.symbolIndex, self.priceArray) = generateRandomArray()
+            (self.timestampIndex, self.symbolIndex, self.priceArray) = generateRandomArray()
+            #pickObj = cPickle.load(dataFile)
+            #self.symbolIndex = pickObj.stocks
+            #self.timestampIndex = pickObj.timestamps
+            #self.priceArray = pickObj.priceArray
         
     def populateArray(self):
         for symbol in self.symbolIndex:
@@ -51,7 +47,7 @@ class StrategyData:
     
     def getStocks(self, startTime=None, endTime=None, ticker=None, isTable = False):
         '''
-        Returns a list of dictionaries that mimic the pytables rows in accessing
+        Returns a list of dictionaries with each field accessable using its description
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
@@ -92,6 +88,7 @@ class StrategyData:
     
     def getPrice(self, timestamp, ticker, description, isTable=False):
         '''
+        Returns a single price based on the parameters
         timestamp: the exact timestamp of the desired stock data
         ticker: the ticker/symbol of the stock
         description: the field from data that is desired IE. adj_high
@@ -109,11 +106,12 @@ class StrategyData:
         
     def getPrices(self, startTime=None, endTime=None, ticker=None, description=None, isTables=False):
         '''
-        Returns a list of prices for the given description or a dictionary of information (accessed using field names) if no description is given
-        description: the field from data that is desired IE. adj_high
+        Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
+        or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock 
+        description: the field from data that is desired IE. adj_high
         isTable: Using PyTables version (opposed to NumPy array version)  
         '''
         if isTables:
@@ -121,7 +119,8 @@ class StrategyData:
             result = []
             if(description==None):
                 for row in rows:
-                    result.append(self.cloneRow(row))
+                    row = self.cloneRow(row)
+                    result.append((row['adj_high'],row['adj_low'],row['adj_open'],row['adj_close'],row['close']))
             else:
                 for row in rows:
                     result.append(self.cloneRow(row)[description])
@@ -202,21 +201,24 @@ class StrategyData:
  
     def getPricesArray(self, startTime=None, endTime=None, ticker=None, description=None):
         '''
-        Returns a list of prices for the given description or a list of tuples of prices if no description is given
-        description: the field from data that is desired IE. adj_high
+        Returns a list of prices for the given description: [adj_high0, adj_high1, adj_high2...]
+        or a tuple if no description is given: [ (adj_high0, adj_low0, adj_open0, adj_close0, close0), (adj_high1, adj_low1...), .... ]
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock  
+        ticker: the ticker/symbol of the stock 
+        description: the field from data that is desired IE. adj_high 
+        description: 
         '''
         rows = self.getStocksArray(startTime, endTime, ticker)
         #print 'ROWS',rows
         result = []
         if(description==None):
-            result = rows
+            for row in rows:
+                result.append((row['adj_high'],row['adj_low'],row['adj_open'],row['adj_close'],row['close']))
         else:
             for row in rows:
                 #print 'ROW', row
-                result.append({description:row[description],'timestamp':row[timestamp],'symbol':row[symbol]})
+                result.append(row[description])
         return result 
 
     def close(self):
@@ -236,20 +238,36 @@ def generateRandomArray():
     priceArray = np.ndarray( shape=(timestamps.size, stocks.size), dtype=np.object)
     for i in range(timestamps.size):    
         for j in range(stocks.size):
+            
             row = {}
-            adjOpen = random.random() * random.randint(1,100)   
-            adjClose = random.random() * random.randint(1,100) 
-            row['exchange'] = 'NYSE'
-            row['symbol'] = stocks[j]
-            row['adj_open'] = adjOpen 
-            row['adj_close'] = adjClose
-            row['adj_high'] = max(adjOpen,adjClose) * random.randint(1,5)
-            row['adj_low'] = min(adjOpen,adjClose) / random.randint(1,5)
-            row['close'] = adjClose
-            row['volume'] = random.randint(1000,10000)
-            row['timestamp'] = timestamps[i]
-            row['when_available'] = timestamps[i]
-            row['interval'] = 86400
+            if j ==0:
+                #adjOpen = random.random() * random.randint(1,100)   
+                #adjClose = random.random() * random.randint(1,100) 
+                row['exchange'] = 'NYSE'
+                row['symbol'] = stocks[j]
+                row['adj_open'] = 10 
+                row['adj_close'] = 20
+                row['adj_high'] = 22
+                row['adj_low'] = 7
+                row['close'] = 20
+                row['volume'] = 200
+                row['timestamp'] = timestamps[i]
+                row['when_available'] = timestamps[i]
+                row['interval'] = 86400
+            else:
+                adjOpen = random.random() * random.randint(1,100)   
+                adjClose = random.random() * random.randint(1,100) 
+                row['exchange'] = 'NYSE'
+                row['symbol'] = stocks[j]
+                row['adj_open'] = adjOpen 
+                row['adj_close'] = adjClose
+                row['adj_high'] = max(adjOpen,adjClose) * random.randint(1,5)
+                row['adj_low'] = min(adjOpen,adjClose) / random.randint(1,5)
+                row['close'] = adjClose
+                row['volume'] = random.randint(1000,10000)
+                row['timestamp'] = timestamps[i]
+                row['when_available'] = timestamps[i]
+                row['interval'] = 86400
             priceArray[i,j] = row 
         if i%10==0:
             print i,
