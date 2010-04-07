@@ -33,6 +33,7 @@ class StrategyData:
                 print "No symbol in output."
                 return None
             if self.volume == 0:
+                print (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
                 print "No volume in output."
                 return None
             if self.task == "":

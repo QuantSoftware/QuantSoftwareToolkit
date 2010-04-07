@@ -26,9 +26,9 @@ def myStrategy(portfolio,positions,timestamp,stockInfo):
                     order.orderType = 'limit'
                     order.limitPrice = today['close']
                     order.duration = 86400
-                    output.append(order.getOuput())
+                    output.append(order.getOutput())
     for position in positions.getPositions():
-        if position['timestamp'] <= (timestamp - 86400 * 20):
+        if (position['timestamp'] <= (timestamp - 86400 * 20)) and (position['shares'] > 0):
             order = stockInfo.OutputOrder()
             order.symbol = position['symbol']
             order.volume = position['shares']
@@ -36,6 +36,6 @@ def myStrategy(portfolio,positions,timestamp,stockInfo):
             order.orderType = 'moo'
             order.closeType = 'fifo'
             order.duration = 86400
-            output.append(order.getOuput())
+            output.append(order.getOutput())
     return output
         
