@@ -24,7 +24,7 @@ def myStrategy(portfolio,timestamp,stockInfo):
     for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp):
         if stock['adj_open'] < stock['adj_close'] and (stock['adj_high'] - stock['adj_close']) > (stock['adj_open'] - stock['adj_close']):
             # Format for stock buys (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
-            buyData.append((stock['volume']/2,stock['symbol'],'moc',172800,'none'))
+            buyData.append((stock['volume']+2,stock['symbol'],'moc',172800,'none'))
     #This for loop goes over all of our current stocks to determine which stocks to sell
     for stock in portfolio.currStocks:
         if (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low')[0]) > (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open')[0]):

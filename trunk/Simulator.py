@@ -6,7 +6,7 @@ import Portfolio, Position, Order, StrategyData
 
 
 class Simulator():
-    def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare, isTable, maxEffect):
+    def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare, isTable, maxEffect, arrayFile, pytablesFile):
         # NOTE: As written currently, strategy is a method
         self.strategy = strategy
         self.startTime = startTime
@@ -23,7 +23,10 @@ class Simulator():
         self.portfolio = Portfolio.Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
         self.position = Position.Position()   #positionFile.createTable('/', 'position', self.PositionModel)
         self.order = Order.Order()   #orderFile.createTable('/', 'order', self.OrderModel)
-        self.strategyData = StrategyData.StrategyData('models/PriceTestData.h5',isTable)   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
+        if isTable:
+            self.strategyData = StrategyData.StrategyData(pytablesFile,isTable)   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
+        else:
+            self.strategyData = StrategyData.StrategyData(arrayFile,isTable) 
     
     def addTimeStamps(self):
         temp = []
@@ -473,9 +476,9 @@ class Simulator():
 
 
 cash = 0; comPerShare = 0.0; minCom = 0.; startTime = 0; endTime = 0; timeStep = 0; maxEffect = 0.; decayCycles = 0
-noisy = False; timersActive = False; isTable = False
+noisy = False; timersActive = False; isTable = False; arrayFile = 'datafiles/defaultArrayFile.pk'; pytablesFile = 'datafiles/defaultPytablesFile.h5'
 def main():
-    global cash,comPerShare,minCom,startTime,endTime,timeStep,maxEffect,decayCycles,noisy,timersActive, isTable
+    global cash,comPerShare,minCom,startTime,endTime,timeStep,maxEffect,decayCycles,noisy,timersActive,isTable,arrayFile,pytablesFile
     # NOTE: the OptionParser class is currently not necessary, as we can just access sys.argv[1:], but if we
     # want to implement optional arguments, this will make it considerably easier.
     parser = OptionParser()
@@ -592,7 +595,22 @@ def main():
                             isTable = False
                         else:
                             print "%s IS NOT A VALID PARAMETER FOR DATATYPE." % vals[0]  
-                        print "I am using a table: ", isTable
+                elif command == "ARRAYFILE":
+                    if len(vals) != 1:
+                        print "NEED EXACTLY ONE PARAMETER FOR ARRAYFILE."
+                    else:
+                        try:
+                            arrayFile = str(vals[0])
+                        except ValueError:
+                            print "ARRAYFILE REQUIRES A STRING INPUT"
+                elif command == "PYTABLESFILE":
+                    if len(vals) != 1:
+                        print "NEED EXACTLY ONE PARAMETER FOR PYTABLESFILE."
+                    else:
+                        try:
+                            pytablesFile = str(vals[0])
+                        except ValueError:
+                            print "PYTABLESFILE REQUIRES A STRING INPUT"
                 elif command == "NOISY":
                     noisy = True
                 elif command == "TIMER":
@@ -608,7 +626,7 @@ def main():
     sys.path.append(sys.path[0] + '/strategies')
     myStrategy = eval("__import__('%s').%s" % (args[1],stratName) )
     
-    mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare, isTable, maxEffect)
+    mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare, isTable, maxEffect, arrayFile, pytablesFile)
     # Add the timestamps
     if isTable:
         mySim.times = mySim.addTimeStamps()
