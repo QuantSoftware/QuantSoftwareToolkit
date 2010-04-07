@@ -13,7 +13,24 @@ class Position:
     def __init__(self):
         self.positionFile = pt.openFile('PositionModel.h5', mode = "w")
         self.position = self.positionFile.createTable('/', 'position', PositionModel)
-
+    
+    def cloneRow(self,row):
+        ''' 
+        Makes a copy of the row so that the correct information will be appended to the list
+        '''
+        dct = {}  
+        dct['symbol'] = row['symbol']
+        dct['shares'] = row['shares']
+        dct['timestamp'] = row['timestamp']
+        dct['purchase_price'] = row['open_price']
+        return dct
+    
+    def getPositions(self):
+        output = []
+        for row in self.position.iterrows():
+            output.append(self.cloneRow(row))
+        return output
+    
     def addPosition(self,timestamp,symbol,shares,open_price):
         row = self.position.row
         row['timestamp'] = timestamp

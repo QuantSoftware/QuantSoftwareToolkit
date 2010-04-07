@@ -17,8 +17,45 @@ class StrategyDataModel(pt.IsDescription):
     when_available = pt.Time64Col()
     interval = pt.Time64Col()
 '''
-
+        
 class StrategyData:
+    class OutputOrder:
+        def __init__(self,symbol = "",volume = 0,task = "",duration = 0,closeType = "",orderType = "",limitPrice = 0):
+            self.symbol = symbol
+            self.volume = volume
+            self.task = task
+            self.duration = duration
+            self.closeType = closeType
+            self.orderType = orderType
+            self.limitPrice = limitPrice
+        def getOutput(self):
+            if self.symbol == "":
+                print "No symbol in output."
+                return None
+            if self.volume == 0:
+                print "No volume in output."
+                return None
+            if self.task == "":
+                print "No task in output."
+                return None
+            if self.duration == 0:
+                print "No duration in output."
+                return None
+            if self.orderType == "":
+                print "No orderType in output."
+                return None
+            if self.task.upper() == "SELL" or self.task.upper() == "COVER":
+                if self.closeType == "":
+                    print "No closeType specified for %s." % self.task
+                    return None
+            if self.orderType.upper() == "LIMIT":
+                if self.limitPrice == 0:
+                    print "No limitPrice specified."
+                    return None
+            return (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
+    
+    
+    
     def __init__(self,dataFile,isTable = False):
         #for pytables
         if(isTable == True):

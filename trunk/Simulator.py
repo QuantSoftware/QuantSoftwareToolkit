@@ -625,7 +625,7 @@ class Simulator():
         i=1
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
             self.execute()
-            self.addOrders(self.strategy(self.portfolio,self.currTimestamp,self.strategyData))
+            self.addOrders(self.strategy(self.portfolio,self.position,self.currTimestamp,self.strategyData))
             if timersActive and not noisy:
                 print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 i+=1
