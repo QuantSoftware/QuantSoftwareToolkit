@@ -9,6 +9,7 @@ class FillModel(pt.IsDescription):
     impactCost = pt.Float32Col()
     
 class OrderModel(pt.IsDescription):
+    task = pt.StringCol(5)
     shares = pt.Int32Col()
     symbol = pt.StringCol(30)
     order_type = pt.StringCol(5)       #moo moc limit vwap
@@ -19,6 +20,7 @@ class OrderModel(pt.IsDescription):
     fill = FillModel()
         
 def classTest():        
+    # THIS METHOD NEEDS TO BE UPDATED TO INCLUDE TASK
     h5f = pt.openFile('OrderTest.h5', mode = "w")
     group = h5f.createGroup("/", 'tester')
     table = h5f.createTable(group, 'testTable', OrderModel)

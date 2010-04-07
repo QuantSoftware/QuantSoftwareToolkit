@@ -98,16 +98,22 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else:
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
-                cost = (newOrder['shares'] * price + (newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']))) + self.calcCommission(newOrder['shares'])
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
+                
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
@@ -129,20 +135,22 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else: 
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                
                 # New is cost the original total price (price * shares) + effect*Total Price
-                # Basically, you raise the cost the more you buy.
-                cost = (newOrder['shares'] * price + (newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']))) + self.calcCommission(newOrder['shares'])
-                #print self.portfolio.currCash, self.calcCommission(newOrder['shares']), cost
+                # Basically, you raise the cost as you buy
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
-                    #print newOrder
                     #Not enough cash to buy stock
                     return None
-                #__execute trade__
-                #populate fill field in order
+                
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 newOrder['fill/timestamp'] = ts
                 newOrder['fill/quantity'] = newOrder['shares']
                 newOrder['fill/cashChange'] = -price
@@ -163,19 +171,25 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else:
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
-                # New is cost the original total price (price * shares) + effect*Total Price
-                # Basically, you raise the cost the more you buy.
-                cost = (newOrder['shares'] * price + (newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']))) + self.calcCommission(newOrder['shares'])
                 if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
                     return None
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                
+                # New is cost the original total price (price * shares) + effect*Total Price
+                # Basically, you raise the cost as you buy
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
+                
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
@@ -197,20 +211,28 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else:
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                
+                # New is cost the original total price (price * shares) + effect*Total Price
+                # Basically, you raise the cost as you buy
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
                 price = price / 4.
-                # New is cost the original total price (price * shares) + effect*Total Price
-                # Basically, you raise the cost the more you buy.
-                cost = (newOrder['shares'] * price + (newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']))) + self.calcCommission(newOrder['shares'])
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
+                
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
+                # New is cost the original total price (price * shares) + effect*Total Price
+                # Basically, you raise the cost the more you buy.
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
@@ -248,16 +270,29 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else:
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
                 # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
-                if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])): # NEW
-                    #Not enough shares owned to sell requested amount
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                if newOrder['shares'] > 0:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
+                else:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
+                if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
+                    #Not enough cash to cover stock
                     return None
                 #__execute trade__
                 #populate fill field in order
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 newOrder['fill/timestamp'] = ts
                 newOrder['fill/quantity'] = newOrder['shares']
                 newOrder['fill/cashChange'] = price #NEW
@@ -278,16 +313,29 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']        
             else:
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
-                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
-                if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
-                    #Not enough shares owned to sell requested amount
+                # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                if newOrder['shares'] > 0:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
+                else:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
+                if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
+                    #Not enough cash to cover stock
                     return None
                 #__execute trade__
                 #populate fill field in order
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
                 newOrder['fill/timestamp'] = ts
                 newOrder['fill/quantity'] = newOrder['shares']
                 newOrder['fill/cashChange'] = price
@@ -308,17 +356,35 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else:
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
-                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+                # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                if newOrder['shares'] > 0:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
+                else:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
+                if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
+                    #Not enough cash to cover stock
+                    return None
+                #__execute trade__
+                #populate fill field in order
                 if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
                     return None
-                if not(self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
-                    #Not enough shares owned to sell requested amount
-                    return None
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
+                
+                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
+                
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
@@ -341,20 +407,34 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else:
-                if newOrder['shares'] > maxVol4Day:
-                    newOrder['shares'] = maxVol4Day
-                    newOrder.update()
-                    self.order.order.flush()
+                checkAmount = min(abs(newOrder['shares']),maxVol4Day)
+                if newOrder['shares'] > 0:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
+                else:
+                    if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
+                        #Not enough shares owned to sell requested amount
+                        return None
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
                 price = price / 4.
-                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
-                if not (self.portfolio.hasStock(newOrder['symbol'],newOrder['shares'])):
-                    #Not enough shares owned to sell requested amount
+                cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
+                if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
+                    #Not enough cash to cover stock
                     return None
                 #__execute trade__
                 #populate fill field in order
+                if abs(newOrder['shares']) > maxVol4Day:
+                    if newOrder['shares'] < 0:
+                        newOrder['shares'] = -maxVol4Day
+                    else:
+                        newOrder['shares'] = maxVol4Day
+                    newOrder.update()
+                    self.order.order.flush()
+                
+                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 newOrder['fill/timestamp'] = ts
                 newOrder['fill/quantity'] = newOrder['shares']
                 newOrder['fill/cashChange'] = price
@@ -383,21 +463,79 @@ class Simulator():
                     #print order['fill']
                     if order['fill/timestamp'] == 0:
                         #Have unfilled, valid orders
-                        if order['close_type'].upper() == "NONE":
+                        if order['task'].upper() == "BUY":
                             #is a buy
-                            result = self.buyStock(order)
-                            if noisy:
-                                if result:
-                                    print "Succeeded in buying %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                            if self.portfolio.hasStock(order['symbol'],1):
+                                if order['stocks']>0:
+                                    result = self.buyStock(order)
+                                    if noisy:
+                                        if result:
+                                            print "Succeeded in buying %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                        else:
+                                            print "Did not succeed in buying %d shares of %s as %s; not enough cash.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                                 else:
-                                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                    if noisy:
+                                        print "Did not succeed in buying %d shares of %s as %s; negative values are not valid buy amounts.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                            elif self.portfolio.hasStock(order['symbol'],-1):
+                                if noisy:
+                                    print "Did not succeed in buying %d shares of %s as %s; you must cover your shortsell before you can buy.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                            else:
+                                result = self.buyStock(order)
+                                if noisy:
+                                    if result:
+                                        print "Succeeded in buying %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                    else:
+                                        print "Did not succeed in buying %d shares of %s as %s; not enough cash.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                        elif order['task'].upper() == "SELL":
+                            # is a sell
+                            if order['stocks']>0:
+                                result = self.sellStock(order)
+                                if noisy:
+                                    if result:
+                                        print "Succeeded in selling %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                                    else:
+                                        print "Did not succeed in selling %d shares of %s as %s; not enough owned.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                            else:
+                                if noisy:
+                                    print "Did not succeed in selling %d shares of %s as %s; you cannot sell a non-positive amount.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                        elif order['task'].upper() == "SHORT":
+                            #is a short se;;
+                            if self.portfolio.hasStock(order['symbol'],-1):
+                                if order['stocks']<0:
+                                    result = self.buyStock(order)
+                                    if noisy:
+                                        if result:
+                                            print "Succeeded in short selling %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (-order['shares'], order['symbol'], -result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                        else:
+                                            print "Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                else:
+                                    if noisy:
+                                        print "Did not succeed in short selling %d shares of %s as %s; negative values are not valid short sell amounts.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                            elif self.portfolio.hasStock(order['symbol'],1):
+                                if noisy:
+                                    print "Did not succeed in short selling %d shares of %s as %s; you cannot short sell a stock you already own.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                            else:
+                                result = self.buyStock(order)
+                                if noisy:
+                                    if result:
+                                        print "Succeeded in short selling %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                    else:
+                                        print "Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                        elif order['task'].upper() == "COVER":
+                            # is a sell
+                            if order['stocks']<0:
+                                result = self.sellStock(order)
+                                if noisy:
+                                    if result:
+                                        print "Succeeded in covering %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                                    else:
+                                        print "Did not succeed in covering %d shares of %s as %s; not short enough or not enough cash.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                            else:
+                                if noisy:
+                                    print "Did not succeed in covering %d shares of %s as %s; you cannot cover a non-positive amount.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
                         else:
-                            result = self.sellStock(order)
                             if noisy:
-                                if result:
-                                    print "Succeeded in selling %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
-                                else:
-                                    print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                                print "'%s' is not a valid task.  Order valid until %d.  Current timestamp: %d" % (order['task'].upper(), order['duration'] + order['timestamp'], self.currTimestamp)
             count += 1
         
         
@@ -405,20 +543,30 @@ class Simulator():
         # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
         # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
         # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
-        for sellStock in commands[0]:
+        
+        # need to reverse the signs on volume for short and cover, eliminate the lifo/fifo field for buys and shorts
+        for stock in commands:
+            if len(stock) == 7:
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
+            else:
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5])            
+            newOrder.append()
+            self.order.order.flush()
+            
+        """for sellStock in commands[0]:
             if len(sellStock) == 6:
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
             else:
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])            
             newOrder.append()
             self.order.order.flush()
-            """result = self.sellStock(newOrder)
-            if noisy:
-                if result:
-                    print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
-                else:
-                    print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],sellStock[2],sellStock[3]+self.currTimestamp,self.currTimestamp)
-            """
+            #result = self.sellStock(newOrder)
+            #if noisy:
+            #    if result:
+            #        print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
+            #    else:
+            #        print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],sellStock[2],sellStock[3]+self.currTimestamp,self.currTimestamp)
+            
             
         for buyStock in commands[1]:
             if len(buyStock) == 6:
@@ -428,14 +576,46 @@ class Simulator():
             newOrder.append()
             self.order.order.flush()
             #print 'NEWORDER:',newOrder
-            """result = self.buyStock(newOrder)
-            if noisy:
-                if result:
-                    print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
+            #result = self.buyStock(newOrder)
+            #if noisy:
+            #    if result:
+            #        print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
+            #    else:
+            #        print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
+                    #print newOrder
+        
+        for shortStock in commands[2]:
+            if shortStock[1] in self.portfolio.currStocks:
+                if self.portfolio.currStocks[shortStock[1]] <= shortStock[0]:
+                    if len(shortStock)==6:
+                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),self.portfolio.currStocks[shortStock[1]],shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
+                    else:
+                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),self.portfolio.currStocks[shortStock[1]],shortStock[1],shortStock[2],shortStock[3],shortStock[4])
+                    newOrder.append()
+                    self.order.order.flush()
+                    if (self.portfolio.currStocks[shortStock[1]] - shortStock[0]) > 0:
+                        if len(shortStock)==6:
+                            newOrder = self.order.addOrder(self.getExecutionTimestamp(),-(self.portfolio.currStocks[shortStock[1]] - shortStock[0]),shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
+                        else:
+                            newOrder = self.order.addOrder(self.getExecutionTimestamp(),-(self.portfolio.currStocks[shortStock[1]] - shortStock[0]),shortStock[1],shortStock[2],shortStock[3],shortStock[4])            
+                        newOrder.append()
+                        self.order.order.flush()
                 else:
-                    print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
-            """        #print newOrder
-                                  
+                    if len(shortStock)==6:
+                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
+                    else:
+                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4])
+                    newOrder.append()
+                    self.order.order.flush()
+            else:
+                if len(shortStock)==6:
+                    newOrder = self.order.addOrder(self.getExecutionTimestamp(),-shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
+                else:
+                    newOrder = self.order.addOrder(self.getExecutionTimestamp(),-shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4])            
+                newOrder.append()
+                self.order.order.flush()
+                """
+                
     def run(self):
         if timersActive:
             print "Simulation timer started."
