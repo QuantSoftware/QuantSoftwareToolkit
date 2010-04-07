@@ -171,7 +171,7 @@ class Simulator():
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
             else:
-                if ((newOrder['limit_price'] > strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
+                if ((newOrder['limit_price'] > self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
                     return None
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
@@ -466,7 +466,7 @@ class Simulator():
                         if order['task'].upper() == "BUY":
                             #is a buy
                             if self.portfolio.hasStock(order['symbol'],1):
-                                if order['stocks']>0:
+                                if order['shares']>0:
                                     result = self.buyStock(order)
                                     if noisy:
                                         if result:
@@ -488,7 +488,7 @@ class Simulator():
                                         print "Did not succeed in buying %d shares of %s as %s; not enough cash.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                         elif order['task'].upper() == "SELL":
                             # is a sell
-                            if order['stocks']>0:
+                            if order['shares']>0:
                                 result = self.sellStock(order)
                                 if noisy:
                                     if result:
@@ -546,10 +546,10 @@ class Simulator():
         
         # need to reverse the signs on volume for short and cover, eliminate the lifo/fifo field for buys and shorts
         for stock in commands:
-            if len(stock) == 7:
-                newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
-            else:
-                newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5])            
+            #if len(stock) == 7:
+            newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
+            #else:
+            #    newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5])            
             newOrder.append()
             self.order.order.flush()
             
