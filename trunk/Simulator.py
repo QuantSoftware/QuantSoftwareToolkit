@@ -553,68 +553,6 @@ class Simulator():
             newOrder.append()
             self.order.order.flush()
             
-        """for sellStock in commands[0]:
-            if len(sellStock) == 6:
-                newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4],sellStock[5])
-            else:
-                newOrder = self.order.addOrder(self.getExecutionTimestamp(),sellStock[0],sellStock[1],sellStock[2],sellStock[3],sellStock[4])            
-            newOrder.append()
-            self.order.order.flush()
-            #result = self.sellStock(newOrder)
-            #if noisy:
-            #    if result:
-            #        print "Succeeded in selling %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (sellStock[0],sellStock[1],result,sellStock[2],sellStock[4],self.currTimestamp)
-            #    else:
-            #        print "Did not succeed in selling %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(sellStock[0],sellStock[1],sellStock[2],sellStock[3]+self.currTimestamp,self.currTimestamp)
-            
-            
-        for buyStock in commands[1]:
-            if len(buyStock) == 6:
-                newOrder = self.order.addOrder(self.getExecutionTimestamp(),buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4],buyStock[5])
-            else:
-                newOrder = self.order.addOrder(self.getExecutionTimestamp(),buyStock[0],buyStock[1],buyStock[2],buyStock[3],buyStock[4])            
-            newOrder.append()
-            self.order.order.flush()
-            #print 'NEWORDER:',newOrder
-            #result = self.buyStock(newOrder)
-            #if noisy:
-            #    if result:
-            #        print "Succeeded in buying %d shares of %s for %f as %s, with close type %s.  Current timestamp: %d" % (buyStock[0],buyStock[1],result,buyStock[2],buyStock[4],self.currTimestamp)
-            #    else:
-            #        print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d.  Current timestamp: %d" %(buyStock[0],buyStock[1],buyStock[2],buyStock[3]+self.currTimestamp,self.currTimestamp)
-                    #print newOrder
-        
-        for shortStock in commands[2]:
-            if shortStock[1] in self.portfolio.currStocks:
-                if self.portfolio.currStocks[shortStock[1]] <= shortStock[0]:
-                    if len(shortStock)==6:
-                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),self.portfolio.currStocks[shortStock[1]],shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
-                    else:
-                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),self.portfolio.currStocks[shortStock[1]],shortStock[1],shortStock[2],shortStock[3],shortStock[4])
-                    newOrder.append()
-                    self.order.order.flush()
-                    if (self.portfolio.currStocks[shortStock[1]] - shortStock[0]) > 0:
-                        if len(shortStock)==6:
-                            newOrder = self.order.addOrder(self.getExecutionTimestamp(),-(self.portfolio.currStocks[shortStock[1]] - shortStock[0]),shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
-                        else:
-                            newOrder = self.order.addOrder(self.getExecutionTimestamp(),-(self.portfolio.currStocks[shortStock[1]] - shortStock[0]),shortStock[1],shortStock[2],shortStock[3],shortStock[4])            
-                        newOrder.append()
-                        self.order.order.flush()
-                else:
-                    if len(shortStock)==6:
-                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
-                    else:
-                        newOrder = self.order.addOrder(self.getExecutionTimestamp(),shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4])
-                    newOrder.append()
-                    self.order.order.flush()
-            else:
-                if len(shortStock)==6:
-                    newOrder = self.order.addOrder(self.getExecutionTimestamp(),-shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4],shortStock[5])
-                else:
-                    newOrder = self.order.addOrder(self.getExecutionTimestamp(),-shortStock[0],shortStock[1],shortStock[2],shortStock[3],shortStock[4])            
-                newOrder.append()
-                self.order.order.flush()
-                """
                 
     def run(self):
         if timersActive:
