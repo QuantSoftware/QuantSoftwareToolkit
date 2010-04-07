@@ -56,6 +56,8 @@ class Portfolio:
         """
         if not symbol in self.currStocks:
             return False
+        if volume < 0:
+            return self.currStocks[symbol] <= volume
         return self.currStocks[symbol] >= volume
     
     def close(self):

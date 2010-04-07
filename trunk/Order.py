@@ -26,10 +26,11 @@ class Order:
         self.orderFile = pt.openFile('OrderModel.h5', mode = "w")
         self.order = self.orderFile.createTable('/', 'order', OrderModel)
     
-    def addOrder(self,timestamp,shares,symbol,orderType,duration,closeType,limitPrice = 0): 
+    def addOrder(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice = 0): 
         ''' 
         adds a new unfulfilled order to the orders table
         timestamp: the exact timestamp when the order was submitted
+        task: buy, sell, short, cover
         shares: the number of shares to trade
         symbol: the symbol abbreviation of the stock
         orderType: they type of order (moo, moc, limit, vwap)
@@ -39,6 +40,7 @@ class Order:
         returns a reference to the row
         '''  
         row = self.order.row
+        row['task'] = task
         row['shares'] = shares
         row['symbol'] = symbol
         row['order_type'] = orderType
