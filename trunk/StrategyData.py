@@ -328,6 +328,13 @@ def generateRandomArray():
             print ''
     print ''
     #print priceArray
+    '''
+    pickle_output = open('randomArrayFile.pkl','w')
+    pickler = pickle.dump(timestamps,pickle_output)
+    pickler = pickle.dump(stocks,pickle_output)
+    pickler = pickle.dump(priceArray,pickle_output)
+    pickle_output.close()
+    '''
     return (timestamps, stocks, priceArray)
 
 def methodTest():
