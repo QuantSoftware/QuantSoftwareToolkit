@@ -37,7 +37,7 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             # Format for stock sells (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
             order = stockInfo.OutputOrder()
             order.symbol = stock
-            order.volume = portfolio.currStocks[stock]/2
+            order.volume = portfolio.currStocks[stock]/2+1
             order.task = 'sell'
             order.orderType = 'moo'
             order.closeType = 'fifo'
