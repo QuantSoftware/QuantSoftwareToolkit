@@ -29,7 +29,7 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             order.task = 'buy'
             order.orderType = 'moc'
             order.duration = 172800
-            output.append(order.getOuput())      
+            output.append(order.getOutput())      
             
     #This for loop goes over all of our current stocks to determine which stocks to sell
     for stock in portfolio.currStocks:
@@ -42,7 +42,7 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             order.orderType = 'moo'
             order.closeType = 'fifo'
             order.duration = 172800
-            output.append(order.getOuput())
+            output.append(order.getOutput())
     # return the sell orders and buy orders to the simulator to execute
     return output
 
@@ -52,8 +52,10 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
     '''
     output = []
     for yesterday in stockInfo.getStocksArray(timestamp - 86400 * 2, timestamp - 86400):
+        #print "Yesterday timestamp: %d" % yesterday['timestamp']
         if yesterday['close'] > 1:
             for today in stockInfo.getStocksArray(timestamp-86400,timestamp,yesterday['symbol']):
+                #print "timestamp: %d" % timestamp
                 if today['close'] < 1:
                     order = stockInfo.OutputOrder()
                     order.symbol = today['symbol']
@@ -62,7 +64,7 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
                     order.orderType = 'limit'
                     order.limitPrice = today['close']
                     order.duration = 86400
-                    output.append(order.getOuput())
+                    output.append(order.getOutput())
     for position in positions.getPositions():
         if (position['timestamp'] <= (timestamp - 86400 * 20)) and (position['shares'] > 0):
             order = stockInfo.OutputOrder()
@@ -72,5 +74,5 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
             order.orderType = 'moo'
             order.closeType = 'fifo'
             order.duration = 86400
-            output.append(order.getOuput())
+            output.append(order.getOutput())
     return output

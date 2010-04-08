@@ -61,7 +61,21 @@ class StrategyData:
         '''
         END OutputOrder SUBLCLASS
         '''
-        
+
+    def calculatePortValue(self,stocks,timestamp):
+        total = 0
+        for stock in stocks:
+            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
+            #prices3 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_low')
+            #prices4 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_high')
+            #print "Low: %f"%(prices3[len(prices3)-1])# * stocks[stock])
+            #print "High: %f"%(prices4[len(prices4)-1])# * stocks[stock])
+            #print "timestamp: %d" % 
+            total += prices[len(prices)-1] * stocks[stock]
+            
+            #print total
+        return total
+    
     def __init__(self,dataFile,isTable = False):
         #for pytables
         if(isTable == True):
@@ -225,10 +239,13 @@ class StrategyData:
             endIdx = None
         if tickerIdx != None:
             #print "with tkrIdx",startIdx, endIdx+1, tickerIdx, self.priceArray[startIdx:endIdx+1,tickerIdx][0]
-            return self.priceArray[startIdx:endIdx+1,tickerIdx]#[0]
+            #print "priceArray[endIndex]: %d" % self.priceArray[endIdx][0]['timestamp']
+            #print "priceArray[endIndex+1]: %d" % self.priceArray[endIdx+1][0]['timestamp']
+            #print self.priceArray[startIdx:endIdx,tickerIdx]
+            return self.priceArray[startIdx:endIdx,tickerIdx]#[0]
         else:
             #print 'no tkrIdx',startIdx, endIdx+1, self.priceArray[startIdx:endIdx+1,:][0]
-            return self.priceArray[startIdx:endIdx+1,:][0]
+            return self.priceArray[startIdx:endIdx,:][0]
         
         
     def getPriceArray(self, timestamp, ticker, description):
@@ -263,6 +280,9 @@ class StrategyData:
         description: 
         '''
         rows = self.getStocksArray(startTime, endTime, ticker)
+        #print "endTime: %d" % endTime
+        #print "first timestamp: %d" % rows[0]['timestamp']
+        #print "last timestamp: %d" % rows[len(rows)-1]['timestamp']
         #print 'ROWS',rows
         result = []
         if(description==None):
@@ -271,7 +291,9 @@ class StrategyData:
         else:
             for row in rows:
                 #print 'ROW', row
+                #print "Timestamps: %d" % row['timestamp']
                 result.append(row[description])
+        #print "\nDone...\n"
         return result 
 
     def close(self):
