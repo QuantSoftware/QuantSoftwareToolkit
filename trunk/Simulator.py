@@ -617,17 +617,23 @@ def main():
         stratName = "strategyMain"
     #print sys.path
     open(configFile,'r')
-    for fileName in ["default.ini",configFile]:
+    for fileName in ["configfiles/default.ini",configFile]:
         thisFile = open(fileName,'r')
         for line in thisFile.readlines():
             # Separate the command in the config file from the arguments
             if not ('#' in line):
                 line = line.strip().split('=')
                 command = line[0].strip().upper()
-                if len(line)>1:
-                    vals = line[1].upper().split()
+                if(command == 'ARRAYFILE' or command =='PYTABLESFILE'):
+                    if len(line)>1:
+                        vals = line[1].split()
+                    else:
+                        vals = []  
                 else:
-                    vals = []
+                    if len(line)>1:
+                        vals = line[1].upper().split()
+                    else:
+                        vals = []  
                 # Parse commands, look for correct number of arguments, do rudimentary error checking, apply to simulator as appropriate
                 if command == 'CASH':
                     if len(vals) != 1:

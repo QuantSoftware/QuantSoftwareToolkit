@@ -1,4 +1,4 @@
-import tables as pt, numpy as np, cPickle
+import tables as pt, numpy as np, pickle
 from models.StrategyDataModel import StrategyDataModel
 from numpy import NaN 
 '''
@@ -17,9 +17,12 @@ class StrategyDataModel(pt.IsDescription):
     when_available = pt.Time64Col()
     interval = pt.Time64Col()
 '''
-        
+            
 class StrategyData:
     class OutputOrder:
+        '''
+        Subclass to make adding strategies easier
+        '''
         def __init__(self,symbol = "",volume = 0,task = "",duration = 0,closeType = "",orderType = "",limitPrice = 0):
             self.symbol = symbol
             self.volume = volume
@@ -28,12 +31,13 @@ class StrategyData:
             self.closeType = closeType
             self.orderType = orderType
             self.limitPrice = limitPrice
+            
         def getOutput(self):
             if self.symbol == "":
                 print "No symbol in output."
                 return None
             if self.volume == 0:
-                print (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
+                #print (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
                 print "No volume in output."
                 return None
             if self.task == "":
@@ -54,9 +58,10 @@ class StrategyData:
                     print "No limitPrice specified."
                     return None
             return (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
-    
-    
-    
+        '''
+        END OutputOrder SUBLCLASS
+        '''
+        
     def __init__(self,dataFile,isTable = False):
         #for pytables
         if(isTable == True):
@@ -64,12 +69,22 @@ class StrategyData:
             self.strategyData = self.strategyDataFile.root.tester.testTable
         elif(isTable == False):
             self.prevTsIdx = 0
-            (self.timestampIndex, self.symbolIndex, self.priceArray) = generateRandomArray()
-            #pickObj = cPickle.load(dataFile)
-            #self.symbolIndex = pickObj.stocks
-            #self.timestampIndex = pickObj.timestamps
-            #self.priceArray = pickObj.priceArray
-        
+            #(self.timestampIndex, self.symbolIndex, self.priceArray) = generateRandomArray()
+
+            f = open(dataFile,'r')
+            ts = pickle.load(f)
+            st = pickle.load(f)
+            pA = pickle.load(f)
+            f.close()
+            
+            self.symbolIndex = st
+            self.timestampIndex = ts
+            self.priceArray = pA
+            
+            #print self.symbolIndex
+            #print self.timestampIndex
+            #print self.priceArray
+                    
     def populateArray(self):
         for symbol in self.symbolIndex:
             for time in self.timestampsIndex:
@@ -334,4 +349,3 @@ def classTest():
     print price
     prices = getPrices('adj_high',ticker='KO')
     print prices
-#classTest()
