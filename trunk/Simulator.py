@@ -16,6 +16,7 @@ class Simulator():
         self.minCom = minCom
         self.comPerShare = comPerShare
         self.timeStampIndex = 0
+        self.currDataTimeIndex = 0
         self.maxEffect = maxEffect
         self.times =  [] # eventual list for timestamps
         self.isTable = isTable # Need for getting volumes
@@ -50,6 +51,11 @@ class Simulator():
     def calcCommission(self, volume):
         return max(minCom,volume * self.comPerShare)
     
+    def getCurrentDataTimestamp(self):
+        while self.times[self.currDataTimeIndex+1]<self.currTimestamp:
+            self.currDataTimeIndex += 1
+        return self.times[self.currDataTimeIndex]
+    
     def getExecutionTimestamp(self):
         while self.times[self.timeStampIndex]<self.currTimestamp:
             self.timeStampIndex += 1
@@ -61,7 +67,8 @@ class Simulator():
         
     def getVolumePerDay(self, symbol, timestamp):  
         # Call with startTime = endTime = desired timestamp to get just that timestamp
-        stocks = self.strategyData.getStocks(timestamp, timestamp, symbol, self.isTable)
+        #print "VolPerDay timestamp: %d" % timestamp
+        stocks = self.strategyData.getStocks(timestamp, timestamp+1, symbol, self.isTable)
         myStockasDict = stocks[0] #Grab the first dictionary in the list
         vol = myStockasDict['volume'] # Get the volume
         return vol    
@@ -86,7 +93,8 @@ class Simulator():
         #purchase = Position(timestamp, self.symbol, quantity, price)
         #self.position.append(purchase)         
         #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
-        ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
+        ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
+        #print "execution timestamp: %d" % ts
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts) # Should this be the trading timestamp or the current one?
         if newOrder['order_type'] == 'moo':
             #market order open
@@ -94,9 +102,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 
@@ -131,9 +141,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                return None
             else: 
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 
@@ -167,9 +179,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                return None
             else:
                 if ((newOrder['limit_price'] > self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
@@ -207,9 +221,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 
@@ -258,7 +274,7 @@ class Simulator():
         """
         #sellTransaction needs to be expanded and put here instead.
         #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
-        ts = self.getExecutionTimestamp() #need a function to get the next available time we can trade
+        ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts)    
         if newOrder['order_type'] == 'moo':
             #market order open
@@ -266,9 +282,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for",ts,newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                return None
             else:
                 # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
@@ -309,9 +327,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for",ts,newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']        
+                return None
             else:
                 # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
@@ -352,9 +372,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for",ts,newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                return None
             else:
                 # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
@@ -403,9 +425,11 @@ class Simulator():
             if price == None:
                 if noisy:
                     print "Price data unavailable for",ts,newOrder['symbol']
-            if maxVol4Day == None:
+                return None
+            elif maxVol4Day == None:
                 if noisy:
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['shares'] > 0:
@@ -483,9 +507,9 @@ class Simulator():
                                 result = self.buyStock(order)
                                 if noisy:
                                     if result:
-                                        print "Succeeded in buying %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                        print "Succeeded in buying %d shares of %s for %.2f as %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['timestamp'], self.currTimestamp, count)
                                     else:
-                                        print "Did not succeed in buying %d shares of %s as %s; not enough cash.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                        print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                         elif order['task'].upper() == "SELL":
                             # is a sell
                             if order['shares']>0:
@@ -570,12 +594,12 @@ class Simulator():
                 cycTime = time.clock()
             if noisy and not timersActive:
                 print "\nStrategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%self.portfolio.currCash
+                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp))
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
             if noisy and timersActive:
                 print "\nStrategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 print "Strategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%self.portfolio.currCash
+                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp))
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
                 i+=1
                 cycTime = time.clock()  

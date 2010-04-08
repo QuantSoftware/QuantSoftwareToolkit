@@ -20,7 +20,6 @@ class Portfolio:
         self.currCash = cash
         self.currStocks = stocks
     
-    
     def buyTransaction(self, order):
         '''
         order: the order (we know is valid at this point) to execute on the portfolio
