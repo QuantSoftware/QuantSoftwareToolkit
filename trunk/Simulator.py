@@ -571,6 +571,7 @@ class Simulator():
         # need to reverse the signs on volume for short and cover, eliminate the lifo/fifo field for buys and shorts
         for stock in commands:
             #if len(stock) == 7:
+            #print stock
             newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
             #else:
             #    newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5])            
