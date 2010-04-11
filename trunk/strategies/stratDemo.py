@@ -1,5 +1,6 @@
 import random
-
+#Set isTable for testing with pytables instead of arrays
+isTable = True
 
 # Rudimentary proof-of-concept strategy; takes in a 'portfolio' that is a two-element list; first is a float
 # (cash on hand) and second is a list of stocks, organized as follows:
@@ -20,7 +21,7 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
     '''
     output = []
     #This first for loop goes over all of the stock data to determine which stocks to buy
-    for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp):
+    for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp, isTable = isTable):
         if stock['adj_open'] < stock['adj_close'] and (stock['adj_high'] - stock['adj_close']) > (stock['adj_open'] - stock['adj_close']):
             # Format for stock buys (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
             order = stockInfo.OutputOrder()
@@ -35,10 +36,10 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             
     #This for loop goes over all of our current stocks to determine which stocks to sell
     for stock in portfolio.currStocks:
-        openPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open')
-        closePrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close')
-        highPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high')
-        lowPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low')
+        openPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open', isTable = isTable)
+        closePrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close', isTable = isTable)
+        highPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high', isTable = isTable)
+        lowPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low', isTable = isTable)
         if(len(openPrice) != 0 and len(closePrice) != 0 and len(highPrice) != 0 and len(lowPrice) != 0):
             if (closePrice[0]-lowPrice[0]) > (highPrice[0]-openPrice[0]):
                 # Format for stock sells (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
@@ -61,10 +62,10 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
     COMMENTS HERE
     '''
     output = []
-    for yesterday in stockInfo.getStocksArray(timestamp - 86400 * 2, timestamp - 86400):
+    for yesterday in stockInfo.getStocksArray(timestamp - 86400 * 2, timestamp - 86400, isTable = isTable):
         #print "Yesterday timestamp: %d" % yesterday['timestamp']
         if yesterday['close'] > 1:
-            for today in stockInfo.getStocksArray(timestamp-86400,timestamp,yesterday['symbol']):
+            for today in stockInfo.getStocksArray(timestamp-86400,timestamp,yesterday['symbol'], isTable = isTable):
                 #print "timestamp: %d" % timestamp
                 if today['close'] < 1:
                     order = stockInfo.OutputOrder()

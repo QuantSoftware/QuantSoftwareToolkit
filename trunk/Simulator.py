@@ -37,8 +37,8 @@ class Simulator():
             cnt = 0
             cycTime = time.time()
         for i in self.strategyData.strategyData.iterrows():
-            if i['data/timestamp'] not in temp:
-                temp.append(i['data/timestamp'])
+            if i['timestamp'] not in temp:
+                temp.append(i['timestamp'])
             if timersActive:
                 if(cnt%1000000==0):
                     print '%i rows finished: %i secs elapsed'%(cnt,time.time()-cycTime)
@@ -128,7 +128,7 @@ class Simulator():
                 self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
         elif newOrder['order_type'] == 'moc':
             #market order close
-            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
+            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close', isTable = self.isTable)
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
@@ -269,7 +269,7 @@ class Simulator():
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts)    
         if newOrder['order_type'] == 'moo':
             #market order open
-            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
+            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_open',self.isTable)
             if price == None:
                 if noisy:
                     print "Price data unavailable for",ts,newOrder['symbol']
@@ -589,12 +589,12 @@ class Simulator():
                 cycTime = time.clock()
             if noisy and not timersActive:
                 print "\nStrategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp))
+                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp,self.isTable))
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
             if noisy and timersActive:
                 print "\nStrategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 print "Strategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp))
+                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp,self.isTable))
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
                 i+=1
                 cycTime = time.clock()  
@@ -768,11 +768,11 @@ def main():
     # Add the strategies subdirectory to the system path so Python can find the module
     sys.path.append(sys.path[0] + '/strategies')
     myStrategy = eval("__import__('%s').%s" % (args[1],stratName) )
-    
     mySim = Simulator(cash,{}, myStrategy, startTime, endTime, timeStep, minCom, comPerShare, isTable, maxEffect, arrayFile, pytablesFile)
     # Add the timestamps
     if isTable:
         mySim.times = mySim.addTimeStamps()
+        mySim.strategyData.timestampIndex = mySim.times
     else:
         mySim.times = mySim.strategyData.timestampIndex
     #self.strategyData.populateArray(mySim.times)

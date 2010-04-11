@@ -67,6 +67,8 @@ class StrategyData:
         if(isTable):
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
             self.strategyData = self.strategyDataFile.root.tester.testTable
+            self.timestampIndex = None
+            self.stocksIndex = self.findStocks()
         else:
             self.prevTsIdx = 0
             #(self.timestampIndex2, self.symbolIndex2, self.priceArray2) = generateRandomArray()
@@ -90,14 +92,14 @@ class StrategyData:
         temp = []
         for i in self.strategyData.iterrows():
             if i['symbol'] not in temp:
-                temp.append(cloneRow(i)['symbol'])
+                temp.append(self.cloneRow(i)['symbol'])
         temp.sort()
         return temp
     
-    def calculatePortValue(self,stocks,timestamp):
+    def calculatePortValue(self,stocks,timestamp, isTable = False):
         total = 0
         for stock in stocks:
-            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
+            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close', isTable = isTable)
             i = 86400
             count = 0
             while(len(prices)==0 and count<10):
@@ -186,7 +188,7 @@ class StrategyData:
         isTable: Using PyTables version (opposed to NumPy array version)  
         '''
         if isTable:
-            rows = self.getStocks(startTime, endTime, ticker)
+            rows = self.getStocks(startTime, endTime, ticker, isTable = True)
             result = []
             if(description==None):
                 for row in rows:
