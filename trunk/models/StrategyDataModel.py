@@ -22,9 +22,9 @@ def generateDataFile():
     for i in range(10): #stocks
         stocks.append('stock%i'%i)
     
-    h5f = pt.openFile('PriceTestData.h5', mode = "w")
+    h5f = pt.openFile('defaultPytablesFile.h5', mode = "w")
     group = h5f.createGroup("/", 'tester')
-    table = h5f.createTable(group, 'testTable', StockPriceModel)
+    table = h5f.createTable(group, 'testTable', StrategyDataModel)
     row = table.row
 
     for i in range(100): #timestamps
@@ -34,15 +34,15 @@ def generateDataFile():
             adjClose = random.random() * random.randint(1,100) 
             row['exchange'] = 'NYSE'
             row['symbol'] = stock
-            row['data/adj_open'] = adjOpen 
-            row['data/adj_close'] = adjClose
-            row['data/adj_high'] = max(adjOpen,adjClose) * random.randint(1,5)
-            row['data/adj_low'] = min(adjOpen,adjClose) / random.randint(1,5)
-            row['data/close'] = adjClose
-            row['data/volume'] = random.randint(1000,10000)
-            row['data/timestamp'] = i*86400
-            row['data/when_available'] = i*86400
-            row['data/interval'] = 86400         
+            row['adj_open'] = adjOpen 
+            row['adj_close'] = adjClose
+            row['adj_high'] = max(adjOpen,adjClose) * random.randint(1,5)
+            row['adj_low'] = min(adjOpen,adjClose) / random.randint(1,5)
+            row['close'] = adjClose
+            row['volume'] = random.randint(1000,10000)
+            row['timestamp'] = i*86400
+            row['when_available'] = i*86400
+            row['interval'] = 86400         
             row.append()
             table.flush()
         if i%10==0:
@@ -53,7 +53,7 @@ def generateDataFile():
 #generateDataFile()
 
 def showData():
-    h5f = pt.openFile('PriceTestData.h5', mode = "r")
+    h5f = pt.openFile('defaultPytablesFile.h5', mode = "r")
     table = h5f.root.tester.testTable
     i = 0    
     for row in table.iterrows():
