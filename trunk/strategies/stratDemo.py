@@ -25,24 +25,34 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             # Format for stock buys (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
             order = stockInfo.OutputOrder()
             order.symbol = stock['symbol']
-            order.volume = stock['volume']/2
+            order.volume = 20
             order.task = 'buy'
             order.orderType = 'moc'
             order.duration = 172800
-            output.append(order.getOutput())      
+            newOrder = order.getOutput()
+            if newOrder != None:
+                output.append(newOrder)      
             
     #This for loop goes over all of our current stocks to determine which stocks to sell
     for stock in portfolio.currStocks:
-        if (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low')[0]) > (stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high')[0]-stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open')[0]):
-            # Format for stock sells (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
-            order = stockInfo.OutputOrder()
-            order.symbol = stock
-            order.volume = portfolio.currStocks[stock]/2+1
-            order.task = 'sell'
-            order.orderType = 'moo'
-            order.closeType = 'fifo'
-            order.duration = 172800
-            output.append(order.getOutput())
+        openPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open')
+        closePrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close')
+        highPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high')
+        lowPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low')
+        if(len(openPrice) != 0 and len(closePrice) != 0 and len(highPrice) != 0 and len(lowPrice) != 0):
+            if (closePrice[0]-lowPrice[0]) > (highPrice[0]-openPrice[0]):
+                # Format for stock sells (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
+                order = stockInfo.OutputOrder()
+                order.symbol = stock
+                order.volume = portfolio.currStocks[stock]/2+1
+                order.task = 'sell'
+                order.orderType = 'moo'
+                order.closeType = 'fifo'
+                order.duration = 172800
+                newOrder = order.getOutput()
+                if newOrder != None:
+                    output.append(newOrder)   
+    #print 'STRAT OUTPUT:',output 
     # return the sell orders and buy orders to the simulator to execute
     return output
 
@@ -64,7 +74,9 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
                     order.orderType = 'limit'
                     order.limitPrice = today['close']
                     order.duration = 86400
-                    output.append(order.getOutput())
+                    newOrder = order.getOutput()
+                    if newOrder != None:
+                        output.append(newOrder)  
     for position in positions.getPositions():
         if (position['timestamp'] <= (timestamp - 86400 * 20)) and (position['shares'] > 0):
             order = stockInfo.OutputOrder()
@@ -74,5 +86,7 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
             order.orderType = 'moo'
             order.closeType = 'fifo'
             order.duration = 86400
-            output.append(order.getOutput())
+            newOrder = order.getOutput()
+            if newOrder != None:
+                output.append(newOrder)  
     return output
