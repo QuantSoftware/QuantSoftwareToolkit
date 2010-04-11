@@ -5,7 +5,8 @@ class PositionModel(pt.IsDescription):
     timestamp = pt.Time64Col()
     symbol = pt.StringCol(30) 
     shares = pt.Int32Col()
-    open_price = pt.Float32Col()
+    purchase_price = pt.Float32Col()
+    closed = pt.Int32Col()
     
         
 def classTest():        
@@ -17,7 +18,7 @@ def classTest():
         row['timestamp'] = 1000*i
         row['symbol'] = "KO%s"%i
         row['shares'] = 100
-        row['open_price'] = 25
+        row['purchase_price'] = 25
         row.append()
     table.flush()
     lst = []  
@@ -27,7 +28,7 @@ def classTest():
         dct['timestamp'] = row['timestamp']
         dct['symbol'] = row['symbol']
         dct['shares'] = row['shares']
-        dct['open_price'] = row['open_price']
+        dct['purchase_price'] = row['purchase_price']
         lst.append(dct)        
     h5f.close()
     print lst

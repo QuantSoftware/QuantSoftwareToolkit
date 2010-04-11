@@ -61,29 +61,15 @@ class StrategyData:
         '''
         END OutputOrder SUBLCLASS
         '''
-
-    def calculatePortValue(self,stocks,timestamp):
-        total = 0
-        for stock in stocks:
-            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
-            #prices3 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_low')
-            #prices4 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_high')
-            #print "Low: %f"%(prices3[len(prices3)-1])# * stocks[stock])
-            #print "High: %f"%(prices4[len(prices4)-1])# * stocks[stock])
-            #print "timestamp: %d" % 
-            total += prices[len(prices)-1] * stocks[stock]
-            
-            #print total
-        return total
     
     def __init__(self,dataFile,isTable = False):
         #for pytables
-        if(isTable == True):
+        if(isTable):
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
             self.strategyData = self.strategyDataFile.root.tester.testTable
-        elif(isTable == False):
+        else:
             self.prevTsIdx = 0
-            #(self.timestampIndex, self.symbolIndex, self.priceArray) = generateRandomArray()
+            #(self.timestampIndex2, self.symbolIndex2, self.priceArray2) = generateRandomArray()
 
             f = open(dataFile,'r')
             ts = pickle.load(f)
@@ -94,10 +80,6 @@ class StrategyData:
             self.symbolIndex = st
             self.timestampIndex = ts
             self.priceArray = pA
-            
-            #print self.symbolIndex
-            #print self.timestampIndex
-            #print self.priceArray
                     
     def populateArray(self):
         for symbol in self.symbolIndex:
@@ -112,9 +94,31 @@ class StrategyData:
         temp.sort()
         return temp
     
+    def calculatePortValue(self,stocks,timestamp):
+        total = 0
+        for stock in stocks:
+            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
+            i = 86400
+            count = 0
+            while(len(prices)==0 and count<10):
+                prices = self.getPrices(timestamp - i, timestamp - i - 86400, stock, 'adj_close')
+                i -= 86400
+                count+=1
+            #prices3 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_low')
+            #prices4 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_high')
+            #print "Low: %f"%(prices3[len(prices3)-1])# * stocks[stock])
+            #print "High: %f"%(prices4[len(prices4)-1])# * stocks[stock])
+            #print "timestamp: %d" % 
+            if(len(prices) != 0):
+                total += prices[len(prices)-1] * stocks[stock]
+            
+            #print total
+        return total
+    
     def getStocks(self, startTime=None, endTime=None, ticker=None, isTable = False):
         '''
-        Returns a list of dictionaries with each field accessable using its description
+        Returns a list of dictionaries that contain all of the valid stock data as keys
+        or an empty list if no results are found
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
@@ -171,7 +175,7 @@ class StrategyData:
         else:
             return self.getPriceArray(timestamp, ticker, description)
         
-    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None, isTables=False):
+    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None, isTable=False):
         '''
         Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
         or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
@@ -181,7 +185,7 @@ class StrategyData:
         description: the field from data that is desired IE. adj_high
         isTable: Using PyTables version (opposed to NumPy array version)  
         '''
-        if isTables:
+        if isTable:
             rows = self.getStocks(startTime, endTime, ticker)
             result = []
             if(description==None):
@@ -215,7 +219,8 @@ class StrategyData:
  
     def getStocksArray(self, startTime=None, endTime=None, ticker=None):
         '''
-        Returns a list of dictionaries that mimic the pytables rows in accessing
+        Returns a list of dictionaries that contain all of the valid stock data as keys
+        or an empty list if no results are found
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
@@ -244,8 +249,12 @@ class StrategyData:
             #print self.priceArray[startIdx:endIdx,tickerIdx]
             return self.priceArray[startIdx:endIdx,tickerIdx]#[0]
         else:
-            #print 'no tkrIdx',startIdx, endIdx+1, self.priceArray[startIdx:endIdx+1,:][0]
-            return self.priceArray[startIdx:endIdx,:][0]
+            result = self.priceArray[startIdx:endIdx,:]
+            #print 'no tkrIdx',startIdx, endIdx, result
+            if len(result) ==0:
+                return []
+            else:
+                return result[0]
         
         
     def getPriceArray(self, timestamp, ticker, description):
@@ -280,7 +289,6 @@ class StrategyData:
         description: 
         '''
         rows = self.getStocksArray(startTime, endTime, ticker)
-        #print "endTime: %d" % endTime
         #print "first timestamp: %d" % rows[0]['timestamp']
         #print "last timestamp: %d" % rows[len(rows)-1]['timestamp']
         #print 'ROWS',rows

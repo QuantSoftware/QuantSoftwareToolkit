@@ -81,15 +81,6 @@ class Simulator():
         '''
         
         #buyTransaction needs to be expanded and put in here instead.
-        '''
-        ORDER:
-        row['shares'] = shares
-        row['symbol'] = symbol
-        row['order_type'] = orderType
-        row['duration'] = duration
-        row['timestamp'] = timestamp
-        row['close_type'] = closeType
-        '''  
         #purchase = Position(timestamp, self.symbol, quantity, price)
         #self.position.append(purchase)         
         #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
@@ -563,21 +554,24 @@ class Simulator():
             count += 1
         
         
-    def addOrders(self,commands):
+    def addOrders(self,commands,isTable = True):
         # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
         # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
         # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
         
         # need to reverse the signs on volume for short and cover, eliminate the lifo/fifo field for buys and shorts
-        for stock in commands:
-            #if len(stock) == 7:
-            #print stock
-            newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
-            #else:
-            #    newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5])            
-            newOrder.append()
-            self.order.order.flush()
-            
+        if isTable:
+            for stock in commands:
+                #if len(stock) == 7:
+                #print stock
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
+                #else:
+                #    newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5])            
+                newOrder.append()
+                self.order.order.flush()
+        else:
+            for stock in commands:
+                self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
                 
     def run(self):
         if timersActive:
