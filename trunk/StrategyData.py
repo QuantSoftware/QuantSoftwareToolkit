@@ -124,24 +124,40 @@ class StrategyData:
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock
+        ticker: the ticker/symbol of the stock or a list of tickers
         isTable: Using PyTables version (opposed to NumPy array version)
         '''
         if isTable:
             tempList = []
             if(ticker!=None):    
-                for row in self.strategyData.where('symbol=="%s"'%ticker):
-                    if(startTime!=None and endTime!=None):
-                        if(row['timestamp']>=startTime and row['timestamp']<=endTime):
+                if(type(ticker)==str):
+                    for row in self.strategyData.where('symbol=="%s"'%ticker):
+                        if(startTime!=None and endTime!=None):
+                            if(row['timestamp']>=startTime and row['timestamp']<=endTime):
+                                tempList.append(self.cloneRow(row))
+                        elif(startTime!=None):
+                            if(row['timestamp']>=startTime):
+                                tempList.append(self.cloneRow(row))
+                        elif(endTime!=None):
+                            if(row['timestamp']<=endTime):
+                                tempList.append(self.cloneRow(row))
+                        else: #no time given
                             tempList.append(self.cloneRow(row))
-                    elif(startTime!=None):
-                        if(row['timestamp']>=startTime):
-                            tempList.append(self.cloneRow(row))
-                    elif(endTime!=None):
-                        if(row['timestamp']<=endTime):
-                            tempList.append(self.cloneRow(row))
-                    else: #no time given
-                        tempList.append(self.cloneRow(row))    
+                elif(type(ticker)==list):
+                    for tick in ticker:
+                        for row in self.strategyData.where('symbol=="%s"'%tick):
+                            if(startTime!=None and endTime!=None):
+                                if(row['timestamp']>=startTime and row['timestamp']<=endTime):
+                                    tempList.append(self.cloneRow(row))
+                            elif(startTime!=None):
+                                if(row['timestamp']>=startTime):
+                                    tempList.append(self.cloneRow(row))
+                            elif(endTime!=None):
+                                if(row['timestamp']<=endTime):
+                                    tempList.append(self.cloneRow(row))
+                            else: #no time given
+                                tempList.append(self.cloneRow(row))
+                     
             else:
                 for row in self.strategyData.iterrows():
                     if(startTime!=None and endTime!=None):
@@ -165,8 +181,8 @@ class StrategyData:
         timestamp: the exact timestamp of the desired stock data
         ticker: the ticker/symbol of the stock
         description: the field from data that is desired IE. adj_high
-        NOTE: If the data is incorrect or invalid, the function will return None  
         isTable: Using PyTables version (opposed to NumPy array version)  
+        NOTE: If the data is incorrect or invalid, the function will return None  
         '''
         if isTable:
             result = None
@@ -183,7 +199,7 @@ class StrategyData:
         or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock 
+        ticker: the ticker/symbol of the stock or a list of tickers
         description: the field from data that is desired IE. adj_high
         isTable: Using PyTables version (opposed to NumPy array version)  
         '''
@@ -226,14 +242,21 @@ class StrategyData:
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock
+        ticker: the ticker/symbol of the stock or a list of tickers
         isTable: Using PyTables version (opposed to NumPy array version)
         '''
         #print "GSA ST ET TKER", startTime, endTime, ticker
         if ticker != None:
-            tickerIdx = self.symbolIndex.searchsorted(ticker)
-            if tickerIdx >= self.symbolIndex or self.symbolIndex[tickerIdx] != ticker:
-                tickerIdx =  None 
+            if type(ticker)==str:
+                tickIdxList = []
+                tickerIdx = self.symbolIndex.searchsorted(ticker)
+                if tickerIdx < self.symbolIndex.size and self.symbolIndex[tickerIdx] == ticker:
+                    tickIdxList.append(tickerIdx)
+            elif type(ticker)==list:
+                for tick in tickerIdx:
+                    tickerIdx = self.symbolIndex.searchsorted(ticker)
+                    if tickerIdx < self.symbolIndex.size and self.symbolIndex[tickerIdx] == ticker:
+                        tickIdxList.append(tickerIdx)
         else:
             tickerIdx = None      
         if startTime != None:
@@ -249,7 +272,10 @@ class StrategyData:
             #print "priceArray[endIndex]: %d" % self.priceArray[endIdx][0]['timestamp']
             #print "priceArray[endIndex+1]: %d" % self.priceArray[endIdx+1][0]['timestamp']
             #print self.priceArray[startIdx:endIdx,tickerIdx]
-            return self.priceArray[startIdx:endIdx,tickerIdx]#[0]
+            result = np.array([])
+            for tickerIdx in tickIdxList:
+                np.append(result,self.priceArray[startIdx:endIdx,tickerIdx])
+            return result
         else:
             result = self.priceArray[startIdx:endIdx,:]
             #print 'no tkrIdx',startIdx, endIdx, result
@@ -286,7 +312,7 @@ class StrategyData:
         or a tuple if no description is given: [ (adj_high0, adj_low0, adj_open0, adj_close0, close0), (adj_high1, adj_low1...), .... ]
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock 
+        ticker: the ticker/symbol of the stock or a list of tickers
         description: the field from data that is desired IE. adj_high 
         description: 
         '''

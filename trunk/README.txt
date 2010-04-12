@@ -11,10 +11,10 @@ In order to run the simulator, you will need:
 |-------|
 To run the system:
 * Create a strategy (sample strategy in the strategies folder)
-* Create a config file (or use the default, default.ini)
+* Create a config file and put it in the configfiles folder (or use the default, default.ini)
 * Create and upload your data file (specified in the config file)
 * Run the simulator passing the command line arguments: <Simulator> <config file> <strategy file> <main strategy function>
-To run based on the example code: Simulator config.ini stratDemo myStrategy
+To run based on the example code: simulator.py configfiles/config.ini stratDemo myStrategy
 
 |-------------------|
 |Creating a Strategy|
@@ -25,10 +25,12 @@ The Method Header
 -----------------
 The header of a strategy must have the folowing format:
 
-def nameOfStrategy(portfolio,timestamp,stockInfo):
+def nameOfStrategy(portfolio,positions,timestamp,stockInfo):
 
--You can name your strategy whatever you like (specified as a command line arguement), but the portfolio, timestamp and stockInfo will always be passed in in that order.
--The portfolio is a portfolio object that has your currently held stocks (currStocks) and your current cash (currCash)
+-You can name your strategy whatever you like (specified as a command line arguement), but the portfolio, positions, timestamp and stockInfo will always be passed in in that order.
+
+-The portfolio is a portfolio object that has symbol and volume of your currently held stocks (currStocks) and your current cash (currCash)
+-The positions are detailed information about your current stock holdings, including when you bought them, how much you paid per stock, etc.
 -The timestamp is the current timestamp that the simulator is running on
 -stockInfo is the StrategyData that the strategy can use to find out information about the stocks.  See below.
 
@@ -39,27 +41,28 @@ This is the part where your actual strategy logic will go.  You will decide whic
 The StrategyData class (stockInfo) has 3 methods you can use to access stock information:
 
 getStocks(startTime=None, endTime=None, ticker=None, isTable = False):
-	Returns a list of dictionaries with each field accessable using its description
-	Can be called independently or used as part of the getPrices function
-	startTime: checks stocks >= startTime
-	endTime: checks stocks <= endTime
-	ticker: the ticker/symbol of the stock
-	isTable: Using PyTables version (opposed to NumPy array version)
+        Returns a list of dictionaries that contain all of the valid stock data as keys
+        or an empty list if no results are found
+        Can be called independently or used as part of the getPrices function
+        startTime: checks stocks >= startTime
+        endTime: checks stocks <= endTime
+        ticker: the ticker/symbol of the stock or a list of tickers
+        isTable: Using PyTables version (opposed to NumPy array version)
 
 The getStocks method returns a dictionary, so the fields can be accessed using their field names:
-    'timestamp', 'symbol', 'adj_high', 'adj_low', 'adj_open', 'adj_close', 'close', 'volume'
+    'timestamp', 'symbol', 'adj_high', 'adj_low', 'adj_open', 'adj_close', 'close', 'volume', 'date'
 	so if you wanted the adj_close of all the stocks returned by getStocks the code would look like this:
 	stocksList = stockInfo.getStocks(...)
 	for stock in stocksList:
 		print stock['adj_close'] #would print the adj_close of all applicable stocks
 		
 getPrice(timestamp, ticker, description, isTable=False):
-	Returns a single price based on the parameters
-	timestamp: the exact timestamp of the desired stock data
-	ticker: the ticker/symbol of the stock
-	description: the field from data that is desired IE. adj_high
-	NOTE: If the data is incorrect or invalid, the function will return None  
-	isTable: Using PyTables version (opposed to NumPy array version)  
+        Returns a single price based on the parameters
+        timestamp: the exact timestamp of the desired stock data
+        ticker: the ticker/symbol of the stock
+        description: the field from data that is desired IE. adj_high
+        isTable: Using PyTables version (opposed to NumPy array version) 
+		NOTE: If the data is incorrect or invalid, the function will return None  
 	
 The getPrice method returns a single value, if you already know exactly which stock you want:
 	stockPrice = stockInfo.getPrice(...)
@@ -70,7 +73,7 @@ getPrices(startTime=None, endTime=None, ticker=None, description=None, isTables=
 	or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
 	startTime: checks stocks >= startTime
 	endTime: checks stocks <= endTime
-	ticker: the ticker/symbol of the stock 
+	ticker: the ticker/symbol of the stock or a list of tickers
 	description: the field from data that is desired IE. adj_high
 	isTable: Using PyTables version (opposed to NumPy array version)  
 
@@ -84,10 +87,28 @@ Returns a tuple of prices if description is blank:
 	
 The Return Value
 ----------------
-Your strategy must return two lists seperated by a comma (a tuple).  The first list should be the stocks to sell and the second should be the stocks to buy.
+Your strategy must return a list of all of the orders you would like the simulator to place.  Each order must contain the following fields:
 
-sellList: [(st0_volume,st0_symbol,st0_type,st0_lengthValid,st0_closeType,st0_limitPrice), (st1_volume,st1_symbol,st1_type,st1_lengthValid,st1_closeType),...]
-where for each stock you want to sell you include the 5 (or 6) values in parenthesis (a tuple)
+The StrategyDemo class (stockInfo) has a subclass to make adding orders easier.  It will make sure that you have correctly entered all of the information and has a method for giving you the output in the correct format to append to the output list.
+
+Example:
+	order = stockInfo.OutputOrder()
+	order.task = 'buy'
+	order.symbol = stock['symbol']
+	order.volume = 20
+	order.orderType = 'moc'
+	order.duration = 172800
+	#order.closeType = 'lifo' #Not needed for buy
+	#order.limitPrice = 10 #Not needed, we are doing standard buy
+	newOrder = order.getOutput()
+	if newOrder != None:
+		output.append(newOrder)      
+		
+-task: what type of trade you are doing
+	'buy' - buy shares the next day at price specified by type, can't be done if you are currently shorting the stock
+	'sell' - sell shares the next day at price specified by type, can't be done if you are currently shorting the stock
+	'short' - short sell stocks, can't be done if you currently hold 'buy' shares of same stock
+	'cover' - cover a short sale, can't be done if you currently hold 'buy' shares of same stock
 -volume: the number of stocks to sell	IE: 1000
 -symbol: the ticker of the stock to sell	IE: 'KO'
 -type: when to execute the trade
@@ -95,46 +116,30 @@ where for each stock you want to sell you include the 5 (or 6) values in parenth
 	'moc' - sell on market close
 	'vwap' - average of high, low, open, close
 	'limit' - sell for specified price if price between high and low of day
-	'cover' - cover a short sell
--lengthValid: how long to continue attempting order, in seconds	IE: 172800
--closeType: sell longest held stocks first or shortest held stocks first
+-duration: how long to continue attempting order, in seconds	IE: 172800
+-closeType: only required for sell and cover, sell longest held stocks first or shortest held stocks first
 	'lifo' - last in, first out (shortest held sold)
 	'fifo' - first in, first out (longest held sold)
 -limitPrice: OPTIONAL, only include a limit price if type is 'limit'
 
-buyList: [(st0_volume,st0_symbol,st0_type,st0_lengthValid,st0_closeType), (st1_volume,st1_symbol,st1_type,st1_lengthValid,st1_closeType),...]
-where for each stock you want to sell you include the 4 (or 5) values in parenthesis (a tuple)
--volume: the number of stocks to sell	IE: 1000
--symbol: the ticker of the stock to sell	IE: 'KO'
--type: when to execute the trade
-	'moo' - buy on market open
-	'moc' - buy on market close
-	'vwap' - average of high, low, open, close
-	'limit' - buy for specified price if price between high and low of day
-	'short' - short sell
--lengthValid: how long to continue attempting order, in seconds	IE: 172800
--closeType: can be specified for the strategy to access when it is time to sell, or can be none
-	'none' - Not speicified, strategy will set at sell time
-	'lifo' - last in, first out (shortest held sold), strategy must read at time of sale and set closeType to same value if desired
-	'fifo' - first in, first out (longest held sold), strategy must read at time of sale and set closeType to same value if desired
-	NOTE: This field is not read automatically, since there is no closeType at purchase time. It can be used if you know at purchase time which type you want the sell to execute, or can be 'none' if you do not plan on reading it before specifying the closeType at time of sale
--limitPrice: OPTIONAL, only include a limit price if type is 'limit'
+Once you have filled in all of the fields, you can use the getOutput method to get the order to append to your list.
 
-The easiest way to do this is to create both lists before writing your strategy (sellData and buyData in the stratDemo) and append a new order to them each time you calculate one:
-buyData.append( (5000,'KO','moc',172800,'none') ) #buy 5000 shares of KO at close, order is valid for 172800 seconds (2 days) 
-sellData.append( (5000,'KO','vwap',172800,'fifo') ) #sell 5000 shares of KO at average price over the entire day, order is valid for 172800 seconds (2 days)
+Note: If you leave out a field and try to use the getOutput method, it will print out what field you are missing and return None
 
 Take a look at the example strategy file stratDemo.py for an idea of how to format the strategy.
 
-License
--------
+|-------|
+|License|
+|-------|
 BSD
 
-Other products utilized
------------------------
+|-----------|
+|Built Using|
+|-----------|
 PyTables - http://www.pytables.org/
 NumPy - http://numpy.scipy.org/
 
-Other Notes
------------
-This is a working and almost fully functional prototype of the OQS backtester.  It is still under active development and more features and bug fixes will be released soon.  If you have any problems or encounter any errors, please
+|-----------|
+|Other Notes|
+|-----------|
+This is a working and almost fully functional prototype of the OQS backtester.  It is still under active development and more features and bug fixes will be released soon.  If you have any problems or encounter any errors, please email me at micahmyerscough [at] gatech.edu
