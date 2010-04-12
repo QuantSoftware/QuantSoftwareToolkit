@@ -19,8 +19,8 @@ def generateDataFile():
     random.seed(1)    
     #86400 seconds in a day
     stocks = []
-    for i in range(10): #stocks
-        stocks.append('stock%i'%i)
+    for i in range(30): #stocks
+        stocks.append('stock%.6i'%i)
     
     h5f = pt.openFile('defaultPytablesFile.h5', mode = "w")
     group = h5f.createGroup("/", 'tester')

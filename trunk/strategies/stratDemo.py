@@ -32,7 +32,7 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             order.duration = 172800
             newOrder = order.getOutput()
             if newOrder != None:
-                output.append(newOrder)      
+                output.append(newOrder)
             
     #This for loop goes over all of our current stocks to determine which stocks to sell
     for stock in portfolio.currStocks:

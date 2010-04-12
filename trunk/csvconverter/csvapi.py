@@ -1,6 +1,8 @@
 import dircache, pickle, time
 from sets import Set
 from numpy import NaN
+import cPickle
+import sys
 import numpy as np
 value = NaN
 
@@ -10,17 +12,47 @@ class StockPriceData:
         self.dirname=dirname
         self.list_user_file_names = []
         self.filt_list=[]
-
+        self.startDate = 0
+        self.endDate= 0
+        self.count_of_non_existent_stocks = 0
+        self.priceArray = np.ndarray( shape=(0,0), dtype=np.object)
+        self.stocks_list = []
+        
 #used to get the symbols from the allcsv directory
-    def getSymbols(self): 
+    def getSymbols(self):
         list_file_names=dircache.listdir(self.dirname)
         list_file_names_strip_txt = map(lambda x:(x.split('.')[0]),list_file_names)
         return list_file_names
        # print list_file_names_strip_txt
 
+#used to get all the dates a particular stock has been traded
+    def getCalendar(self,symbol):
+        symbol = str(symbol).upper() + ".TXT"
+        f=open(str(self.dirname)+"/"+str(symbol))
+        j=f.readlines()
+        f.close()
+        j=j[1:-1]
+        stock_trading_days=map(lambda x:(x.split(',')[1]),j)
+        #print stock_trading_days
+        return stock_trading_days
+
+
+#used to get the prices for a subset of days for the stock
+    def getSelectedPrices(self,symbol):
+        symbol = str(symbol).upper() + ".TXT"
+        f=open(str(self.dirname)+"/"+str(symbol))
+        j=f.readlines()
+        f.close()
+        j=j[1:-1]
+        stock_trading_days=map(lambda x:(x.split(',')[1]),j)
+       # print stock_trading_days
+        return stock_trading_days
+
+
+
 
 # to get the user specified symbols       
-    def getUserSymbols(self,filename): #used to get the 
+    def getUserSymbols(self,filename):
         f=open(filename)
         list_user_tickers=f.readlines()
         f.close()
@@ -46,38 +78,39 @@ class StockPriceData:
 #get the stock list
     def getStocksList(self,filename):
         sym=self.getMySymbols(filename)
-        stocks_list = []
-        stocks_list = map(lambda x:(x.split('.')[0]),sym)
-       # print "stocks_list" + str(stocks_list)
-        return stocks_list
+        self.stocks_list = map(lambda x:(x.split('.')[0]),sym)
+        #print "stocks_list" + str(stocks_list)
+        return self.stocks_list
 
-    
+
 #get the time stamp
-    def getTimeStamp(self):
-        self.constructFilteredList()
+    def getTimeStamp(self,startDate,endDate):
+        self.constructFilteredList(startDate,endDate)
         date_sorted = []
         for i in range(0,len(self.filt_list)):
             date_sorted.append(int(self.filt_list[i][0][1]))
+            
 
+        csv_date = -1     
         for i in range(0,len(date_sorted)):
             if(min(date_sorted)==date_sorted[i]):
                 csv_date = i
                 break
+       # print "hellooooo" + str(csv_date)
         timestamp_list = []
-        for i in range(0,len(self.filt_list[csv_date])):
-            temp=[]
-            dateformat = self.filt_list[csv_date][i][1]
-            parseddate = time.strptime(dateformat, '%Y%m%d')
-            correctstamp = time.mktime(parseddate)
-            temp.append(correctstamp)
-            timestamp_list.append(temp)        
-        #print timestamp_list
-        #print map(lambda x: x[0],timestamp_list)
-        #return timestamp_list
-        return map(lambda x: x[0],timestamp_list)
+        if(csv_date!=-1):
+            for i in range(0,len(self.filt_list[csv_date])):
+                temp=[]
+                temp.append(self.filt_list[csv_date][i][1])
+                timestamp_list.append(temp)        
+       # print timestamp_list
+        timestamp_list = map(lambda x: x[0],timestamp_list)
+        return timestamp_list
         
 # get an intermediate list (which is required by all classes-to make the extraction faster)           
-    def constructFilteredList(self):
+    def constructFilteredList(self,startDate,endDate):
+        self.startDate = startDate
+        self.endDate = endDate
         i=0
         user_file_names_extract_data=self.list_user_file_names
                
@@ -87,100 +120,97 @@ class StockPriceData:
             j=f.readlines()
             f.close()
             j=j[1:-1]
-            filt_list_temp=filter(lambda x: int(x.split(',')[1])>20030101,j)
-            filt_list_temp=map(lambda x:(x.split(',')[0],x.split(',')[1],x.split(',')[2],x.split(',')[3],x.split(',')[4],x.split(',')[5],x.split(',')[6],(x.split(',')[7]).strip()),filt_list_temp)
-            self.filt_list.append(filt_list_temp)
-        #print filt_list[0][0]
+            filt_list_temp=filter(lambda x: (int(x.split(',')[1])> int(self.startDate)) ,j)
+            filt_list_temp=filter(lambda x: (int(x.split(',')[1])< int(self.endDate)) ,filt_list_temp)
+            if filt_list_temp:
+                filt_list_temp=map(lambda x:(x.split(',')[0],x.split(',')[1],x.split(',')[2],x.split(',')[3],x.split(',')[4],x.split(',')[5],x.split(',')[6],(x.split(',')[7]).strip()),filt_list_temp)
+                self.filt_list.append(filt_list_temp)
+            else:
+                # self.count_of_non_existent_stocks = self.count_of_non_existent_stocks + 1
+                print str(x.split('.')[0]) + " didn't exist in this period\n"
+                self.stocks_list.remove(x.split('.')[0])
         return self.filt_list
 
 
 
 
+#build the array
+    def getData(self,stocks_list,timestamp_list):
+        timestamps = np.array(timestamp_list)
+        stocks = np.array(stocks_list)
+        self.priceArray = np.ndarray( shape=(timestamps.size, stocks.size), dtype=np.object)
 
-class StratDataFile:
-    def __init__(self,timestamp_list, stocks_list):
-        pass
-        self.timestamps = np.array(timestamp_list)
-        self.stocks = np.array(stocks_list)
-        self.priceArray = np.ndarray( shape=(self.timestamps.size, self.stocks.size), dtype=np.object)
-
-
-# get the data in array format
-    def getData(self):
-            
-        
-        for i in range(self.stocks.size):
-            # print stocks[i]
+        for i in range(stocks.size): # - self.count_of_non_existent_stocks):
+       #     print str(stocks[i]) +str(i)
             k = 0
-            for j in range(self.timestamps.size):
-            #   print str(timestamps[j]) +" <= "+ str(filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
-                if(self.timestamps[j]<filt_list[i][k][1]):
-            #        print str(timestamps[j]) +" < "+ str(filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
+            for j in range(timestamps.size):
+            #   print str(timestamps[j]) +" <= " + str(filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
+                if(timestamps[j]<self.filt_list[i][k][1]):
+                    #print str(timestamps[j]) +" < "+ str(self.filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
                     row = {}
                     row['exchange'] = 'NYSE'
-                    row['symbol'] = self.stocks[i]
+                    row['symbol'] = self.filt_list[i][k][0]
                     row['adj_open'] = NaN 
                     row['adj_close'] = NaN
                     row['adj_high'] = NaN
                     row['adj_low'] = NaN
                     row['close'] = NaN
                     row['volume'] = NaN
-                    row['timestamp'] = self.timestamps[j]
-                    row['when_available'] = self.timestamps[j]
+                    parseddate = time.strptime(timestamps[j],'%Y%m%d')
+                    row['date'] = timestamps[j]
+                    row['timestamp'] = time.mktime(parseddate)
                     row['interval'] = 86400
                     self.priceArray[j,i] = row
-                elif(self.timestamps[j]==filt_list[i][k][1]):
-             #       print str(timestamps[j]) +" == "+ str(filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
+                elif(timestamps[j]==self.filt_list[i][k][1]):
+             #       print str(timestamps[j]) +" == "+ str(self.filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
                     row = {}
                     row['exchange'] = 'NASDAQ'
-                    row['symbol'] = self.stocks[i]
-                    row['adj_open'] = filt_list[i][k][2] 
-                    row['adj_close'] = filt_list[i][k][5]
-                    row['adj_high'] = filt_list[i][k][3]
-                    row['adj_low'] = filt_list[i][k][4]
-                    row['close'] = filt_list[i][k][7]
-                    row['volume'] = filt_list[i][k][6]
-                    row['timestamp'] = self.timestamps[j]
-                    row['when_available'] = self.timestamps[j]
+                    row['symbol'] = self.filt_list[i][k][0]
+                    row['adj_open'] = float(self.filt_list[i][k][2]) 
+                    row['adj_close'] = float(self.filt_list[i][k][5])
+                    row['adj_high'] = float(self.filt_list[i][k][3])
+                    row['adj_low'] = float(self.filt_list[i][k][4])
+                    row['close'] = float(self.filt_list[i][k][7])
+                    row['volume'] = int(self.filt_list[i][k][6])
+                    parseddate = time.strptime(timestamps[j],'%Y%m%d')
+                    row['date'] = timestamps[j]
+                    row['timestamp'] = time.mktime(parseddate)
                     row['interval'] = 86400
                     self.priceArray[j,i] = row
                     k=k+1
-                #j=j+1
+                        
 
                 
 if __name__ == "__main__":
-    spd = StockPriceData('C:/Users/Micah/Desktop/PBMS outputs/csvdata/allcsv') # replace with the proper directory
+    
+    spd = StockPriceData('C:/Users/Micah/Desktop/PBMS outputs/csvdata/allcsv')
     spd.getSymbols()
-    spd.getMySymbols('C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt') # replace with the proper file name
-    stocks_list = spd.getStocksList('C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt') # replace with the proper file name
-    timestamp_list = spd.getTimeStamp()
-    #print timestamp_list
-    filt_list = spd.constructFilteredList()
-
-
-
-    sdf = StratDataFile(timestamp_list, stocks_list)
-    sdf.getData()
-    print sdf.timestamps[0], sdf.timestamps[sdf.timestamps.size-1]
-    #print(sdf.priceArray[len(sdf.timestamps)-1][len(sdf.stocks)-1])
-    #print sdf.priceArray
+    spd.getMySymbols('C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt')
+    stocks = spd.getStocksList('C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt')
+    startDate = 20050101
+    endDate = 20090101
+    if(endDate<startDate):
+        print "Error: enddate earlier than startdate"
+        sys.exit(0)
+    timestamps = spd.getTimeStamp(startDate,endDate)
+    stock_trading_days = spd.getCalendar("aapl")
+    spd.getData(stocks,timestamps)
+    #print(spd.priceArray[0][0])
+    #print(spd.priceArray[len(timestamps)-1][len(stocks)-1])
+    tsInSecs = []
+    for ts in timestamps:
+        parseddate = time.strptime(ts,'%Y%m%d')
+        tsInSecs.append(time.mktime(parseddate))
+    tsArray = np.array(tsInSecs)
+    skArray = np.array(stocks)
+    print 'Timestamp Range: %.1f to %.1f' %(tsArray[0], tsArray[tsArray.size-1])
     pickle_output = open('defaultArrayFile.pkl','w')
-    pickler = pickle.dump(sdf.timestamps,pickle_output)
-    pickler = pickle.dump(sdf.stocks,pickle_output)
-    pickler = pickle.dump(sdf.priceArray,pickle_output)
+
+    pickler = pickle.dump(tsArray,pickle_output)
+    pickler = pickle.dump(skArray,pickle_output)
+    pickler = pickle.dump(spd.priceArray,pickle_output)
     pickle_output.close()
-    print sdf.priceArray
-    '''
-    print 'between'
-    pickle_output = open('defaultArrayFile.pkl','r')
-    ts = pickle.load(pickle_output)
-    st = pickle.load(pickle_output)
-    pA = pickle.load(pickle_output)
-    pickle_output.close()
-    print 'after'
-    '''
-    #pickle_output = open('output.pkl','wb')
-    #pickler = cPickle.dump(sdf,pickle_output)
-    #pickle_output.close()
+    #print spd.priceArray
+
 
 
