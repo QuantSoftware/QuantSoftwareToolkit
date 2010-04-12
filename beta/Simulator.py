@@ -86,7 +86,6 @@ class Simulator():
         #self.position.append(purchase)         
         #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
-        print "sim ts: %d execution timestamp: %d" % (self.currTimestamp, ts)
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts) # Should this be the trading timestamp or the current one?
         if newOrder['order_type'] == 'moo':
             #market order open
