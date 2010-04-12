@@ -36,10 +36,10 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             
     #This for loop goes over all of our current stocks to determine which stocks to sell
     for stock in portfolio.currStocks:
-        openPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open', isTable = isTable)
-        closePrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close', isTable = isTable)
-        highPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high', isTable = isTable)
-        lowPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low', isTable = isTable)
+        openPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open', isTables = isTable)
+        closePrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close', isTables = isTable)
+        highPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high', isTables = isTable)
+        lowPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low', isTables = isTable)
         if(len(openPrice) != 0 and len(closePrice) != 0 and len(highPrice) != 0 and len(lowPrice) != 0):
             if (closePrice[0]-lowPrice[0]) > (highPrice[0]-openPrice[0]):
                 # Format for stock sells (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
