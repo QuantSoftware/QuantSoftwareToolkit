@@ -126,7 +126,7 @@ class Position:
                 self.position.flush()
             else:
                 #invalid type
-                raise TypeError("Not an existing close type '%s'." % str(newOrder.order_type))
+                raise TypeError("Not an existing close type '%s'." % str(closeType))
         else:
             self.removePositionArray(symbol, shares, closeType)
        
