@@ -64,7 +64,7 @@ class StrategyData:
     
     def __init__(self,dataFile,isTable = False):
         #for pytables
-        self.currDataTimestamp = 0
+        self.currTimestamp = 0
         if(isTable):
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
             self.strategyData = self.strategyDataFile.root.tester.testTable
@@ -105,7 +105,7 @@ class StrategyData:
             count = 0
             while(len(prices)==0 and count<10):
                 prices = self.getPrices(timestamp - i, timestamp - i - 86400, stock, 'adj_close')
-                i -= 86400
+                i += 86400
                 count+=1
             #prices3 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_low')
             #prices4 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_high')
@@ -129,6 +129,11 @@ class StrategyData:
         isTable: Using PyTables version (opposed to NumPy array version)
         '''
         if isTable:
+            if endTime == None:
+                endTime = self.currTimestamp
+            if endTime > self.currTimestamp:
+                print 'Tried to access a future time %i, endTime set to %i' %(endTime, self.currTimestamp)
+                endTime = self.currTimestamp
             tempList = []
             if(ticker!=None):    
                 if(type(ticker)==str):
@@ -137,7 +142,7 @@ class StrategyData:
                             if(row['timestamp']>=startTime and row['timestamp']<=endTime):
                                 tempList.append(self.cloneRow(row))
                         elif(startTime!=None):
-                            if(row['timestamp']>=startTime):
+                            if(row['timestamp']>=startTime and row['timestamp']<=self.currTimestamp):
                                 tempList.append(self.cloneRow(row))
                         elif(endTime!=None):
                             if(row['timestamp']<=endTime):
@@ -151,7 +156,7 @@ class StrategyData:
                                 if(row['timestamp']>=startTime and row['timestamp']<=endTime):
                                     tempList.append(self.cloneRow(row))
                             elif(startTime!=None):
-                                if(row['timestamp']>=startTime):
+                                if(row['timestamp']>=startTime and row['timestamp']<=self.currTimestamp):
                                     tempList.append(self.cloneRow(row))
                             elif(endTime!=None):
                                 if(row['timestamp']<=endTime):
@@ -165,7 +170,7 @@ class StrategyData:
                         if(row['timestamp']>=startTime and row['timestamp']<=endTime):
                             tempList.append(self.cloneRow(row))
                     elif(startTime!=None):
-                        if(row['timestamp']>=startTime):
+                        if(row['timestamp']>=startTime and row['timestamp']<=self.currTimestamp):
                             tempList.append(self.cloneRow(row))
                     elif(endTime!=None):
                         if(row['timestamp']<=endTime):
@@ -247,6 +252,11 @@ class StrategyData:
         isTable: Using PyTables version (opposed to NumPy array version)
         '''
         #print "GSA ST ET TKER", startTime, endTime, ticker
+        if endTime == None:
+            endTime = self.currTimestamp
+        if endTime > self.currTimestamp:
+            print 'Tried to access a future time %i, endTime set to %i' %(endTime, self.currTimestamp)
+            endTime = self.currTimestamp
         if ticker != None:
             if type(ticker)==str:
                 tickIdxList = []

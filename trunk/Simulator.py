@@ -86,7 +86,7 @@ class Simulator():
         #self.position.append(purchase)         
         #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
-        #print "execution timestamp: %d" % ts
+        print "sim ts: %d execution timestamp: %d" % (self.currTimestamp, ts)
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts) # Should this be the trading timestamp or the current one?
         if newOrder['order_type'] == 'moo':
             #market order open
@@ -580,6 +580,7 @@ class Simulator():
             totalTime = time.time()
             cycTime = time.clock()
         self.currTimestamp = self.startTime
+        self.strategyData.currTimestamp = self.currTimestamp
         i=1
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
             self.execute()
@@ -601,6 +602,7 @@ class Simulator():
                 cycTime = time.clock()  
             
             self.currTimestamp += self.interval
+            self.strategyData.currTimestamp = self.currTimestamp
         if noisy:
             print "Simulation complete."
         if timersActive:
