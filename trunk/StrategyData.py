@@ -62,10 +62,10 @@ class StrategyData:
         END OutputOrder SUBLCLASS
         '''
 
-    def calculatePortValue(self,stocks,timestamp):
+    def calculatePortValue(self,stocks,timestamp, isTable):
         total = 0
         for stock in stocks:
-            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
+            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close', isTable)
             #prices3 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_low')
             #prices4 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_high')
             #print "Low: %f"%(prices3[len(prices3)-1])# * stocks[stock])
@@ -182,7 +182,7 @@ class StrategyData:
         isTable: Using PyTables version (opposed to NumPy array version)  
         '''
         if isTables:
-            rows = self.getStocks(startTime, endTime, ticker)
+            rows = self.getStocks(startTime, endTime, ticker, isTables)
             result = []
             if(description==None):
                 for row in rows:

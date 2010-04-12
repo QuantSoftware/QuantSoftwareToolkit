@@ -589,12 +589,12 @@ class Simulator():
                 cycTime = time.clock()
             if noisy and not timersActive:
                 print "\nStrategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp,self.isTable))
+                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable))
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
             if noisy and timersActive:
                 print "\nStrategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 print "Strategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp,self.isTable))
+                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable))
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
                 i+=1
                 cycTime = time.clock()  
