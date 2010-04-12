@@ -69,9 +69,10 @@ class Simulator():
         # Call with startTime = endTime = desired timestamp to get just that timestamp
         #print "VolPerDay timestamp: %d" % timestamp
         stocks = self.strategyData.getStocks(timestamp, timestamp+1, symbol, self.isTable)
-        myStockasDict = stocks[0] #Grab the first dictionary in the list
-        vol = myStockasDict['volume'] # Get the volume
-        return vol    
+        if len(stocks) > 0:
+            myStockasDict = stocks[0] #Grab the first dictionary in the list
+            return myStockasDict['volume'] # Get the volume
+        return None   
             
     def buyStock(self, newOrder):
         '''
