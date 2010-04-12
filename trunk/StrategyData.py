@@ -62,7 +62,8 @@ class StrategyData:
         END OutputOrder SUBLCLASS
         '''
 
-    def calculatePortValue(self,stocks,timestamp, isTable):
+
+    def calculatePortValue(self,stocks,timestamp, isTable = True):
         total = 0
         for stock in stocks:
             prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close', isTable)
@@ -171,7 +172,7 @@ class StrategyData:
         else:
             return self.getPriceArray(timestamp, ticker, description)
         
-    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None, isTables=False):
+    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None, isTable=False):
         '''
         Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
         or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
@@ -181,8 +182,8 @@ class StrategyData:
         description: the field from data that is desired IE. adj_high
         isTable: Using PyTables version (opposed to NumPy array version)  
         '''
-        if isTables:
-            rows = self.getStocks(startTime, endTime, ticker, isTables)
+        if isTable:
+            rows = self.getStocks(startTime, endTime, ticker, isTable)
             result = []
             if(description==None):
                 for row in rows:

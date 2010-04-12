@@ -8,7 +8,7 @@ PortfolioModel:
 '''
 class Portfolio:
 
-    def __init__(self, cash, stocks):
+    def __init__(self, cash, stocks, isTable = True):
         '''
         cash: int representing the cash on hand
         stocks: dictionary representing all of the stocks a user has {}
