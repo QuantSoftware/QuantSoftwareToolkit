@@ -246,7 +246,11 @@ class StrategyData:
             return self.priceArray[startIdx:endIdx,tickerIdx]#[0]
         else:
             #print 'no tkrIdx',startIdx, endIdx+1, self.priceArray[startIdx:endIdx+1,:][0]
-            return self.priceArray[startIdx:endIdx,:][0]
+            rows = self.priceArray[startIdx:endIdx,:]
+            if len(rows)==0:
+                return []
+            else:
+                 return rows[0]
         
         
     def getPriceArray(self, timestamp, ticker, description):
