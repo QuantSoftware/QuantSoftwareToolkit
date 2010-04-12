@@ -1,6 +1,5 @@
 import random
 #Set isTable for testing with pytables instead of arrays
-isTable = True
 
 # Rudimentary proof-of-concept strategy; takes in a 'portfolio' that is a two-element list; first is a float
 # (cash on hand) and second is a list of stocks, organized as follows:
@@ -19,6 +18,7 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
     The timestamp is the current timestamp that the simulator is running on
     stockInfo is the StrategyData that the strategy can use to find out information about the stocks.  See below.
     '''
+    isTable = True
     output = []
     #This first for loop goes over all of the stock data to determine which stocks to buy
     for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp, isTable = isTable):
