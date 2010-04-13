@@ -26,7 +26,7 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             # Format for stock buys (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
             order = stockInfo.OutputOrder()
             order.symbol = stock['symbol']
-            order.volume = 20
+            order.volume =  20
             order.task = 'buy'
             order.orderType = 'moc'
             order.duration = 172800
