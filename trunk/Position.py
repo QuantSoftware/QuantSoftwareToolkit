@@ -47,7 +47,11 @@ class Position:
         Removes/modifies positions until the total number of shares have been removed
         NOTE: Method assumes that verification of valid sell has already been completed
         '''
+        #print "RP:", shares
         if isTable:
+            if shares<0:
+                short = True
+            shares = abs(shares)
             rowIndexes = []
             rows = []
             debug = False
@@ -66,12 +70,15 @@ class Position:
                 row = rows[i]
                 if debug:
                     print 'FIFO', row
-                posShares = row['shares']            
+                posShares = row['shares']
+                posShares = abs(posShares)  
+                #print "RP pos:", posShares          
                 while(shares>posShares):
                     shares-=posShares
                     i+=1
                     row = rows[i]
                     posShares = row['shares']
+                    posShares = abs(posShares)  
                 cnt=0
                 while cnt<i:                
                     for row in self.position.iterrows(rowIndexes[cnt]-cnt,rowIndexes[cnt]-cnt+1):
@@ -82,6 +89,9 @@ class Position:
                     if debug:
                         print 'ROWCLOSED', row
                 cnt=0
+                if short:
+                    shares *= -1
+                    posShares *= -1
                 for newRow in self.position.where('(symbol=="%s") & (timestamp==%i)'%(symbol,row['timestamp'])):
                     if(cnt==0):
                         newShares = posShares-shares
@@ -97,12 +107,14 @@ class Position:
                 row = rows[i]
                 if debug:
                     print "LIFO",row                
-                posShares = row['shares']        
+                posShares = row['shares'] 
+                posShares = abs(posShares)       
                 while(shares>posShares):
                     shares-=posShares
                     i-=1
                     row = rows[i]
                     posShares = row['shares']
+                    posShares = abs(posShares)
                 cnt=0
                 i+=1
                 while i<len(rows):
@@ -115,6 +127,9 @@ class Position:
                     if debug:
                         print 'ROWREMOVED', row
                 cnt=0
+                if short:
+                    shares *= -1
+                    posShares *= -1
                 for newRow in self.position.where('(symbol=="%s") & (timestamp==%i)'%(symbol,row['timestamp'])):
                     if(cnt==0):
                         newShares = posShares-shares
@@ -160,30 +175,36 @@ class Position:
         rowIndexes = []
         rows = []
         debug = False
+        if shares<0:
+            short = True
         if debug:
             print 'REMOVING POSITIONS'
             print 'REMOVE:',symbol,shares,closeType
             for row in self.positionArray:
                 print 'CURRROWS:', row
         rows = self.positionArray
-        print 'RPA rows', rows
         if(closeType=='fifo'):
             i = 0
             row = rows[i]
             if debug:
                 print 'FIFO', row
-            posShares = row['shares']            
+            posShares = row['shares']
+            posShares = abs(posShares)            
             while(shares>posShares):
                 shares-=posShares
                 i+=1
                 row = rows[i]
                 posShares = row['shares']
+                posShares = abs(posShares)
             cnt=0
             while cnt<i:                
                 rows[cnt]['closed']=1
                 cnt+=1
                 if debug:
                     print 'ROWCLOSED', rows[cnt]
+            if short:
+                shares *= -1
+                posShares *= -1
             newRow = rows[i]
             newShares = posShares-shares
             newRow['shares'] = newShares
@@ -195,18 +216,23 @@ class Position:
             row = rows[i]
             if debug:
                 print "LIFO",row
-            posShares = row['shares']        
+            posShares = row['shares']
+            posShares = abs(posShares)        
             while(shares>posShares):
                 shares-=posShares
                 i-=1
                 row = rows[i]
                 posShares = row['shares']
+                posShares = abs(posShares)
             cnt=i+1
             while cnt<len(rows):
                 rows[cnt]['closed']=1
                 cnt+=1
                 if debug:
-                    print 'ROWREMOVED', row               
+                    print 'ROWREMOVED', row 
+            if short:
+                shares *= -1
+                posShares *= -1              
             newRow = rows[i]
             newShares = posShares-shares
             newRow['shares'] = newShares

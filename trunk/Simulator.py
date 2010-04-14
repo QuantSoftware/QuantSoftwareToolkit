@@ -87,7 +87,7 @@ class Simulator():
         #self.position.append(purchase)         
         #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
-        print "sim ts: %d execution timestamp: %d" % (self.currTimestamp, ts)
+        #print "sim ts: %d execution timestamp: %d" % (self.currTimestamp, ts)
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts) # Should this be the trading timestamp or the current one?
         if newOrder['order_type'] == 'moo':
             #market order open
@@ -593,21 +593,28 @@ class Simulator():
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
             self.execute()
             self.addOrders(self.strategy(self.portfolio,self.position,self.currTimestamp,self.strategyData))
+            if mtm:
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable)
+                print "| %i %.2f |"%(self.currTimestamp,portValue)
             if timersActive and not noisy:
                 print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 i+=1
                 cycTime = time.clock()
             if noisy and not timersActive:
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable)
                 print "\nStrategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable))
+                print "Current portfolio value: %.2f."%(portValue)
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
             if noisy and timersActive:
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable)
                 print "\nStrategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 print "Strategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable))
+                print "Current portfolio value: %.2f."%(portValue)
                 print "Current stocks: %s.\n\n"%self.portfolio.currStocks
                 i+=1
-                cycTime = time.clock()  
+                cycTime = time.clock() 
+
+ 
             
             self.currTimestamp += self.interval
             self.strategyData.currTimestamp = self.currTimestamp
@@ -624,9 +631,9 @@ class Simulator():
 
 
 cash = 0; comPerShare = 0.0; minCom = 0.; startTime = 0; endTime = 0; timeStep = 0; maxEffect = 0.; decayCycles = 0
-noisy = False; timersActive = False; isTable = False; arrayFile = 'datafiles/defaultArrayFile.pk'; pytablesFile = 'datafiles/defaultPytablesFile.h5'
+noisy = False; timersActive = False; mtm = False; isTable = False; arrayFile = 'datafiles/defaultArrayFile.pk'; pytablesFile = 'datafiles/defaultPytablesFile.h5'
 def main():
-    global cash,comPerShare,minCom,startTime,endTime,timeStep,maxEffect,decayCycles,noisy,timersActive,isTable,arrayFile,pytablesFile
+    global cash,comPerShare,minCom,startTime,endTime,timeStep,maxEffect,decayCycles,noisy,timersActive,mtm,isTable,arrayFile,pytablesFile
     # NOTE: the OptionParser class is currently not necessary, as we can just access sys.argv[1:], but if we
     # want to implement optional arguments, this will make it considerably easier.
     parser = OptionParser()
@@ -769,6 +776,8 @@ def main():
                     noisy = True
                 elif command == "TIMER":
                     timersActive = True
+                elif command == "MTM":
+                    mtm = True
                 elif command != '':
                         print "Unrecognized command '%s'.  Note: some commands may not yet be implemented.  E-mail pdohogne3@gatech.edu if a command is missing." % command
         thisFile.close()
