@@ -287,9 +287,10 @@ class Simulator():
             else:
                 # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
-                if newOrder['shares'] > 0:
+                if newOrder['task'].upper() == 'SELL':
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
+                        print "this is where it stopped working"
                         return None
                 else:
                     if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
@@ -298,6 +299,7 @@ class Simulator():
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
                     #Not enough cash to cover stock
+                    #print "this is where it stopped working"
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -522,7 +524,7 @@ class Simulator():
                         elif order['task'].upper() == "SHORT":
                             #is a short se;;
                             if self.portfolio.hasStock(order['symbol'],-1):
-                                if order['shares']<0:
+                                if order['shares']>0:
                                     result = self.buyStock(order)
                                     if noisy:
                                         if result:
@@ -544,12 +546,13 @@ class Simulator():
                                         print "Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                         elif order['task'].upper() == "COVER":
                             # is a sell
-                            if order['shares']<0:
+                            if order['shares']>0:
                                 result = self.sellStock(order)
                                 if noisy:
                                     if result:
                                         print "Succeeded in covering %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
                                     else:
+                                        print "result:", result
                                         print "Did not succeed in covering %d shares of %s as %s; not short enough or not enough cash.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
                             else:
                                 if noisy:
