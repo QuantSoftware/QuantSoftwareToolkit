@@ -154,17 +154,17 @@ Example:
 	'sell' - sell shares the next day at price specified by type, can't be done if you are currently shorting the stock
 	'short' - short sell stocks, can't be done if you currently hold 'buy' shares of same stock
 	'cover' - cover a short sale, can't be done if you currently hold 'buy' shares of same stock
--volume: the number of stocks to sell	IE: 1000
--symbol: the ticker of the stock to sell	IE: 'KO'
+-volume: the number of stocks to trade (positive number for all types)	IE: 1000
+-symbol: the ticker of the stock to trade	IE: 'KO'
 -type: when to execute the trade
-	'moo' - sell on market open
-	'moc' - sell on market close
+	'moo' - execute on market open
+	'moc' - execute on market close
 	'vwap' - average of high, low, open, close
-	'limit' - sell for specified price if price between high and low of day
+	'limit' - execute for specified price if price between high and low of day
 -duration: how long to continue attempting order, in seconds	IE: 172800
 -closeType: only required for sell and cover, sell longest held stocks first or shortest held stocks first
-	'lifo' - last in, first out (shortest held sold)
-	'fifo' - first in, first out (longest held sold)
+	'lifo' - last in, first out (newest purchase sold)
+	'fifo' - first in, first out (longest held purchase sold)
 -limitPrice: OPTIONAL, only include a limit price if type is 'limit'
 
 Once you have filled in all of the fields, you can use the getOutput method to get the order to append to your list.
