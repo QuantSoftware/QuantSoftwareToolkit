@@ -49,6 +49,7 @@ class Position:
         '''
         #print "RP:", shares
         if isTable:
+            short = False
             if shares<0:
                 short = True
             shares = abs(shares)
@@ -175,6 +176,7 @@ class Position:
         rowIndexes = []
         rows = []
         debug = False
+        short = False
         if shares<0:
             short = True
         if debug:
