@@ -522,7 +522,7 @@ class Simulator():
                         elif order['task'].upper() == "SHORT":
                             #is a short se;;
                             if self.portfolio.hasStock(order['symbol'],-1):
-                                if order['stocks']<0:
+                                if order['shares']<0:
                                     result = self.buyStock(order)
                                     if noisy:
                                         if result:
@@ -544,7 +544,7 @@ class Simulator():
                                         print "Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                         elif order['task'].upper() == "COVER":
                             # is a sell
-                            if order['stocks']<0:
+                            if order['shares']<0:
                                 result = self.sellStock(order)
                                 if noisy:
                                     if result:
