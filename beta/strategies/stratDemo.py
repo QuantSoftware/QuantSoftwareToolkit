@@ -62,10 +62,10 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
     COMMENTS HERE
     '''
     output = []
-    for yesterday in stockInfo.getStocksArray(timestamp - 86400 * 2, timestamp - 86400, isTable = isTable):
+    for yesterday in stockInfo.getStocksArray(timestamp - 86400 * 2, timestamp - 86400):
         #print "Yesterday timestamp: %d" % yesterday['timestamp']
         if yesterday['close'] > 1:
-            for today in stockInfo.getStocksArray(timestamp-86400,timestamp,yesterday['symbol'], isTable = isTable):
+            for today in stockInfo.getStocksArray(timestamp-86400,timestamp,yesterday['symbol']):
                 #print "timestamp: %d" % timestamp
                 if today['close'] < 1:
                     order = stockInfo.OutputOrder()
