@@ -83,6 +83,9 @@ class StrategyData:
             self.symbolIndex = st
             self.timestampIndex = ts
             self.priceArray = pA
+            
+            
+            #(self.timestampIndex, self.symbolIndex, self.priceArray) = generateKnownArray()
                     
     def populateArray(self):
         for symbol in self.symbolIndex:
@@ -346,6 +349,30 @@ class StrategyData:
     def close(self):
         self.strategyDataFile.close()
 
+def generateKnownArray():
+    timestamps = np.array([])
+    stocks = np.array([])
+    for i in range(10,100):
+        timestamps = np.append(timestamps, i*86400)
+    for i in range(3):
+        stocks = np.append(stocks,'stock%i'%i)
+    priceArray = np.ndarray(shape=(timestamps.size,stocks.size),dtype=np.object)
+    for i in range(timestamps.size):
+        for j in range(stocks.size):
+            row = {}
+            row['exchange'] = 'NYSE'
+            row['symbol'] = stocks[j]
+            row['adj_open'] = (timestamps[i]/86400)  * (j+1)
+            row['adj_close'] = (timestamps[i]/86400)  * (j+1)
+            row['adj_high'] = (timestamps[i]/86400)  * (j+1)
+            row['adj_low'] = (timestamps[i]/86400)  * (j+1)
+            row['close'] = (timestamps[i]/86400)  * (j+1)
+            row['volume'] = 200
+            row['timestamp'] = timestamps[i]
+            row['when_available'] = timestamps[i]
+            row['interval'] = 86400
+            priceArray[i,j] = row
+    return (timestamps, stocks, priceArray)
 def generateRandomArray():
     import random
     random.seed(1)    
@@ -356,7 +383,7 @@ def generateRandomArray():
         timestamps = np.append(timestamps,i*86400)
     for i in range(30): #stocks
         stocks = np.append(stocks,'stock%.6i'%i)
-
+        
     priceArray = np.ndarray( shape=(timestamps.size, stocks.size), dtype=np.object)
     for i in range(timestamps.size):    
         for j in range(stocks.size):

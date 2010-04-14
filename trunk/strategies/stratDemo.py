@@ -11,6 +11,56 @@ isTable = False
 
 # This demo strategy prints out the current amount of money in the portfolio and adds a random amount 
 # (up to 1000) to it, then prints the stocks and volume owned
+
+def shortStrategy(portfolio,positions,timestamp,stockInfo):
+    output = []
+    for stock in stockInfo.getStocks(startTime = timestamp-86400,endTime = timestamp):
+        order = stockInfo.OutputOrder()
+        order.symbol = stock['symbol']
+        order.volume = 20
+        order.task = 'short'
+        order.orderType = 'moc'
+        order.duration = 172800
+        newOrder = order.getOutput()
+        if newOrder != None:
+            output.append(newOrder)
+    for stock in portfolio.currStocks:
+        order = stockInfo.OutputOrder()
+        order.symbol = stock
+        order.volume = portfolio.currStocks[stock]/2+1
+        order.task = 'sell'
+        order.orderType = 'moo'
+        order.closeType = 'fifo'
+        order.duration = 172800
+        newOrder = order.getOutput()
+        if newOrder != None:
+            output.append(newOrder)
+    return output
+def dumbStrategy(portfolio,positions,timestamp,stockInfo):
+    output = []
+    for stock in stockInfo.getStocks(startTime = timestamp-86400,endTime = timestamp):
+        order = stockInfo.OutputOrder()
+        order.symbol = stock['symbol']
+        order.volume = timestamp / 86400 / 50
+        order.task = 'buy'
+        order.orderType = 'moc'
+        order.duration = 172800
+        newOrder = order.getOutput()
+        if newOrder != None:
+            output.append(newOrder)
+    for stock in portfolio.currStocks:
+        order = stockInfo.OutputOrder()
+        order.symbol = stock
+        order.volume = portfolio.currStocks[stock]/2+1
+        order.task = 'sell'
+        order.orderType = 'moo'
+        order.closeType = 'fifo'
+        order.duration = 172800
+        newOrder = order.getOutput()
+        if newOrder != None:
+            output.append(newOrder)
+    return output
+        
 def firstStrategy(portfolio,positions,timestamp,stockInfo):
     '''
     Decides what to do based on current and past stock data.
