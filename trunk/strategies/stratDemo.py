@@ -28,7 +28,7 @@ def shortStrategy(portfolio,positions,timestamp,stockInfo):
         order = stockInfo.OutputOrder()
         order.symbol = stock
         order.volume = portfolio.currStocks[stock]/2+1
-        order.task = 'sell'
+        order.task = 'cover'
         order.orderType = 'moo'
         order.closeType = 'fifo'
         order.duration = 172800
