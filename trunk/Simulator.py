@@ -63,6 +63,7 @@ class Simulator():
         return idealTime
         
     def calcEffect(self, maxVol, shares):
+        #print "Market Effect: %f" % (float(shares)/maxVol * self.maxEffect)
         return float(shares)/maxVol * self.maxEffect
         
     def getVolumePerDay(self, symbol, timestamp):  
@@ -104,6 +105,7 @@ class Simulator():
                 
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
+                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
@@ -119,14 +121,14 @@ class Simulator():
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'BUY') else -newOrder['shares']
                 newOrder['fill/cashChange'] = -price
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         elif newOrder['order_type'] == 'moc':
             #market order close
             price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close', isTable = self.isTable)
@@ -144,6 +146,7 @@ class Simulator():
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
+                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
@@ -156,7 +159,7 @@ class Simulator():
                     newOrder.update()
                     self.order.order.flush()
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'BUY') else -newOrder['shares']
                 newOrder['fill/cashChange'] = -price
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
@@ -164,7 +167,7 @@ class Simulator():
                 #print newOrder
                 self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         elif newOrder['order_type'] == 'limit':
             #limit order
             price = newOrder['limit_price']
@@ -185,6 +188,7 @@ class Simulator():
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
+                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
@@ -199,14 +203,14 @@ class Simulator():
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'BUY') else -newOrder['shares']
                 newOrder['fill/cashChange'] = -price
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         elif newOrder['order_type'] == 'vwap':
             #volume weighted average price
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
@@ -228,6 +232,7 @@ class Simulator():
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
                 price = price / 4.
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
+                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
@@ -244,14 +249,14 @@ class Simulator():
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'BUY') else -newOrder['shares']
                 newOrder['fill/cashChange'] = -price
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 self.portfolio.buyTransaction(newOrder) 
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['shares'],price)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         else:
             #throw invalid type error
             #print type(newOrder)
@@ -304,14 +309,14 @@ class Simulator():
                     newOrder.update()
                     self.order.order.flush()
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares']
                 newOrder['fill/cashChange'] = price #NEW
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
-                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])
                 #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'moc':
             #market order close
@@ -349,14 +354,14 @@ class Simulator():
                     newOrder.update()
                     self.order.order.flush()
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares']
                 newOrder['fill/cashChange'] = price
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
-                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])            
                 #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'limit':
             #limit order
@@ -402,14 +407,14 @@ class Simulator():
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares']
                 newOrder['fill/cashChange'] = price
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
-                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])
                 #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'vwap':
             #volume weighted average price
@@ -452,14 +457,14 @@ class Simulator():
                 
                 #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 newOrder['fill/timestamp'] = ts
-                newOrder['fill/quantity'] = newOrder['shares']
+                newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares']
                 newOrder['fill/cashChange'] = price
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
-                self.position.removePosition(newOrder['symbol'],newOrder['shares'],newOrder['close_type'])            
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])            
                 #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         else:
             #throw invalid type error
