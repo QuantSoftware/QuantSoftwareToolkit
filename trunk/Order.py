@@ -75,7 +75,7 @@ class Order:
             row.update()
     
     def getOrders(self,isTable = False):
-        if isTables:
+        if isTable:
             return self.order.iterrows()
         else:
             return self.orderArray

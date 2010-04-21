@@ -477,7 +477,7 @@ class Simulator():
             
     def execute(self):
         count = 0
-        for order in self.order.order.iterrows():
+        for order in self.order.getOrders(self.isTable):
             #print 'ORDER:',order
             #print "order time of expiration:", order['duration'] + order['timestamp']
             #print "currTimestamp:", self.currTimestamp
