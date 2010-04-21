@@ -59,6 +59,7 @@ class Order:
         
     def fillOrder(self, timestamp, rowIterator, quantity, price, commission, impactCost, isTable):
         ''' 
+        CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS
         adds a fill to a given order
         timestamp: the exact timestamp when the order was fufilled
         rowIterator: a pytables iteratable rows object with 1 row, the row to be filled in it
@@ -72,8 +73,14 @@ class Order:
             row['fill/commission'] = commission
             row['fill/impactCost'] = impactCost
             row.update()
-            
-    def addOrderArray(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice = 0):  
+    
+    def getOrders(self,isTable = False):
+        if isTables:
+            return self.order.iterrows()
+        else:
+            return self.orderArray
+        
+    def addOrderArray(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice):  
         ''' 
         adds a new unfulfilled order to the orders table
         timestamp: the exact timestamp when the order was submitted
@@ -93,11 +100,17 @@ class Order:
         row['timestamp'] = timestamp
         row['close_type'] = closeType
         row['limit_price'] = limitPrice
+        row['fill/timestamp'] = 0
+        row['fill/quantity'] = 0
+        row['fill/cashChange'] = 0
+        row['fill/commission'] = 0
+        row['fill/impactCost'] = 0
         np.append(self.orderArray,row)
         return row
       
     def fillOrderArray(self, timestamp, rowIterator, quantity, price, commission, impactCost):
-        ''' 
+        '''
+        CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS
         adds a fill to a given order
         timestamp: the exact timestamp when the order was fufilled
         rowIterator: a pytables iteratable rows object with 1 row, the row to be filled in it
