@@ -165,7 +165,7 @@ class Simulator():
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
                 #print newOrder
-                self.portfolio.buyTransaction(newOrder,isTable = self.isTable)
+                self.portfolio.buyTransaction(newOrder)
                 #add position
                 self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price,isTable = self.isTable)
         elif newOrder['order_type'] == 'limit':
@@ -318,7 +318,7 @@ class Simulator():
                 #add trade to portfolio
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
-                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'], self.isTable)
                 #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'moc':
             #market order close

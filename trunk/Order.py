@@ -105,7 +105,7 @@ class Order:
         row['fill/cashChange'] = 0
         row['fill/commission'] = 0
         row['fill/impactCost'] = 0
-        np.append(self.orderArray,row)
+        self.orderArray = np.append(self.orderArray,row)
         return row
       
     def fillOrderArray(self, timestamp, rowIterator, quantity, price, commission, impactCost):
