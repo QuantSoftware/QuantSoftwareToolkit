@@ -22,8 +22,8 @@ class Simulator():
         self.isTable = isTable # Need for getting volumes
         
         self.portfolio = Portfolio.Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
-        self.position = Position.Position()   #positionFile.createTable('/', 'position', self.PositionModel)
-        self.order = Order.Order()   #orderFile.createTable('/', 'order', self.OrderModel)
+        self.position = Position.Position(isTable)   #positionFile.createTable('/', 'position', self.PositionModel)
+        self.order = Order.Order(isTable)   #orderFile.createTable('/', 'order', self.OrderModel)
         if isTable:
             self.strategyData = StrategyData.StrategyData(pytablesFile,isTable)   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
         else:
@@ -128,7 +128,7 @@ class Simulator():
                 #add trade to portfolio
                 self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price,self.isTable)
         elif newOrder['order_type'] == 'moc':
             #market order close
             price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close', isTable = self.isTable)
@@ -167,7 +167,7 @@ class Simulator():
                 #print newOrder
                 self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price,self.isTable)
         elif newOrder['order_type'] == 'limit':
             #limit order
             price = newOrder['limit_price']
@@ -563,7 +563,7 @@ class Simulator():
             count += 1
         
         
-    def addOrders(self,commands,isTable = True):
+    def addOrders(self,commands,isTable = False):
         # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
         # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
         # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
