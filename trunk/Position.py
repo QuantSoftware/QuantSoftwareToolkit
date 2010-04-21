@@ -163,7 +163,7 @@ class Position:
         row['symbol'] = symbol 
         row['shares'] = shares
         row['purchase_price'] = purchase_price
-        np.append(self.positionArray, row)
+        self.positionArray = np.append(self.positionArray, row)
     
     def removePositionArray(self, symbol, shares, closeType):
         '''
