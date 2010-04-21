@@ -7,7 +7,6 @@ import Portfolio, Position, Order, StrategyData
 
 class Simulator():
     def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare, isTable, maxEffect, arrayFile, pytablesFile):
-        # NOTE: As written currently, strategy is a method
         self.strategy = strategy
         self.startTime = startTime
         self.currTimestamp = startTime
@@ -18,14 +17,14 @@ class Simulator():
         self.timeStampIndex = 0
         self.currDataTimeIndex = 0
         self.maxEffect = maxEffect
-        self.times =  [] # eventual list for timestamps
-        self.isTable = isTable # Need for getting volumes
+        self.times =  []
+        self.isTable = isTable
         
-        self.portfolio = Portfolio.Portfolio(cash, stocks)   #portfolioFile.createTable('/', 'portfolio', self.PortfolioModel)
-        self.position = Position.Position(isTable = self.isTable)   #positionFile.createTable('/', 'position', self.PositionModel)
-        self.order = Order.Order(isTable = self.isTable)   #orderFile.createTable('/', 'order', self.OrderModel)
+        self.portfolio = Portfolio.Portfolio(cash, stocks)
+        self.position = Position.Position(isTable = self.isTable)
+        self.order = Order.Order(isTable = self.isTable)
         if isTable:
-            self.strategyData = StrategyData.StrategyData(pytablesFile,isTable = self.isTable)   #strategyDataFile.createTable('/', 'strategyData', self.strategyDataModel)
+            self.strategyData = StrategyData.StrategyData(pytablesFile,isTable = self.isTable)
         else:
             self.strategyData = StrategyData.StrategyData(arrayFile,isTable = self.isTable) 
     
@@ -63,12 +62,10 @@ class Simulator():
         return idealTime
         
     def calcEffect(self, maxVol, shares):
-        #print "Market Effect: %f" % (float(shares)/maxVol * self.maxEffect)
         return float(shares)/maxVol * self.maxEffect
         
     def getVolumePerDay(self, symbol, timestamp):  
         # Call with startTime = endTime = desired timestamp to get just that timestamp
-        #print "VolPerDay timestamp: %d" % timestamp
         stocks = self.strategyData.getStocks(timestamp, timestamp+1, symbol, isTable = self.isTable)
         if len(stocks) > 0:
             myStockasDict = stocks[0] #Grab the first dictionary in the list
@@ -81,14 +78,8 @@ class Simulator():
         newOrderDetails: an instance of OrderDetails representing the new order
         Note: The Order should not be added to the order table before calling this function
         '''
-        
-        #buyTransaction needs to be expanded and put in here instead.
-        #purchase = Position(timestamp, self.symbol, quantity, price)
-        #self.position.append(purchase)         
-        #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
-        ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
-        #print "sim ts: %d execution timestamp: %d" % (self.currTimestamp, ts)
-        maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts) # Should this be the trading timestamp or the current one?
+        ts = self.getCurrentDataTimestamp()
+        maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts)
         if newOrder['order_type'] == 'moo':
             #market order open
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open', isTable = self.isTable)
@@ -102,15 +93,12 @@ class Simulator():
                 return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
-                
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
-                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
-                
                 if abs(newOrder['shares']) > maxVol4Day:
                     if newOrder['shares'] < 0:
                         newOrder['shares'] = -maxVol4Day
@@ -142,15 +130,12 @@ class Simulator():
                 return None
             else: 
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
-                
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
-                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
-                
                 if abs(newOrder['shares']) > maxVol4Day:
                     if newOrder['shares'] < 0:
                         newOrder['shares'] = -maxVol4Day
@@ -164,7 +149,6 @@ class Simulator():
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
-                #print newOrder
                 self.portfolio.buyTransaction(newOrder)
                 #add position
                 self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price,isTable = self.isTable)
@@ -184,15 +168,12 @@ class Simulator():
                     #limit price outside of daily range
                     return None
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
-                
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
-                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
-                
                 if abs(newOrder['shares']) > maxVol4Day:
                     if newOrder['shares'] < 0:
                         newOrder['shares'] = -maxVol4Day
@@ -224,7 +205,6 @@ class Simulator():
                 return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
-                
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
@@ -232,11 +212,9 @@ class Simulator():
                 price += strategyData.getPrice(ts, newOrder['symbol'], 'adj_low')
                 price = price / 4.
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
-                #print "Market effect markup: %f, commission: %f" % ((checkAmount * price * self.calcEffect(maxVol4Day, checkAmount)),self.calcCommission(checkAmount))
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
                     return None
-                
                 if abs(newOrder['shares']) > maxVol4Day:
                     if newOrder['shares'] < 0:
                         newOrder['shares'] = -maxVol4Day
@@ -259,7 +237,6 @@ class Simulator():
                 self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         else:
             #throw invalid type error
-            #print type(newOrder)
             raise TypeError("Not an existing trade type '%s'." % str(newOrder['order_type']))
         newOrder.update()
         self.order.order.flush()
@@ -269,8 +246,6 @@ class Simulator():
         """
         Comments 'n stuff go here.
         """
-        #sellTransaction needs to be expanded and put here instead.
-        #newOrder = self.order.addOrder(self.currTimestamp,newOrderDetails.shares,newOrderDetails.symbol,newOrderDetails.orderType,newOrderDetails.duration,newOrderDetails.closeType,newOrderDetails.limitPrice)
         ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts)    
         if newOrder['order_type'] == 'moo':
@@ -285,7 +260,6 @@ class Simulator():
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
                 return None
             else:
-                # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['task'].upper() == 'SELL':
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
@@ -299,7 +273,6 @@ class Simulator():
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
                     #Not enough cash to cover stock
-                    #print "this is where it stopped working"
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -319,7 +292,6 @@ class Simulator():
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
                 self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'], self.isTable)
-                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'moc':
             #market order close
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
@@ -332,7 +304,6 @@ class Simulator():
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']        
                 return None
             else:
-                # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['shares'] > 0:
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
@@ -364,7 +335,6 @@ class Simulator():
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
                 self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])            
-                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder['order_type'] == 'limit':
             #limit order
             price = newOrder['limit_price']
@@ -377,7 +347,6 @@ class Simulator():
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
                 return None
             else:
-                # profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares']) # NEW
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['shares'] > 0:
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
@@ -403,9 +372,6 @@ class Simulator():
                         newOrder['shares'] = maxVol4Day
                     newOrder.update()
                     self.order.order.flush()
-                
-                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
-                
                 #__execute trade__
                 #populate fill field in order
                 newOrder['fill/timestamp'] = ts
@@ -417,7 +383,6 @@ class Simulator():
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
                 self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])
-                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         elif newOrder.order_type == 'vwap':
             #volume weighted average price
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
@@ -456,8 +421,6 @@ class Simulator():
                         newOrder['shares'] = maxVol4Day
                     newOrder.update()
                     self.order.order.flush()
-                
-                #profit = newOrder['shares'] * price - self.calcCommission(newOrder['shares'])
                 newOrder['fill/timestamp'] = ts
                 newOrder['fill/quantity'] = newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares']
                 newOrder['fill/cashChange'] = price
@@ -467,7 +430,6 @@ class Simulator():
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
                 self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])            
-                #self.position.addPosition(ts,newOrder.symbol,newOrder.shares,price)
         else:
             #throw invalid type error
             raise TypeError("Not an existing trade type '%s'." % str(newOrder.order_type))
@@ -478,12 +440,8 @@ class Simulator():
     def execute(self):
         count = 0
         for order in self.order.getOrders(self.isTable):
-            #print 'ORDER:',order
-            #print "order time of expiration:", order['duration'] + order['timestamp']
-            #print "currTimestamp:", self.currTimestamp
             if (order['timestamp'] < self.currTimestamp):
                 if (order['duration'] + order['timestamp']) >= self.currTimestamp:
-                    #print order['fill']
                     if order['fill/timestamp'] == 0:
                         #Have unfilled, valid orders
                         if order['task'].upper() == "BUY":
@@ -522,7 +480,7 @@ class Simulator():
                                 if noisy:
                                     print "Did not succeed in selling %d shares of %s as %s; you cannot sell a non-positive amount.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
                         elif order['task'].upper() == "SHORT":
-                            #is a short se;;
+                            #is a short sell
                             if self.portfolio.hasStock(order['symbol'],-1):
                                 if order['shares']>0:
                                     result = self.buyStock(order)
@@ -552,7 +510,6 @@ class Simulator():
                                     if result:
                                         print "Succeeded in covering %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
                                     else:
-                                        print "result:", result
                                         print "Did not succeed in covering %d shares of %s as %s; not short enough or not enough cash.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
                             else:
                                 if noisy:
@@ -564,18 +521,9 @@ class Simulator():
         
         
     def addOrders(self,commands,isTable = False):
-        # commands format: ([(sale details),(sale details),...],[(purchase details),(purchase details),...])
-        # sale details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
-        # purchase details: (shares,symbol,orderType,duration,closeType,(optional) limit price)
-        
-        # need to reverse the signs on volume for short and cover, eliminate the lifo/fifo field for buys and shorts
         if isTable:
             for stock in commands:
-                #if len(stock) == 7:
-                #print stock
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6],self.isTable)
-                #else:
-                #    newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5])            
                 newOrder.append()
                 self.order.order.flush()
         else:
@@ -652,7 +600,6 @@ def main():
         stratName = args[2]
     else:
         stratName = "strategyMain"
-    #print sys.path
     open(configFile,'r')
     for fileName in ["configfiles/default.ini",configFile]:
         thisFile = open(fileName,'r')
@@ -795,7 +742,6 @@ def main():
         mySim.strategyData.timestampIndex = mySim.times
     else:
         mySim.times = mySim.strategyData.timestampIndex
-    #self.strategyData.populateArray(mySim.times)
     mySim.run()
 
 # This ensures the main function runs automatically when the program is run from the command line, but 
