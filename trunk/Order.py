@@ -1,6 +1,5 @@
 import tables as pt, numpy as np
 from models.OrderModel import OrderModel
-#play with iterator vs object for newOrder
 
 '''
 Based on the model:
@@ -51,8 +50,6 @@ class Order:
             row['timestamp'] = timestamp
             row['close_type'] = closeType
             row['limit_price'] = limitPrice
-            #row.append()
-            #self.order.flush()
             return row
         else:
             return self.addOrderArray(timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice = 0)
