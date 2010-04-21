@@ -1,16 +1,5 @@
 import random
-#Set isTable for testing with pytables instead of arrays
 isTable = False
-
-# Rudimentary proof-of-concept strategy; takes in a 'portfolio' that is a two-element list; first is a float
-# (cash on hand) and second is a list of stocks, organized as follows:
-# [$$$$$, [ [symbol, shares], [symbol, shares], [symbol, shares],...] ]
-
-# Note: actual portfolio will be OO
-
-
-# This demo strategy prints out the current amount of money in the portfolio and adds a random amount 
-# (up to 1000) to it, then prints the stocks and volume owned
 
 def shortStrategy(portfolio,positions,timestamp,stockInfo):
     output = []
@@ -104,7 +93,6 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
                 newOrder = order.getOutput()
                 if newOrder != None:
                     output.append(newOrder)   
-    #print 'STRAT OUTPUT:',output 
     # return the sell orders and buy orders to the simulator to execute
     return output
 
@@ -114,10 +102,8 @@ def dollarStrategy(portfolio,positions,timestamp,stockInfo):
     '''
     output = []
     for yesterday in stockInfo.getStocksArray(timestamp - 86400 * 2, timestamp - 86400):
-        #print "Yesterday timestamp: %d" % yesterday['timestamp']
         if yesterday['close'] > 1:
             for today in stockInfo.getStocksArray(timestamp-86400,timestamp,yesterday['symbol']):
-                #print "timestamp: %d" % timestamp
                 if today['close'] < 1:
                     order = stockInfo.OutputOrder()
                     order.symbol = today['symbol']

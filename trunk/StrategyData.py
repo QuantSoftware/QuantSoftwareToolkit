@@ -37,7 +37,6 @@ class StrategyData:
                 print "No symbol in output."
                 return None
             if self.volume == 0:
-                #print (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
                 print "No volume in output."
                 return None
             if self.task == "":
@@ -72,20 +71,14 @@ class StrategyData:
             self.stocksIndex = self.findStocks()
         else:
             self.prevTsIdx = 0
-            #(self.timestampIndex2, self.symbolIndex2, self.priceArray2) = generateRandomArray()
-
             f = open(dataFile,'r')
             ts = pickle.load(f)
             st = pickle.load(f)
             pA = pickle.load(f)
             f.close()
-            
             self.symbolIndex = st
             self.timestampIndex = ts
             self.priceArray = pA
-            
-            
-            #(self.timestampIndex, self.symbolIndex, self.priceArray) = generateKnownArray()
                     
     def populateArray(self):
         for symbol in self.symbolIndex:
@@ -110,15 +103,8 @@ class StrategyData:
                 prices = self.getPrices(timestamp - i, timestamp - i - 86400, stock, 'adj_close')
                 i += 86400
                 count+=1
-            #prices3 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_low')
-            #prices4 = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_high')
-            #print "Low: %f"%(prices3[len(prices3)-1])# * stocks[stock])
-            #print "High: %f"%(prices4[len(prices4)-1])# * stocks[stock])
-            #print "timestamp: %d" % 
             if(len(prices) != 0):
                 total += prices[len(prices)-1] * stocks[stock]
-            
-            #print total
         return total
     
     def getStocks(self, startTime=None, endTime=None, ticker=None, isTable = False):
@@ -254,7 +240,6 @@ class StrategyData:
         ticker: the ticker/symbol of the stock or a list of tickers
         isTable: Using PyTables version (opposed to NumPy array version)
         '''
-        #print "GSA ST ET TKER", startTime, endTime, ticker
         if endTime == None:
             endTime = self.currTimestamp
         if endTime > self.currTimestamp:
@@ -282,17 +267,12 @@ class StrategyData:
         else:
             endIdx = None
         if tickerIdx != None:
-            #print "GSA with tkrIdx",startIdx, endIdx, tickerIdx, self.priceArray[startIdx:endIdx+1,tickerIdx][0]
-            #print "priceArray[endIndex]: %d" % self.priceArray[endIdx][0]['timestamp']
-            #print "priceArray[endIndex+1]: %d" % self.priceArray[endIdx+1][0]['timestamp']
-            #print self.priceArray[startIdx:endIdx,tickerIdx]
             result = np.array([])
             for tickerIdx in tickIdxList:
                 result = np.append(result,self.priceArray[startIdx:endIdx,tickerIdx])
             return result
         else:
             result = self.priceArray[startIdx:endIdx,:]
-            #print 'GSA no tkrIdx',startIdx, endIdx, result
             if len(result) ==0:
                 return []
             else:
@@ -308,15 +288,10 @@ class StrategyData:
         isTable: Using PyTables version (opposed to NumPy array version)  
         '''
         tsIdx = self.timestampIndex.searchsorted(timestamp)
-        #print 'TSIDX', tsIdx
         if tsIdx >= self.timestampIndex.size or self.timestampIndex[tsIdx] != timestamp:
-            #print 'first none'
             return None #NaN  
         tickerIdx = self.symbolIndex.searchsorted(ticker)
-        #print "TICKERIDX", tickerIdx
-        #print ticker, self.symbolIndex[tickerIdx]
         if tickerIdx >= self.symbolIndex.size or self.symbolIndex[tickerIdx] != ticker:
-            #print 'second none'
             return None #NaN
         return self.priceArray[tsIdx,tickerIdx][description]
  
@@ -331,19 +306,13 @@ class StrategyData:
         description: 
         '''
         rows = self.getStocksArray(startTime, endTime, ticker)
-        #print "first timestamp: %d" % rows[0]['timestamp']
-        #print "last timestamp: %d" % rows[len(rows)-1]['timestamp']
-        #print 'ROWS',rows
         result = []
         if(description==None):
             for row in rows:
                 result.append((row['adj_high'],row['adj_low'],row['adj_open'],row['adj_close'],row['close']))
         else:
             for row in rows:
-                #print 'ROW', row
-                #print "Timestamps: %d" % row['timestamp']
                 result.append(row[description])
-        #print "\nDone...\n"
         return result 
 
     def close(self):
@@ -390,8 +359,6 @@ def generateRandomArray():
             
             row = {}
             if j ==0:
-                #adjOpen = random.random() * random.randint(1,100)   
-                #adjClose = random.random() * random.randint(1,100) 
                 row['exchange'] = 'NYSE'
                 row['symbol'] = stocks[j]
                 row['adj_open'] = 10 
@@ -423,7 +390,6 @@ def generateRandomArray():
         if i%100==0:
             print ''
     print ''
-    #print priceArray
     '''
     pickle_output = open('randomArrayFile.pkl','w')
     pickler = pickle.dump(timestamps,pickle_output)
@@ -436,7 +402,6 @@ def generateRandomArray():
 def methodTest():
     strat = StrategyData('models/PriceTestData.h5')
     print strat.getStocks(startTime=0, ticker='KO')
-#methodTest()
     
 def classTest():
     '''
