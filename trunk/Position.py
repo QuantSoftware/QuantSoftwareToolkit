@@ -11,20 +11,20 @@ PositionModel:
 '''
 
 class Position:
-    def __init__(self, isTable = False):
+    def __init__(self, isTable):
         self.isTable = isTable
         self.positionFile = pt.openFile('PositionModel.h5', mode = "w")
         self.position = self.positionFile.createTable('/', 'position', PositionModel)
         if isTable == False:
             self.positionArray = np.array([])
     
-    def getPositions(self, isTable = False):
+    def getPositions(self, isTables):
         output = []
         for row in self.position.iterrows():
             output.append(self.cloneRow(row))
         return output
     
-    def addPosition(self,timestamp,symbol,shares,purchase_price,isTable = False):
+    def addPosition(self,timestamp,symbol,shares,purchase_price,isTable):
         '''
         Adds a position to the current list of positions
         '''
@@ -39,7 +39,7 @@ class Position:
         else:
             self.addPositionArray(timestamp,symbol,shares,purchase_price)
     
-    def removePosition(self, symbol, shares, closeType, isTable = False):
+    def removePosition(self, symbol, shares, closeType, isTable):
         '''
         symbol: the representation of the shares to be removed
         shares: the number of shares to remove
