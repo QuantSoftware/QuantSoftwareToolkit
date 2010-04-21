@@ -22,13 +22,13 @@ OrderModel:
 '''
 
 class Order:
-    def __init__(self, isTable = True):
+    def __init__(self, isTable = False):
         self.orderFile = pt.openFile('OrderModel.h5', mode = "w")
         self.order = self.orderFile.createTable('/', 'order', OrderModel)
         if isTable == False:
             self.orderArray = np.array([])
     
-    def addOrder(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice = 0,isTable = True): 
+    def addOrder(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice = 0,isTable = False): 
         ''' 
         adds a new unfulfilled order to the orders table
         timestamp: the exact timestamp when the order was submitted
@@ -57,7 +57,7 @@ class Order:
         else:
             return self.addOrderArray(timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice = 0)
         
-    def fillOrder(self, timestamp, rowIterator, quantity, price, commission, impactCost, isTable = True):
+    def fillOrder(self, timestamp, rowIterator, quantity, price, commission, impactCost, isTable = False):
         ''' 
         adds a fill to a given order
         timestamp: the exact timestamp when the order was fufilled
@@ -129,7 +129,7 @@ class Order:
             row.append()
         self.order.flush() 
         
-    def close(self, isTable = True):
+    def close(self, isTable = False):
         if isTable:
             self.orderFile.close()
         else:
