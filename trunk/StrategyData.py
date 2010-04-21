@@ -184,7 +184,7 @@ class StrategyData:
         else:
             return self.getStocksArray(startTime, endTime, ticker)
     
-    def getPrice(self, timestamp, ticker, description, isTable=False):
+    def getPrice(self, timestamp, ticker, description, isTable):
         '''
         Returns a single price based on the parameters
         timestamp: the exact timestamp of the desired stock data
