@@ -1,10 +1,12 @@
-import dircache, pickle, time
+import dircache, pickle, time, cPickle, sys
+from StrategyDataModel import StrategyDataModel
+import tables as pt
 from sets import Set
 from numpy import NaN
-import cPickle
-import sys
+
+
 import numpy as np
-value = NaN
+
 
 
 class StockPriceData:
@@ -182,13 +184,25 @@ class StockPriceData:
 
                 
 if __name__ == "__main__":
-    
-    spd = StockPriceData('C:/Users/Micah/Desktop/PBMS outputs/csvdata/allcsv')
-    spd.getSymbols()
-    spd.getMySymbols('C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt')
-    stocks = spd.getStocksList('C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt')
+    #Folder that contains the stock data (1 file per stock)
+    stockDataFolder = 'C:/Users/Micah/Desktop/PBMS outputs/csvdata/allcsv'
+    #File that contains the list of tickers to use (1 ticker per line)
+    stocksToUseFile = 'C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt'
+    #Date to start reading data Format: YYYYMMDD
     startDate = 20050101
+    #Date to end reading data Format: YYYYMMDD
     endDate = 20090101
+    #Would you like to output an array (True) file or pytables (False) file
+    isArray = True
+    #Name of the file containing array information
+    outputFilename = 'defaultArrayFile.pkl'
+    
+    
+    
+    spd = StockPriceData(stockDataFolder)
+    spd.getSymbols()
+    spd.getMySymbols(stocksToUseFile)
+    stocks = spd.getStocksList(stocksToUseFile)
     if(endDate<startDate):
         print "Error: enddate earlier than startdate"
         sys.exit(0)
@@ -204,13 +218,41 @@ if __name__ == "__main__":
     tsArray = np.array(tsInSecs)
     skArray = np.array(stocks)
     print 'Timestamp Range: %.1f to %.1f' %(tsArray[0], tsArray[tsArray.size-1])
-    pickle_output = open('defaultArrayFile.pkl','w')
-
-    pickler = pickle.dump(tsArray,pickle_output)
-    pickler = pickle.dump(skArray,pickle_output)
-    pickler = pickle.dump(spd.priceArray,pickle_output)
-    pickle_output.close()
-    #print spd.priceArray
-
+    
+    if isArray:
+        pickle_output = open(outputFilename,'w')
+        pickler = pickle.dump(tsArray,pickle_output)
+        pickler = pickle.dump(skArray,pickle_output)
+        pickler = pickle.dump(spd.priceArray,pickle_output)
+        pickle_output.close()
+        print "Array File Generated"
+    else:
+        #NOTE: A better way to do this would be to not rely on the array being created before
+        #iterating over it to create the tables file, as it defeats the purpose of avoiding
+        #arrays because of memory restrictions (as you have to create the array before you can create
+        #the table)
+        #Future Enhancement: Write a function that creates the file similarly to getData instead of
+        #relying on the array
+        h5f = pt.openFile(outputFilename, mode = "w")
+        group = h5f.createGroup("/", 'StrategyData')
+        table = h5f.createTable(group, 'StrategyData', StrategyDataModel)
+        for time in spd.priceArray:
+            for stock in time:
+                row = table.row
+                row['exchange'] = stock['exchange']
+                row['symbol'] = stock['symbol']
+                row['adj_open'] = stock['adj_open'] 
+                row['adj_close'] = stock['adj_close']
+                row['adj_high'] = stock['adj_high']
+                row['adj_low'] = stock['adj_low']
+                row['close'] = stock['close']
+                row['volume'] = stock['volume']
+                row['timestamp'] = stock['timestamp']
+                row['date'] = stock['date']
+                row['interval'] = stock['interval']         
+                row.append()
+                table.flush()
+        h5f.close()
+        print "Tables File Generated"
 
 

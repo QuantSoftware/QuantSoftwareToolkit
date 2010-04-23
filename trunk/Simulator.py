@@ -1,5 +1,5 @@
 import models.PortfolioModel, models.PositionModel, models.OrderModel, models.StrategyDataModel
-import tables as pt
+import tables as pt, numpy as np
 from optparse import OptionParser
 import sys, time
 import Portfolio, Position, Order, StrategyData
@@ -29,22 +29,24 @@ class Simulator():
             self.strategyData = StrategyData.StrategyData(arrayFile,self.isTable) 
     
     def addTimeStamps(self):
+        global timersActive
         temp = []
 
-        if self.timersActive:
+        if timersActive:
             print 'Generating valid timestamps'
             cnt = 0
             cycTime = time.time()
         for i in self.strategyData.strategyData.iterrows():
             if i['timestamp'] not in temp:
                 temp.append(i['timestamp'])
-            if self.timersActive:
+            if timersActive:
                 if(cnt%1000000==0):
                     print '%i rows finished: %i secs elapsed'%(cnt,time.time()-cycTime)
                 cnt+=1
-        if self.timersActive:
+        if timersActive:
             print 'all rows added: %i secs elapsed'%(time.time()-cycTime)        
         temp.sort()
+        temp = np.array(temp)
         return temp
     
     def calcCommission(self, volume):
@@ -440,6 +442,7 @@ class Simulator():
     def execute(self):
         count = 0
         for order in self.order.getOrders():
+            print "IN SIM, order:",order
             if (order['timestamp'] < self.currTimestamp):
                 if (order['duration'] + order['timestamp']) >= self.currTimestamp:
                     if order['fill/timestamp'] == 0:
@@ -541,7 +544,7 @@ class Simulator():
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
             self.execute()
             self.addOrders(self.strategy(self.portfolio,self.position,self.currTimestamp,self.strategyData))
-            if noisy or mtm or timersActive:
+            if noisy or timersActive:
                 print '' #newline                
             if mtm:
                 portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
