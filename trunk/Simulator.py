@@ -19,14 +19,14 @@ class Simulator():
         self.maxEffect = maxEffect
         self.times =  []
         self.isTable = isTable
-        
+                
         self.portfolio = Portfolio.Portfolio(cash, stocks)
-        self.position = Position.Position(isTable = self.isTable)
-        self.order = Order.Order(isTable = self.isTable)
+        self.position = Position.Position()
+        self.order = Order.Order(self.isTable)
         if isTable:
-            self.strategyData = StrategyData.StrategyData(pytablesFile,isTable = self.isTable)
+            self.strategyData = StrategyData.StrategyData(pytablesFile,self.isTable)
         else:
-            self.strategyData = StrategyData.StrategyData(arrayFile,isTable = self.isTable) 
+            self.strategyData = StrategyData.StrategyData(arrayFile,self.isTable) 
     
     def addTimeStamps(self):
         temp = []
@@ -66,7 +66,7 @@ class Simulator():
         
     def getVolumePerDay(self, symbol, timestamp):  
         # Call with startTime = endTime = desired timestamp to get just that timestamp
-        stocks = self.strategyData.getStocks(timestamp, timestamp+1, symbol, isTable = self.isTable)
+        stocks = self.strategyData.getStocks(timestamp, timestamp+1, symbol)
         if len(stocks) > 0:
             myStockasDict = stocks[0] #Grab the first dictionary in the list
             return myStockasDict['volume'] # Get the volume
@@ -82,7 +82,7 @@ class Simulator():
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts)
         if newOrder['order_type'] == 'moo':
             #market order open
-            price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open', isTable = self.isTable)
+            price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
@@ -114,12 +114,12 @@ class Simulator():
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
-                self.portfolio.buyTransaction(newOrder,isTable = self.isTable)
+                self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price,isTable = self.isTable)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         elif newOrder['order_type'] == 'moc':
             #market order close
-            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close', isTable = self.isTable)
+            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
@@ -151,7 +151,7 @@ class Simulator():
                 #add trade to portfolio
                 self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price,isTable = self.isTable)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         elif newOrder['order_type'] == 'limit':
             #limit order
             price = newOrder['limit_price']
@@ -164,7 +164,7 @@ class Simulator():
                     print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
                 return None
             else:
-                if ((newOrder['limit_price'] > self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_high', isTable = self.isTable)) or ( newOrder['limit_price'] < self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_low', isTable = self.isTable))):
+                if ((newOrder['limit_price'] > self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
                     #limit price outside of daily range
                     return None
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
@@ -189,12 +189,12 @@ class Simulator():
                 newOrder['fill/commission'] = self.calcCommission(newOrder['shares'])
                 newOrder['fill/impactCost'] = newOrder['shares'] * price * self.calcEffect(maxVol4Day, newOrder['shares']) # This is the CHANGE in the total cost - what effect the volume has
                 #add trade to portfolio
-                self.portfolio.buyTransaction(newOrder, isTable = self.isTable)
+                self.portfolio.buyTransaction(newOrder)
                 #add position
-                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price,isTable = self.isTable)
+                self.position.addPosition(ts,newOrder['symbol'],newOrder['fill/quantity'],price)
         elif newOrder['order_type'] == 'vwap':
             #volume weighted average price
-            price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open', isTable = self.isTable)
+            price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             if price == None:
                 if noisy:
                     print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
@@ -250,7 +250,7 @@ class Simulator():
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts)    
         if newOrder['order_type'] == 'moo':
             #market order open
-            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_open',self.isTable)
+            price = self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             if price == None:
                 if noisy:
                     print "Price data unavailable for",ts,newOrder['symbol']
@@ -291,7 +291,7 @@ class Simulator():
                 #add trade to portfolio
                 self.portfolio.sellTransaction(newOrder)
                 #remove positions according to lifo/fifo
-                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'], self.isTable)
+                self.position.removePosition(newOrder['symbol'],newOrder['shares'] if (newOrder['task'].upper() == 'SELL') else -newOrder['shares'],newOrder['close_type'])
         elif newOrder['order_type'] == 'moc':
             #market order close
             price = strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
@@ -439,7 +439,7 @@ class Simulator():
             
     def execute(self):
         count = 0
-        for order in self.order.getOrders(self.isTable):
+        for order in self.order.getOrders():
             if (order['timestamp'] < self.currTimestamp):
                 if (order['duration'] + order['timestamp']) >= self.currTimestamp:
                     if order['fill/timestamp'] == 0:
@@ -520,15 +520,15 @@ class Simulator():
             count += 1
         
         
-    def addOrders(self,commands,isTable = False):
-        if isTable:
+    def addOrders(self,commands):
+        if self.isTable:
             for stock in commands:
-                newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6],self.isTable)
+                newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
                 newOrder.append()
                 self.order.order.flush()
         else:
             for stock in commands:
-                self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6],self.isTable)
+                self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
                 
     def run(self):
         if timersActive:
@@ -541,24 +541,28 @@ class Simulator():
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
             self.execute()
             self.addOrders(self.strategy(self.portfolio,self.position,self.currTimestamp,self.strategyData))
+            if noisy or mtm or timersActive:
+                print '' #newline                
             if mtm:
-                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable)
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 print "| %i %.2f |"%(self.currTimestamp,portValue)
             if timersActive and not noisy:
                 print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 i+=1
                 cycTime = time.clock()
             if noisy and not timersActive:
-                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable)
-                print "\nStrategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(portValue)
-                print "Current stocks: %s.\n\n"%self.portfolio.currStocks
-            if noisy and timersActive:
-                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp, self.isTable)
-                print "\nStrategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 print "Strategy at %d completed successfully." % self.currTimestamp
-                print "Current portfolio value: %.2f."%(portValue)
-                print "Current stocks: %s.\n\n"%self.portfolio.currStocks
+                print "Current cash: %.2f."%(self.portfolio.currCash)
+                print "Current stocks: %s."%self.portfolio.currStocks
+                print "Current portfolio value: %.2f.\n\n"%(portValue)
+            if noisy and timersActive:
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
+                print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
+                print "Strategy at %d completed successfully." % self.currTimestamp
+                print "Current cash: %.2f."%(self.portfolio.currCash)
+                print "Current stocks: %s."%self.portfolio.currStocks
+                print "Current portfolio value: %.2f.\n\n"%(portValue)
                 i+=1
                 cycTime = time.clock() 
 
@@ -570,11 +574,11 @@ class Simulator():
             print "Simulation complete."
         if timersActive:
             print "Simulation complete in %i seconds."%(time.time() - totalTime)
+        
         self.portfolio.close()
         self.position.close()
         self.order.close()
-        if isTable:
-            self.strategyData.close()
+        self.strategyData.close()
 
 
 

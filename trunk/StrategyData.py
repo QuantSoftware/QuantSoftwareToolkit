@@ -18,51 +18,10 @@ class StrategyDataModel(pt.IsDescription):
     interval = pt.Time64Col()
 '''
             
-class StrategyData:
-    class OutputOrder:
-        '''
-        Subclass to make adding strategies easier
-        '''
-        def __init__(self,symbol = "",volume = 0,task = "",duration = 0,closeType = "",orderType = "",limitPrice = 0):
-            self.symbol = symbol
-            self.volume = volume
-            self.task = task
-            self.duration = duration
-            self.closeType = closeType
-            self.orderType = orderType
-            self.limitPrice = limitPrice
-            
-        def getOutput(self):
-            if self.symbol == "":
-                print "No symbol in output."
-                return None
-            if self.volume == 0:
-                print "No volume in output."
-                return None
-            if self.task == "":
-                print "No task in output."
-                return None
-            if self.duration == 0:
-                print "No duration in output."
-                return None
-            if self.orderType == "":
-                print "No orderType in output."
-                return None
-            if self.task.upper() == "SELL" or self.task.upper() == "COVER":
-                if self.closeType == "":
-                    print "No closeType specified for %s." % self.task
-                    return None
-            if self.orderType.upper() == "LIMIT":
-                if self.limitPrice == 0:
-                    print "No limitPrice specified."
-                    return None
-            return (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
-        '''
-        END OutputOrder SUBLCLASS
-        '''
-    
+class StrategyData: 
     def __init__(self,dataFile,isTable = False):
         #for pytables
+        self.isTable = isTable
         self.currTimestamp = 0
         if(isTable):
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
@@ -93,10 +52,10 @@ class StrategyData:
         temp.sort()
         return temp
     
-    def calculatePortValue(self,stocks,timestamp, isTable = False):
+    def calculatePortValue(self,stocks,timestamp):
         total = 0
         for stock in stocks:
-            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close', isTable = isTable)
+            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
             i = 86400
             count = 0
             while(len(prices)==0 and count<10):
@@ -107,7 +66,7 @@ class StrategyData:
                 total += prices[len(prices)-1] * stocks[stock]
         return total
     
-    def getStocks(self, startTime=None, endTime=None, ticker=None, isTable = False):
+    def getStocks(self, startTime=None, endTime=None, ticker=None):
         '''
         Returns a list of dictionaries that contain all of the valid stock data as keys
         or an empty list if no results are found
@@ -115,9 +74,8 @@ class StrategyData:
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock or a list of tickers
-        isTable: Using PyTables version (opposed to NumPy array version)
         '''
-        if isTable:
+        if self.isTable:
             if endTime == None:
                 endTime = self.currTimestamp
             if endTime > self.currTimestamp:
@@ -170,16 +128,15 @@ class StrategyData:
         else:
             return self.getStocksArray(startTime, endTime, ticker)
     
-    def getPrice(self, timestamp, ticker, description, isTable):
+    def getPrice(self, timestamp, ticker, description):
         '''
         Returns a single price based on the parameters
         timestamp: the exact timestamp of the desired stock data
         ticker: the ticker/symbol of the stock
         description: the field from data that is desired IE. adj_high
-        isTable: Using PyTables version (opposed to NumPy array version)  
         NOTE: If the data is incorrect or invalid, the function will return None  
         '''
-        if isTable:
+        if self.isTable:
             result = None
             for row in self.strategyData.where('symbol=="%s"'%ticker):
                 if row['timestamp']==timestamp:
@@ -188,7 +145,7 @@ class StrategyData:
         else:
             return self.getPriceArray(timestamp, ticker, description)
         
-    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None, isTable=False):
+    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None):
         '''
         Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
         or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
@@ -196,10 +153,9 @@ class StrategyData:
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock or a list of tickers
         description: the field from data that is desired IE. adj_high
-        isTable: Using PyTables version (opposed to NumPy array version)  
         '''
-        if isTable:
-            rows = self.getStocks(startTime, endTime, ticker, isTable = True)
+        if self.isTable:
+            rows = self.getStocks(startTime, endTime, ticker)
             result = []
             if(description==None):
                 for row in rows:
@@ -238,7 +194,6 @@ class StrategyData:
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock or a list of tickers
-        isTable: Using PyTables version (opposed to NumPy array version)
         '''
         if endTime == None:
             endTime = self.currTimestamp
@@ -285,7 +240,6 @@ class StrategyData:
         ticker: the ticker/symbol of the stock
         description: the field from data that is desired IE. adj_high
         NOTE: If the data is incorrect or invalid, the function will return None  
-        isTable: Using PyTables version (opposed to NumPy array version)  
         '''
         tsIdx = self.timestampIndex.searchsorted(timestamp)
         if tsIdx >= self.timestampIndex.size or self.timestampIndex[tsIdx] != timestamp:
@@ -316,7 +270,50 @@ class StrategyData:
         return result 
 
     def close(self):
-        self.strategyDataFile.close()
+        if self.isTable:
+            self.strategyDataFile.close()
+           
+    class OutputOrder:
+        '''
+        Subclass to make adding strategies easier
+        '''
+        def __init__(self,symbol = "",volume = 0,task = "",duration = 0,closeType = "",orderType = "",limitPrice = 0):
+            self.symbol = symbol
+            self.volume = volume
+            self.task = task
+            self.duration = duration
+            self.closeType = closeType
+            self.orderType = orderType
+            self.limitPrice = limitPrice
+            
+        def getOutput(self):
+            if self.symbol == "":
+                print "No symbol in output."
+                return None
+            if self.volume == 0:
+                print "No volume in output."
+                return None
+            if self.task == "":
+                print "No task in output."
+                return None
+            if self.duration == 0:
+                print "No duration in output."
+                return None
+            if self.orderType == "":
+                print "No orderType in output."
+                return None
+            if self.task.upper() == "SELL" or self.task.upper() == "COVER":
+                if self.closeType == "":
+                    print "No closeType specified for %s." % self.task
+                    return None
+            if self.orderType.upper() == "LIMIT":
+                if self.limitPrice == 0:
+                    print "No limitPrice specified."
+                    return None
+            return (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
+        '''
+        END OutputOrder SUBLCLASS
+        '''
 
 def generateKnownArray():
     timestamps = np.array([])
