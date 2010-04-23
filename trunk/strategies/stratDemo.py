@@ -1,5 +1,4 @@
 import random
-isTable = False
 
 def shortStrategy(portfolio,positions,timestamp,stockInfo):
     output = []
@@ -58,10 +57,9 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
     The timestamp is the current timestamp that the simulator is running on
     stockInfo is the StrategyData that the strategy can use to find out information about the stocks.  See below.
     '''
-    global isTable
     output = []
     #This first for loop goes over all of the stock data to determine which stocks to buy
-    for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp, isTable = isTable):
+    for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp):
         if stock['adj_open'] < stock['adj_close'] and (stock['adj_high'] - stock['adj_close']) > (stock['adj_open'] - stock['adj_close']):
             # Format for stock buys (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
             order = stockInfo.OutputOrder()
@@ -76,10 +74,10 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
             
     #This for loop goes over all of our current stocks to determine which stocks to sell
     for stock in portfolio.currStocks:
-        openPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open', isTable = isTable)
-        closePrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close', isTable = isTable)
-        highPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high', isTable = isTable)
-        lowPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low', isTable = isTable)
+        openPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_open')
+        closePrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_close')
+        highPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_high')
+        lowPrice = stockInfo.getPrices(timestamp - 86400, timestamp,stock,'adj_low')
         if(len(openPrice) != 0 and len(closePrice) != 0 and len(highPrice) != 0 and len(lowPrice) != 0):
             if (closePrice[0]-lowPrice[0]) > (highPrice[0]-openPrice[0]):
                 # Format for stock sells (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)

@@ -22,12 +22,13 @@ OrderModel:
 
 class Order:
     def __init__(self, isTable):
+        self.isTable = isTable
         self.orderFile = pt.openFile('OrderModel.h5', mode = "w")
         self.order = self.orderFile.createTable('/', 'order', OrderModel)
         if isTable == False:
             self.orderArray = np.array([])
     
-    def addOrder(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice,isTable): 
+    def addOrder(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice): 
         ''' 
         adds a new unfulfilled order to the orders table
         timestamp: the exact timestamp when the order was submitted
@@ -40,7 +41,7 @@ class Order:
         
         returns a reference to the row
         '''  
-        if isTable:
+        if self.isTable:
             row = self.order.row
             row['task'] = task
             row['shares'] = shares
@@ -54,9 +55,10 @@ class Order:
         else:
             return self.addOrderArray(timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice = 0)
         
-    def fillOrder(self, timestamp, rowIterator, quantity, price, commission, impactCost, isTable):
+    def fillOrder(self, timestamp, rowIterator, quantity, price, commission, impactCost):
         ''' 
         CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS
+        THIS METHOD CURRENTLY WILL NOT FUCTION IF USED
         adds a fill to a given order
         timestamp: the exact timestamp when the order was fufilled
         rowIterator: a pytables iteratable rows object with 1 row, the row to be filled in it
@@ -71,8 +73,8 @@ class Order:
             row['fill/impactCost'] = impactCost
             row.update()
     
-    def getOrders(self,isTable = False):
-        if isTable:
+    def getOrders(self):
+        if self.isTable:
             return self.order.iterrows()
         else:
             return self.orderArray
@@ -105,12 +107,12 @@ class Order:
         self.orderArray = np.append(self.orderArray,row)
         return row
       
-    def fillOrderArray(self, timestamp, rowIterator, quantity, price, commission, impactCost):
+    def fillOrderArray(self, timestamp, row, quantity, price, commission, impactCost):
         '''
         CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS
         adds a fill to a given order
         timestamp: the exact timestamp when the order was fufilled
-        rowIterator: a pytables iteratable rows object with 1 row, the row to be filled in it
+        row: the dictionary representing the row
         quantity: the number of shares successfully traded
         price: the purchase price per share
         '''  
@@ -139,8 +141,8 @@ class Order:
             row.append()
         self.order.flush() 
         
-    def close(self, isTable = False):
-        if isTable:
+    def close(self):
+        if self.isTable:
             self.orderFile.close()
         else:
             self.fillTable()

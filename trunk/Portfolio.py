@@ -13,10 +13,6 @@ class Portfolio:
         cash: int representing the cash on hand
         stocks: dictionary representing all of the stocks a user has {}
         '''
-        self.portfolioFile = pt.openFile('PortfolioModel.h5', mode = "w")
-        group = self.portfolioFile.createGroup("/", 'root')
-        
-        self.portfolio = self.portfolioFile.createTable(group, 'portfolio', PortfolioModel)
         self.currCash = cash
         self.currStocks = stocks
     
@@ -60,4 +56,6 @@ class Portfolio:
         return self.currStocks[symbol] >= volume
     
     def close(self):
-        self.portfolioFile.close()
+        #no tables or HDF5 output
+        pass
+        
