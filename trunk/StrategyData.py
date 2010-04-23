@@ -25,7 +25,7 @@ class StrategyData:
         self.currTimestamp = 0
         if(isTable):
             self.strategyDataFile = pt.openFile(dataFile, mode = "r")
-            self.strategyData = self.strategyDataFile.root.tester.testTable
+            self.strategyData = self.strategyDataFile.root.StrategyData.StrategyData
             self.timestampIndex = None
             self.stocksIndex = self.findStocks()
         else:
@@ -182,7 +182,7 @@ class StrategyData:
         dct['close'] = row['close']
         dct['volume'] = row['volume']
         dct['timestamp'] = row['timestamp']
-        dct['when_available'] = row['when_available']
+        dct['date'] = row['date']
         dct['interval'] = row['interval']            
         return dct
  

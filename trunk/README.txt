@@ -85,14 +85,13 @@ This is the part where your actual strategy logic will go.  You will decide whic
 
 The StrategyData class (stockInfo) has 3 methods you can use to access stock information:
 
-getStocks(startTime=None, endTime=None, ticker=None, isTable = False):
+getStocks(startTime=None, endTime=None, ticker=None):
         Returns a list of dictionaries that contain all of the valid stock data as keys
         or an empty list if no results are found
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
         endTime: checks stocks <= endTime
         ticker: the ticker/symbol of the stock or a list of tickers
-        isTable: Using PyTables version (opposed to NumPy array version)
 
 The getStocks method returns a dictionary, so the fields can be accessed using their field names:
     'timestamp', 'symbol', 'adj_high', 'adj_low', 'adj_open', 'adj_close', 'close', 'volume', 'date'
@@ -101,26 +100,24 @@ The getStocks method returns a dictionary, so the fields can be accessed using t
 	for stock in stocksList:
 		print stock['adj_close'] #would print the adj_close of all applicable stocks
 		
-getPrice(timestamp, ticker, description, isTable=False):
+getPrice(timestamp, ticker, description):
         Returns a single price based on the parameters
         timestamp: the exact timestamp of the desired stock data
         ticker: the ticker/symbol of the stock
         description: the field from data that is desired IE. adj_high
-        isTable: Using PyTables version (opposed to NumPy array version) 
 		NOTE: If the data is incorrect or invalid, the function will return None  
 	
 The getPrice method returns a single value, if you already know exactly which stock you want:
 	stockPrice = stockInfo.getPrice(...)
 	print stockPrice #would print something like 43.25
 	
-getPrices(startTime=None, endTime=None, ticker=None, description=None, isTables=False):
+getPrices(startTime=None, endTime=None, ticker=None, description=None):
 	Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
 	or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
 	startTime: checks stocks >= startTime
 	endTime: checks stocks <= endTime
 	ticker: the ticker/symbol of the stock or a list of tickers
 	description: the field from data that is desired IE. adj_high
-	isTable: Using PyTables version (opposed to NumPy array version)  
 
 Returns a list of prices if description is specified:
 	stockPrices = stockInfo.getPrices(..., description = 'adj_close')
@@ -187,4 +184,3 @@ NumPy - http://numpy.scipy.org/
 |-----------|
 |Other Notes|
 |-----------|
-This is a working and almost fully functional prototype of the OQS backtester.  It is still under active development and more features and bug fixes will be released soon.  If you have any problems or encounter any errors, please email me at micahmyerscough [at] gatech.edu
