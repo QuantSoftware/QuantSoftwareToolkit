@@ -60,9 +60,9 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
     output = []
     #This first for loop goes over all of the stock data to determine which stocks to buy
     for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp):
-        print "strat stock", stock
         if stock['adj_open'] < stock['adj_close'] and (stock['adj_high'] - stock['adj_close']) > (stock['adj_open'] - stock['adj_close']):
             # Format for stock buys (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
+            print 'strat buying:', stock
             order = stockInfo.OutputOrder()
             order.symbol = stock['symbol']
             order.volume = 20

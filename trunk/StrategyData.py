@@ -86,13 +86,13 @@ class StrategyData:
                 if(type(ticker)==str):
                     for row in self.strategyData.where('symbol=="%s"'%ticker):
                         if(startTime!=None and endTime!=None):
-                            if(row['timestamp']>=startTime and row['timestamp']<=endTime):
+                            if(row['timestamp']>=startTime and row['timestamp']<endTime):
                                 tempList.append(self.cloneRow(row))
                         elif(startTime!=None):
-                            if(row['timestamp']>=startTime and row['timestamp']<=self.currTimestamp):
+                            if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
                                 tempList.append(self.cloneRow(row))
                         elif(endTime!=None):
-                            if(row['timestamp']<=endTime):
+                            if(row['timestamp']<endTime):
                                 tempList.append(self.cloneRow(row))
                         else: #no time given
                             tempList.append(self.cloneRow(row))
@@ -100,13 +100,13 @@ class StrategyData:
                     for tick in ticker:
                         for row in self.strategyData.where('symbol=="%s"'%tick):
                             if(startTime!=None and endTime!=None):
-                                if(row['timestamp']>=startTime and row['timestamp']<=endTime):
+                                if(row['timestamp']>=startTime and row['timestamp']<endTime):
                                     tempList.append(self.cloneRow(row))
                             elif(startTime!=None):
-                                if(row['timestamp']>=startTime and row['timestamp']<=self.currTimestamp):
+                                if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
                                     tempList.append(self.cloneRow(row))
                             elif(endTime!=None):
-                                if(row['timestamp']<=endTime):
+                                if(row['timestamp']<endTime):
                                     tempList.append(self.cloneRow(row))
                             else: #no time given
                                 tempList.append(self.cloneRow(row))
@@ -114,13 +114,13 @@ class StrategyData:
             else:
                 for row in self.strategyData.iterrows():
                     if(startTime!=None and endTime!=None):
-                        if(row['timestamp']>=startTime and row['timestamp']<=endTime):
+                        if(row['timestamp']>=startTime and row['timestamp']<endTime):
                             tempList.append(self.cloneRow(row))
                     elif(startTime!=None):
-                        if(row['timestamp']>=startTime and row['timestamp']<=self.currTimestamp):
+                        if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
                             tempList.append(self.cloneRow(row))
                     elif(endTime!=None):
-                        if(row['timestamp']<=endTime):
+                        if(row['timestamp']<endTime):
                             tempList.append(self.cloneRow(row))
                     else: #no time given
                         tempList.append(self.cloneRow(row))                    
@@ -214,13 +214,13 @@ class StrategyData:
         else:
             tickerIdx = None      
         if startTime != None:
-            startIdx = self.timestampIndex.searchsorted(startTime)
+            startIdx = self.timestampIndex.searchsorted(startTime, 'left')
         else:
             startIdx = None
         if endTime != None:
-            endIdx = self.timestampIndex.searchsorted(endTime)
+            endIdx = self.timestampIndex.searchsorted(endTime, 'left')
         else:
-            endIdx = None
+            endIdx = None  
         if tickerIdx != None:
             result = np.array([])
             for tickerIdx in tickIdxList:
