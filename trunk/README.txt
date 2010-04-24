@@ -90,7 +90,7 @@ getStocks(startTime=None, endTime=None, ticker=None):
         or an empty list if no results are found
         Can be called independently or used as part of the getPrices function
         startTime: checks stocks >= startTime
-        endTime: checks stocks <= endTime
+        endTime: checks stocks < endTime (note exclusive)
         ticker: the ticker/symbol of the stock or a list of tickers
 
 The getStocks method returns a dictionary, so the fields can be accessed using their field names:
@@ -115,7 +115,7 @@ getPrices(startTime=None, endTime=None, ticker=None, description=None):
 	Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
 	or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
 	startTime: checks stocks >= startTime
-	endTime: checks stocks <= endTime
+	endTime: checks stocks < endTime (note exclusive)
 	ticker: the ticker/symbol of the stock or a list of tickers
 	description: the field from data that is desired IE. adj_high
 
