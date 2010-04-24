@@ -444,6 +444,7 @@ class Simulator():
         for order in self.order.getOrders():
             print "IN SIM, order:",order
             if (order['timestamp'] < self.currTimestamp):
+                print "IN EXECUTE, order['timestamp']: %d, self.currTimestamp: %d" % (order['timestamp'], self.currTimestamp)
                 if (order['duration'] + order['timestamp']) >= self.currTimestamp:
                     if order['fill/timestamp'] == 0:
                         #Have unfilled, valid orders
