@@ -7,7 +7,6 @@ PositionModel:
     symbol = pt.StringCol(4) 
     shares = pt.Int32Col()
     purchase_price = pt.Int32Col()
-    closed = pt.Int32Col()
 '''
 
 class Position:
@@ -61,7 +60,6 @@ class Position:
                 posShares = abs(posShares)
             cnt=0
             while cnt<i:                
-                rows[cnt]['closed']=1
                 cnt+=1
                 if debug:
                     print 'ROWCLOSED', rows[cnt]
@@ -89,7 +87,6 @@ class Position:
                 posShares = abs(posShares)
             cnt=i+1
             while cnt<len(rows):
-                rows[cnt]['closed']=1
                 cnt+=1
                 if debug:
                     print 'ROWREMOVED', row 
