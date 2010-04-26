@@ -442,9 +442,7 @@ class Simulator():
     def execute(self):
         count = 0
         for order in self.order.getOrders():
-            print "IN SIM, order:",order
             if (order['timestamp'] < self.currTimestamp):
-                print "IN EXECUTE, order['timestamp']: %d, self.currTimestamp: %d" % (order['timestamp'], self.currTimestamp)
                 if (order['duration'] + order['timestamp']) >= self.currTimestamp:
                     if order['fill/timestamp'] == 0:
                         #Have unfilled, valid orders
@@ -603,7 +601,7 @@ def main():
         print "FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING."
         return
     
-    configFile = args[0]
+    configFile = 'configfiles/'+args[0]
     if len(args) == 3:
         stratName = args[2]
     else:

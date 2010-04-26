@@ -62,7 +62,6 @@ def firstStrategy(portfolio,positions,timestamp,stockInfo):
     for stock in stockInfo.getStocks(startTime = timestamp - 86400,endTime = timestamp):
         if stock['adj_open'] < stock['adj_close'] and (stock['adj_high'] - stock['adj_close']) > (stock['adj_open'] - stock['adj_close']):
             # Format for stock buys (volume,symbol,type,lengthValid,closeType,OPTIONAL: limitPrice)
-            print 'strat buying:', stock
             order = stockInfo.OutputOrder()
             order.symbol = stock['symbol']
             order.volume = 20
