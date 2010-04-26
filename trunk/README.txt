@@ -27,7 +27,7 @@ To run the system:
 * Create a config file and put it in the configfiles folder
 * Create and upload your data file to the datafiles folder (path specified in the config file)
 * Run the simulator passing the command line arguments: <Simulator> <config file> <strategy file> <main strategy function>
-To run based on the example code: simulator.py configfiles/config.ini stratDemo firstStrategy
+To run based on the example code: simulator.py config.ini stratDemo firstStrategy
 
 |------------------|
 |Configuration File|
