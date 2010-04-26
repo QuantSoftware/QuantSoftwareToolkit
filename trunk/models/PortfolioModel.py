@@ -2,8 +2,8 @@ import tables as pt #@UnresolvedImport
 import PositionModel as Position
 
 class PortfolioModel(pt.IsDescription):
-	cash = pt.Int32Col()
-	positions = Position.PositionModel()    #creates a nested table of positions
+    cash = pt.Float32Col()
+    timestamp = pt.Time64Col()
 
 def classTest():        
     h5f = pt.openFile('PortfolioTest.h5', mode = "w")

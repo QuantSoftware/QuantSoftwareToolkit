@@ -6,7 +6,6 @@ class PositionModel(pt.IsDescription):
     symbol = pt.StringCol(30) 
     shares = pt.Int32Col()
     purchase_price = pt.Float32Col()
-    closed = pt.Int32Col()
     
         
 def classTest():        
