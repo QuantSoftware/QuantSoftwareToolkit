@@ -100,7 +100,7 @@ class Position:
                 print 'UPDATEDROW(FIFO):', newRow
         else:
             #invalid type
-            raise TypeError("Not an existing close type '%s'." % str(newOrder.order_type))
+            raise TypeError("Not an existing close type '%s'." % str(closeType))
     
     def fillTable(self):   
         self.positionFile = pt.openFile('PositionModel.h5', mode = "w")
