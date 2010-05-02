@@ -7,28 +7,40 @@ import Portfolio, Position, Order, StrategyData
 
 class Simulator():
     def __init__(self, cash, stocks, strategy, startTime, endTime, interval, minCom, comPerShare, isTable, maxEffect, arrayFile, pytablesFile):
+        # strategy contains a reference to the strategy method specified in the command line
         self.strategy = strategy
+        # startTime/endTime are the timestamps marking the beginning and end of the time for which the simulation should run
         self.startTime = startTime
         self.currTimestamp = startTime
         self.endTime = endTime
+        # interval is the amount of time between iterations of the strategy
         self.interval = interval
+        # minCom is the minimum commission per transaction
         self.minCom = minCom
+        # comPerShare is the calculated commission per share--if this is greater than the minimum commission, this is what gets used
         self.comPerShare = comPerShare
+        # timeStampIndex and currDataTimeIndex are markers to track the current position in the list of timestamps
         self.timeStampIndex = 0
         self.currDataTimeIndex = 0
+        # maxEffect is the maximum percentage change in price a single transaction can have on the actual market price
         self.maxEffect = maxEffect
+        # times becomes the list of timestamps
         self.times =  []
+        # isTable tells the simulator whether to use the table- or array-specific methods
         self.isTable = isTable
-                
+        
+        #starting portfolio, position, and order initializations
         self.portfolio = Portfolio.Portfolio(cash, stocks)
         self.position = Position.Position()
         self.order = Order.Order(self.isTable)
+        #populate the strategyData with the relevant type of data storage
         if isTable:
             self.strategyData = StrategyData.StrategyData(pytablesFile,self.isTable)
         else:
             self.strategyData = StrategyData.StrategyData(arrayFile,self.isTable) 
     
     def addTimeStamps(self):
+        # generates the list of timestamps
         global timersActive
         temp = []
 
@@ -44,29 +56,35 @@ class Simulator():
                     print '%i rows finished: %i secs elapsed'%(cnt,time.time()-cycTime)
                 cnt+=1
         if timersActive:
-            print 'all rows added: %i secs elapsed'%(time.time()-cycTime)        
+            print 'all rows added: %i secs elapsed'%(time.time()-cycTime)      
+        #Put the list in order, convert it to a NumPy array  
         temp.sort()
         temp = np.array(temp)
         return temp
     
     def calcCommission(self, volume):
+        # returns the commission on a given trade given the volume
         return max(minCom,volume * self.comPerShare)
     
     def getCurrentDataTimestamp(self):
+        # returns the timestamp of the most recent data available
         while self.times[self.currDataTimeIndex+1]<self.currTimestamp:
             self.currDataTimeIndex += 1
         return self.times[self.currDataTimeIndex]
     
     def getExecutionTimestamp(self):
+        # returns the timestamp of the current execution timestamp
         while self.times[self.timeStampIndex]<self.currTimestamp:
             self.timeStampIndex += 1
         idealTime = self.times[self.timeStampIndex+1]
         return idealTime
         
     def calcEffect(self, maxVol, shares):
+        # calculates the effect in the market of a given trade
         return float(shares)/maxVol * self.maxEffect
         
     def getVolumePerDay(self, symbol, timestamp):  
+        # returns the volume of a given stock for the given day (used in conjunction with calcEffect)
         # Call with startTime = endTime = desired timestamp to get just that timestamp
         stocks = self.strategyData.getStocks(timestamp, timestamp+1, symbol)
         if len(stocks) > 0:
@@ -246,7 +264,9 @@ class Simulator():
     
     def sellStock(self,newOrder):
         """
-        Comments 'n stuff go here.
+        function takes in an instance of OrderDetails, executes the changes to the portfolio and adds the order to the order table
+        newOrderDetails: an instance of OrderDetails representing the new order
+        Note: The Order should not be added to the order table before calling this function
         """
         ts = self.getCurrentDataTimestamp() #need a function to get the next available time we can trade
         maxVol4Day = self.getVolumePerDay(newOrder['symbol'], ts)    
@@ -266,7 +286,6 @@ class Simulator():
                 if newOrder['task'].upper() == 'SELL':
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "this is where it stopped working"
                         return None
                 else:
                     if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
@@ -440,6 +459,7 @@ class Simulator():
         return price
             
     def execute(self):
+        # This function iterates through the orders and attempts to execute all the ones that are still valid and unfilled
         count = 0
         for order in self.order.getOrders():
             if (order['timestamp'] < self.currTimestamp):
@@ -505,7 +525,7 @@ class Simulator():
                                     else:
                                         print "Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                         elif order['task'].upper() == "COVER":
-                            # is a sell
+                            # is a cover
                             if order['shares']>0:
                                 result = self.sellStock(order)
                                 if noisy:
@@ -523,6 +543,7 @@ class Simulator():
         
         
     def addOrders(self,commands):
+        # takes in commands (return value of strategy), parses it, and adds it in the correct format to the order data storage
         if self.isTable:
             for stock in commands:
                 newOrder = self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
@@ -533,6 +554,7 @@ class Simulator():
                 self.order.addOrder(self.getExecutionTimestamp(),stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6])
                 
     def run(self):
+        # RUN THE SIMULATION
         if timersActive:
             print "Simulation timer started."
             totalTime = time.time()
@@ -541,6 +563,8 @@ class Simulator():
         self.strategyData.currTimestamp = self.currTimestamp
         i=1
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time() and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]:
+            # While not yet reached the end timestamp AND not yet caught up to present AND not yet reached the end of the data
+            # execute the existing orders, then run the strategy and add the new orders
             self.execute()
             self.addOrders(self.strategy(self.portfolio,self.position,self.currTimestamp,self.strategyData))
             if noisy or timersActive:
