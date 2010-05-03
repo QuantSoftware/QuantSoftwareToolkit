@@ -1,11 +1,6 @@
 import StrategyData, Simulator, tables as pt
 from models.PortfolioModel import PortfolioModel
-'''
-Based on the model:
-PortfolioModel:
-    cash = pt.Int32Col()
-    positions = Position.PositionModel()
-'''
+
 class Portfolio:
 
     def __init__(self, cash, stocks):
@@ -18,6 +13,7 @@ class Portfolio:
     
     def buyTransaction(self, order):
         '''
+        Updates the portfolio after a stock is purchased
         order: the order (we know is valid at this point) to execute on the portfolio
         '''
         # Subtract the impact cost - it cost more because you inflated the price buying so much
@@ -30,8 +26,8 @@ class Portfolio:
         
     def sellTransaction(self,order):
         '''
-        see buyTransaction for now
-        
+        Updates the portfolio after a stock is sold
+        order: the order (we know is valid at this point) to execute on the portfolio        
         '''
         # Subtract effect - gain less money
         # cashChange is POSITIVE when passed in 

@@ -19,6 +19,7 @@ class StockPriceData:
         self.count_of_non_existent_stocks = 0
         self.priceArray = np.ndarray( shape=(0,0), dtype=np.object)
         self.stocks_list = []
+        #self.signalsArray = XXX
         
 #used to get the symbols from the allcsv directory
     def getSymbols(self):
@@ -162,6 +163,7 @@ class StockPriceData:
                     row['date'] = timestamps[j]
                     row['timestamp'] = time.mktime(parseddate)
                     row['interval'] = 86400
+                    #row['signal'] = self.signalsArray[j,i]
                     self.priceArray[j,i] = row
                 elif(timestamps[j]==self.filt_list[i][k][1]):
              #       print str(timestamps[j]) +" == "+ str(self.filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
@@ -178,6 +180,7 @@ class StockPriceData:
                     row['date'] = timestamps[j]
                     row['timestamp'] = time.mktime(parseddate)
                     row['interval'] = 86400
+                    #row['signal'] = self.signalsArray[j,i]
                     self.priceArray[j,i] = row
                     k=k+1
                         
@@ -185,9 +188,9 @@ class StockPriceData:
                 
 if __name__ == "__main__":
     #Folder that contains the stock data (1 file per stock)
-    stockDataFolder = 'C:/Users/Micah/Desktop/PBMS outputs/csvdata/allcsv'
+    stockDataFolder = ''
     #File that contains the list of tickers to use (1 ticker per line)
-    stocksToUseFile = 'C:/Users/Micah/Desktop/PBMS outputs/csvdata/tickerlist_temp.txt'
+    stocksToUseFile = ''
     #Date to start reading data Format: YYYYMMDD
     startDate = 20050101
     #Date to end reading data Format: YYYYMMDD
@@ -196,6 +199,9 @@ if __name__ == "__main__":
     isArray = True
     #Name of the file containing array information
     outputFilename = 'defaultArrayFile.pkl'
+    
+    #GENERATE SIGNALS ARRAY HERE OR IN INIT METHOD
+    #self.signalsArray = XXX
     
     
     
@@ -249,7 +255,8 @@ if __name__ == "__main__":
                 row['volume'] = stock['volume']
                 row['timestamp'] = stock['timestamp']
                 row['date'] = stock['date']
-                row['interval'] = stock['interval']         
+                row['interval'] = stock['interval']
+                #row['signal'] = stock['signal']     
                 row.append()
                 table.flush()
         h5f.close()

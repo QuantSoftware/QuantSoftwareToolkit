@@ -1,25 +1,6 @@
 import tables as pt, numpy as np
 from models.OrderModel import OrderModel
 
-'''
-Based on the model:
-FillModel:
-    timestamp = pt.Time64Col()
-    quantity = pt.Int32Col()
-    cashChange = pt.Float32Col()
-    commission = pt.Float32Col()
-    
-OrderModel:
-    shares = pt.Int32Col()
-    symbol = pt.StringCol(4)
-    order_type = pt.StringCol(5)       #moo moc limit vwap
-    duration = pt.Time64Col()
-    timestamp = pt.Time64Col()
-    close_type = pt.StringCol(4)       #lifo or fifo for a sell, none for a buy
-    limit_price = pt.Float32Col()
-    fill = FillModel()
-'''
-
 class Order:
     def __init__(self, isTable):
         self.isTable = isTable
@@ -74,6 +55,9 @@ class Order:
             row.update()
     
     def getOrders(self):
+        '''
+        Returns all of the orders
+        '''
         if self.isTable:
             return self.order.iterrows()
         else:
@@ -81,7 +65,7 @@ class Order:
         
     def addOrderArray(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice):  
         ''' 
-        adds a new unfulfilled order to the orders table
+        adds a new unfulfilled order to the orders table and returns the order
         timestamp: the exact timestamp when the order was submitted
         task: buy, sell, short, cover
         shares: the number of shares to trade
@@ -123,6 +107,9 @@ class Order:
         row['fill/impactCost'] = impactCost
         
     def fillTable(self):
+        '''
+        converts all orders to HDF5 and outputs the file
+        '''
         for arrRow in self.orderArray:
             row = self.order.row
             row['task'] = arrRow['task']
