@@ -18,35 +18,3 @@ class OrderModel(pt.IsDescription):
     close_type = pt.StringCol(4)       #lifo or fifo for a sell, none for a buy
     limit_price = pt.Float32Col()
     fill = FillModel()
-        
-def classTest():        
-    # THIS METHOD NEEDS TO BE UPDATED TO INCLUDE TASK
-    h5f = pt.openFile('OrderTest.h5', mode = "w")
-    group = h5f.createGroup("/", 'tester')
-    table = h5f.createTable(group, 'testTable', OrderModel)
-    row = table.row
-    for i in range(10):
-        row['shares'] = 100
-        if i == 1:
-            row['shares']=1000
-        row['symbol'] = 'NYSE'
-        row['order_type'] = 'moo'
-        row['duration'] = 1000
-        row['timestamp'] = time.time()
-        row['close_type'] = 'lifo'
-        row.append()
-    rows = table.where("row['shares']==1000")
-    for row in rows:
-        row['shares'] = 500
-        row.update()
-    
-    h5f.close()
-    
-    #reopen and access data file
-    h5f = pt.openFile('OrderTest.h5', mode = "r")
-    table = h5f.root.tester.testTable
-    for row in table.iterrows():
-        print row['shares'], row['symbol'], row['order_type'],\
-        row['duration'], row['timestamp'], row['close_type']
-    h5f.close()
-#classTest()

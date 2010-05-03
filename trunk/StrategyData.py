@@ -1,25 +1,13 @@
 import tables as pt, numpy as np, pickle
 from models.StrategyDataModel import StrategyDataModel
 from numpy import NaN 
-'''
-Based on the model:
-  
-class StrategyDataModel(pt.IsDescription):
-    symbol = pt.StringCol(30)           #30 char string; Ticker
-    exchange = pt.StringCol(10)         #10 char string; NYSE, NASDAQ, etc.
-    adj_high = pt.Float32Col()
-    adj_low = pt.Float32Col()
-    adj_open = pt.Float32Col()
-    adj_close = pt.Float32Col()
-    close = pt.Float32Col()
-    volume = pt.Int32Col()
-    timestamp = pt.Time64Col()
-    when_available = pt.Time64Col()
-    interval = pt.Time64Col()
-'''
             
 class StrategyData: 
     def __init__(self,dataFile,isTable = False):
+        '''
+        dataFile: The filename of the data file (array or pytables)
+        isTable: The runtype, true for table false for array
+        '''
         #for pytables
         self.isTable = isTable
         self.currTimestamp = 0
@@ -39,12 +27,10 @@ class StrategyData:
             self.timestampIndex = ts
             self.priceArray = pA
                     
-    def populateArray(self):
-        for symbol in self.symbolIndex:
-            for time in self.timestampsIndex:
-                pass
-        
     def findStocks(self):
+        '''
+        Populates the symbolIndex for table run
+        '''
         temp = []
         for i in self.strategyData.iterrows():
             if i['symbol'] not in temp:
@@ -53,6 +39,11 @@ class StrategyData:
         return temp
     
     def calculatePortValue(self,stocks,timestamp):
+        '''
+        Calculates the current portfolio value: cash + stocks
+        stocks: the current stocks you hold as represented by currStocks in portfolio
+        timestamp: the timestamp used to calculate the present value of stocks
+        '''
         total = 0
         for stock in stocks:
             prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
