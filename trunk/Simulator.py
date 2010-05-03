@@ -630,8 +630,11 @@ def main():
         stratName = args[2]
     else:
         stratName = "strategyMain"
-    open(configFile,'r')
+    if noisy:
+        print "About to parse configuration files.  Any invalid fields found in the user-specified file will use the relevant value from the default file instead."
     for fileName in ["configfiles/default.ini",configFile]:
+        if noisy:
+            print "Parsing %s now..." % filename[12:]
         thisFile = open(fileName,'r')
         for line in thisFile.readlines():
             # Separate the command in the config file from the arguments
@@ -759,7 +762,7 @@ def main():
                         print "Unrecognized command '%s'.  Note: some commands may not yet be implemented.  E-mail pdohogne3@gatech.edu if a command is missing." % command
         thisFile.close()
     if noisy:
-        print "Config file parsed successfully.  Starting simulation."
+        print "Config files finished parsing.  Starting simulation."
     
     
     # Add the strategies subdirectory to the system path so Python can find the module

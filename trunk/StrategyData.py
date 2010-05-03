@@ -278,29 +278,40 @@ class StrategyData:
             self.limitPrice = limitPrice
             
         def getOutput(self):
-            if self.symbol == "":
-                print "No symbol in output."
+            if self.symbol == "" or type(self.symbol) != str:
+                print "Invalid symbol %s in output." % str(self.symbol)
                 return None
-            if self.volume == 0:
-                print "No volume in output."
+            if self.volume == 0 or type(self.volume) != int:
+                print "Invalid volume %s in output." % str(self.volume)
                 return None
-            if self.task == "":
-                print "No task in output."
+            if self.task == "" or type(self.task) != str:
+                print "Invalid task %s in output." % str(self.task)
                 return None
-            if self.duration == 0:
-                print "No duration in output."
+            if self.duration <= 0 or type(self.duration) != int:
+                print "Invalid duration %s in output." % str(self.duration)
                 return None
-            if self.orderType == "":
-                print "No orderType in output."
+            if self.orderType == "" or type(self.orderType) != str:
+                print "Invalid orderType %s in output." % str(self.orderType)
+                return None
+            if type(self.task) != str:
+                print "Invalid closeType %s specified." % str(self.task)
                 return None
             if self.task.upper() == "SELL" or self.task.upper() == "COVER":
-                if self.closeType == "":
-                    print "No closeType specified for %s." % self.task
+                if self.closeType == "" or type(self.closeType) != str:
+                    print "Invalid closeType %s specified for %s." % (str(self.closeType),self.task)
                     return None
+            if type(self.orderType) != str:
+                print "Invalid orderType %s specified." % str(self.orderType)
             if self.orderType.upper() == "LIMIT":
-                if self.limitPrice == 0:
-                    print "No limitPrice specified."
+                if self.limitPrice == 0 or type(self.limitPrice) != int:
+                    print "Invalid limitPrice specified."
                     return None
+            if self.task.upper() not in ["BUY","SELL","SHORT","COVER"]:
+                print "Invalid task %s specified." %self.task
+                return None
+            if self.orderType.upper() not in ["LIMIT","MOC","MOO","VWAP"]:
+                print "Invalid orderType %s specified." % self.orderType
+                return None
             return (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
         '''
         END OutputOrder SUBLCLASS
