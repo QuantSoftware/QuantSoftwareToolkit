@@ -759,7 +759,7 @@ def main():
                 elif command == "MTM":
                     mtm = True
                 elif command != '':
-                        print "Unrecognized command '%s'.  Note: some commands may not yet be implemented.  E-mail pdohogne3@gatech.edu if a command is missing." % command
+                        print "Unrecognized command '%s'." % command
         thisFile.close()
     if noisy:
         print "Config files finished parsing.  Starting simulation."
