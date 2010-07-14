@@ -315,20 +315,14 @@ class StockPriceData:
                 tsStartIndex =0  
             
             k = 0
-            print "tsStartIndex: " + str(tsStartIndex) + "ts there: " + str(self.timestamps[tsStartIndex])
+#            print "tsStartIndex: " + str(tsStartIndex) + "ts there: " + str(self.timestamps[tsStartIndex])
             for j in range(tsStartIndex, len(self.timestamps)):
-#                print "Adding row.."
-#                print "self.filt_list[0][k]: " + str(len(self.filt_list[0]))
-#                print "self.filt_list[0][k][1]: " + str(self.filt_list[0][k][1])
                 if (k< len(self.filt_list[0])):
                                         
                  if((self.timestamps[j])< (self.filt_list[0][k][1])):
-#                    print str(self.timestamps[j]) +" < "+ str(self.filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
-#                    row = {}
                     row=table.row 
                     row['exchange'] = 'NYSE'
                     row['symbol'] = self.filt_list[0][k][0]
-#                    print "Symbol added: " + str (self.filt_list[0][k][0])
                     row['adj_open'] = np.NaN 
                     row['adj_close'] = np.NaN
                     row['adj_high'] = np.NaN
@@ -338,19 +332,12 @@ class StockPriceData:
                     parseddate = time.strptime(self.timestamps[j],'%Y%m%d')
                     row['date'] = self.timestamps[j]
                     row['timestamp'] = time.mktime(parseddate)
-                    row['interval'] = 86400
-                    #row['signal'] = self.signalsArray[j,i]
-#                    self.priceArray[j,i] = row
                     row.append()
-#                    table.flush()
                      
                  elif(self.timestamps[j]==self.filt_list[0][k][1]):
-             #       print str(timestamps[j]) +" == "+ str(self.filt_list[i][k][1]) +" "+ str(i) +" "+ str(j) +  " "+ str(k)
-#                    row = {}
                     row=table.row 
                     row['exchange'] = 'NASDAQ'
                     row['symbol'] = self.filt_list[0][k][0]
-#                    print "Symbol added: " + str (self.filt_list[0][k][0])
                     row['adj_open'] = float(self.filt_list[0][k][2]) 
                     row['adj_close'] = float(self.filt_list[0][k][5])
                     row['adj_high'] = float(self.filt_list[0][k][3])
@@ -361,10 +348,8 @@ class StockPriceData:
                     row['date'] = self.timestamps[j]
                     row['timestamp'] = time.mktime(parseddate)
                     row['interval'] = 86400
-                    #row['signal'] = self.signalsArray[j,i]
-#                    self.priceArray[j,i] = row
                     row.append()
-#                    table.flush()
+
                     k=k+1 
                  else:
                      print"###############Something has gone wrong. A stock had a timestamp which was not in the timestamp list..."
@@ -374,11 +359,9 @@ class StockPriceData:
 #                     sys.exit()
         
                 else:
-#                    row = {}
                     row=table.row 
                     row['exchange'] = 'NYSE'
                     row['symbol'] = stocks_list[i] #self.filt_list[0][len(self.filt_list[0])-1][0] ####NOTE. POSSIBLE BUG?
-#                    print "Symbol added: " + str(row['symbol'])
                     row['adj_open'] = np.NaN 
                     row['adj_close'] = np.NaN
                     row['adj_high'] = np.NaN
@@ -389,24 +372,15 @@ class StockPriceData:
                     row['date'] = self.timestamps[j]
                     row['timestamp'] = time.mktime(parseddate)
                     row['interval'] = 86400
-                    #row['signal'] = self.signalsArray[j,i]
-#                    self.priceArray[j,i] = row
                     row.append()
-#                    table.flush()
         
-            #for j in range(len(self.timestamps))
+            #for j in range(len(self.timestamps)) ends
             table.flush()
             h5f.close()   
         #for i in range(0, stocks.size) done
         
         print "Wrting data done. "+ str(time.strftime("%H:%M:%S"))
-
-     
-    def getTimeStamps(self, fileName):
-        print "Getting timestamps"
         
-        #getTimeStamps done
-
 
     def makeOrUpdateTimestampsFile(self, fileName, stocks_list, startDate, endDate):
         
@@ -446,14 +420,11 @@ class StockPriceData:
             f=open(str(self.dirname)+"/"+str(stock+str(".CSV")))
             j=f.readlines()
             j.pop(0) #To remove the "header" row
-#            print "J:: " + str(j)
             f.close()
             
             filt_list_temp=filter(lambda x: (int(x.split(',')[1])>= int(startDate)) ,j)
-#            print "1: " + str(filt_list_temp)
             filt_list_temp=filter(lambda x: (int(x.split(',')[1])<= int(endDate)) ,filt_list_temp)
-#            print "2: " + str(filt_list_temp)
-            
+
             if not (filt_list_temp):
                 print str(stock.split('.')[0]) + " didn't exist in this period\n"
                 #ENHANCEMENT- CAN ALSO REMOVE STOCK FROM THE STOCKLIST
@@ -467,8 +438,7 @@ class StockPriceData:
 #                     print item
                  
                  filt_list_temp= map(lambda item:(time.mktime(time.strptime(item,'%Y%m%d'))), filt_list_temp)
-                     
-#                 print "filt_list_temp: "+ str(filt_list_temp)
+
                  for item in filt_list_temp:
                     try:
                       tslist.index(int(item))
@@ -587,139 +557,45 @@ class StockPriceData:
             
         h5f.close()
         
-        for item in tslist:
-            print item
+#        for item in tslist:
+#            print item
             
         self.timestamps=tslist
         print "readTimestampsFromFile done " + str(time.strftime("%H:%M:%S"))
         #readTimestampsFromFile ends
         
-        
-#        print "The timestamps are:"
-#        
-#        for ts in self.timestamps:
-#            print ts
-#        print "Done printing timestamps"    
-        
-        
 #        return tslist    
         #readTimestampsFromFile
         
-#    def updateTimestamps (self, fileName):
-#        h5f = pt.openFile(str(fileName), mode = "a")
-#        fileIterator= h5f.root.timestamps.timestamps
-#        
-#        lastTS= fileIterator[fileIterator.nrows -1]['timestamp']
-        
-        
-        
-        
-        
-           
-                
-#    def appendToHDFFiles(self, stocks_list, outputFileFolder, dateLastUpdated):
-#        # We can't read in the "last row" or something like that anyway- so the CSV files have to read in completely anyway
-#        # We save on not having to write out the entire hdf5 file again
-#        # Also, if the CSV file has not changed sine the HDF5 file was made- we do not read in or write out anything- ie considerable savings here...
-#        print "Starting appendToHDFFiles..."
-#        
-#        for stock in stocks_list:
-#            if (os.path.getmtime(str(outputFileFolder)+"/"+str(stock)+".h5") < os.path.getmtime(str(self.dirname)+"/"+str(stock)+".csv")):
-#                #if .h5 file is created before csv file we need to update the .h5 file
-#                
-#        
-#        #need to deal with newly added stocks
-#        print "appendToHDFFiles dones"
-#        #appendToHDFFiles done
-                
+         
 if __name__ == "__main__":
     
     print "starting..."+ str(time.strftime("%H:%M:%S"))
     #Folder that contains the stock data (1 file per stock)
-    stockDataFolder = 'C:\\all stocks snapshot'#'C:\\all stocks snapshot' #'C:\\all stocks snapshot' #'C:\\tempstocks'
+    stockDataFolder = 'C:\\fin\\tempstocks'#'C:\\all stocks snapshot' #'C:\\all stocks snapshot' #'C:\\tempstocks'
     #File that contains the list of tickers to use (1 ticker per line)
-#    stocksToUseFile = 'C:\\fin\\stocks\\Lists\\NASDAQ_trial.txt' #NOT USED ANYMORE
+    stocksToUseFile = 'C:\\fin\\stocks\\Lists\\NASDAQ_trial.txt' #NOT USED ANYMORE, Just some random string now...
     #Date to start reading data Format: YYYYMMDD
     startDate = 19840101
     #Date to end reading data Format: YYYYMMDD
-    endDate = 20100707
+    endDate = 19850109
     #Would you like to output an array (True) file or pytables (False) file
     isArray = False
     #Name of the file containing array information. Remember the '\\' at the end...
-    outputFileFolder = 'C:\\generated data files\\one stock per file\\reading timestamps from a file 1\\' #'C:\\tempoutput\\'#'C:\\generated data files\\one stock per file\\reading timestamps from a file 1\\'
-    
+    outputFileFolder = 'C:\\fin\\tempoutput\\' #'C:\\tempoutput\\'#'C:\\generated data files\\one stock per file\\reading timestamps from a file 1\\'
     #The complete path to the file containing the list of timestamps
-    timestampsFile="C:\\generated data files\\timestamp files\\timestamps.h5"
-    #GENERATE SIGNALS ARRAY HERE OR IN INIT METHOD
-    #self.signalsArray = XXX
-    
-    
+    timestampsFile="C:\\fin\\tempoutput\\timestamps.h5"    
+   
     
     spd = StockPriceData(stockDataFolder)
-    spd.getSymbols()
-    spd.getMySymbols(stocksToUseFile)
+#    spd.getSymbols()
+#    spd.getMySymbols(stocksToUseFile)
     stocks = spd.getStocksList(stocksToUseFile)
     if(endDate<startDate):
         print "Error: enddate earlier than startdate"
         sys.exit(0)
-#    timestamps = spd.getTimeStamp(startDate,endDate)
-#    
-#    print "Len timestamps: " + str(len(timestamps))
-    
-#    stock_trading_days = spd.getCalendar("aapl")
-
-
-#    print(spd.priceArray[0][0])
-#    print(spd.priceArray[len(timestamps)-1][len(stocks)-1])
-#    tsInSecs = []
-#    for ts in timestamps:
-#        parseddate = time.strptime(ts,'%Y%m%d')
-#        tsInSecs.append(time.mktime(parseddate))
-#    tsArray = np.array(tsInSecs)
-#    skArray = np.array(stocks)
-#    print "tsArray.size is: " + str(tsArray.size)
-#    print 'Timestamp Range: %.1f to %.1f' %(tsArray[0], tsArray[tsArray.size-1])
-#    
-    if isArray:
-        pickle_output = open(outputFilename,'w')
-        pickler = pickle.dump(tsArray,pickle_output)
-        pickler = pickle.dump(skArray,pickle_output)
-        pickler = pickle.dump(spd.priceArray,pickle_output)
-        pickle_output.close()
-        print "Array File Generated"
-    else:
-        #NOTE: A better way to do this would be to not rely on the array being created before
-        #iterating over it to create the tables file, as it defeats the purpose of avoiding
-        #arrays because of memory restrictions (as you have to create the array before you can create
-        #the table)
-        #Future Enhancement: Write a function that creates the file similarly to getData instead of
-        #relying on the array
         
-        spd.makeOrUpdateTimestampsFile(timestampsFile, stocks, startDate, endDate)
-        spd.readTimestampsFromFile(timestampsFile, startDate, endDate) 
-        spd.getData(stocks, startDate, endDate, outputFileFolder)
-        
-#        for time in spd.priceArray:
-#            for stock in time:
-#                
-#                if (stock is None):
-##                    print "STOCK IS NONE"
-#                    noneCtr+=1
-#                else:    
-##                    print "Adding row to file"
-#                    row = table.row
-#                    row['exchange'] = stock['exchange']
-#                    row['symbol'] = stock['symbol']
-#                    row['adj_open'] = stock['adj_open'] 
-#                    row['adj_close'] = stock['adj_close']
-#                    row['adj_high'] = stock['adj_high']
-#                    row['adj_low'] = stock['adj_low']
-#                    row['close'] = stock['close']
-#                    row['volume'] = stock['volume']
-#                    row['timestamp'] = stock['timestamp']
-#                    row['date'] = stock['date']
-#                    row['interval'] = stock['interval']
-#                    #row['signal'] = stock['signal']     
-#                    row.append()
-#                    table.flush()
-        print "Tables File Generated. All Done"
+    spd.makeOrUpdateTimestampsFile(timestampsFile, stocks, startDate, endDate)
+    spd.readTimestampsFromFile(timestampsFile, startDate, endDate) 
+    spd.getData(stocks, startDate, endDate, outputFileFolder)
+    print "Tables File Generated. All Done"
