@@ -31,8 +31,11 @@ listOfStocks.append('AASP')
 listOfStocks.append('MSFT')
 listOfStocks.append("AAPL")
 
-print listOfStocks
+#print listOfStocks
 
+listOfPaths=list()
+listOfPaths.append("C:\\fin\\tempoutput\\")
+listOfPaths.append("C:\\fin\\tempoutput\\tempoutput2\\")
 
 #alpha= da.DataAccess('trialAlpha1.h5', 'alphaData', 'alphaData', object, listOfItems)
 print "\nBefore opening file"
@@ -40,7 +43,7 @@ print "\nBefore opening file"
 print "Before constructor"
 
 #"C:\\fin\\tempoutput\\" is the path to where all the hdf files are. This has to be chaanged accordingly
-alpha= da.DataAccess (True, "C:\\fin\\tempoutput\\", "/StrategyData", "StrategyData", True, listOfStocks)
+alpha= da.DataAccess (True, listOfPaths, "/StrategyData", "StrategyData", True, listOfStocks)
 
 print "Constructor done"
 
