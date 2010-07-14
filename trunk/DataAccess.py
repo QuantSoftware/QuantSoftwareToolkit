@@ -8,6 +8,7 @@ Created on Jun 14, 2010
 import numpy as np
 import tables as pt
 import time
+import os
 class Stock:
     
     def __init__(self, noOfStaticDataItems, symbol): #, stockIndex
@@ -59,16 +60,16 @@ class DataAccess:
     
     '''
     
-    def __init__(self, isFolderName, folderName, groupName, nodeName, noisy, listOfStocks, staticDataItemsList=None, dataItemsList=None, SYMBOL='symbol', TIMESTAMP='timestamp'):
+    def __init__(self, isFolderList, folderList, groupName, nodeName, noisy, listOfStocks, staticDataItemsList=None, dataItemsList=None, SYMBOL='symbol', TIMESTAMP='timestamp'):
         '''
-        @param isFolderName: Indicates if folderName is a folder name or a file name. True if is folder. False if is file.
-        @param folderName: name of folder/ file 
+        @param isFolderList: Indicates if folderList is a folder name or a file name. True if is folder. False if is file.
+        @param folderList: list of folder names where the hdf files are located / one file 
         @param noisy: noisy or not True/False
         @param listOfStocks: specifies which list of stocks to read in from the hdf5 file.  
         @param staticDataItemsList: The list of items that need to be stored only once per stock. Like symbol, exchange etc
         @param dataItemsList: List of items that need to be stored once per timestamp per stock
-        @summary: When reading in stock data- each stock has its own hdf5 file. All the files are stored in a folder (which should be given
-        to this function as the folderName argument.) The files relevant to the stocks in the listOfStocks are opened- the data is read in and
+        @summary: When reading in stock data- each stock has its own hdf5 file. All the files are stored in a list of folders (which should be given
+        to this function as the folderList argument.) The files relevant to the stocks in the listOfStocks are opened- the data is read in and
         the file is then closed. All data is assumed to fit into memory. (2GB mem = ~1000 stocks)
         
         @bug: For some reason windows did not allow creation of a file called PRN.csv. Norgate renames it to PRN_.csv making the file name different from
@@ -80,6 +81,7 @@ class DataAccess:
         
         self.SYMBOL= SYMBOL
         self.TIMESTAMP= TIMESTAMP
+        self.folderList= folderList
         
         
         if (staticDataItemsList is None):
@@ -121,11 +123,12 @@ class DataAccess:
 #          print h5f
 #        #end for  
         
-        if (isFolderName is True):
+        if (isFolderList is True):
          for stockName in listOfStocks:
           
+          
           try:
-             h5f = pt.openFile(str(folderName)+ str(stockName)+".h5", mode = "a") # if mode ='w' is used here then the file gets overwritten!
+             h5f = pt.openFile(self.getPathOfFile(stockName), mode = "a") # if mode ='w' is used here then the file gets overwritten!
 #             fileIterator= h5f.root.StrategyData.StrategyData
              fileIterator= h5f.getNode(groupName, nodeName)
           except:
@@ -186,7 +189,7 @@ class DataAccess:
         #if (isFolderName is True) ends
         else:
             #if (isFolderName is True) is False
-            h5f = pt.openFile(str(folderName), mode = "a")
+            h5f = pt.openFile(str(folderList), mode = "a") # This is not the folderList but in this case, a string which is the path of 1 file only
             fileIterator= h5f.getNode(groupName, nodeName)
 #            fileIterator= h5f.root.alphaData.alphaData
             for row in fileIterator.iterrows():
@@ -257,6 +260,23 @@ class DataAccess:
 #        print "Looking for NaNs done"
     print "Finished reading all data." + str(time.strftime("%H:%M:%S"))
     # constructor ends
+
+    def getPathOfFile(self, stockName):
+        for path1 in self.folderList:
+            if (os.path.exists(str(path1)+str(stockName+".h5"))):
+                # Yay! We found it!
+                return (str(str(path1)+str(stockName)+".h5"))
+                #if ends
+#            else:
+#                print str(path1)+str(stockName)+".h5" + " does not exist!"
+            #for ends
+        print "Did not find " + str (stockName)+" anywhere."
+          #getPathOfFile done  
+            
+                
+            
+        
+
     
     def getStaticData(self, stockName, staticDataItem):
         '''
@@ -485,8 +505,6 @@ class DataAccess:
             
     def insertIntoArrayFromRow(self, tsIndex, stockIndex, row):
         
-#        print "tsIndex: " + str(tsIndex)+", stockIndex: "+ str(stockIndex)
-        print "self.allStocksData.shape: " + str(self.allStocksData.shape)
         for dataItem in self.dataItemsList:
            try:
 #               print "self.allStocksData.shape: " + str(self.allStocksData.shape)+ "self.dataItemsList.index(dataItem): " + str (self.dataItemsList.index(dataItem))+ ", tsIndex: "+ str(tsIndex)+", stockIndex"+ str(stockIndex)
