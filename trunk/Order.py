@@ -11,16 +11,16 @@ class Order:
     
     def addOrder(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice): 
         ''' 
-        adds a new unfulfilled order to the orders table
-        timestamp: the exact timestamp when the order was submitted
-        task: buy, sell, short, cover
-        shares: the number of shares to trade
-        symbol: the symbol abbreviation of the stock
-        orderType: they type of order (moo, moc, limit, vwap)
-        duration: the length of time the order is valid for
-        closeType: sell first or sell last (lifo,fifo)
+        @param timestamp: the exact timestamp when the order was submitted
+        @param task: buy, sell, short, cover
+        @param shares: the number of shares to trade
+        @param symbol: the symbol abbreviation of the stock
+        @param orderType: they type of order (moo, moc, limit, vwap)
+        @param duration: the length of time the order is valid for
+        @param closeType: sell first or sell last (lifo,fifo)
         
-        returns a reference to the row
+        @summary: adds a new unfulfilled order to the orders table
+        @returns a reference to the row
         '''  
         if self.isTable:
             row = self.order.row
@@ -38,13 +38,13 @@ class Order:
         
     def fillOrder(self, timestamp, rowIterator, quantity, price, commission, impactCost):
         ''' 
-        CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS
-        THIS METHOD CURRENTLY WILL NOT FUCTION IF USED
-        adds a fill to a given order
-        timestamp: the exact timestamp when the order was fufilled
-        rowIterator: a pytables iteratable rows object with 1 row, the row to be filled in it
-        quantity: the number of shares successfully traded
-        price: the purchase price per share
+        @param timestamp: the exact timestamp when the order was fufilled
+        @param rowIterator: a pytables iteratable rows object with 1 row, the row to be filled in it
+        @param quantity: the number of shares successfully traded
+        @param price: the purchase price per share
+
+        @warning: CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS THIS METHOD CURRENTLY WILL NOT FUCTION IF USED
+        @summary: adds a fill to a given order
         '''  
         for row in rowIterator:
             row['fill/timestamp'] = timestamp
@@ -56,7 +56,7 @@ class Order:
     
     def getOrders(self):
         '''
-        Returns all of the orders
+        @return: Returns all of the orders
         '''
         if self.isTable:
             return self.order.iterrows()
@@ -65,14 +65,15 @@ class Order:
         
     def addOrderArray(self,timestamp,task,shares,symbol,orderType,duration,closeType,limitPrice):  
         ''' 
-        adds a new unfulfilled order to the orders table and returns the order
-        timestamp: the exact timestamp when the order was submitted
-        task: buy, sell, short, cover
-        shares: the number of shares to trade
-        symbol: the symbol abbreviation of the stock
-        orderType: they type of order (moo, moc, limit, vwap)
-        duration: the length of time the order is valid for
-        closeType: sell first or sell last (lifo,fifo)
+        @param timestamp: the exact timestamp when the order was submitted
+        @param task: buy, sell, short, cover
+        @param shares: the number of shares to trade
+        @param symbol: the symbol abbreviation of the stock
+        @param orderType: they type of order (moo, moc, limit, vwap)
+        @param duration: the length of time the order is valid for
+        @param closeType: sell first or sell last (lifo,fifo)
+        
+        @summary: adds a new unfulfilled order to the orders table and returns the order
         '''  
         row = {}
         row['task'] = task
@@ -93,12 +94,11 @@ class Order:
       
     def fillOrderArray(self, timestamp, row, quantity, price, commission, impactCost):
         '''
-        CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS
-        adds a fill to a given order
-        timestamp: the exact timestamp when the order was fufilled
-        row: the dictionary representing the row
-        quantity: the number of shares successfully traded
-        price: the purchase price per share
+        @summary: CURRENTLY DONE IN THE SIMULATOR BUY/SELL METHODS. adds a fill to a given order
+        @param timestamp: the exact timestamp when the order was fufilled
+        @param row: the dictionary representing the row
+        @param quantity: the number of shares successfully traded
+        @param price: the purchase price per share
         '''  
         row['fill/timestamp'] = timestamp
         row['fill/quantity'] = quantity
@@ -108,7 +108,7 @@ class Order:
         
     def fillTable(self):
         '''
-        converts all orders to HDF5 and outputs the file
+        @summary: converts all orders to HDF5 and outputs the file
         '''
         for arrRow in self.orderArray:
             row = self.order.row

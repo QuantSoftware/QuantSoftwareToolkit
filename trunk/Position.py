@@ -1,4 +1,5 @@
-import tables as pt, numpy as np
+import tables as pt
+import numpy as np
 from models.PositionModel import PositionModel
 
 class Position:

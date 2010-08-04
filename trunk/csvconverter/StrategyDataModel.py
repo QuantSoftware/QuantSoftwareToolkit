@@ -1,6 +1,8 @@
 import tables as pt #@UnresolvedImport
 import time
     
+#I DON'T THINK THIS FILE IS NEEDED ANYMORE SHREYAS JOSHI 22 JUN 2010    
+    
 class StrategyDataModel(pt.IsDescription):
     symbol = pt.StringCol(30)           #30 char string; Ticker
     exchange = pt.StringCol(10)         #10 char string; NYSE, NASDAQ, etc.
@@ -13,6 +15,10 @@ class StrategyDataModel(pt.IsDescription):
     timestamp = pt.Time64Col()
     date = pt.Int32Col()
     interval = pt.Time64Col()
+    
+    def __init__(selfparams):
+        print "In the constructor"
+    #constructor done
 
 def generateDataFile():
     import random

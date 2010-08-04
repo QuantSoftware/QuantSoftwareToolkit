@@ -1,21 +1,24 @@
 import tables as pt, numpy as np, pickle
 from models.StrategyDataModel import StrategyDataModel
-from numpy import NaN 
+import numpy as np
             
 class StrategyData: 
-    def __init__(self,dataFile,isTable = False):
+    def __init__(self,dataFile, dataAccess, isTable = False):
         '''
-        dataFile: The filename of the data file (array or pytables)
-        isTable: The runtype, true for table false for array
+        @param dataFile: The filename of the data file (array or pytables)
+        @param isTable: The runtype, true for table false for array
+        @param dataAcess: is a DataAccess object that is used to access the stockData 
         '''
         #for pytables
         self.isTable = isTable
         self.currTimestamp = 0
+        self.dataAccess=dataAccess
         if(isTable):
-            self.strategyDataFile = pt.openFile(dataFile, mode = "r")
-            self.strategyData = self.strategyDataFile.root.StrategyData.StrategyData
-            self.timestampIndex = None
-            self.stocksIndex = self.findStocks()
+            isTable #do nothing.. just so that I don't have to remove the if/else
+#            self.strategyDataFile = pt.openFile(dataFile, mode = "r")
+#            self.strategyData = self.strategyDataFile.root.StrategyData.StrategyData
+#            self.timestampIndex = None
+#            self.stocksIndex = self.findStocks()
         else:
             self.prevTsIdx = 0
             f = open(dataFile,'r')
@@ -29,7 +32,7 @@ class StrategyData:
                     
     def findStocks(self):
         '''
-        Populates the symbolIndex for table run
+        @summary: Populates the symbolIndex for table run
         '''
         temp = []
         for i in self.strategyData.iterrows():
@@ -40,128 +43,153 @@ class StrategyData:
     
     def calculatePortValue(self,stocks,timestamp):
         '''
-        Calculates the current portfolio value: cash + stocks
-        stocks: the current stocks you hold as represented by currStocks in portfolio
-        timestamp: the timestamp used to calculate the present value of stocks
-        '''
-        total = 0
-        for stock in stocks:
-            prices = self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
-            i = 86400
-            count = 0
-            while(len(prices)==0 and count<10):
-                prices = self.getPrices(timestamp - i, timestamp - i - 86400, stock, 'adj_close')
-                i += 86400
-                count+=1
-            if(len(prices) != 0):
-                total += prices[len(prices)-1] * stocks[stock]
-        return total
-    
-    def getStocks(self, startTime=None, endTime=None, ticker=None):
-        '''
-        Returns a list of dictionaries that contain all of the valid stock data as keys
-        or an empty list if no results are found
-        Can be called independently or used as part of the getPrices function
-        startTime: checks stocks >= startTime
-        endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock or a list of tickers
-        '''
-        if self.isTable:
-            if endTime == None:
-                endTime = self.currTimestamp
-            if endTime > self.currTimestamp:
-                print 'Tried to access a future time %i, endTime set to %i' %(endTime, self.currTimestamp)
-                endTime = self.currTimestamp
-            tempList = []
-            if(ticker!=None):    
-                if(type(ticker)==str):
-                    for row in self.strategyData.where('symbol=="%s"'%ticker):
-                        if(startTime!=None and endTime!=None):
-                            if(row['timestamp']>=startTime and row['timestamp']<endTime):
-                                tempList.append(self.cloneRow(row))
-                        elif(startTime!=None):
-                            if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
-                                tempList.append(self.cloneRow(row))
-                        elif(endTime!=None):
-                            if(row['timestamp']<endTime):
-                                tempList.append(self.cloneRow(row))
-                        else: #no time given
-                            tempList.append(self.cloneRow(row))
-                elif(type(ticker)==list):
-                    for tick in ticker:
-                        for row in self.strategyData.where('symbol=="%s"'%tick):
-                            if(startTime!=None and endTime!=None):
-                                if(row['timestamp']>=startTime and row['timestamp']<endTime):
-                                    tempList.append(self.cloneRow(row))
-                            elif(startTime!=None):
-                                if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
-                                    tempList.append(self.cloneRow(row))
-                            elif(endTime!=None):
-                                if(row['timestamp']<endTime):
-                                    tempList.append(self.cloneRow(row))
-                            else: #no time given
-                                tempList.append(self.cloneRow(row))
-                     
-            else:
-                for row in self.strategyData.iterrows():
-                    if(startTime!=None and endTime!=None):
-                        if(row['timestamp']>=startTime and row['timestamp']<endTime):
-                            tempList.append(self.cloneRow(row))
-                    elif(startTime!=None):
-                        if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
-                            tempList.append(self.cloneRow(row))
-                    elif(endTime!=None):
-                        if(row['timestamp']<endTime):
-                            tempList.append(self.cloneRow(row))
-                    else: #no time given
-                        tempList.append(self.cloneRow(row))                    
-            return tempList
-        else:
-            return self.getStocksArray(startTime, endTime, ticker)
-    
-    def getPrice(self, timestamp, ticker, description):
-        '''
-        Returns a single price based on the parameters
-        timestamp: the exact timestamp of the desired stock data
-        ticker: the ticker/symbol of the stock
-        description: the field from data that is desired IE. adj_high
-        NOTE: If the data is incorrect or invalid, the function will return None  
-        '''
-        if self.isTable:
-            result = None
-            for row in self.strategyData.where('symbol=="%s"'%ticker):
-                if row['timestamp']==timestamp:
-                    result = row[description]
-            return result
-        else:
-            return self.getPriceArray(timestamp, ticker, description)
+        @param stocks: the current stocks you hold as represented by currStocks in portfolio
+        @param timestamp: the timestamp used to calculate the present value of stocks
+        @summary: Calculates the current portfolio value: cash + stocks. If the value of a stock on a particular day is NaN then it keeps going back in time (upto 20 days) to find the first nonNan stock value. If a non NaN value is not found then the value of the portfolio is NaN
         
-    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None):
         '''
-        Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
-        or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
-        startTime: checks stocks >= startTime
-        endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock or a list of tickers
-        description: the field from data that is desired IE. adj_high
-        '''
-        if self.isTable:
-            rows = self.getStocks(startTime, endTime, ticker)
-            result = []
-            if(description==None):
-                for row in rows:
-                    row = self.cloneRow(row)
-                    result.append((row['adj_high'],row['adj_low'],row['adj_open'],row['adj_close'],row['close']))
+        
+        total=0
+        DAY=86400
+        for stock in stocks:
+            priceOfStock= self.dataAccess.getStockDataItem (stock, 'adj_close', timestamp- DAY) #close of previous day
+            if not(np.isnan(priceOfStock)):
+                total+= priceOfStock
             else:
-                for row in rows:
-                    result.append(self.cloneRow(row)[description])
-            return result
-        else:
-            return self.getPricesArray(startTime, endTime, ticker, description)
+                
+                #Keep looking back in time till we get a non NaN closing value
+                ctr=2
+                while (np.isnan(priceOfStock) and ctr < 20):
+                    priceOfStock= self.dataAccess.getStockDataItem (stock, 'adj_close', timestamp- (ctr*DAY))
+                    ctr+=1
+                    
+                if np.isnan(priceOfStock):
+                    return np.NaN
+                     
+                total+= priceOfStock
+        
+        return total            
+                     
+        
+        
+#        total = 0
+#        for stock in stocks:
+#            prices = self.dataAccess.getStockDataList(stock, 'adj_close', timestamp- 86400, timestamp)  #self.getPrices(timestamp - 86400, timestamp, stock, 'adj_close')
+#            i = 86400
+#            count = 0
+#            while(len(prices)==0 and count<10):
+#                prices = self.dataAccess.getStockDataList(stock, 'adj_close',timestamp - i - 86400, timestamp - i) #self.getPrices(timestamp - i, timestamp - i - 86400, stock, 'adj_close')
+#                i += 86400
+#                count+=1
+#            if(len(prices) != 0):
+#                total += prices[len(prices)-1] * stocks[stock]
+#        return total
+        #calculatePortValue
+#    def getStocks(self, startTime=None, endTime=None, ticker=None):
+#        '''
+#        Returns a list of dictionaries that contain all of the valid stock data as keys
+#        or an empty list if no results are found
+#        Can be called independently or used as part of the getPrices function
+#        startTime: checks stocks >= startTime
+#        endTime: checks stocks <= endTime
+#        ticker: the ticker/symbol of the stock or a list of tickers
+#        '''
+#        if self.isTable:
+#            if endTime == None:
+#                endTime = self.currTimestamp
+#            if endTime > self.currTimestamp:
+#                print 'Tried to access a future time %i, endTime set to %i' %(endTime, self.currTimestamp)
+#                endTime = self.currTimestamp
+#            tempList = []
+#            if(ticker!=None):    
+#                if(type(ticker)==str):
+#                    for row in self.strategyData.where('symbol=="%s"'%ticker):
+#                        if(startTime!=None and endTime!=None):
+#                            if(row['timestamp']>=startTime and row['timestamp']<endTime):
+#                                tempList.append(self.cloneRow(row))
+#                        elif(startTime!=None):
+#                            if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
+#                                tempList.append(self.cloneRow(row))
+#                        elif(endTime!=None):
+#                            if(row['timestamp']<endTime):
+#                                tempList.append(self.cloneRow(row))
+#                        else: #no time given
+#                            tempList.append(self.cloneRow(row))
+#                elif(type(ticker)==list):
+#                    for tick in ticker:
+#                        for row in self.strategyData.where('symbol=="%s"'%tick):
+#                            if(startTime!=None and endTime!=None):
+#                                if(row['timestamp']>=startTime and row['timestamp']<endTime):
+#                                    tempList.append(self.cloneRow(row))
+#                            elif(startTime!=None):
+#                                if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
+#                                    tempList.append(self.cloneRow(row))
+#                            elif(endTime!=None):
+#                                if(row['timestamp']<endTime):
+#                                    tempList.append(self.cloneRow(row))
+#                            else: #no time given
+#                                tempList.append(self.cloneRow(row))
+#                     
+#            else:
+#                for row in self.strategyData.iterrows():
+#                    if(startTime!=None and endTime!=None):
+#                        if(row['timestamp']>=startTime and row['timestamp']<endTime):
+#                            tempList.append(self.cloneRow(row))
+#                    elif(startTime!=None):
+#                        if(row['timestamp']>=startTime and row['timestamp']<self.currTimestamp):
+#                            tempList.append(self.cloneRow(row))
+#                    elif(endTime!=None):
+#                        if(row['timestamp']<endTime):
+#                            tempList.append(self.cloneRow(row))
+#                    else: #no time given
+#                        tempList.append(self.cloneRow(row))                    
+#            return tempList
+#        else:
+#            return self.getStocksArray(startTime, endTime, ticker)
+    
+#    def getPrice(self, timestamp, ticker, description):
+#        '''
+#        Returns a single price based on the parameters
+#        timestamp: the exact timestamp of the desired stock data
+#        ticker: the ticker/symbol of the stock
+#        description: the field from data that is desired IE. adj_high
+#        NOTE: If the data is incorrect or invalid, the function will return None  
+#        '''
+#        if self.isTable:
+#            result = None
+#            for row in self.strategyData.where('symbol=="%s"'%ticker):
+#                if row['timestamp']==timestamp:
+#                    result = row[description]
+#            return result
+#        else:
+#            return self.getPriceArray(timestamp, ticker, description)
+        
+#    def getPrices(self, startTime=None, endTime=None, ticker=None, description=None):
+#        '''
+#        Returns a list of prices for the given description: [adj_high1, adj_high2, adj_high3...]
+#        or a tuple if no description is given: [ (adj_high1, adj_low1, adj_open1, adj_close1, close1), (adj_high2, adj_low2...), .... ]
+#        startTime: checks stocks >= startTime
+#        endTime: checks stocks <= endTime
+#        ticker: the ticker/symbol of the stock or a list of tickers
+#        description: the field from data that is desired IE. adj_high
+#        '''
+#        if self.isTable:
+#            rows = self.getStocks(startTime, endTime, ticker)
+#            result = []
+#            if(description==None):
+#                for row in rows:
+#                    row = self.cloneRow(row)
+#                    result.append((row['adj_high'],row['adj_low'],row['adj_open'],row['adj_close'],row['close']))
+#            else:
+#                for row in rows:
+#                    result.append(self.cloneRow(row)[description])
+#            return result
+#        else:
+#            return self.getPricesArray(startTime, endTime, ticker, description)
     
     def cloneRow(self,row):
         ''' 
-        Makes a copy of the row so that the correct information will be appended to the list
+        @summary: Makes a copy of the row so that the correct information will be appended to the list
         '''
         dct = {}  
         dct['symbol'] = row['symbol']
@@ -177,96 +205,97 @@ class StrategyData:
         dct['interval'] = row['interval']            
         return dct
  
-    def getStocksArray(self, startTime=None, endTime=None, ticker=None):
-        '''
-        Returns a list of dictionaries that contain all of the valid stock data as keys
-        or an empty list if no results are found
-        Can be called independently or used as part of the getPrices function
-        startTime: checks stocks >= startTime
-        endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock or a list of tickers
-        '''
-        if endTime == None:
-            endTime = self.currTimestamp
-        if endTime > self.currTimestamp:
-            print 'Tried to access a future time %i, endTime set to %i' %(endTime, self.currTimestamp)
-            endTime = self.currTimestamp
-        if ticker != None:
-            if type(ticker)==str:
-                tickIdxList = []
-                tickerIdx = self.symbolIndex.searchsorted(ticker)
-                if tickerIdx < self.symbolIndex.size and self.symbolIndex[tickerIdx] == ticker:
-                    tickIdxList.append(tickerIdx)
-            elif type(ticker)==list:
-                for tick in tickerIdx:
-                    tickerIdx = self.symbolIndex.searchsorted(ticker)
-                    if tickerIdx < self.symbolIndex.size and self.symbolIndex[tickerIdx] == ticker:
-                        tickIdxList.append(tickerIdx)
-        else:
-            tickerIdx = None      
-        if startTime != None:
-            startIdx = self.timestampIndex.searchsorted(startTime, 'left')
-        else:
-            startIdx = None
-        if endTime != None:
-            endIdx = self.timestampIndex.searchsorted(endTime, 'left')
-        else:
-            endIdx = None  
-        if tickerIdx != None:
-            result = np.array([])
-            for tickerIdx in tickIdxList:
-                result = np.append(result,self.priceArray[startIdx:endIdx,tickerIdx])
-            return result
-        else:
-            result = self.priceArray[startIdx:endIdx,:]
-            if len(result) ==0:
-                return []
-            else:
-                return result[0]
+#    def getStocksArray(self, startTime=None, endTime=None, ticker=None):
+#        '''
+#        Returns a list of dictionaries that contain all of the valid stock data as keys
+#        or an empty list if no results are found
+#        Can be called independently or used as part of the getPrices function
+#        startTime: checks stocks >= startTime
+#        endTime: checks stocks <= endTime
+#        ticker: the ticker/symbol of the stock or a list of tickers
+#        '''
+#        if endTime == None:
+#            endTime = self.currTimestamp
+#        if endTime > self.currTimestamp:
+#            print 'Tried to access a future time %i, endTime set to %i' %(endTime, self.currTimestamp)
+#            endTime = self.currTimestamp
+#        if ticker != None:
+#            if type(ticker)==str:
+#                tickIdxList = []
+#                tickerIdx = self.symbolIndex.searchsorted(ticker)
+#                if tickerIdx < self.symbolIndex.size and self.symbolIndex[tickerIdx] == ticker:
+#                    tickIdxList.append(tickerIdx)
+#            elif type(ticker)==list:
+#                for tick in tickerIdx:
+#                    tickerIdx = self.symbolIndex.searchsorted(ticker)
+#                    if tickerIdx < self.symbolIndex.size and self.symbolIndex[tickerIdx] == ticker:
+#                        tickIdxList.append(tickerIdx)
+#        else:
+#            tickerIdx = None      
+#        if startTime != None:
+#            startIdx = self.timestampIndex.searchsorted(startTime, 'left')
+#        else:
+#            startIdx = None
+#        if endTime != None:
+#            endIdx = self.timestampIndex.searchsorted(endTime, 'left')
+#        else:
+#            endIdx = None  
+#        if tickerIdx != None:
+#            result = np.array([])
+#            for tickerIdx in tickIdxList:
+#                result = np.append(result,self.priceArray[startIdx:endIdx,tickerIdx])
+#            return result
+#        else:
+#            result = self.priceArray[startIdx:endIdx,:]
+#            if len(result) ==0:
+#                return []
+#            else:
+#                return result[0]
         
         
-    def getPriceArray(self, timestamp, ticker, description):
-        '''
-        timestamp: the exact timestamp of the desired stock data
-        ticker: the ticker/symbol of the stock
-        description: the field from data that is desired IE. adj_high
-        NOTE: If the data is incorrect or invalid, the function will return None  
-        '''
-        tsIdx = self.timestampIndex.searchsorted(timestamp)
-        if tsIdx >= self.timestampIndex.size or self.timestampIndex[tsIdx] != timestamp:
-            return None #NaN  
-        tickerIdx = self.symbolIndex.searchsorted(ticker)
-        if tickerIdx >= self.symbolIndex.size or self.symbolIndex[tickerIdx] != ticker:
-            return None #NaN
-        return self.priceArray[tsIdx,tickerIdx][description]
+#    def getPriceArray(self, timestamp, ticker, description):
+#        '''
+#        timestamp: the exact timestamp of the desired stock data
+#        ticker: the ticker/symbol of the stock
+#        description: the field from data that is desired IE. adj_high
+#        NOTE: If the data is incorrect or invalid, the function will return None  
+#        '''
+#        tsIdx = self.timestampIndex.searchsorted(timestamp)
+#        if tsIdx >= self.timestampIndex.size or self.timestampIndex[tsIdx] != timestamp:
+#            return None #NaN  
+#        tickerIdx = self.symbolIndex.searchsorted(ticker)
+#        if tickerIdx >= self.symbolIndex.size or self.symbolIndex[tickerIdx] != ticker:
+#            return None #NaN
+#        return self.priceArray[tsIdx,tickerIdx][description]
  
-    def getPricesArray(self, startTime=None, endTime=None, ticker=None, description=None):
-        '''
-        Returns a list of prices for the given description: [adj_high0, adj_high1, adj_high2...]
-        or a tuple if no description is given: [ (adj_high0, adj_low0, adj_open0, adj_close0, close0), (adj_high1, adj_low1...), .... ]
-        startTime: checks stocks >= startTime
-        endTime: checks stocks <= endTime
-        ticker: the ticker/symbol of the stock or a list of tickers
-        description: the field from data that is desired IE. adj_high 
-        description: 
-        '''
-        rows = self.getStocksArray(startTime, endTime, ticker)
-        result = []
-        if(description==None):
-            for row in rows:
-                result.append((row['adj_high'],row['adj_low'],row['adj_open'],row['adj_close'],row['close']))
-        else:
-            for row in rows:
-                result.append(row[description])
-        return result 
+#    def getPricesArray(self, startTime=None, endTime=None, ticker=None, description=None):
+#        '''
+#        Returns a list of prices for the given description: [adj_high0, adj_high1, adj_high2...]
+#        or a tuple if no description is given: [ (adj_high0, adj_low0, adj_open0, adj_close0, close0), (adj_high1, adj_low1...), .... ]
+#        startTime: checks stocks >= startTime
+#        endTime: checks stocks <= endTime
+#        ticker: the ticker/symbol of the stock or a list of tickers
+#        description: the field from data that is desired IE. adj_high 
+#        description: 
+#        '''
+#        rows = self.getStocksArray(startTime, endTime, ticker)
+#        result = []
+#        if(description==None):
+#            for row in rows:
+#                result.append((row['adj_high'],row['adj_low'],row['adj_open'],row['adj_close'],row['close']))
+#        else:
+#            for row in rows:
+#                result.append(row[description])
+#        return result 
 
     def close(self):
         if self.isTable:
-            self.strategyDataFile.close()
+            self.isTable
+#            self.strategyDataFile.close()
            
     class OutputOrder:
         '''
-        Subclass to make adding strategies easier
+        @summary: Subclass to make adding strategies easier
         '''
         def __init__(self,symbol = "",volume = 0,task = "",duration = 0,closeType = "",orderType = "",limitPrice = 0):
             self.symbol = symbol
@@ -313,9 +342,9 @@ class StrategyData:
                 print "Invalid orderType %s specified." % self.orderType
                 return None
             return (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
-        '''
-        END OutputOrder SUBLCLASS
-        '''
+        
+        #END OutputOrder SUBLCLASS
+        
 
 def generateKnownArray():
     timestamps = np.array([])

@@ -1,4 +1,6 @@
 import random
+#THIS FILE IS NOW NOT NEEDED- SHREYAS JOSHI- 1- JUNE- 2010
+
 
 # This file contains the demo strategies put together for testing purposes.
 # note: all the parameters for strategy functions MUST BE THE SAME, otherwise will not work
