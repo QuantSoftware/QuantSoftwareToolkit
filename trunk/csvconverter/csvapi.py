@@ -49,7 +49,7 @@ class StockPriceData:
 #        return list_file_names
        # print list_file_names_strip_txt
        
-    def getSymbols(self, listOfPaths):
+    def getSymbols(self, listOfPaths, fileExtensionToRemove):
         '''
         @bug: This might not work if the path contains a folder whose name has .csv, or is some random file that has a .csv in it..
                So, lets assume that whoever is using this is not going to "cheat" us
@@ -59,9 +59,9 @@ class StockPriceData:
             stocksAtThisPath=list ()
             stocksAtThisPath= dircache.listdir(str(path))
             #Next, throw away everything that is not a .csv And these are our stocks!
-            stocksAtThisPath = filter (lambda x:(str(x).find(".csv") > -1), stocksAtThisPath)
+            stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
             #Now, we remove the .csv to get the name of the stock
-            stocksAtThisPath = map(lambda x:(x.partition('.csv')[0]),stocksAtThisPath)
+            stocksAtThisPath = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),stocksAtThisPath)
             
             #Then add that list to listOflistOfStocks
             listOflistOfStocks.append(stocksAtThisPath)       
@@ -220,6 +220,7 @@ class StockPriceData:
         '''
         @summary: This is where all the work happens
         @attention: Assumption here is that past data never changes
+        @bug: The exchange is currently set pretty randomly
         '''
         print "In getData"
 
@@ -405,6 +406,10 @@ class StockPriceData:
         
 
     def makeOrUpdateTimestampsFile(self, fileName, listOflistOfStocks, listOfInputPaths, startDate, endDate):
+        '''
+        @bug: Formerly did not take care of DST
+        @attention: fixed DST bug- but untested after fixing
+        '''
         
         print "In makeTimestampsFile..." + str(time.strftime("%H:%M:%S"))
         DAY=86400
@@ -418,18 +423,19 @@ class StockPriceData:
            print "startDate: " + str(startDate) + ",   "+lastTSFromFile
            
            if (str(startDate)<= lastTSFromFile):
-               startDate=str(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']+ DAY)))
+               #startDate=str(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']+ DAY))) # DST BUG
+               startDate=str(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']))) # TO FIX DST BUG
+               
                print "startDate is now: " + startDate
 #               print "last ts from file: " + tempDate
 #               startDate= int(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp'])))  #make sure we don't add the same timestamps twice...
            
-        else:   
+        else:
            print "Creating new timestamp file"
            h5f = pt.openFile(str(fileName), mode = "w")
            group = h5f.createGroup("/", 'timestamps')
            table = h5f.createTable(group, 'timestamps', TimestampsModel)
            
-        
         print "start: " + str(startDate)+", end: "+ str(endDate)
         
         tslist=list()    
@@ -448,7 +454,8 @@ class StockPriceData:
                 j.pop(0) #To remove the "header" row
                 f.close()
                 
-                filt_list_temp=filter(lambda x: (int(x.split(',')[1])>= int(startDate)) ,j)
+                #filt_list_temp=filter(lambda x: (int(x.split(',')[1])>= int(startDate)) ,j)
+                filt_list_temp=filter(lambda x: (int(x.split(',')[1])> int(startDate)) ,j) # To fix DST bug
                 filt_list_temp=filter(lambda x: (int(x.split(',')[1])<= int(endDate)) ,filt_list_temp)
 
                 if not (filt_list_temp):
@@ -496,6 +503,10 @@ class StockPriceData:
 
         
     def continueChecking(self, tsList, beginTS, endTS):
+        '''
+        @summary: This function basically checks if a day that we haven't found any trades on is a weekend. If so- we don't need to keep looking. The converter will work just fine even without this function- but it will take more time- because it will keep looking for timestamps that it is not going to find.
+        @attention: There is a DST bug here too- but it won't adversely affect anything becuase DST always happens over the weekends! Though if the time change happens on a weekday sometime in the distant past/future this function may break.
+        '''
         
 #        print "In continueChecking"
         index=1
@@ -514,7 +525,7 @@ class StockPriceData:
 #                        print "Keep looking.."
                         return True #if its not a Saturday or a Sunday then keep looking
                         # if its not a Saturday or a Sunday
-                        #Now check if this is christmas or something like that
+                        #Now check if this is christmas or something like that.. Don't really know how to do this in a simple way...
                         
 #                        if (len(tsList)> 366*2):
 #                            #We have data for atleast 2 years, so lets lookup what happened in the last 2 years..
@@ -545,8 +556,6 @@ class StockPriceData:
                 #if not... ends    
             tempTS+=DAY
             #while (tsList[0]- tempTS > DAY) ends
-        
-        
         #Checking from endTS to end of list
         tempTS=time.mktime(time.strptime(str(endTS),'%Y%m%d'))
         
@@ -592,7 +601,35 @@ class StockPriceData:
         #readTimestampsFromFile ends
         
 #        return tslist    
-        #readTimestampsFromFile
+        #readTimestampsFromFile done
+     
+    def keepHDFFilesInSyncWithCSV(self, listOfInputPaths, listOfOutputPaths):
+        '''
+        @summary: This function removes HDF files that correspond to CSV files that existed in the past- but don't exist anymore. Possibly because the stock was delisted or something like that. 
+        '''
+        print "Removing HDF files for which there is no corresponding CSV file"
+        listOfListOfHdfFiles=self.getSymbols(listOfOutputPaths, ".h5")
+        listOfListOfCsvFiles=self.getSymbols(listOfInputPaths, ".csv") #I guess this isn't really necessary, we could just reuse the stock list or something
+                                                           #but let's just keep things "proper"
+        ctr=-1
+        for listofHDFFiles in listOfListOfHdfFiles:
+              ctr+=1
+#              ctr2=-1
+              for hdfFile in listofHDFFiles:
+#                  ctr2+=1
+                  try:
+                    #Check if the HDF file exists...
+                    listOfListOfCsvFiles[ctr].index(hdfFile)
+                  except:   
+                      print "Removing "+str(listOfOutputPaths[ctr]) + str(hdfFile)+".h5"
+                      os.remove(str(listOfOutputPaths[ctr]) + str(hdfFile)+".h5")
+                      #if ends
+                  #for hdfFile in listOfListOfHdfFiles ends
+              #for listofHDFFiles in listOfListOfHdfFiles ends
+        
+        print "Done removing HDF files"
+        #keepHDFFilesInSyncWithCSV done
+                
 
          
 if __name__ == "__main__":
@@ -605,25 +642,41 @@ if __name__ == "__main__":
     #Date to start reading data Format: YYYYMMDD
     startDate = 19840101
     #Date to end reading data Format: YYYYMMDD
-    endDate = 19850101
+    endDate = 20100101
     #Would you like to output an array (True) file or pytables (False) file
     isArray = False
     #Name of the file containing array information. Remember the '\\' at the end...
     outputFolder = 'C:\\fin\\tempoutput\\' #'C:\\tempoutput\\'#'C:\\generated data files\\one stock per file\\reading timestamps from a file 1\\'
-    #The complete path to the file containing the list of timestamps
-    timestampsFile="C:\\fin\\tempoutput\\timestamps.h5"    
+    #The complete path to the file containing the list of timestamps. This should not be in the output folder because it will be removed!
+    timestampsFile="C:\\generated data files\\timestamp files\\timestamps.h5"    
    
     
     
     spd = StockPriceData()
     
     listOfInputPaths= list()
-    listOfInputPaths.append(stockDataFolder)
-    listOfInputPaths.append(stockDataFolder)
+    #listOfInputPaths.append(stockDataFolder)
+    listOfInputPaths.append("C:\\Trading data text\\Stocks\\Delisted Securities\\US Recent\\")
+    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\AMEX\\")
+    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\Delisted Securities\\")
+    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\OTC\\")
+    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NASDAQ\\")
+    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\NYSE\\")
+    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NYSE Arca\\")
+    
+#    listOfInputPaths.append(stockDataFolder)
     
     listOfOutputPaths= list()
-    listOfOutputPaths.append(outputFolder)
-    listOfOutputPaths.append(outputFolder)
+    listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\Delisted_US_Recent\\")
+    listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_AMEX\\")
+    listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_Delisted\\")
+    listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\OTC\\")
+    listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_NASDAQ\\")
+    listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_NYSE\\")
+    listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_NYSE Arca\\")
+    
+#    listOfOutputPaths.append(outputFolder)
+#    listOfOutputPaths.append(outputFolder)
     
     #If the output paths don't exist, then create them...
     
@@ -636,7 +689,7 @@ if __name__ == "__main__":
     if (len(listOfInputPaths)!= len(listOfOutputPaths)):
         print "No. of input paths not equal to the number of output paths.. quitting"
         sys.exit("FAILURE")
-    listOfListOfStocks=spd.getSymbols(listOfInputPaths)
+    listOfListOfStocks=spd.getSymbols(listOfInputPaths, ".csv")
     
     print "listOfListOfStocks is: " + str(listOfListOfStocks)
     
@@ -649,4 +702,6 @@ if __name__ == "__main__":
     spd.makeOrUpdateTimestampsFile(timestampsFile, listOfListOfStocks, listOfInputPaths, startDate, endDate)
     spd.readTimestampsFromFile(timestampsFile, startDate, endDate) 
     spd.getData(listOfListOfStocks, listOfInputPaths, startDate, endDate, listOfOutputPaths)
+    spd.keepHDFFilesInSyncWithCSV(listOfInputPaths, listOfOutputPaths)
+    
     print "Tables File Generated. All Done"

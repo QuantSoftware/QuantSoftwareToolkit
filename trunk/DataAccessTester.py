@@ -2,7 +2,7 @@
 Created on Jun 1, 2010
 
 @author: Shreyas Joshi
-@summary: Just a quick way to test the DataAccess class... nothing more
+@summary: Just a quick way to test the DataAccess class... nothing more "I dare do all that may become a DataAccessTester. Who dares do more is none"
 '''
 
 #Due to the momentary lack of a HDF viewer that installs/works without hassle- I decided to write a little something to check if the alpha 
@@ -12,105 +12,79 @@ Created on Jun 1, 2010
 #from DataAccess import *
 import DataAccess as da
 import tables as pt
+import numpy as np
 from itertools import izip 
 import time
+import dircache
+
+def getStocks(listOfPaths):
+        
+            listOfStocks=list()
+            #Path does not exist
+            print "Reading in all stock names..."
+            fileExtensionToRemove=".h5"   
+            
+            for path in listOfPaths:
+               stocksAtThisPath=list ()
+               
+               stocksAtThisPath= dircache.listdir(str(path))
+               #Next, throw away everything that is not a .h5 And these are our stocks!
+               stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
+               #Now, we remove the .h5 to get the name of the stock
+               stocksAtThisPath = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),stocksAtThisPath)
+               
+               for stock in stocksAtThisPath:
+                   listOfStocks.append(stock)
+               return listOfStocks
+    #readStocksFromFile done
+
+
+
+
 
 
 print "Starting..."
-listOfItems=[]
-listOfItems.append('symbol')
-listOfItems.append('timestamp')
-listOfItems.append('exchange')
-listOfItems.append('adj_close')
-#listOfItems.append('alphaValue')
+dataItemsList=[]
 
-listOfStocks=list()
-
-#Add the names of the stocks you want, here
-listOfStocks.append('AASP')
-listOfStocks.append('MSFT')
-listOfStocks.append("AAPL")
-
-#print listOfStocks
+dataItemsList.append('alphaValue')
 
 listOfPaths=list()
-listOfPaths.append("C:\\fin\\tempoutput\\")
-listOfPaths.append("C:\\fin\\tempoutput\\tempoutput2\\")
+listOfPaths.append("C:\\temp\\temp\\")#listOfPaths.append("C:\\tempoutput\\")
+#listOfPaths.append("C:\\fin\\tempoutput\\tempoutput2\\")
 
-#alpha= da.DataAccess('trialAlpha1.h5', 'alphaData', 'alphaData', object, listOfItems)
-print "\nBefore opening file"
-#h5f = pt.openFile('C:\\generated data files\\newDataFile7.h5', mode = "a") # if mode ='w' is used here then the file gets overwritten!
-print "Before constructor"
 
 #"C:\\fin\\tempoutput\\" is the path to where all the hdf files are. This has to be chaanged accordingly
-alpha= da.DataAccess (True, listOfPaths, "/StrategyData", "StrategyData", True, listOfStocks)
 
-print "Constructor done"
+listOfStocks= getStocks(listOfPaths)
+alpha= da.DataAccess (True, listOfPaths, "/StrategyData", "StrategyData", True, listOfStocks )
 
-listofstocks12= alpha.getListOfStocks()
+tslist= list(alpha.getTimestampArray())
 
-
-    
-
-for stock in listofstocks12:
-    beta= alpha.getStockDataList(stock, 'volume')
-    print str(stock) + "  " + str(len(beta))
-     
-
-#beta= alpha.getStockDataList("MSFT", 'adj_open', 1214280000, 1230699600)
-
-print "starting getStockDataList at: " + str(time.strftime("%H:%M:%S"))
-beta= alpha.getStockDataList("AAPL", 'volume')
-#gamma= alpha.getStockDataList("DBX-201001", 'adj_open')
-#delta= alpha.getStockDataList("PMGYF", 'adj_close')
-epsilon= alpha.getStockDataList("AAPL", 'adj_close')
+for ts in tslist:
+    for stock in listOfStocks:
+        print str(stock)+"  "+ str(ts)+"   "+str(alpha.getStockDataItem(str(stock), 'volume', ts)) 
 
 
-timestamps= alpha.getTimestampList()
-print "Done getStockDataList at: " + str(time.strftime("%H:%M:%S"))
-
-print beta.size
-for (item1, item3, item2) in izip (beta, epsilon, timestamps):
-    print str((time.strftime("%Y%m%d", time.gmtime(item2))))+"  "+str(item1)+"  "+str(item3)
 
 
-print "Exchange is (this is just random...): " + alpha.getStaticData("AAPL", 'exchange')
-
-#print gamma.size
-#print delta.size
-#print epsilon.size
+#alpha= da.DataAccess (False, "curveFittingAlphaVals.h5", "/alphaData", "alphaData", True, listOfStocks, None, None, None, dataItemsList)
 
 
-#for (omega1) in izip (beta):
-#    print str(omega1)
-    
-#for (omega1) in izip (gamma):
-#    print str(omega1)
-#    
-#for (omega1) in izip (delta):
-#    print str(omega1)
-#    
-#for (omega1) in izip (epsilon):
-#    print str(omega1)
-#    
-#
-#
-#for (omega1, omega2, omega3, omega4) in izip (beta, gamma, delta, epsilon):
-#    print str(omega1)+ "    " + str(omega2)+str(omega3)+ "    " + str(omega4)
+listOfTS= alpha.getTimestampArray()
+for stock in listOfStocks:
+            alphaList= alpha.getStockDataList(stock, 'volume')
+            ctr=0
+            for val in alphaList:
+                print "stock: " + str(stock) + ", val: "+str(val) + ", ts: " + str(listOfTS[ctr])
+                ctr+=1
+                
+print "DONE!"                
+            
+            
+            
+            
+            
+            
+            
+            
 
-
-print "All done"
-
-
-#beta= alpha.getStockDataList("MSFT", "volume", None, None)
-#ts= alpha.getTimestampList()
-#
-#for item1, item2 in izip(beta, ts):
-# print str(item1)+"  "+ str(item2)
- 
-  
- 
- 
-#data1= alpha.getData(None, 'volume', None, None)#[0]['symbol']
-#data2= alpha.getDataList('GOOG', 'exchange',1200978000, 1200978000 )
-#data3= alpha.getDataItem('GOOG', 'volume', 1200978000)
