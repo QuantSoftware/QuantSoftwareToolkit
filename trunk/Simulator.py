@@ -1,20 +1,11 @@
-#import optimizers.BollingerOptimizer as Optimizer
-import optimizers.BollingerOptimizer as Optimizer
 import models.PortfolioModel, models.PositionModel, models.OrderModel, models.StrategyDataModel
 import tables as pt, numpy as np
 from optparse import OptionParser
 import sys, time
-import Portfolio, Position, Order, DataAccess as da #, StrategyData
+import Portfolio, Position, Order, Optimizer, DataAccess as da, StrategyData
 import os
 import dircache
 import numpy as np
-#import curveFittingOptimizer
-#import optimizers.BollingerOptimizer as Optimizer
-
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-
-
 
 class Simulator():
     def __init__(self, cash, stocks, startTime, endTime, interval, minCom, comPerShare, isTable, maxEffect, arrayFile, listOfStocksFile):
@@ -52,12 +43,11 @@ class Simulator():
 
             listOfPaths=list()
 #            listOfPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_AMEX\\")
-            #listOfPaths.append("C:\\temp\\")
             listOfPaths.append("C:\\tempoutput\\")
             self.listOfStocks= self.getStocks(listOfStocksFile, listOfPaths)
             
             self.dataAccess= da.DataAccess (True, listOfPaths, "/StrategyData", "StrategyData", True, self.listOfStocks, self.startTime, self.endTime)
-            #self.strategyData = StrategyData.StrategyData("someRandomStringToNotBreakTheCode", self.dataAccess, self.isTable)
+            self.strategyData = StrategyData.StrategyData("someRandomStringToNotBreakTheCode", self.dataAccess, self.isTable)
             
 #        else:
 #            self.strategyData = StrategyData.StrategyData(arrayFile,self.isTable) 
@@ -193,8 +183,7 @@ class Simulator():
                 cost = (checkAmount * price[0]['adj_open'] + (checkAmount * price[0]['adj_open'] * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
-                    print "Not enough cash to buy stock."
-                    #print "Apparently not enough cash. I don't believe this. Current cash: " + str (self.portfolio.currCash) + " total cost: "+ str (cost)+ ", cost of one share: "+str (self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_open', ts))
+                    print "Apparently not enough cash. I don't believe this. Current cash: " + str (self.portfolio.currCash) + " total cost: "+ str (cost)+ ", cost of one share: "+str (self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_open', ts))
                     
                     return None
                 if abs(newOrder['shares']) > maxVol4Day:
@@ -663,81 +652,39 @@ class Simulator():
         '''
         
         optimizer= Optimizer.Optimizer(self.listOfStocks)
-        #optimizer= curveFittingOptimizer.Optimizer(self.listOfStocks)
-        timestamps= list(self.dataAccess.getTimestampArray())
-        portfolioValList= list()
-      
-        ctr=0
-        while (timestamps[ctr]< self.startTime):
-            ctr+=1
-            #while loop done
-            
-               
-        self.currTimestamp = timestamps[ctr] #self.startTime
-        
-        ctr2= ctr
-        
-        while (timestamps[ctr2]< self.endTime):
-            ctr2+=1
-            if (ctr2>= len(timestamps)):
-                break
-            
-            #while loop done
-            
-        if (ctr2>= len (timestamps)):
-            self.endTime= timestamps[ctr2-1]
-        else:
-            self.endTime= timestamps[ctr2]    
-        
         if timersActive:
-            print "Simulation timer started at "+ str(self.currTimestamp)
+            print "Simulation timer started."
             totalTime = time.time()
             cycTime = time.clock()
-            
+        self.currTimestamp = self.startTime
 #        self.strategyData.currTimestamp = self.currTimestamp
         i=1
         while self.currTimestamp < self.endTime and self.currTimestamp < time.time(): # and self.currTimestamp < self.strategyData.timestampIndex[len(self.strategyData.timestampIndex)-2]: ************POSSIBLE BUG***** JUST TRYING OUT
             # While not yet reached the end timestamp AND not yet caught up to present AND not yet reached the end of the data
             # execute the existing orders, then run the strategy and add the new orders
-            
-            
-            
-            beforeExec=time.clock()
             self.execute()
-            afterExec= time.clock()
 #            self.addOrders(self.strategy(self.portfolio,self.position,self.currTimestamp,self.strategyData))
 #            self.addOrders(optimizer.execute(self.portfolio,self.position,self.currTimestamp,self.strategyData))
-            beforeAddOrders= time.clock()
             self.addOrders(optimizer.execute(self.portfolio,self.position,self.currTimestamp,self.strategyData, self.dataAccess))
-            afterAddOrders= time.clock()
-            
             if noisy or timersActive:
                 print '' #newline                
             if mtm:
-                #portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
-                portValue= float (0.0)
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 print "| %i %.2f |"%(self.currTimestamp,portValue) + "  Value from portfolio class: " +  str (self.portfolio.calcPortfolioValue(self.currTimestamp, self.dataAccess))
             if timersActive and not noisy:
                 print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
                 i+=1
                 cycTime = time.clock()
             if noisy and not timersActive:
-                portValue = (self.portfolio.calcPortfolioValue(self.currTimestamp, self.dataAccess)) #self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
-                portfolioValList.append(portValue)
-                
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 print "Strategy at %d completed successfully." % self.currTimestamp
                 print "Current cash: " + str(self.portfolio.currCash)
                 print "Current stocks: %s."%self.portfolio.currStocks
                 print "Current portfolio value: "+ str(portValue)+"\n\n"
                 #print "Current portfolio value: %.2f.\n\n"%(portValue)
             if noisy and timersActive:
-                portValue =  float (self.portfolio.calcPortfolioValue(self.currTimestamp, self.dataAccess)) #self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
-                portfolioValList.append(portValue)
-                
+                portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
-                print "Exec function took: " + str(afterExec - beforeExec)
-                print "Time for addorders: " + str(afterAddOrders - beforeAddOrders)
-                
                 print "Strategy at %d completed successfully." % self.currTimestamp
                 #print "Current cash: %.2f."%(self.portfolio.currCash)
                 print "Current cash: " + str(self.portfolio.currCash)
@@ -748,11 +695,9 @@ class Simulator():
                 cycTime = time.clock() 
 
  
-                        
-            #self.currTimestamp += self.interval   -- Unfortunately this does not work becuase of daylight saving time complications
-            ctr+=1
-            self.currTimestamp= timestamps[ctr] 
-            #self.strategyData.currTimestamp = self.currTimestamp
+            
+            self.currTimestamp += self.interval
+            self.strategyData.currTimestamp = self.currTimestamp
         if noisy:
             print "Simulation complete."
         if timersActive:
@@ -761,25 +706,9 @@ class Simulator():
         self.portfolio.close()
         self.position.close()
         self.order.close()
-        #self.strategyData.close()
-        
-        
-        #plotting the portfolio value
-        fig = Figure()
-        canvas = FigureCanvas(fig)
-        ax = fig.add_subplot(111)
-        ax.plot (portfolioValList)
-        ax.set_title('Portfolio value')
-        ax.grid(True)
-        ax.set_xlabel('time')
-        ax.set_ylabel('$')
-        canvas.print_figure('portfolio')
-        
-        
-        
-        #def run ends
+        self.strategyData.close()
 
-      
+
 cash = 0; comPerShare = 0.0; minCom = 0.; startTime = 0; endTime = 0; timeStep = 0; maxEffect = 0.; decayCycles = 0
 noisy = False; timersActive = False; mtm = False; isTable = False; arrayFile = 'datafiles/defaultArrayFile.pk'; listOfStocksFile="someRandomString"
 def main():
@@ -793,19 +722,15 @@ def main():
     # config file, strategy module name, strategy main function name
     args = parser.parse_args()[1]
     
-#    if len(args) != 3 and len(args) != 2:
-#        print "FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING."
-#        return
-    if len(args) != 1:
+    if len(args) != 3 and len(args) != 2:
         print "FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING."
         return
-
-
+    
     configFile = 'configfiles/'+args[0]
-#    if len(args) == 3:
-#        stratName = args[2]
-#    else:
-#        stratName = "strategyMain"
+    if len(args) == 3:
+        stratName = args[2]
+    else:
+        stratName = "strategyMain"
     if noisy:
         print "About to parse configuration files.  Any invalid fields found in the user-specified file will use the relevant value from the default file instead."
     for fileName in ["configfiles/default.ini",configFile]:
@@ -954,10 +879,9 @@ def main():
     # Add the timestamps
     if isTable:
         mySim.times = mySim.addTimeStamps()
-        #mySim.strategyData.timestampIndex = mySim.times
+        mySim.strategyData.timestampIndex = mySim.times
     else:
-        pass
-        #mySim.times = mySim.strategyData.timestampIndex
+        mySim.times = mySim.strategyData.timestampIndex
     mySim.run()
 
 # This ensures the main function runs automatically when the program is run from the command line, but 
