@@ -8,7 +8,8 @@ Created on Jul 30, 2010
 import DataAccess
 import dircache
 import numpy
-import alphaGenerator.AlphaDataModel as adm
+import alphaDataModel.AlphaDataModel as adm
+#import alphaGenerator.AlphaDataModel as adm
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -77,11 +78,11 @@ def main():
     
     dataAccess= DataAccess.DataAccess (True, folderList, "/StrategyData", "StrategyData", True, listOfStocks)
     timestamps= list(dataAccess.getTimestampArray())
-    #adm.openFile("bollingerBandsAlphaVals.h5")
+    adm.openFile("AAPLonlybollingerBandsAlphaVals.h5")
     
     period= 10
     stdMultiplier=2
-    noOfDays= 400 #len (timestamps)
+    noOfDays= len (timestamps) #400
     
     
     centerband= numpy.zeros(noOfDays, dtype= float) #len(timestamps)- period + 1 #Just to make it the same length as the adj_close to make it easier to plot
@@ -115,15 +116,15 @@ def main():
                 print "ctr is: " + str(ctr)
         
         #writing alpha values to file
-#        for ctr in range (0, noOfDays):
-#            if (upperBand[ctr]== lowerBand[ctr])or (adj_close[ctr]== centerband[ctr]):
-#                adm.addRow(str(stock), "blah", 0.0, timestamps[ctr])
-#            elif (adj_close[ctr] < centerband[ctr]):
-#                alphaValue=  lowerBand[ctr]/ adj_close[ctr]
-#                adm.addRow (str(stock), "blah", alphaValue, timestamps[ctr])
-#            else:
-#                alphaValue= - adj_close[ctr]/ upperBand[ctr]
-#                adm.addRow (str(stock), "blah", alphaValue, timestamps[ctr])
+        for ctr in range (0, noOfDays):
+            if (upperBand[ctr]== lowerBand[ctr])or (adj_close[ctr]== centerband[ctr]):
+                adm.addRow(str(stock), "blah", 0.0, timestamps[ctr])
+            elif (adj_close[ctr] < centerband[ctr]):
+                alphaValue=  lowerBand[ctr]/ adj_close[ctr]
+                adm.addRow (str(stock), "blah", alphaValue, timestamps[ctr])
+            else:
+                alphaValue= - adj_close[ctr]/ upperBand[ctr]
+                adm.addRow (str(stock), "blah", alphaValue, timestamps[ctr])
             #done writing alpha values of this stock to file
             
                    
@@ -131,22 +132,22 @@ def main():
             
             #calculating bollinger bands done!
             
-        fig = Figure()
-        canvas = FigureCanvas(fig)
-        ax = fig.add_subplot(111)
-        ax.plot(centerband)
-        ax.plot (lowerBand)
-        ax.plot (upperBand)
-        ax.plot (adj_close)
-
-        ax.set_title(str(stock)+' Bollinger bands')
-        ax.grid(True)
-        ax.set_xlabel('time')
-        ax.set_ylabel('')
-        canvas.print_figure(str(listOfStocks.index(stock)))
+#        fig = Figure()
+#        canvas = FigureCanvas(fig)
+#        ax = fig.add_subplot(111)
+#        ax.plot(centerband)
+#        ax.plot (lowerBand)
+#        ax.plot (upperBand)
+#        ax.plot (adj_close)
+#
+#        ax.set_title(str(stock)+' Bollinger bands')
+#        ax.grid(True)
+#        ax.set_xlabel('time')
+#        ax.set_ylabel('')
+#        canvas.print_figure(str(listOfStocks.index(stock)))
         #for stock in listOfStocks: done
         
-    #adm.closeFile()
+    adm.closeFile()
         
 
 #Main done        

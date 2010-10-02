@@ -74,7 +74,7 @@ def addRow (currSymbol, currExchange, currAlphaVal, currTS):
         row['alphaValue']= currAlphaVal
         row['timestamp']= currTS
         row.append()
-        
+        #print "Appending row " + str (currTS)
         if (ctr==10000): #Might cause mem error
           ctr=0
           table.flush() #write to disk

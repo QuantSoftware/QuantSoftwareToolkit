@@ -1,4 +1,10 @@
 '''
+Created on Sep 22, 2010
+
+@author: sjoshi42
+'''
+
+'''
 Created on Jun 14, 2010
 
 @author: Shreyas Joshi
@@ -78,7 +84,7 @@ class DataAccess:
         the symbol name. Currently the CSV to HDF5 converter will create a PRN_.h5 file. DataAccess API has not been tested for this yet. My guess is that everything
         should be OK if the listOfStocks has PRN_ as the name and later the actual symbol (PRN only w/o the underscore) is used.
         A quick ls | grep *_* shows that this is the only stock with an '_'- so I guess the only stock with the problem. Crazy huh? (Lucky we found it though!)
-        @bug: If endTS is not itself present in the file then one timestamp after the end timestamp is returned. A similar (but yet unobserved) possibility exists with beginTS.
+        @bug: If endTS is not itself present in the file then (sometimes) one timestamp after the end timestamp is returned. A similar (but yet unobserved) possibility exists with beginTS. ts values which cause this behaviour:  946702800 , 1262322000. As of now fix is unknown.
         '''
     
         
@@ -115,12 +121,12 @@ class DataAccess:
         
         if (listOfStocks is None):
           self.allStocksData= np.zeros((len(dataItemsList), 1, 1), dtype=float) # dataItems, timestamps, stocks
-        else:  
-          self.allStocksData= np.zeros((len(dataItemsList), 1, len (listOfStocks)), dtype=float) # dataItems, timestamps, stocks
-        #else ends
+          self.allStocksData[:][:][:]=np.NaN #Set all elements to NaN
+        #if ends
         
-        self.allStocksData[:][:][:]=np.NaN #Set all elements to NaN
+        
         self.allTimestampsAdded= False
+        self.allStocksDataInited= False
         
         print "Starting to read in data..." + str(time.strftime("%H:%M:%S"))
         
@@ -133,28 +139,50 @@ class DataAccess:
         
         if (isFolderList is True):
          for stockName in listOfStocks:
-          
-          try:
+        
+#          try:
+          if (True):
              h5f = pt.openFile(self.getPathOfFile(stockName), mode = "a") # if mode ='w' is used here then the file gets overwritten!
 #             fileIterator= h5f.root.StrategyData.StrategyData
-             fileIterator= h5f.getNode(groupName, nodeName)
+             fileIteratorNode= h5f.getNode(groupName, nodeName)
+             noOfElements = -1
              
-             if (beginTS is not None):
+             if (beginTS is not None): #This is not pretty, I know
                  #beginTS is not none
                  if (endTS is not None):
                      #Both beginTS and endTS are not none
-                     fileIterator = fileIterator.where ('(('+str(self.TIMESTAMP)+'>='+str(beginTS)+')&('+str(self.TIMESTAMP)+'<='+str(endTS)+'))')
+                     fileIterator = fileIteratorNode.where ('(('+str(self.TIMESTAMP)+'>='+str(beginTS)+')&('+str(self.TIMESTAMP)+'<='+str(endTS)+'))') 
+                     if (self.allStocksDataInited is False):
+                         noOfElements= len (list(fileIteratorNode.where ('(('+str(self.TIMESTAMP)+'>='+str(beginTS)+')&('+str(self.TIMESTAMP)+'<='+str(endTS)+'))')))  
+                 
                  else:
                       #beginTS is not none BUT endTS is none
-                      fileIterator= fileIterator.where (str(self.TIMESTAMP)+'>='+str(beginTS))
+                      fileIterator= fileIteratorNode.where (str(self.TIMESTAMP)+'>='+str(beginTS))
+                      #print "TYPE2: " + str(type(fileIteratorNode.where (str(self.TIMESTAMP)+'>='+str(beginTS))))
+                      if (self.allStocksDataInited is False):
+                          noOfElements= len(list(fileIteratorNode.where (str(self.TIMESTAMP)+'>='+str(beginTS))))
              else:
                  #beginTS is None
                  if (endTS is not None):
-                     fileIterator= fileIterator.where (str(self.TIMESTAMP)+'<='+str(endTS))
-          except:
-             print str(stockName)+" not found."
-             continue #skipping the rest of the processing for this stock
+                     fileIterator= fileIteratorNode.where (str(self.TIMESTAMP)+'<='+str(endTS))
+                     if (self.allStocksDataInited is False):
+                         noOfElements= len(list(fileIteratorNode.where (str(self.TIMESTAMP)+'<='+str(endTS))))
+                 else:
+                     fileIterator= fileIteratorNode.iterrows() #a hack so that the rest of the program works    
+#          except:
+#             print str(stockName)+" not found."
+#             continue #skipping the rest of the processing for this stock
+              
           
+          if (self.allStocksDataInited is False):  
+             self.allStocksDataInited= True
+             if (noOfElements > -1):
+                 self.allStocksData= np.zeros((len(dataItemsList), noOfElements, len (listOfStocks)), dtype=float) # dataItems, timestamps, stocks
+             else:
+                 self.allStocksData= np.zeros((len(dataItemsList), fileIteratorNode.nrows, len (listOfStocks)), dtype=float) # dataItems, timestamps, stocks
+                     
+             self.allStocksData[:][:][:]=np.NaN #Set all elements to NaN
+          #if (self.allStocksDataInited is False): ends   
           
           for row in fileIterator:
             
@@ -215,22 +243,26 @@ class DataAccess:
             #THIS IS NOT IDEAL!
             #if (isFolderName is True) is False
             h5f = pt.openFile(str(folderList), mode = "a") # This is not the folderList but in this case, a string which is the path of 1 file only
-            fileIterator= h5f.getNode(groupName, nodeName)
+            fileIteratorNode= h5f.getNode(groupName, nodeName)
 
             if (beginTS is not None):
                  #beginTS is not none
                  if (endTS is not None):
                      #Both beginTS and endTS are not none
-                     fileIterator = fileIterator.where ('(('+str(self.TIMESTAMP)+'>='+str(beginTS)+')&('+str(self.TIMESTAMP)+'<='+str(endTS)+'))')
+                     fileIterator = fileIteratorNode.where ('(('+str(self.TIMESTAMP)+'>='+str(beginTS)+')&('+str(self.TIMESTAMP)+'<='+str(endTS)+'))')
                  else:
                       #beginTS is not none BUT endTS is none
-                      fileIterator= fileIterator.where (str(self.TIMESTAMP)+'>='+str(beginTS))
+                      fileIterator= fileIteratorNode.where (str(self.TIMESTAMP)+'>='+str(beginTS))
             else:
                  #beginTS is None
                  if (endTS is not None):
-                     fileIterator= fileIterator.where (str(self.TIMESTAMP)+'<='+str(endTS))
+                     fileIterator= fileIteratorNode.where (str(self.TIMESTAMP)+'<='+str(endTS))
+                 else:
+                      fileIterator= fileIteratorNode.iterrows() #a hack so that the rest of the program works    
+                         
+
             
-            totalRows= fileIterator.nrows
+            
             #rowCtr=0
             for row in fileIterator:
              
@@ -409,7 +441,8 @@ class DataAccess:
     def getMatrixBetweenIndex (self, stocksList, dataItem, beginIndex, endIndex):
         '''
         @return: returns data for the specific stocks between and inclusive of the beginIndex and the endIndex. So it returns (endindex- beginIndex)+1 number of rows and len (stockList) number of columns.
-        @return: a 2D numpy array such that: No. or rows = (endIndex- beginIndex +1) becuase both timestamps are included. No. of cols.= len (@param stocksList )
+        @return: a 2D numpy array such that: No. or rows = (endIndex- beginIndex +1) becuase both timestamps are included. No. of cols.= len (@param stocksList ) The data will be in the same order as the list of stocks passed to this function and not the same as the order in which the stock data was read in from disk
+        @attention: If a stock is not found the data values for that stock in the array will be all NaN
         '''      
         tempArray= np.zeros((endIndex- beginIndex +1, len(stocksList)), dtype=float)
         tempArray[:][:]=np.NAN
@@ -425,7 +458,11 @@ class DataAccess:
         ctr=-1
         for stock in stocksList:
                ctr+=1
-               tempArray[:, ctr]= self.allStocksData[dataItemIndex, beginIndex:(endIndex+1), listOfStocks.index(stock)]
+               try:
+                 tempArray[:, ctr]= self.allStocksData[dataItemIndex, beginIndex:(endIndex+1), listOfStocks.index(stock)]
+               except ValueError:
+                   print "No data for stock " + str(stock)
+               
                #for ends
         
         return tempArray
@@ -700,11 +737,13 @@ class DataAccess:
           if (index== self.timestamps.size):
               self.timestamps= np.append(self.timestamps, [ts], axis=0)
               if (len(self.timestamps) > 1):
-                tempArray= np.zeros ((len(self.dataItemsList), 1, len(self.listOfStocks)), dtype=float) 
-                tempArray[:][:][:]=np.NaN
-                print "Appending"
-                self.allStocksData= np.append(self.allStocksData, tempArray, axis=1)
-                print "Appended"
+                  pass
+              
+#                tempArray= np.zeros ((len(self.dataItemsList), 1, len(self.listOfStocks)), dtype=float) 
+#                tempArray[:][:][:]=np.NaN
+#                print "Appending"
+#                self.allStocksData= np.append(self.allStocksData, tempArray, axis=1)
+#                print "Appended"
 #              print "self.allStocksData.shape: " + str(self.allStocksData.shape)
 #              print "Ts list length: " + str (len(self.timestamps))
           #if done
@@ -739,7 +778,7 @@ class DataAccess:
             if (index== self.timestamps.size):
                self.timestamps= np.append(self.timestamps, [ts], axis=0)
                if (len(self.timestamps) > 1):
-                  tempArray= np.zeros ((len(self.dataItemsList), 1, len(self.listOfStocks)), dtype=float) 
+                  tempArray= np.zeros ((len(self.dataItemsList), 1, 1), dtype=float)
                   tempArray[:][:][:]=np.NaN
                   self.allStocksData= np.append(self.allStocksData, tempArray, axis=1)
                return index

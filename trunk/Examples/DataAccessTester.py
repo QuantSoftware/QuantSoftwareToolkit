@@ -9,6 +9,10 @@ Created on Jun 1, 2010
 #values were being written properly
 
 #Main begins
+
+import sys
+sys.path.append(str(sys.path[0])+str("/.."))
+
 #from DataAccess import *
 import DataAccessNew as da
 import tables as pt
