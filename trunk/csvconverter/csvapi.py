@@ -6,6 +6,7 @@ import tables as pt
 import sys
 import time
 import os
+from optparse import OptionParser
 
 class TimestampsModel (pt.IsDescription):
     timestamp = pt.Time64Col()
@@ -223,7 +224,12 @@ class StockPriceData:
         @bug: The exchange is currently set pretty randomly
         '''
         print "In getData"
-
+        
+        print "  The timestamps are: "
+        for ts in self.timestamps:
+            print str(ts)
+        print "Done printing timestamps"
+        
         #Finding no. of stocks
         print "The stocks are:"
         noOfStocks=0        
@@ -246,7 +252,7 @@ class StockPriceData:
         print "No. of stocks: " + str(noOfStocks)
         print "No. of timestamps: " +  str(len(self.timestamps))
 
-        print "Writing data to file"+"  "+ str(time.strftime("%H:%M:%S"))
+        #print "Writing data to file"+"  "+ str(time.strftime("%H:%M:%S"))
         
         listIndex=-1
         for inputFileFolder in listOfInputPaths:
@@ -289,7 +295,7 @@ class StockPriceData:
                     group = h5f.createGroup("/", 'StrategyData')
                     table = h5f.createTable(group, 'StrategyData', StrategyDataModel)
                     beginTS= startDate
-                    #except done
+                    #else done
           
                         
 
@@ -378,7 +384,7 @@ class StockPriceData:
                          print"###############Something has gone wrong. A stock had a timestamp which was not in the timestamp list..."
                          print "TS: " + str(self.timestamps[j]) + ", Stock: " + str (self.filt_list[0][k][1]) 
                          k=k+1
-                         #should stop executing here
+                         #should stop executing here? Naah
 #                         sys.exit()
             
                     else:
@@ -478,6 +484,7 @@ class StockPriceData:
                         except:
                           tslist.append(int(item))
                           
+                          
                 if (len(tslist)>0):
                    if (self.continueChecking(tslist, startDate, endDate)== False):
                        break   #All dates are covered..       
@@ -492,6 +499,7 @@ class StockPriceData:
 #            print str(ts)
             row= table.row
             row['timestamp']= ts
+            print "Adding timestamp " + str (ts)
             row.append()
             #for ts in tslist ends
             
@@ -627,7 +635,7 @@ class StockPriceData:
                   #for hdfFile in listOfListOfHdfFiles ends
               #for listofHDFFiles in listOfListOfHdfFiles ends
         
-        print "Done removing HDF files"
+        print "Done removing HDF files (if any)"
         #keepHDFFilesInSyncWithCSV done
                 
 
@@ -635,6 +643,13 @@ class StockPriceData:
 if __name__ == "__main__":
     
     print "starting..."+ str(time.strftime("%H:%M:%S"))
+    
+    parser = OptionParser()
+    args = parser.parse_args()[1]
+    endDate= args[0]
+    print "End date is: " + str (endDate)
+    
+    
     #Folder that contains the stock data (1 file per stock)
     stockDataFolder = 'C:\\fin\\tempstocks\\'#'C:\\all stocks snapshot' #'C:\\all stocks snapshot' #'C:\\tempstocks'
     #File that contains the list of tickers to use (1 ticker per line)
@@ -642,7 +657,7 @@ if __name__ == "__main__":
     #Date to start reading data Format: YYYYMMDD
     startDate = 19840101
     #Date to end reading data Format: YYYYMMDD
-    endDate = 20100101
+    #endDate = 20100831
     #Would you like to output an array (True) file or pytables (False) file
     isArray = False
     #Name of the file containing array information. Remember the '\\' at the end...
@@ -691,7 +706,7 @@ if __name__ == "__main__":
         sys.exit("FAILURE")
     listOfListOfStocks=spd.getSymbols(listOfInputPaths, ".csv")
     
-    print "listOfListOfStocks is: " + str(listOfListOfStocks)
+    #print "listOfListOfStocks is: " + str(listOfListOfStocks)
     
 #    spd.getMySymbols(stocksToUseFile)
 #    stocks = spd.getStocksList(stocksToUseFile)

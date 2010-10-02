@@ -20,7 +20,7 @@ class Optimizer(object):
         self.DAY=86400
         dataItemsList=list()
         dataItemsList.append("alphaValue")
-        self.alphaData= DataAccess.DataAccess(False, "bollingerBandsAlphaVals.h5", "/alphaData", "alphaData", True, listOfStocks, None, None, None, dataItemsList)
+        self.alphaData= DataAccess.DataAccess(False, "AAPLonlybollingerBandsAlphaVals.h5", "/alphaData", "alphaData", True, listOfStocks, None, None, None, dataItemsList)
         print "Timestamps are: " 
         for ts in self.alphaData.timestamps:
             print ts
