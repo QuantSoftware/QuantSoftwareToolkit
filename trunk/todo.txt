@@ -1,0 +1,5 @@
+This is a list of todo items for the maintainers
+
+added by Tucker:
+	let class know to use bash
+	Remove "new" from dataaccess class
