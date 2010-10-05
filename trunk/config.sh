@@ -1,21 +1,27 @@
 #!/bin/bash
 #
-# configuration script for QuantSoftware
+# Configuration script to set QuantSoftware enviroment variables
+#
+# Tucker Balch
 #
 
-# which machine are we on?
+#
+# In most cases you should only have to change these variables.
+# The rest are taken care of automatically.  However, if you run
+# in to problems, double check again here.
+#
+export QS=$HOME/QSTK
+export QSDATA=$HOME/QSData
+
+# Which machine are we on?
 export HOSTNAME=`hostname`
 
-# paths to various important directories
-export QS=$HOME/QSTK
-
-export QSDATA=$HOME/QSData
-export QSDATARAW=$QSDATA/Raw
 export QSDATAPROCESSED=$QSDATA/Processed
 export QSDATATMP=$QSDATA/Tmp
 export QSBIN=$QS/Bin
+export QSLIB=$QS/Lib
 
-export PYTHONPATH=$PYTHONPATH:$QS
+export PYTHONPATH=$PYTHONPATH:$QS:$QSLIB:$QSBIN
 
 # expand the PATH
 export PATH=$PATH:$QSBIN
