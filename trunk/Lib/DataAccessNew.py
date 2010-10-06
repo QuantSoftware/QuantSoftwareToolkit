@@ -11,6 +11,8 @@ Created on Jun 14, 2010
 @contact: shreyasj@gatech.edu
 '''
 
+__version__ = "$Revision: $"
+
 import numpy as np
 import tables as pt
 import time
