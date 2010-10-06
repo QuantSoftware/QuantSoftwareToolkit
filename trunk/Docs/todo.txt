@@ -1,5 +1,23 @@
 This is a list of todo items for the maintainers
 
 added by Tucker:
+	what order are columns in?
+
+	unique symbols all in one directory
+	get all symbols list as part of api
+
+	new data set ?  must be by stock, look in wrds
+	
+	methods for combining matrices with different timestamps
+
 	let class know to use bash
+
+	move "adj_close" to DataAccess constructor
+
+	"StrategyData" should be "Norgate"
+
+	query for things like "adj_close"
+done
 	Remove "new" from dataaccess class
+
+	

@@ -19,9 +19,8 @@ export HOSTNAME=`hostname`
 export QSDATAPROCESSED=$QSDATA/Processed
 export QSDATATMP=$QSDATA/Tmp
 export QSBIN=$QS/Bin
-export QSLIB=$QS/Lib
 
-export PYTHONPATH=$PYTHONPATH:$QS:$QSLIB:$QSBIN
+export PYTHONPATH=$PYTHONPATH:$QS:$QSBIN
 
 # expand the PATH
 export PATH=$PATH:$QSBIN
