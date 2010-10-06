@@ -418,6 +418,8 @@ class DataAccess:
                 print "beginIndex is: " + str(beginIndex)
             except ValueError:
                 print "Begin timestamp not found"
+		print self.timestamps[beginIndex]
+		print beginTS
                 return None
         #else done
         
