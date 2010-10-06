@@ -21,11 +21,11 @@ class Stock:
     
     def __init__(self, noOfStaticDataItems, symbol): #, stockIndex
        '''
-       @attention: Here it is assumed that all the stocks will have the same static data. So, we don't need to store the names of the data
-                  items separately for every stock. Only the values need to be stored on a per stock basis.
+       @attention: Here it is assumed that all the symbols will have the same static data. So, we don't need to store the names of the data
+                  items separately for every symbols. Only the values need to be stored on a per symbol basis.
                   
-        @param noOfStaticDataItems:  the number of items that will be be stored only once per stock
-        @param symbol: the symbol of the current stock          
+        @param noOfStaticDataItems:  the number of items that will be be stored only once per symbol
+        @param symbol: the symbol of the current symbol          
        '''
        self.dataVals=[]
 #       self.stockIndex= stockIndex
@@ -64,28 +64,28 @@ class Stock:
 class DataAccess:
     
     '''
-    @summary: This class will be used to access all stock data
-    @attention: This will not work if the timestamps are out of order. It should work for increasing timestamps whether the data is 1 timestamp all stocks (and then the next timestamp) or 1 stock all timestamps (and then the next stock)
+    @summary: This class will be used to access all symbol data
+    @attention: This will not work if the timestamps are out of order. It should work for increasing timestamps whether the data is 1 timestamp all symbol (and then the next timestamp) or 1 symbol all timestamps (and then the next symbol)
     '''
     
-    def __init__(self, isFolderList, folderList, groupName, nodeName, verbose, listOfStocks=None, beginTS=None, endTS=None, staticDataItemsList=None, dataItemsList=None, SYMBOL='symbol', TIMESTAMP='timestamp'):
+    def __init__(self, isFolderList, folderList, groupName, nodeName, verbose, listOfSymbols=None, beginTS=None, endTS=None, staticDataItemsList=None, dataItemsList=None, SYMBOL='symbol', TIMESTAMP='timestamp'):
         '''
-        @summary: When reading in stock data- each stock has its own hdf5 file. All the files are stored in a list of folders (which should be given
-        to this function as the folderList argument.) The files relevant to the stocks in the listOfStocks are opened- the data is read in and
-        the file is then closed. All data is assumed to fit into memory. (2GB mem = ~1000 stocks)
-        @attention: When reading in data from multiple files- it is assumed that all stock data is read in at one time and once only. No such assumption is made when reading in from one file only. However- the timestamps must be in ascending oder. Both: the data is 1 timestamp all stocks (and then the next timestamp) or 1 stock all timestamps (and then the next stock) should work.
+        @summary: When reading in symbol data- each symbol has its own hdf5 file. All the files are stored in a list of folders (which should be given
+        to this function as the folderList argument.) The files relevant to the symbol in the listOfSymbols are opened- the data is read in and
+        the file is then closed. All data is assumed to fit into memory. (2GB mem = ~1000 symbols)
+        @attention: When reading in data from multiple files- it is assumed that all symbol data is read in at one time and once only. No such assumption is made when reading in from one file only. However- the timestamps must be in ascending oder. Both: the data is 1 timestamp all symbols (and then the next timestamp) or 1 symbols all timestamps (and then the next symbol) should work.
         @param isFolderList: Indicates if folderList is a folder name or a file name. True if is folder. False if is file.
         @param folderList: list of folder names where the hdf files are located / one file 
         @param verbose: verbose or not True/False
-        @param listOfStocks: specifies which list of stocks to read in. This is ignored if isFolderList = False
+        @param listOfSymbols: specifies which list of symbols to read in. This is ignored if isFolderList = False
         @param beginTS: specifies the timestamp since epoch from which data should be read in. Value of beginTS itself will be included.
         @param endTS: specified the timestamp since epoch upto which data whould be read in. Value of endTS itself will be included.
-        @param staticDataItemsList: The list of items that need to be stored only once per stock. Like symbol, exchange etc
-        @param dataItemsList: List of items that need to be stored once per timestamp per stock
+        @param staticDataItemsList: The list of items that need to be stored only once per symbol. Like symbol, exchange etc
+        @param dataItemsList: List of items that need to be stored once per timestamp per symbol
         @bug: For some reason windows did not allow creation of a file called PRN.csv. Norgate renames it to PRN_.csv making the file name different from
         the symbol name. Currently the CSV to HDF5 converter will create a PRN_.h5 file. DataAccess API has not been tested for this yet. My guess is that everything
-        should be OK if the listOfStocks has PRN_ as the name and later the actual symbol (PRN only w/o the underscore) is used.
-        A quick ls | grep *_* shows that this is the only stock with an '_'- so I guess the only stock with the problem. Crazy huh? (Lucky we found it though!)
+        should be OK if the listOfSymbols has PRN_ as the name and later the actual symbol (PRN only w/o the underscore) is used.
+        A quick ls | grep *_* shows that this is the only symbol with an '_'- so I guess the only symbol with the problem. Crazy huh? (Lucky we found it though!)
         @bug: If endTS is not itself present in the file then (sometimes) one timestamp after the end timestamp is returned. A similar (but yet unobserved) possibility exists with beginTS. ts values which cause this behaviour:  946702800 , 1262322000. As of now fix is unknown.
         '''
     
@@ -116,13 +116,13 @@ class DataAccess:
         self.verbose= verbose 
         self.dataItemsList= dataItemsList
         self.staticDataItemsList= staticDataItemsList
-        self.stocksList=[] # This is different from listOfStocks in that listOfStocks is the list that was passed to this- stocksList refelcts the current state of how many stocks have been read in etc.
-        self.listOfStocks= listOfStocks
+        self.stocksList=[] # This is different from listOfSymbols in that listOfSymbols is the list that was passed to this- stocksList refelcts the current state of how many symbols have been read in etc.
+        self.listOfSymbols= listOfSymbols
         self.timestamps= np.array([])
 #        self.nanArray= np.zeros((1, len(self.dataItemsList)), dtype=float) #Possible bug
         
-        if (listOfStocks is None):
-          self.allStocksData= np.zeros((len(dataItemsList), 1, 1), dtype=float) # dataItems, timestamps, stocks
+        if (listOfSymbols is None):
+          self.allStocksData= np.zeros((len(dataItemsList), 1, 1), dtype=float) # dataItems, timestamps, symbols
           self.allStocksData[:][:][:]=np.NaN #Set all elements to NaN
         #if ends
         
@@ -132,7 +132,7 @@ class DataAccess:
         
         print "Starting to read in data..." + str(time.strftime("%H:%M:%S"))
         
-#        for stockName in listOfStocks:
+#        for stockName in listOfSymbols:
 #          
 ##          try:
 #          h5f = pt.openFile(str(folderName)+ str(stockName)+".h5", mode = "r") # if mode ='w' is used here then the file gets overwritten!
@@ -140,7 +140,7 @@ class DataAccess:
 #        #end for  
         
         if (isFolderList is True):
-         for stockName in listOfStocks:
+         for stockName in listOfSymbols:
         
 #          try:
           if (True):
@@ -179,9 +179,9 @@ class DataAccess:
           if (self.allStocksDataInited is False):  
              self.allStocksDataInited= True
              if (noOfElements > -1):
-                 self.allStocksData= np.zeros((len(dataItemsList), noOfElements, len (listOfStocks)), dtype=float) # dataItems, timestamps, stocks
+                 self.allStocksData= np.zeros((len(dataItemsList), noOfElements, len (listOfSymbols)), dtype=float) # dataItems, timestamps, stocks
              else:
-                 self.allStocksData= np.zeros((len(dataItemsList), fileIteratorNode.nrows, len (listOfStocks)), dtype=float) # dataItems, timestamps, stocks
+                 self.allStocksData= np.zeros((len(dataItemsList), fileIteratorNode.nrows, len (listOfSymbols)), dtype=float) # dataItems, timestamps, stocks
                      
              self.allStocksData[:][:][:]=np.NaN #Set all elements to NaN
           #if (self.allStocksDataInited is False): ends   
@@ -239,7 +239,7 @@ class DataAccess:
           
           #for row in fileIter ends
           h5f.close()
-         #for stockName in listOfStocks: ends
+         #for stockName in listOfSymbols: ends
         #if (isFolderName is True) ends
         else:
             #THIS IS NOT IDEAL!
@@ -277,7 +277,7 @@ class DataAccess:
              if (len(self.stocksList) > 0):
 #               if (self.stocksList[len(self.stocksList) -1].getSymbol()== row[self.SYMBOL]):
                 try:
-                    stockIndex= self.getListOfStocks().index(row[self.SYMBOL])
+                    stockIndex= self.getListOfSymbols().index(row[self.SYMBOL])
                     stockFound= True
                 except:    
                     stockIndex= len(self.stocksList)# because we will now add one more entry to the end
@@ -325,7 +325,7 @@ class DataAccess:
              self.insertIntoArrayFromRow(tsIndex, stockIndex, row) #NOTE: different from reading a multiple hdf5 files
             #for row in fileIter ends
             h5f.close()
-         #for stockName in listOfStocks: ends  
+         #for stockName in listOfSymbols: ends  
           
         #checking out what is NaN
 #        print self.allStocksData
@@ -457,13 +457,13 @@ class DataAccess:
             print str(dataItem)+" not found."
             return None
         
-        listOfStocks= self.getListOfStocks()
+        listOfSymbols= self.getListOfSymbols()
         
         ctr=-1
         for stock in stocksList:
                ctr+=1
                try:
-                 tempArray[:, ctr]= self.allStocksData[dataItemIndex, beginIndex:(endIndex+1), listOfStocks.index(stock)]
+                 tempArray[:, ctr]= self.allStocksData[dataItemIndex, beginIndex:(endIndex+1), listOfSymbols.index(stock)]
                except ValueError:
                    print "No data for stock " + str(stock)
                
@@ -722,7 +722,7 @@ class DataAccess:
         '''
         return self.timestamps
     
-    def getListOfStocks(self):
+    def getListOfSymbols(self):
         tempList=[]
         
         for stock in self.stocksList:
@@ -743,7 +743,7 @@ class DataAccess:
               if (len(self.timestamps) > 1):
                   pass
               
-#                tempArray= np.zeros ((len(self.dataItemsList), 1, len(self.listOfStocks)), dtype=float) 
+#                tempArray= np.zeros ((len(self.dataItemsList), 1, len(self.listOfSymbols)), dtype=float) 
 #                tempArray[:][:][:]=np.NaN
 #                print "Appending"
 #                self.allStocksData= np.append(self.allStocksData, tempArray, axis=1)
