@@ -144,7 +144,7 @@ class DataAccess:
         
 #          try:
           if (True):
-             h5f = pt.openFile(self.getPathOfFile(stockName), mode = "a") # if mode ='w' is used here then the file gets overwritten!
+             h5f = pt.openFile(self.getPathOfFile(stockName), mode = "r") # if mode ='w' is used here then the file gets overwritten!
 #             fileIterator= h5f.root.StrategyData.StrategyData
              fileIteratorNode= h5f.getNode(groupName, nodeName)
              noOfElements = -1

@@ -55,7 +55,7 @@ print adj_close
 # 1D numpy array with the timestamps. A typecast to list will convert this to a list.
 timestamps = data.getTimestampArray() 
 dates = []
-for ts in listOfTimeStamps:
+for ts in timestamps:
     dates.append(tu.epoch2date(ts))
 symbols= data.getListOfSymbols()
 
