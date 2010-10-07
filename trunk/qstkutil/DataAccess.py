@@ -387,13 +387,14 @@ class DataAccess:
     
     
 
-    def getMatrixBetweenTS (self, stocksList, dataItem, beginTS=None, endTS=None):
+    def getMatrixBetweenTS (self, stocksList, dataItem, beginTS=None, endTS=None, exact=False):
         '''
         @summary: includes beginTS and endTS. This uses the getMatrixBetweenIndex function.
         @param stocksList: The list of stock names for which you want the data.
         @param dataItem: The dataItem that you want ex, open , close
         @param beginTS: The beginning timestamp
         @param endTS: The ending timestamp
+        @param exact: If true- will return none in case beginTS or endTS are not found. If false- will return the data between the two dates even if the date(s) themselves are not explicitly in the timestamp list. 
         @return: a 2D numpy array such that: No. or rows = (endTS- beginTS +1) becuase both timestamps are included. No. of cols.= len (@param stocksList )
         '''
         
@@ -413,10 +414,10 @@ class DataAccess:
                 
             try:
                 beginIndex= self.timestamps.searchsorted(beginTS)
-                if (self.timestamps[beginIndex] != beginTS): #sadly searchsorted does not indicate whether the item is actually present or not
+                if ((exact is True)and(self.timestamps[beginIndex] != beginTS)): #sadly searchsorted does not indicate whether the item is actually present or not
                     raise ValueError
                 
-                print "beginIndex is: " + str(beginIndex)
+#                print "beginIndex is: " + str(beginIndex)
             except ValueError:
                 print "Begin timestamp not found"
 		print self.timestamps[beginIndex]
@@ -428,11 +429,11 @@ class DataAccess:
             endIndex= len(self.timestamps) -1
         else:
             try:
-                endIndex= self.timestamps.searchsorted(endTS)
-                if (self.timestamps[endIndex] != endTS):
+                endIndex= self.timestamps.searchsorted(endTS) - 1
+                if ((exact is True) and (self.timestamps[endIndex] != endTS)):
                     raise ValueError
                 
-                print "endIndex is: " + str(endIndex)
+#                print "endIndex is: " + str(endIndex)
             except ValueError:
                 print "End timestamp not found"
                 return None
@@ -486,7 +487,7 @@ class DataAccess:
 #            else:
 #                print str(path1)+str(stockName)+".h5" + " does not exist!"
             #for ends
-        print "Did not find path to" + str (stockName)+". Looks like this file is missing"
+        print "Did not find path to " + str (stockName)+". Looks like this file is missing"
         #getPathOfFile done  
     
     def getStaticData(self, stockName, staticDataItem):
@@ -807,3 +808,10 @@ class DataAccess:
                #We are done with all the data
     #insertIntoArrayFromRow ends         
 # class DataAccess ends
+
+
+    def getListOfDynamicData(self):
+        return self.dataItemsList
+    
+    def getListOfStaticData(self):
+        return self.staticDataItemsList
