@@ -11,10 +11,13 @@ Created on Jun 1, 2010
 #Main begins
 
 import sys
-sys.path.append(str(sys.path[0])+str("/.."))
+sys.path.append(str(sys.path[0])+str("/../qstkutil/"))
+
+for i in range (0, len(sys.path)):
+    print sys.path[i]
 
 #from DataAccess import *
-import DataAccessNew as da
+import DataAccess as da
 import tables as pt
 import numpy as np
 from itertools import izip 
@@ -75,9 +78,11 @@ listOfStocks= list()
 
 listOfPaths=list()
 listOfPaths.append("C:\\test\\temp\\")
-#listOfPaths.append("C:\\test\\hdf\\")
 
-listOfStocks= getStocks(listOfPaths)
+listOfStocks.append( "AAPL" )#getStocks(listOfPaths)
+listOfStocks.append( "AMZN" )
+listOfStocks.append( "IBM" )
+
 
 
 
@@ -100,7 +105,7 @@ tslist= list(alpha.getTimestampArray())
 
 listOfTS= alpha.getTimestampArray()
 for stock in ["AAPL"]:
-            alphaList= alpha.getStockDataList(stock, 'volume')
+            alphaList= alpha.getStockDataList(stock, 'adj_open')
             ctr=0
             for val in alphaList:
                 print "stock: " + str(stock) + ", val: "+str(val) + ", ts: " + str(listOfTS[ctr])
