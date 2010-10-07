@@ -6,7 +6,7 @@ Created on Sep 23, 2010
 '''
 
 import sys
-import os
+#import os
 import datetime as dt
 import time as t
 import numpy as np
