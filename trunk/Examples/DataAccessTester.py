@@ -104,13 +104,20 @@ tslist= list(alpha.getTimestampArray())
 
 
 listOfTS= alpha.getTimestampArray()
-for stock in ["AAPL"]:
-            alphaList= alpha.getStockDataList(stock, 'adj_open')
-            ctr=0
-            for val in alphaList:
-                print "stock: " + str(stock) + ", val: "+str(val) + ", ts: " + str(listOfTS[ctr])
-                ctr+=1
+dataitems= list()
+
+
+
+stockList= list()
+stockList.append("AAPL")
+alphaList= alpha.getMatrixBetweenTS (stockList, 'adj_close',1279252799, 1280635200) #to august 1 2010, Sunday
+ctr=0
+for val in alphaList:
+   print "stock: " + str(stockList[0]) + ", val: "+str(val) + ", ts: " + str(listOfTS[ctr])
+   ctr+=1
                 
+                
+print str(alpha.getListOfDynamicData())+"  "+str(alpha.getListOfStaticData())                
 print "DONE!"                
             
             
