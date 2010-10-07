@@ -110,6 +110,7 @@ class DataAccess:
          dataItemsList.append('adj_high')
          dataItemsList.append('adj_low')
          dataItemsList.append('close')
+         
 #         dataItemsList.append('ogre')
          
         self.isFolderList= isFolderList
@@ -142,8 +143,8 @@ class DataAccess:
         if (isFolderList is True):
          for stockName in listOfSymbols:
         
-#          try:
-          if (True):
+          try:
+           if (True):
              h5f = pt.openFile(self.getPathOfFile(stockName), mode = "r") # if mode ='w' is used here then the file gets overwritten!
 #             fileIterator= h5f.root.StrategyData.StrategyData
              fileIteratorNode= h5f.getNode(groupName, nodeName)
@@ -171,9 +172,9 @@ class DataAccess:
                          noOfElements= len(list(fileIteratorNode.where (str(self.TIMESTAMP)+'<='+str(endTS))))
                  else:
                      fileIterator= fileIteratorNode.iterrows() #a hack so that the rest of the program works    
-#          except:
-#             print str(stockName)+" not found."
-#             continue #skipping the rest of the processing for this stock
+          except:
+             print str(stockName)+" not found."
+             continue #skipping the rest of the processing for this stock
               
           
           if (self.allStocksDataInited is False):  
@@ -485,7 +486,7 @@ class DataAccess:
 #            else:
 #                print str(path1)+str(stockName)+".h5" + " does not exist!"
             #for ends
-        print "Did not find " + str (stockName)+" anywhere."
+        print "Did not find path to" + str (stockName)+". Looks like this file is missing"
         #getPathOfFile done  
     
     def getStaticData(self, stockName, staticDataItem):
@@ -531,7 +532,9 @@ class DataAccess:
         try:
             valIndex= self.dataItemsList.index(str(dataItem))
         except:
-            raise ValueError #dataItem is not present.
+            print "Data Item " + str (dataItem) + " not foumd."
+            return None
+#            raise ValueError #dataItem is not present.
         
         
         #Checking is beginTS < endTS if both are present...
