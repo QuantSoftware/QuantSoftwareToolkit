@@ -395,7 +395,7 @@ class DataAccess:
         @param beginTS: The beginning timestamp
         @param endTS: The ending timestamp
         @param exact: If true- will return none in case beginTS or endTS are not found. If false- will return the data between the two dates even if the date(s) themselves are not explicitly in the timestamp list. 
-        @return: a 2D numpy array such that: No. or rows = (endTS- beginTS +1) becuase both timestamps are included. No. of cols.= len (@param stocksList )
+        @return: a 2D numpy array such that: No. or rows is = (endTS- beginTS +1) when both beginTS and endTs are found-becuase both timestamps are included. If either beginTS or endTS are not found then the No. or rows might be less than that. No. of cols.= len (@param stocksList )
         '''
         
         if (len (stocksList)==0):
@@ -426,7 +426,10 @@ class DataAccess:
         #else done
         
         if (endTS is None):
-            endIndex= len(self.timestamps) -1
+            endIndex= len(self.timestamps)
+            if (self.timestamps[endIndex]>endTS):
+                endIndex = endIndex -1
+            
         else:
             try:
                 endIndex= self.timestamps.searchsorted(endTS) - 1
