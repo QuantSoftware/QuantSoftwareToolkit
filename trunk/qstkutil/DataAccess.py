@@ -426,13 +426,17 @@ class DataAccess:
         #else done
         
         if (endTS is None):
-            endIndex= len(self.timestamps)
-            if (self.timestamps[endIndex]>endTS):
-                endIndex = endIndex -1
+            endIndex= len(self.timestamps)-1
+            
             
         else:
             try:
-                endIndex= self.timestamps.searchsorted(endTS) - 1
+                endIndex= self.timestamps.searchsorted(endTS)
+                
+                if ((self.timestamps[endIndex]>endTS) and (endIndex > beginIndex)): # does not affect the case when exact is True because the condition will be false anyway (if ts is found.). If ts is not in the list there will be a val error thrown
+                  endIndex = endIndex -1
+                
+                
                 if ((exact is True) and (self.timestamps[endIndex] != endTS)):
                     raise ValueError
                 
