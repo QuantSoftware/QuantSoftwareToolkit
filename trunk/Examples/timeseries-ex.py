@@ -46,6 +46,7 @@ normdat = adjcloses.values/adjcloses.values[0,:]
 plt.clf()
 for i in range(0,size(normdat[0,:])):
         plt.plot(dates,normdat[:,i])
+
 plt.legend(symbols)
 plt.ylabel('Adjusted Close')
 plt.xlabel('Date')
