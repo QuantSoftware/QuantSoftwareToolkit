@@ -1,3 +1,12 @@
+#
+# timeseries-ex.py
+#
+# A short example that shows how to read stock price data from our data store.
+#
+# Tucker Balch
+#
+
+# imports
 import matplotlib.pyplot as plt
 from pylab import *
 from qstkutil import DataAccess as da
@@ -16,12 +25,16 @@ tsstart = tu.ymd2epoch(2008,1,1)
 tsend = tu.ymd2epoch(2010,1,1)
 
 # Get the data from the data store
-adjcloses = ts.getTSFromData("Norgate","open",symbols,tsstart,tsend)
+storename = "Norgate" # get data from our daily prices source
+fieldname = "adj_close" # adj_open, adj_close, adj_high, adj_low, close, volume
+adjcloses = ts.getTSFromData(storename,fieldname,symbols,tsstart,tsend)
 
-print "The adjusted closing prices are: "
+# Print out a bit of the data
+print "The prices are: "
+print symbols
 print adjcloses.values
 
-# Convert the timestamps to dates
+# Convert the timestamps to dates for the plot
 dates = []
 for ts in adjcloses.timestamps:
     dates.append(tu.epoch2date(ts))
@@ -29,7 +42,7 @@ for ts in adjcloses.timestamps:
 # Normalize the prices
 normdat = adjcloses.values/adjcloses.values[0,:]
 
-# Plot the closing prices
+# Plot the prices
 plt.clf()
 for i in range(0,size(normdat[0,:])):
         plt.plot(dates,normdat[:,i])
