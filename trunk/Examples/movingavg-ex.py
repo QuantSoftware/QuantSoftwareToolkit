@@ -9,6 +9,8 @@ import pandas
 symbols= list()
 symtoplot = 'VZ'
 symbols.append(symtoplot)
+symbols.append('IBM')
+symbols.append('GOOG')
 
 # Set start and end boundary times.  They must be specified in Unix Epoch
 tsstart = tu.ymd2epoch(2010,1,1)
