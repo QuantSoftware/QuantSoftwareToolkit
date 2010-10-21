@@ -28,7 +28,6 @@ class Stock:
         @param symbol: the symbol of the current symbol          
        '''
        self.dataVals=[]
-#       self.stockIndex= stockIndex
        self.symbol=symbol
 
        while (len(self.dataVals) < noOfStaticDataItems):
@@ -46,10 +45,6 @@ class Stock:
         return self.dataVals[valIndex]
     #getStaticDataVal
     
-#    def getStockIndex(self):
-#        return self.stockIndex
-    #getIndex done
-        
     def setSymbol(self, symbolName):
         self.symbol= symbolName
     #setSymbol ends
@@ -111,8 +106,6 @@ class DataAccess:
          dataItemsList.append('adj_low')
          dataItemsList.append('close')
          
-#         dataItemsList.append('ogre')
-         
         self.isFolderList= isFolderList
         self.verbose= verbose 
         self.dataItemsList= dataItemsList
@@ -120,7 +113,6 @@ class DataAccess:
         self.stocksList=[] # This is different from listOfSymbols in that listOfSymbols is the list that was passed to this- stocksList refelcts the current state of how many symbols have been read in etc.
         self.listOfSymbols= listOfSymbols
         self.timestamps= np.array([])
-#        self.nanArray= np.zeros((1, len(self.dataItemsList)), dtype=float) #Possible bug
         
         if (listOfSymbols is None):
           self.allStocksData= np.zeros((len(dataItemsList), 1, 1), dtype=float) # dataItems, timestamps, symbols
@@ -133,20 +125,12 @@ class DataAccess:
         
         print "Starting to read in data..." + str(time.strftime("%H:%M:%S"))
         
-#        for stockName in listOfSymbols:
-#          
-##          try:
-#          h5f = pt.openFile(str(folderName)+ str(stockName)+".h5", mode = "r") # if mode ='w' is used here then the file gets overwritten!
-#          print h5f
-#        #end for  
-        
         if (isFolderList is True):
          for stockName in listOfSymbols:
         
           try:
            if (True):
              h5f = pt.openFile(self.getPathOfFile(stockName), mode = "r") # if mode ='w' is used here then the file gets overwritten!
-#             fileIterator= h5f.root.StrategyData.StrategyData
              fileIteratorNode= h5f.getNode(groupName, nodeName)
              noOfElements = -1
              
@@ -189,7 +173,6 @@ class DataAccess:
           
           for row in fileIterator:
             
-#            print "Adding row for stock: " + str(stockName)
             stockFound=False
             if (len(self.stocksList) > 0):
               if (self.stocksList[len(self.stocksList) -1].getSymbol()== row[self.SYMBOL]):
@@ -199,7 +182,6 @@ class DataAccess:
           
             if (stockFound is False): #Should happen only once for every stock
                #this is the first time we are seeing this stock...
-#               print "Stocknotfound begins " + str(time.time())
                
                if (self.verbose is True):
                    print "Adding stock " + str(row[self.SYMBOL])+ ". Current no. of stocks: " + str(len(self.stocksList))+"  "+str(time.strftime("%H:%M:%S"))
@@ -218,24 +200,10 @@ class DataAccess:
                #...and add this stock to the stock list
                self.stocksList.append(tempStock)
                
-               #Change the shape of the allStocksData and add this stock to it. 
-               #We don't need to do this if this is the first stock we are adding...
-               
                #HIGHLY LIKELY THAT THERE IS A BUG HERE
-               if (len(self.stocksList) > 1):
-                  pass #commenting out code that used to make space for new stock
-              
-                  #tempArray= np.zeros((len(dataItemsList), len(self.timestamps), 1), dtype=float)
-                  #tempArray[:][:][:]= np.NaN
-#                  print "temp: " + str (tempArray.shape)
-#                  print "allStocksData: " + str (self.allStocksData.shape)
-                  
-                  #self.allStocksData= np.append (self.allStocksData, tempArray, axis=2)
-               #if (len(self.stocksList) > 1) ends
            #if stockFound is False ends
            
             tsIndex= self.appendToTimestampsAndGetIndex(row[self.TIMESTAMP]) # will be ZERO for first timestamp
-            #self.insertIntoArrayFromRow(tsIndex, self.allStocksData.shape[2]-1, row) #NOTE: different from reading a single hdf5 file
             self.insertIntoArrayFromRow(tsIndex, len(self.stocksList) -1 , row) #NOTE: different from reading a single hdf5 file
           
           #for row in fileIter ends
@@ -244,7 +212,6 @@ class DataAccess:
         #if (isFolderName is True) ends
         else:
             #THIS IS NOT IDEAL!
-            #if (isFolderName is True) is False
             h5f = pt.openFile(str(folderList), mode = "a") # This is not the folderList but in this case, a string which is the path of 1 file only
             fileIteratorNode= h5f.getNode(groupName, nodeName)
 
@@ -266,24 +233,17 @@ class DataAccess:
 
             
             
-            #rowCtr=0
             for row in fileIterator:
              
-             #print "Adding " + str(rowCtr)+ " of "+ str(totalRows) 
-             #rowCtr+=1
-             
-             #print "Adding row for stock: " + str(row[self.SYMBOL])
              stockFound=False
              stockIndex=0
              if (len(self.stocksList) > 0):
-#               if (self.stocksList[len(self.stocksList) -1].getSymbol()== row[self.SYMBOL]):
                 try:
                     stockIndex= self.getListOfSymbols().index(row[self.SYMBOL])
                     stockFound= True
                 except:    
                     stockIndex= len(self.stocksList)# because we will now add one more entry to the end
                     stockFound= False
-             #inner if done
             #if (len(self.stocksList) > 0) done 
           
              if (stockFound is False): #Should happen only once for every stock
@@ -315,9 +275,6 @@ class DataAccess:
                if (len(self.stocksList) > 1):
                   tempArray= np.zeros((len(dataItemsList), len(self.timestamps), 1), dtype=float)
                   tempArray[:][:][:]= np.NaN
-#                  print "temp: " + str (tempArray.shape)
-#                  print "allStocksData: " + str (self.allStocksData.shape)
-                  
                   self.allStocksData= np.append (self.allStocksData, tempArray, axis=2)
                #if (len(self.stocksList) > 1) ends
              #if stockFound is False ends
@@ -328,21 +285,6 @@ class DataAccess:
             h5f.close()
          #for stockName in listOfSymbols: ends  
           
-        #checking out what is NaN
-#        print self.allStocksData
-        
-        
-#        print "Looking for NaNs"
-#        for i in range (0, self.allStocksData.shape[0]):
-#            for j in range (0, self.allStocksData.shape[1]):
-#                for k in range (0, self.allStocksData.shape[2]):
-#                       print str (i)+ "  " + str(j)+"  "+str(k)+":  "+ str(self.allStocksData[i][j][k])
-#                    
-#
-##                    if (self.allStocksData[i][j][k] == np.NaN):
-##                        print self.dataItemsList[i]+ " for "+ self.stocksList[k].getSymbol()+ " is NaN at: "+ self.timestamps[j]
-#                        
-#        print "Looking for NaNs done"
     print "Finished reading all data." + str(time.strftime("%H:%M:%S"))
     
     # constructor ends
@@ -509,8 +451,6 @@ class DataAccess:
            valIndex= self.staticDataItemsList.index(str(staticDataItem))
         except:
             raise ValueError #staticDataItem not present
-#        stockIndex=0
-#        stockFound=False
         for stock in self.stocksList:
             if (stock.getSymbol()== stockName):
                 #Found the stock
@@ -534,7 +474,6 @@ class DataAccess:
         @return: Returns a 1D numpy array of floats with the requested values. begin and endTS values are included.
         '''
         
-#        print "in getStockDataList"
         
         #Checking if we have dataItem at all
         try:
@@ -542,7 +481,6 @@ class DataAccess:
         except:
             print "Data Item " + str (dataItem) + " not foumd."
             return None
-#            raise ValueError #dataItem is not present.
         
         
         #Checking is beginTS < endTS if both are present...
@@ -553,31 +491,9 @@ class DataAccess:
         #deal with stock not found, timestamps not found
         if (beginTS is None):
             beginTS=0
-#        else:
-#            tsFound=False
-#            for i in range (0, self.timestamps.size):
-#                if (beginTS == self.timestamps[i]):
-#                    beginIndex=i
-#                    tsFound=True
-#                    break
-#            #for ends
-#            if (tsFound is False):
-#                raise ValueError #Begin timestamp not found. 
-            
             
         if (endTS is None):
             endTS= self.timestamps[self.timestamps.size -1] #because we need to iterate till <=
-#        else:
-#            tsFound=False
-#            for i in range (0, self.timestamps.size):
-#                if (endTS == self.timestamps[i]):
-#                    endIndex=i
-#                    tsFound=True
-#                    break
-#            #for ends        
-#            if (tsFound is False):
-#                raise ValueError #End timestamp not found
-            
             
         #Now we've found the beginning and ending indices of the data that we need to iterate over 
         
@@ -607,22 +523,6 @@ class DataAccess:
             #if done
         #for done        
         
-#        if (tempArr.size == 0):
-#            print "WARNING tempARR is size ZERO"
-#            print "start: " + str(beginTS)+", end: " + str(endTS)
-#            return None  #bad idea
-                
-#        tempArr= np.zeros((endIndex- beginIndex +1), dtype=float)
-#        tempArr[:]=np.NaN
-         
-          
-        #Finally, we go over the data and copy relevant data to a temp array that is then returned
-        
-#        i= beginIndex
-#        
-#        while (i<= endIndex):
-#            tempArr[i-beginIndex]= self.allStocksData[valIndex][i][stockIndex]
-#            i+=1      
         return tempArr
                
     #getStockDataList done                            
@@ -678,33 +578,11 @@ class DataAccess:
                          if (self.dataItemsList.index(str(dataItem))>= 0):
                             # item exists..so we can return it. Note: the value returned can be NaN
                               return self.allStocksData [self.dataItemsList.index(dataItem)][ctr][stockCtr]
-                         #except:
-                             #pass
-                           #raise ValueError  
-                                                   
                          #if ends
                      ctr-=1
                      #while ends    
                  #else ends
                  
-             
-             
-             
-#             timestampFound=False
-#             for i in range(0, self.timestamps.size): #enhancement: This can be made faster
-#                 if (self.timestamps[i]== timestamp):
-#                     timestampFound=True
-#                     
-#                     # Checking if the dataitem asked for exists or not... POSSUBLE BUG MUST BE TESTED
-#                     try:
-#                       if (self.dataItemsList.index(str(dataItem))>= 0):
-#                          # item exists..so we can return it. Note: the value returned can be NaN
-#                          return self.allStocksData [self.dataItemsList.index(dataItem)][i][stockCtr]
-#                     except:
-#                         raise ValueError
-#                         if (self.verbose is True):
-#                           print "Data item not found"
-                           
                  #if (self.timestamps[i]== timestamp) ends          
              #for i in range(0, self.timestamps.size) ends              
              if (timestampFound is False):
@@ -751,17 +629,6 @@ class DataAccess:
           index= np.searchsorted(self.timestamps, ts)
           if (index== self.timestamps.size):
               self.timestamps= np.append(self.timestamps, [ts], axis=0)
-              if (len(self.timestamps) > 1):
-                  pass
-              
-#                tempArray= np.zeros ((len(self.dataItemsList), 1, len(self.listOfSymbols)), dtype=float) 
-#                tempArray[:][:][:]=np.NaN
-#                print "Appending"
-#                self.allStocksData= np.append(self.allStocksData, tempArray, axis=1)
-#                print "Appended"
-#              print "self.allStocksData.shape: " + str(self.allStocksData.shape)
-#              print "Ts list length: " + str (len(self.timestamps))
-          #if done
           
           if ((ts == self.timestamps[0]) and (self.timestamps.size > 1)):
               self.allTimestampsAdded= True
@@ -805,9 +672,7 @@ class DataAccess:
         
         for dataItem in self.dataItemsList:
            try:
-#               print "self.allStocksData.shape: " + str(self.allStocksData.shape)+ "self.dataItemsList.index(dataItem): " + str (self.dataItemsList.index(dataItem))+ ", tsIndex: "+ str(tsIndex)+", stockIndex"+ str(stockIndex)
                self.allStocksData[self.dataItemsList.index(dataItem)][tsIndex][stockIndex]= row[str(dataItem)]
-               #print "Value of: " + str(dataItem)+" is: " + str(row[str(dataItem)])                
            except:
                if (self.verbose is True):
                  print str(dataItem)+ " not available for "+ row[self.SYMBOL]+" at "+ str(row[self.TIMESTAMP])
