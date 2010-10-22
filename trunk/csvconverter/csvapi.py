@@ -12,8 +12,6 @@ class TimestampsModel (pt.IsDescription):
     timestamp = pt.Time64Col()
 #class TimestampsModel ends
 
-
-
 class StrategyDataModel(pt.IsDescription):
     symbol = pt.StringCol(30)           #30 char string; Ticker
     exchange = pt.StringCol(10)         #10 char string; NYSE, NASDAQ, etc.
@@ -28,28 +26,11 @@ class StrategyDataModel(pt.IsDescription):
     interval = pt.Time64Col()
 #class StrategyDataModel done
     
-    
-
 class StockPriceData:
     def __init__(self):
-#        self.dirname=dirname
-        self.list_user_file_names = []
         self.filt_list=[]
-        self.startDate = 0
-        self.endDate= 0
-        self.count_of_non_existent_stocks = 0
-        self.priceArray = np.ndarray( shape=(0,0), dtype=np.object)
-        self.stocks_list = []
         self.timestamps=[]
-        #self.signalsArray = XXX
         
-#used to get the symbols from the allcsv directory
-#    def getSymbols(self):
-#        list_file_names=dircache.listdir(self.dirname)
-#        list_file_names_strip_txt = map(lambda x:(x.partition('.csv')[0]),list_file_names)
-#        return list_file_names
-       # print list_file_names_strip_txt
-       
     def getSymbols(self, listOfPaths, fileExtensionToRemove):
         '''
         @bug: This might not work if the path contains a folder whose name has .csv, or is some random file that has a .csv in it..
@@ -68,154 +49,7 @@ class StockPriceData:
             listOflistOfStocks.append(stocksAtThisPath)       
         return listOflistOfStocks       
         #getSymbols done
-
-#used to get all the dates a particular stock has been traded
-    def getCalendar(self,symbol):
-        symbol = str(symbol).upper() + ".CSV"  #Changed from .TXT
-        f=open(str(self.dirname)+"/"+str(symbol))
-        j=f.readlines()
-        f.close()
-#        j=j[1:len(j)]
-        j.pop(0) #To remove the "header" row
-        stock_trading_days=map(lambda x:(x.split(',')[1]),j)
-        #print stock_trading_days
-        return stock_trading_days
-
-
-#used to get the prices for a subset of days for the stock
-    def getSelectedPrices(self,symbol):
-        symbol = str(symbol).upper() + ".TXT"
-        f=open(str(self.dirname)+"/"+str(symbol))
-        j=f.readlines()
-        f.close()
-#        j=j[1:len(j)]
-        j.pop(0) #To remove the "header" row
-        stock_trading_days=map(lambda x:(x.split(',')[1]),j)
-       # print stock_trading_days
-        return stock_trading_days
-
-
-
-
-# to get the user specified symbols       
-    def getUserSymbols(self,filename):
-        f=open(filename)
-        list_user_tickers=f.readlines()
-        f.close()
-        for i in range(0,len(list_user_tickers)):
-            list_user_tickers[i]=list_user_tickers[i].strip()
-            #stocks_list.append(list_user_tickers[i].upper())
-            list_user_tickers[i]=str(list_user_tickers[i]).upper()+".CSV" #Changed to CSV from TXT
-       # print "user_tickers" + str(list_user_tickers)
-        return list_user_tickers
-
-# to find intersection of user specified symbols and allsymbols to leave out type etc
-    def getMySymbols(self,filename):
-        
-        print "In function getMySymbols" 
-        
-        a=Set(self.getSymbols())
-#        b=Set(self.getUserSymbols(filename))
-        
-#        print "a: " + str(a)
-#        print "b: " + str(b)
-        
-#        c=a.intersection(b)
-        c=a 
-        list_user_file_names=list(c)
-        list_user_file_names.sort()
-        self.list_user_file_names = list_user_file_names
-        
-#        print "len(self.list_user_file_names)" + str(len(self.list_user_file_names))
-        
-        list_user_file_names_strip_txt = map(lambda x:(x.partition('.csv')[0]),list_user_file_names)
-        #print "strip_txt" + str(list_user_file_names_strip_txt)
-        print "getMySymbols done"
-        return self.list_user_file_names
-
-#get the stock list
-    def getStocksList(self,filename):
-        sym=self.getMySymbols(filename)
-        self.stocks_list = map(lambda x:(x.partition('.csv')[0]),sym)
-        #print "stocks_list" + str(stocks_list)
-        return self.stocks_list
-
-
-#get the time stamp
-    def getTimeStamp(self,startDate,endDate):
-        print "start and end dates: " + str (startDate)+ "    " + str(endDate)
-        self.constructFilteredList(startDate,endDate)
-        date_sorted = []
-        print "len(self.filt_list): " + str(len(self.filt_list))
-        for i in range(0,len(self.filt_list)):
-            date_sorted.append(int(self.filt_list[i][0][1]))
-            
-
-        csv_date = -1     
-        
-#        print "len date_sorted: " + str (len(date_sorted))
-        for i in range(0,len(date_sorted)):
-            
-#            print "min: " + str(min(date_sorted)) + str(" current date: ") + date_sorted[i] 
-            if(min(date_sorted)==date_sorted[i]):
-                csv_date = i
-                break
-       # print "hellooooo" + str(csv_date)
-        timestamp_list = []
-        print "csv_date is: " + str (csv_date)
-        if(csv_date!=-1):
-            print "len filt_list: " + str (len(self.filt_list[csv_date]))
-            
-            for i in range(0,len(self.filt_list[csv_date])):
-                temp=[]
-                temp.append(self.filt_list[csv_date][i][1])
-                timestamp_list.append(temp)        
-        print "timestamp list is: " + str(timestamp_list)
-        timestamp_list = map(lambda x: x[0],timestamp_list)
-        return timestamp_list
-        
-# get an intermediate list (which is required by all classes-to make the extraction faster)           
-    def constructFilteredList(self,startDate,endDate):
-        
-        print "In constructFilteredList " +"  "+ str(time.strftime("%H:%M:%S"))
-        self.startDate = startDate
-        self.endDate = endDate
-        i=0
-#        user_file_names_extract_data=self.list_user_file_names
-               
-        print "len of user_file_names_extract_data: " + str(len(self.list_user_file_names))
-        for x in self.list_user_file_names:
-            f=open(str(self.dirname)+"/"+str(x))
-            j=f.readlines()
-            f.close()
-#            j=j[1:len(j)]
-            j.pop(0) #To remove the "header" row 
-            
-            filt_list_temp=filter(lambda x: (int(x.split(',')[1])>= int(self.startDate)) ,j)
-            filt_list_temp=filter(lambda x: (int(x.split(',')[1])<= int(self.endDate)) ,filt_list_temp)
-            if not (filt_list_temp):
-                print str(x.split('.')[0]) + " didn't exist in this period\n"
-                self.stocks_list.remove(x.partition('.csv')[0])
-#                filt_list_temp=map(lambda x:(x.split(',')[0],x.split(',')[1],x.split(',')[2],x.split(',')[3],x.split(',')[4],x.split(',')[5],x.split(',')[6],(x.split(',')[7]).strip()),filt_list_temp)
-#                self.filt_list.append(filt_list_temp)
-            else:
-                 #it existed and now we need the timestamps
-                 filt_list_temp=map(lambda x:(x.split(',')[1]),filt_list_temp)
-                 
-#                 print "filt_list_temp: "+ str(filt_list_temp)
-                 for item in filt_list_temp:
-                    try:
-                      self.timestamps.index(item)
-                    except:
-                      self.timestamps.append(item) 
-        
-        self.timestamps.sort()
-        print "constructFilteredList done" +"  "+ str(time.strftime("%H:%M:%S"))
-        return self.filt_list
-
-
-
-
+   
 #build the array
     def getData(self, listOfListOfStocks, listOfInputPaths, startDate, endDate, listOfOutputPaths):
         '''
@@ -223,49 +57,30 @@ class StockPriceData:
         @attention: Assumption here is that past data never changes
         @bug: The exchange is currently set pretty randomly
         '''
-        print "In getData"
-        
-        print "  The timestamps are: "
-        for ts in self.timestamps:
-            print str(ts)
-        print "Done printing timestamps"
-        
+
         #Finding no. of stocks
-        print "The stocks are:"
         noOfStocks=0        
         for stock_list in listOfListOfStocks:
             noOfStocks+= len (stock_list)
-            for stock in stock_list:
-                print str(stock)
-        
-        print "printed all stocks"
-        
-#        listIndex=-1
-#        for inputFileFolder in listOfInputPaths:
-#          listIndex+=1
-#          outputFileFolder= str(listOfOutputPaths[listIndex])
-#          stocks_list= listOfListOfStocks[listIndex]
-#          for i in range(0, len(stocks_list)):
-#                print str(stocks_list[i]) 
-                    
+            #for stock in stock_list:
+                #print str(stock)
         
         print "No. of stocks: " + str(noOfStocks)
         print "No. of timestamps: " +  str(len(self.timestamps))
 
-        #print "Writing data to file"+"  "+ str(time.strftime("%H:%M:%S"))
         
         listIndex=-1
+        ctr=1;
         for inputFileFolder in listOfInputPaths:
           listIndex+=1
           outputFileFolder= str(listOfOutputPaths[listIndex])
           stocks_list= listOfListOfStocks[listIndex]
           for i in range(0, len(stocks_list)): # - self.count_of_non_existent_stocks):
-                print str(stocks_list[i]) +"   "+str(i+1)+" of "+ str(noOfStocks)+"  "+ str(time.strftime("%H:%M:%S"))
-                
+                print str(stocks_list[i]) +"   "+str(ctr)+" of "+ str(noOfStocks)+"  "+ str(time.strftime("%H:%M:%S"))
+                ctr= ctr+1
                 
                 beginTS= startDate
                 
-#                try:
                 #Check if the file exists
                 if (os.path.exists(str(outputFileFolder) + str(stocks_list[i]+".h5"))):
                     
@@ -273,9 +88,7 @@ class StockPriceData:
                     h5f=pt.openFile(outputFileFolder + str(stocks_list[i]+".h5"), mode = "a")
                     print "Updating " +str(outputFileFolder + str(stocks_list[i]+".h5"))
                     table= h5f.getNode('/StrategyData', 'StrategyData')
-#                    tsVal= table[table.nrows-1]['timestamp']
                     beginTS= int(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']))) #+ 1 #POSSIBLE BUG?
-#                    print "beginTS: "+ str(beginTS)+", self.timestamps[len(self.timestamps)-1]: "+str(self.timestamps[len(self.timestamps)-1])
                     if (str(beginTS) >= self.timestamps[len(self.timestamps)-1]): #if (os.path.getmtime(str(outputFileFolder)+str(stocks_list[i])+".h5") > os.path.getmtime(str(self.dirname+ "/"+ str(stocks_list[i]+".CSV")))):
                         #The hdf5 file for this stock has been modified after the CSV file was modified. Ergo- no changes need to be made to it now..
                         print str(stocks_list[i])+".h5 already is up to date. "+ str(time.strftime("%H:%M:%S"))
@@ -283,10 +96,7 @@ class StockPriceData:
                         continue
                     else:
                         #File is present but not upto date
-                         beginTS= int(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp'])))+ 1 #POSSIBLE BUG?
-                         #This is so that the filt_list_temp=filter(lambda x: (int(x.split(',')[1])>= int(beginTS)) ,jk)  line 
-                         #(which come a few lines later)
-                         #catches only the data that is to be added and not the last row of the previous data
+                         beginTS= int(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']))) 
                 else:
                     #The only foreseeable reason why there might be an exception here is that the hdf file does not exist. So, creating it.
                     print "Creating file: " + str(outputFileFolder) + str(stocks_list[i]+".h5")+"  "+ str(time.strftime("%H:%M:%S"))
@@ -297,55 +107,30 @@ class StockPriceData:
                     beginTS= startDate
                     #else done
           
-                        
-
-
-                #f=open(str(self.dirname)+"/"+str(stocks_list[i]+str(".CSV")))
                 f=open(str(inputFileFolder)+str(stocks_list[i]+str(".CSV")))
                 jk=f.readlines()
                 f.close()
                 jk.pop(0)
-#                jk=jk[1:-1]
                 
                 self.filt_list=list()
-                filt_list_temp=filter(lambda x: (int(x.split(',')[1])>= int(beginTS)) ,jk) 
+                filt_list_temp=filter(lambda x: (int(x.split(',')[1])> int(beginTS)) ,jk) #Because we only want timestamps strictly greater than the last timestamp currently in the file.
                 filt_list_temp=filter(lambda x: (int(x.split(',')[1])<= int(endDate)) ,filt_list_temp)
                 filt_list_temp=map(lambda x:(x.split(',')[0],x.split(',')[1],x.split(',')[2],x.split(',')[3],x.split(',')[4],x.split(',')[5],x.split(',')[6],(x.split(',')[7]).strip()),filt_list_temp)
                 
                 self.filt_list.append(filt_list_temp)
-#                if (len(filt_list_temp)>0):
-#                  self.filt_list.append(filt_list_temp)
-#                else:
-#                  h5f.close() 
-##                  print "QUITTING" 
-#                  continue   
 
-#                print self.filt_list
-                
-                
                 if (table.nrows > 0):
                     #we are appending to an old file and not creating a new file..
-#                    print "Appending to old file"
-                    
-                    tsStartIndex= len(self.timestamps) -1
-#                    beginTS-=1
-                    while ((tsStartIndex > 0) and (str(beginTS) < self.timestamps[tsStartIndex])):
-                        tsStartIndex -= 1
-                    
-                    if (tsStartIndex < len(self.timestamps)-1):
-                        tsStartIndex+=1
-                        
-                      
+
+                    tsStartIndex= np.array(self.timestamps).searchsorted(beginTS) +1
                     
                 else:
                     #creating a new file...
-#                    print "Creating a new file"  
-                    tsStartIndex =0  
+                    tsStartIndex =0
+                #if (table.nrows > 0) done
                 
                 k = 0
-#                print "tsStartIndex: " + str(tsStartIndex) + "ts there: " + str(self.timestamps[tsStartIndex])
                 for j in range(tsStartIndex, len(self.timestamps)):
-#                    print "Adding TS: " + str (self.timestamps[j])
                     if (k< len(self.filt_list[0])):
                                             
                      if((self.timestamps[j])< (self.filt_list[0][k][1])):
@@ -376,7 +161,6 @@ class StockPriceData:
                         parseddate = time.strptime(self.timestamps[j],'%Y%m%d')
 #                        row['date'] = self.timestamps[j]
                         row['timestamp'] = time.mktime(parseddate)
-#                        row['interval'] = 86400
                         row.append()
 
                         k=k+1 
@@ -414,10 +198,9 @@ class StockPriceData:
     def makeOrUpdateTimestampsFile(self, fileName, listOflistOfStocks, listOfInputPaths, startDate, endDate):
         '''
         @bug: Formerly did not take care of DST
-        @attention: fixed DST bug- but untested after fixing
+        @attention: fixed DST bug. No known DST problems now.
         '''
         
-        print "In makeTimestampsFile..." + str(time.strftime("%H:%M:%S"))
         DAY=86400
         
         if (os.path.exists(fileName)):
@@ -426,16 +209,10 @@ class StockPriceData:
            table=h5f.getNode('/timestamps','timestamps')
                       
            lastTSFromFile= str(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp'])))
-           print "startDate: " + str(startDate) + ",   "+lastTSFromFile
            
            if (str(startDate)<= lastTSFromFile):
-               #startDate=str(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']+ DAY))) # DST BUG
                startDate=str(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']))) # TO FIX DST BUG
                
-               print "startDate is now: " + startDate
-#               print "last ts from file: " + tempDate
-#               startDate= int(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp'])))  #make sure we don't add the same timestamps twice...
-           
         else:
            print "Creating new timestamp file"
            h5f = pt.openFile(str(fileName), mode = "w")
@@ -451,8 +228,7 @@ class StockPriceData:
            for path in listOfInputPaths:
              listIndex+=1
              for stock in listOflistOfStocks[listIndex]:
-#                print str(stock)+" "+str(ctr)+" of "+str(len(stocks_list)) + "  "+str(time.strftime("%H:%M:%S"))
-                print str(stock)+" "+str(ctr)+"  "+str(time.strftime("%H:%M:%S")) 
+                #print str(stock)+" "+str(ctr)+"  "+str(time.strftime("%H:%M:%S")) 
                 ctr+=1
                            
                 f=open(str(path)+str(stock+str(".CSV")))
@@ -460,22 +236,16 @@ class StockPriceData:
                 j.pop(0) #To remove the "header" row
                 f.close()
                 
-                #filt_list_temp=filter(lambda x: (int(x.split(',')[1])>= int(startDate)) ,j)
                 filt_list_temp=filter(lambda x: (int(x.split(',')[1])> int(startDate)) ,j) # To fix DST bug
                 filt_list_temp=filter(lambda x: (int(x.split(',')[1])<= int(endDate)) ,filt_list_temp)
 
                 if not (filt_list_temp):
                     print str(stock.split('.')[0]) + " didn't exist in this period\n"
                     #ENHANCEMENT- CAN ALSO REMOVE STOCK FROM THE STOCKLIST
+                    #This can not be done right now- because if a stock did not exist- but another stock did exist then NaNs have to be added to the stock that did not exist.
                 else:
                      #it existed and now we need the timestamps
                      filt_list_temp=map(lambda x:(x.split(',')[1]),filt_list_temp)
-                     
-                     
-#                     for item in filt_list_temp:
-#                         item= time.mktime(time.strptime(item,'%Y%m%d'))
-#                         print item
-                     
                      filt_list_temp= map(lambda item:(time.mktime(time.strptime(item,'%Y%m%d'))), filt_list_temp)
 
                      for item in filt_list_temp:
@@ -493,73 +263,46 @@ class StockPriceData:
         
         tslist.sort() #this should all fit into memory
         
-        print "No. of timestamps: " + str(len(tslist))
-        
         for ts in tslist:
-#            print str(ts)
             row= table.row
             row['timestamp']= ts
-            print "Adding timestamp " + str (ts)
+            #print "Adding timestamp " + str (ts)
             row.append()
             #for ts in tslist ends
             
         table.flush()
         h5f.close()    
         
-        print "makeTimestampsFile done"+ str(time.strftime("%H:%M:%S"))
         #makeTimestampsFile ends
 
         
     def continueChecking(self, tsList, beginTS, endTS):
         '''
         @summary: This function basically checks if a day that we haven't found any trades on is a weekend. If so- we don't need to keep looking. The converter will work just fine even without this function- but it will take more time- because it will keep looking for timestamps that it is not going to find.
-        @attention: There is a DST bug here too- but it won't adversely affect anything becuase DST always happens over the weekends! Though if the time change happens on a weekday sometime in the distant past/future this function may break.
+        @bug: There is a Daylight savings time bug here too- but it won't adversely affect anything because DST always happens over the weekends! Though if the time change happens on a weekday sometime in the distant past/future this function may break.
         '''
         
-#        print "In continueChecking"
         index=1
         DAY=86400
         
-#        print "len(tsList): " + str(len(tsList))
         while (index < len(tsList)):
-#            print "in the while loop " +str(int(tsList[index]))+"  "+str( int(tsList[index -1])) 
             if (int(tsList[index])- int(tsList[index -1]) > DAY):
                 tempTS= tsList[index-1] + DAY
-#                print "Found a gap..."
                 while (tempTS< tsList[index]):
                     timeStruct= time.gmtime(tempTS)
-#                    print "No stock traded on " + str (timeStruct[2])+"  "+str(timeStruct[1])+"  "+str(timeStruct[0])+" which is a " + str(timeStruct[6])
                     if not ((timeStruct[6] == 5) or (timeStruct[6] == 6)):
-#                        print "Keep looking.."
+                        #Keep looking
                         return True #if its not a Saturday or a Sunday then keep looking
-                        # if its not a Saturday or a Sunday
-                        #Now check if this is christmas or something like that.. Don't really know how to do this in a simple way...
-                        
-#                        if (len(tsList)> 366*2):
-#                            #We have data for atleast 2 years, so lets lookup what happened in the last 2 years..
-#                            try:
-#                                tempTS.index (time.mktime(time.strptime(str(timeStruct[0]-1)+str(timeStruct[1])+str(timeStruct[2]),'%Y%m%d')))
-#                                return True #continue checking because there seem to have been trades on the same day last year
-#                             
-#                            except:
-#                                 try:
-#                                    tempTS.index (time.mktime(time.strptime(str(timeStruct[0]-2)+str(timeStruct[1])+str(timeStruct[2]),'%Y%m%d'))) 
-#                                 except:
-#                                     # no trades for the last two years on this day
-#                                     tempTS+=DAY
-#                                     continue                             
                     tempTS+=DAY
                     #while (tempTS< tsList[index]) ends
             index+=1        
             #while ends
-#        print "While loop done"
         #Checking from beginTS to start of list
         tempTS=time.mktime(time.strptime(str(beginTS),'%Y%m%d'))
         
         while (int(tsList[0])- int(tempTS) > DAY):
             timeStruct= time.gmtime((tempTS))
             if not ((timeStruct[6] == 5) or (timeStruct[6] == 6)):
-#                print "beginTS keep looking"
                 return True
                 #if not... ends    
             tempTS+=DAY
@@ -570,7 +313,6 @@ class StockPriceData:
         while (int(tempTS)- int(tsList[len(tsList)-1]) > DAY):
             timeStruct= time.gmtime(tempTS)
             if not ((timeStruct[6] == 5) or (timeStruct[6] == 6)):
-#                print "endTS keep looking"
                 return True
                 #if not... ends    
             tempTS+=DAY
@@ -579,12 +321,10 @@ class StockPriceData:
         print "Smartly figured out that we don't need to continue"
         return False #stop looking for more timestamps because all the timestamps that can be in the list are now there..
                      #we will not get any more timestamps by looking for more..because there just aren't any left... cool huh?    
-#        print "continueChecking done"
         #continueChecking ends    
         
         
     def readTimestampsFromFile(self, fileName, beginTS, endTS):
-        print "In readTimestampsFromFile " + str(time.strftime("%H:%M:%S"))
         h5f = pt.openFile(str(fileName), mode = "a")
         fileIterator= h5f.root.timestamps.timestamps
         
@@ -597,19 +337,11 @@ class StockPriceData:
               
             if (temp > str(endTS)):
                 break
-#            tslist.append(str(time.mktime(time.strptime(str(row['timestamp']),'%Y%m%d'))))
             
         h5f.close()
         
-#        for item in tslist:
-#            print item
-            
         self.timestamps=tslist
-        print "readTimestampsFromFile done " + str(time.strftime("%H:%M:%S"))
         #readTimestampsFromFile ends
-        
-#        return tslist    
-        #readTimestampsFromFile done
      
     def keepHDFFilesInSyncWithCSV(self, listOfInputPaths, listOfOutputPaths):
         '''
@@ -622,9 +354,7 @@ class StockPriceData:
         ctr=-1
         for listofHDFFiles in listOfListOfHdfFiles:
               ctr+=1
-#              ctr2=-1
               for hdfFile in listofHDFFiles:
-#                  ctr2+=1
                   try:
                     #Check if the HDF file exists...
                     listOfListOfCsvFiles[ctr].index(hdfFile)
@@ -641,8 +371,11 @@ class StockPriceData:
 
          
 if __name__ == "__main__":
+    '''
+    @attention: The HDF file containing the timestamps should not be in any of the output paths because, if it is, then it will be deleted at the end.
+    '''
     
-    print "starting..."+ str(time.strftime("%H:%M:%S"))
+    print "Starting..."+ str(time.strftime("%H:%M:%S"))
     
     parser = OptionParser()
     args = parser.parse_args()[1]
@@ -650,27 +383,20 @@ if __name__ == "__main__":
     print "End date is: " + str (endDate)
     
     
-    #Folder that contains the stock data (1 file per stock)
-    stockDataFolder = 'C:\\fin\\tempstocks\\'#'C:\\all stocks snapshot' #'C:\\all stocks snapshot' #'C:\\tempstocks'
-    #File that contains the list of tickers to use (1 ticker per line)
-    stocksToUseFile = 'C:\\fin\\stocks\\Lists\\NASDAQ_trial.txt' #NOT USED ANYMORE, Just some random string now...
     #Date to start reading data Format: YYYYMMDD
     startDate = 19840101
+    
     #Date to end reading data Format: YYYYMMDD
     #endDate = 20100831
-    #Would you like to output an array (True) file or pytables (False) file
-    isArray = False
-    #Name of the file containing array information. Remember the '\\' at the end...
-    outputFolder = 'C:\\fin\\tempoutput\\' #'C:\\tempoutput\\'#'C:\\generated data files\\one stock per file\\reading timestamps from a file 1\\'
-    #The complete path to the file containing the list of timestamps. This should not be in the output folder because it will be removed!
-    timestampsFile="C:\\generated data files\\timestamp files\\timestamps.h5"    
-   
+    
+    #The complete path to the file containing the list of timestamps. This should not be in the output folder because it will be removed by the keepHDFFilesInSyncWithCSV function!
+    timestampsFile="C:\\generated data files\\timestamp files\\timestamps.h5"
     
     
     spd = StockPriceData()
     
+    #Remember the '\\' at the end...
     listOfInputPaths= list()
-    #listOfInputPaths.append(stockDataFolder)
     listOfInputPaths.append("C:\\Trading data text\\Stocks\\Delisted Securities\\US Recent\\")
     listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\AMEX\\")
     listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\Delisted Securities\\")
@@ -678,8 +404,6 @@ if __name__ == "__main__":
     listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NASDAQ\\")
     listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\NYSE\\")
     listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NYSE Arca\\")
-    
-#    listOfInputPaths.append(stockDataFolder)
     
     listOfOutputPaths= list()
     listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\Delisted_US_Recent\\")
@@ -690,11 +414,7 @@ if __name__ == "__main__":
     listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_NYSE\\")
     listOfOutputPaths.append("C:\\generated data files\\one stock per file\\maintain folder structure\\US_NYSE Arca\\")
     
-#    listOfOutputPaths.append(outputFolder)
-#    listOfOutputPaths.append(outputFolder)
-    
     #If the output paths don't exist, then create them...
-    
     for path in listOfOutputPaths:
         if not (os.access(path, os.F_OK)):
             #Path does not exist, so create it
@@ -706,10 +426,7 @@ if __name__ == "__main__":
         sys.exit("FAILURE")
     listOfListOfStocks=spd.getSymbols(listOfInputPaths, ".csv")
     
-    #print "listOfListOfStocks is: " + str(listOfListOfStocks)
     
-#    spd.getMySymbols(stocksToUseFile)
-#    stocks = spd.getStocksList(stocksToUseFile)
     if(endDate<startDate):
         print "Error: enddate earlier than startdate"
         sys.exit(0)
@@ -719,4 +436,4 @@ if __name__ == "__main__":
     spd.getData(listOfListOfStocks, listOfInputPaths, startDate, endDate, listOfOutputPaths)
     spd.keepHDFFilesInSyncWithCSV(listOfInputPaths, listOfOutputPaths)
     
-    print "Tables File Generated. All Done"
+    print "All Done. Conversion from CSV to HDF5 is complete."
