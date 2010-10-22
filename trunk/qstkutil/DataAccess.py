@@ -373,7 +373,7 @@ class DataAccess:
             
         else:
             try:
-                endIndex= min (self.timestamps.searchsorted(endTS), size(self.timestamps))
+                endIndex= min (self.timestamps.searchsorted(endTS), len(self.timestamps)-1)
                 
                 if ((self.timestamps[endIndex]>endTS) and (endIndex > beginIndex)): # does not affect the case when exact is True because the condition will be false anyway (if ts is found.). If ts is not in the list there will be a val error thrown
                   endIndex = endIndex -1
