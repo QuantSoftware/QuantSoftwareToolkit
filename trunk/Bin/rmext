@@ -1,0 +1,10 @@
+#
+# rmext - remove extensions from filenames
+#
+# Tucker Balch
+#
+# usage:
+# rmext < file1 > file2
+# removes extensions from filenames in text file1 and puts new list in file2
+#
+awk -F "." '{print $1}'
