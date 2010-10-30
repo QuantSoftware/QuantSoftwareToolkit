@@ -11,8 +11,7 @@
 # in to problems, double check again here.
 #
 export QS=$HOME/QSTK
-export QSDATA=/hzr71/research/QSData/Processed/Norgate/Equities
-
+export QSDATA=/hzr71/research/QSData
 # Which machine are we on?
 export HOSTNAME=`hostname`
 
