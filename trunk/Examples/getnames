@@ -7,3 +7,4 @@ ls $QSDATA/Processed/Norgate/Equities/US_NASDAQ >> tmpnames.txt
 ls $QSDATA/Processed/Norgate/Equities/US_NYSE >> tmpnames.txt
 #ls $QSDATA/Processed/Norgate/Equities/US_NYSE\ Arca >> tmpnames.txt
 rmext .h5 < tmpnames.txt | sort > allsyms.csv
+#rm tmpnames.txt
