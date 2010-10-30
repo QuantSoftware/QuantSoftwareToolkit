@@ -22,7 +22,7 @@ def getDataMatrixFromData(dataname,partname,symbols,tsstart,tsend):
 		paths.append(pathpre + pathsub + "/US_NYSE Arca/")
 		paths.append(pathpre + pathsub + "/OTC/")
 		paths.append(pathpre + pathsub + "/US_AMEX/")
-		paths.append(pathpre + pathsub + "/US_Delisted_US_Recent/")
+		paths.append(pathpre + pathsub + "/Delisted_US_Recent/")
 		paths.append(pathpre + pathsub + "/US_Delisted/")
 		datastr1 = "/StrategyData"
 		datastr2 = "StrategyData"
