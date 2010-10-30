@@ -11,12 +11,12 @@
 # in to problems, double check again here.
 #
 export QS=$HOME/QSTK
-export QSDATA=$HOME/QSData
+export QSDATA=/hzr71/research/QSData/Processed/Norgate/Equities
 
 # Which machine are we on?
 export HOSTNAME=`hostname`
 
-export QSDATAPROCESSED=$QSDATA/Processed
+export QSDATAPROCESSED=/hzr71/research/QSData/Processed
 export QSDATATMP=$QSDATA/Tmp
 export QSBIN=$QS/Bin
 
