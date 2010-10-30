@@ -3,8 +3,10 @@
 #
 # Tucker Balch
 #
+# October 29, 2010
+#
 # usage:
 # rmext < file1 > file2
 # removes extensions from filenames in text file1 and puts new list in file2
 #
-awk -F "." '{print $1}'
+awk -F $1 '{print $1}'
