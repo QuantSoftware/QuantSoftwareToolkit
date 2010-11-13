@@ -16,7 +16,7 @@ import datetime as dt
 #
 # read in and slice up the data
 #
-data = np.loadtxt('data1.csv',delimiter=',',skiprows=1)
+data = np.loadtxt('data2.csv',delimiter=',',skiprows=1)
 X1 = data[:,0]
 X2 = data[:,1]
 Y  = data[:,2]

@@ -17,27 +17,28 @@ import math
 #part1y = numpy.sqrt(part1[:,0]**2 + part1[:,1]**2)
 #part1y = numpy.sin(part1y)
 
-part1 = numpy.random.normal(loc=[0.5,0.5],scale=[.25,.25],size=[333,2])
-part2 = numpy.random.normal(loc=[-.5,-.5],scale=.25,size=[150,2])
-part2 = numpy.concatenate((part2,numpy.random.normal(loc=[0.6,1.2],scale=.1,size=[183,2])),axis=0)
-part3 = numpy.random.normal(loc=[-.5,.5],scale=.5,size=[334,2])
+part1 = numpy.random.normal(loc=[.5,.5,.5],scale=.25,size=[334,3])
+part2 = numpy.random.normal(loc=[-.5,-.5,.5],scale=.25,size=[151,3])
+part2 = numpy.concatenate((part2,numpy.random.normal(loc=[.6,1.2,.5],
+	scale=.1,size=[184,3])),axis=0)
+part3 = numpy.random.normal(loc=[-.5,.5,.5],scale=.5,size=[334,3])
+
+part1[:,2] = 1
+part2[:,2] = 0
+part3[:,2] = -1
+
+alldata = numpy.concatenate([part1,part2,part3])
+p = numpy.random.permutation(alldata.shape[0])
+alldata = alldata[p,:]
 
 #
 # squish in X
 #
-#part1[:,1] = part1[:,1]/4
-#part2[:,1] = part2[:,1]/4
-#part3[:,1] = part3[:,1]/4
+alldata[:,1] = alldata[:,1]/4
 
-f = open('data1.csv', 'w')
-for i in range(0,part1.shape[0]-1):
-	#prnstr = str(part1[i,0])+','+str(part1[i,1])+','+str(part1y[i])+'\n'
-	prnstr = str(part1[i,0])+','+str(part1[i,1])+',1.0'+'\n'
-	f.write(prnstr)
-for i in range(0,part2.shape[0]-1):
-	prnstr = str(part2[i,0])+','+str(part2[i,1])+',-1.0'+'\n'
-	f.write(prnstr)
-for i in range(0,part3.shape[0]-1):
-	prnstr = str(part3[i,0])+','+str(part3[i,1])+',0.0'+'\n'
+f = open('data2.csv', 'w')
+for i in range(0,alldata.shape[0]-1):
+	prnstr = str(alldata[i,0])+','+str(alldata[i,1])+',' \
+		+str(alldata[i,2])+'\n'
 	f.write(prnstr)
 f.close()
