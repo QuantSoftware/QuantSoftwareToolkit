@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class Main {
 
@@ -23,7 +24,7 @@ public class Main {
 
 		int dataUpdaterHour= 18; //MUST be in 24 hr time
 		int dataUpdateMinute= 0;
-		int timezoneOffsetHour= 4; //+4 for ET. +ve if local time is behind GMT. -ve if local time is ahead of GMT.
+		//int timezoneOffsetHour= 4; //+4 for ET. +ve if local time is behind GMT. -ve if local time is ahead of GMT.
 		//long currentTime;
 		long millisToStartAt;
 		final long MILLIS_PER_DAY=86400*1000;
@@ -49,19 +50,20 @@ public class Main {
 		Writer masterOutputWriter=null;
 
 		cal= Calendar.getInstance();
+		TimeZone timeZone= TimeZone.getDefault();
 		masterLogFile= new File (logFilepath+ masterLogFileName+(new SimpleDateFormat("dd-MM-yyyy HH-mm")).format(cal.getTime())+ ".txt");
 		masterLogFile.createNewFile();
 		masterOutputWriter= new BufferedWriter (new FileWriter(masterLogFile));
 
 
-		millisToStartAt= (long) (MILLIS_PER_DAY* Math.floor(System.currentTimeMillis() / MILLIS_PER_DAY)) + ((dataUpdaterHour + timezoneOffsetHour)*60*60*1000 )+ (dataUpdateMinute*60*1000);
+		millisToStartAt= (long) (MILLIS_PER_DAY* Math.floor(System.currentTimeMillis() / MILLIS_PER_DAY)) + ((dataUpdaterHour)*60*60*1000 )+ (dataUpdateMinute*60*1000) - (timeZone.getOffset(System.currentTimeMillis()));
+		//Math.floor(System.currentTimeMillis() / MILLIS_PER_DAY) give the timestamp of the midnight that already happened. This is the midnight between yesterday and today.
+		
 		display("millisToStartAt " + millisToStartAt + " currentMillis: "+ System.currentTimeMillis(), masterOutputWriter);
 
 
 		if (millisToStartAt > System.currentTimeMillis()){
 			display("Sleeping for about " + (millisToStartAt - System.currentTimeMillis()) + " millisecs.", masterOutputWriter);
-
-
 			Thread.sleep(millisToStartAt- System.currentTimeMillis());
 			display("Slept well. Back to work now...", masterOutputWriter);
 			millisToStartAt-= MILLIS_PER_DAY; //hack for testing so that if this is started before the due time- then it starts at the time again...
@@ -124,7 +126,8 @@ public class Main {
 			outputWriter.close();
 			br.close();
 
-			millisToStartAt+= MILLIS_PER_DAY;
+			millisToStartAt= (long) (MILLIS_PER_DAY* Math.ceil(System.currentTimeMillis() / MILLIS_PER_DAY)) + ((dataUpdaterHour)*60*60*1000 )+ (dataUpdateMinute*60*1000) - (timeZone.getOffset(System.currentTimeMillis()));
+			//note subtle but important difference from earlier line. This is Math.ceil- which gives the timestamp at midnight that will happen between today and tomorrow 
 			
 			//change master log file here
 			if (millisToStartAt - System.currentTimeMillis() > 0){
