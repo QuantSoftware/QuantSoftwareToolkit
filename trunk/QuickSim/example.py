@@ -14,20 +14,21 @@ from qstkutil import pseries as ps
 from pandas import *
 import quickSim as simulator
 import matplotlib.pyplot as plt
+import datetime as dt
     
-dates= [tu.ymd2epoch(2008,1,2),
-        tu.ymd2epoch(2008,1,21),
-        tu.ymd2epoch(2008,2,1),
-        tu.ymd2epoch(2008,3,1),
-        tu.ymd2epoch(2008,4,1),
-        tu.ymd2epoch(2008,5,1),
-        tu.ymd2epoch(2008,6,1),
-        tu.ymd2epoch(2008,7,1),
-        tu.ymd2epoch(2008,8,1),
-        tu.ymd2epoch(2008,9,1),
-        tu.ymd2epoch(2008,10,1),
-        tu.ymd2epoch(2008,11,1),
-        tu.ymd2epoch(2008,12,1)]
+dates= [dt.date(2008,1,2),
+        dt.date(2008,1,21),
+        dt.date(2008,2,1),
+        dt.date(2008,3,1),
+        dt.date(2008,4,1),
+        dt.date(2008,5,1),
+        dt.date(2008,6,1),
+        dt.date(2008,7,1),
+        dt.date(2008,8,1),
+        dt.date(2008,9,1),
+        dt.date(2008,10,1),
+        dt.date(2008,11,1),
+        dt.date(2008,12,1)]
 
 vals={
     'XOM' :   [.2, .2, .2, .2, .2, .3, .4, .3, .2, .1, .3, .2, .1],
@@ -39,8 +40,8 @@ sample_alloc = DataMatrix(vals, index=dates)
 
 #sample_historic setup
 # Set start and end boundary times.  They must be specified in Unix Epoch
-tsstart = sample_alloc.index[0]
-tsend = sample_alloc.index[-1]
+tsstart = tu.ymd2epoch(2008,1,2)
+tsend = tu.ymd2epoch(2008,12,31)
 symbols = sample_alloc.cols()
 symbols.pop()
 
@@ -53,7 +54,6 @@ funds=simulator.quickSim(sample_alloc,sample_historic,1000)
 
 plt.clf()
 plt.plot(funds.index,funds.values)
-set_xticklabels(size='xx-small')
 plt.ylabel('Fund Value')
 plt.xlabel('Date')
 plt.draw()
