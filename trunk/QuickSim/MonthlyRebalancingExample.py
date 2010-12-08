@@ -3,6 +3,7 @@
 #
 # An example which creates a monthly allocation table
 # from 2004 to 2009 and uses the quickSim to produce a fund history.
+# It then dumps the allocation table to a picklefile format file named allocations.pkl
 #
 # Drew Bratcher
 #
@@ -16,6 +17,7 @@ from pandas import *
 import quickSim as simulator
 import matplotlib.pyplot as plt
 import time as t
+import pickle
 
 #sample_historic setup
 # Get first 20 S&P Symbols 
@@ -37,6 +39,8 @@ for date in range(0, len(historic.index)):
 		alloc=alloc.append(DataMatrix(index=[historic.index[date]], data=alloc_vals, columns=symbols))
 alloc[symbols[0]] = .1
 alloc['_CASH'] = .1
+output=open("allocations.pkl","wb")
+pickle.dump(alloc, output)
 
 funds=simulator.quickSim(alloc,historic,1000)
 

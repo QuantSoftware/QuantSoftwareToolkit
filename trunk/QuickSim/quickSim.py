@@ -25,6 +25,7 @@ def quickSim(alloc,historic,start_cash):
     closest=historic[historic.index<=alloc.index[0]]
     fund_ts=Series([start_cash], index=[closest.index[-1]])
     shares=alloc.values[0,:]*fund_ts.values[-1]/closest.values[-1,:]
+    cash_values=DataMatrix([shares*closest.values[-1,:]],index=[closest.index[-1]])
     
     #compute all trades
     for i in range(1,len(alloc.values[:,0])):
@@ -32,8 +33,9 @@ def quickSim(alloc,historic,start_cash):
         closest=historic[historic.index<=alloc.index[i]]
         #for loop to calculate fund daily (without rebalancing)
         for date in closest[closest.index>fund_ts.index[-1]].index:
-            #compute and record total fund value (Sum(closest close * stocks))
+        	#compute and record total fund value (Sum(closest close * stocks))
             fund_ts=fund_ts.append(Series([(closest.xs(date)*shares).sum()],index=[date]))
+            cash_values=cash_values.append(DataMatrix([shares*closest.xs(date)],index=[date]))
         #distribute fund in accordance with alloc
         shares=alloc.values[i,:]*fund_ts.values[-1]/closest.xs(closest.index[-1])
 
