@@ -17,7 +17,7 @@ from pandas import *
 import quickSim as simulator
 import matplotlib.pyplot as plt
 import time as t
-import pickle
+import cPickle
 
 #sample_historic setup
 # Get first 20 S&P Symbols 
@@ -40,7 +40,7 @@ for date in range(0, len(historic.index)):
 alloc[symbols[0]] = .1
 alloc['_CASH'] = .1
 output=open("allocations.pkl","wb")
-pickle.dump(alloc, output)
+cPickle.dump(alloc, output)
 
 funds=simulator.quickSim(alloc,historic,1000)
 
