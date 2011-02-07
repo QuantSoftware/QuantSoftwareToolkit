@@ -1,6 +1,5 @@
 '''
 Created on Feb 1, 2011
-
 @author: Shreyas Joshi
 @organization: Georgia Institute of Technology
 @contact: shreyasj@gatech.edu
@@ -23,10 +22,11 @@ data = np.zeros (0)#this is the global data
 
 
 '''
+@summary: Finds the k- nearest nrighbors in parallel. Based on function "query"
 @param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.
 @param k: no. of neighbors to consider
 @param method: method of combining the 'y' values of the nearest neighbors. Default is mean.
-@param noOfThreads: optional paramter that specifies how many threads to create. Default value: no. of threads = value returned by cpu_count
+@param noOfThreads: optional parameter that specifies how many threads to create. Default value: no. of threads = value returned by cpu_count
 @return: A numpy array with the predicted 'y' values for the query points. The ith element in the array is the 'y' value for the ith query point.
 '''
 def par_query (allQueries, k, method='mean', noOfThreads=None):
@@ -36,13 +36,13 @@ def par_query (allQueries, k, method='mean', noOfThreads=None):
         noOfThreads = cpu_count()
         #if ends
     
-    print "No of threads: " + str (noOfThreads)
+    #print "No of threads: " + str (noOfThreads)
     pool = Pool (processes=noOfThreads)
     
     resultList = []
     query_per_thread = allQueries.shape[0] / noOfThreads
     
-    time_start = time.time();
+    #time_start = time.time();
     for thread_ctr in range (0, noOfThreads - 1):
         resultList.append(pool.apply_async(query, (allQueries[math.floor(query_per_thread * thread_ctr): (math.floor(query_per_thread * (thread_ctr + 1 ))),:], k,)))
         #NOTE: we may need a -1 in above. Possible bug
@@ -53,8 +53,8 @@ def par_query (allQueries, k, method='mean', noOfThreads=None):
     pool.close()
     pool.join()
     
-    time_finish = time.time()
-    print "Time taken (secs): " + str (time_finish - time_start)
+    #time_finish = time.time()
+    #print "Time taken (secs): " + str (time_finish - time_start)
     
     answer = resultList[0].get()
     
@@ -62,11 +62,12 @@ def par_query (allQueries, k, method='mean', noOfThreads=None):
         answer = np.hstack((answer, resultList[thread_ctr].get()))
         #for ends
 
-    print "par_query done"
+    #print "par_query done"
     return answer
     #par_query ends
 
 '''
+@summary: A serial implementation of k-nearest neighbors.
 @param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.
 @param k: no. of neighbors to consider
 @param method: method of combining the 'y' values of the nearest neighbors. Default is mean.
