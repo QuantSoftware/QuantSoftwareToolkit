@@ -1,5 +1,12 @@
 # # quickSim.py # # A module that contains simulators that quickly produce a fund history.
 # # Drew Bratcher #
+#TODO:Calander for fund value
+#input as data
+#backtester-no gui
+#Reports subdirectory 
+# -total return
+# -sharp ratio
+# -plot
 from pylab import *
 from qstkutil import DataAccess as da
 from qstkutil import timeutil as tu
@@ -11,6 +18,7 @@ import time as t
 import cPickle
 import sys
 import calendar
+
 
 
 def quickSim(alloc,historic,start_cash):
@@ -156,10 +164,3 @@ if __name__ == "__main__":
 	print str(sys.argv[3])
 	output=open(sys.argv[3],"wb")
 	cPickle.dump(funds, output)
-	
-	plt.clf()
-	plt.plot(funds.index,funds.values)
-	plt.ylabel('Fund Value')
-	plt.xlabel('Date')
-	plt.draw()
-	savefig("funds.pdf", format='pdf')
