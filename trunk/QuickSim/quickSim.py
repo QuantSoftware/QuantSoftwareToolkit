@@ -134,7 +134,7 @@ if __name__ == "__main__":
 	# along with a starting cash value
 	# 
 	# sample call:
-	# python CmdlnQuickSim.py 'alloc_file.pkl' 1000 'fund_output.pkl'
+	# python quickSim.py 'alloc_file.pkl' 1000 'fund_output.pkl'
 	#
 	# Drew Bratcher
 	#

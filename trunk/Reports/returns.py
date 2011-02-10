@@ -1,8 +1,7 @@
 #
-# report.py
+# returns.py
 #
-# Generates a html file containing a report based 
-# off a timeseries of funds from a pickle file.
+# Generates a list of daily returns.
 #
 # Drew Bratcher
 #
