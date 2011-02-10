@@ -17,15 +17,14 @@ import numpy as np
 import tables as pt
 import time
 import os
+
 class Stock:
     
     def __init__(self, noOfStaticDataItems, symbol): #, stockIndex
        '''
-       @attention: Here it is assumed that all the symbols will have the same static data. So, we don't need to store the names of the data
-                  items separately for every symbols. Only the values need to be stored on a per symbol basis.
-                  
-        @param noOfStaticDataItems:  the number of items that will be be stored only once per symbol
-        @param symbol: the symbol of the current symbol          
+       @attention: Here it is assumed that all the symbols will have the same static data. So, we don't need to store the names of the data items separately for every symbols. Only the values need to be stored on a per symbol basis.
+       @param noOfStaticDataItems:  the number of items that will be be stored only once per symbol
+       @param symbol: the symbol of the current symbol          
        '''
        self.dataVals=[]
        self.symbol=symbol
@@ -70,7 +69,7 @@ class DataAccess:
         the file is then closed. All data is assumed to fit into memory. (2GB mem = ~1000 symbols)
         @attention: When reading in data from multiple files- it is assumed that all symbol data is read in at one time and once only. No such assumption is made when reading in from one file only. However- the timestamps must be in ascending oder. Both: the data is 1 timestamp all symbols (and then the next timestamp) or 1 symbols all timestamps (and then the next symbol) should work.
         @param isFolderList: Indicates if folderList is a folder name or a file name. True if is folder. False if is file.
-        @param folderList: list of folder names where the hdf files are located / one file 
+        @param folderList: list of folder names where the hdf files are located / name of one file 
         @param verbose: verbose or not True/False
         @param listOfSymbols: specifies which list of symbols to read in. This is ignored if isFolderList = False
         @param beginTS: specifies the timestamp since epoch from which data should be read in. Value of beginTS itself will be included.
@@ -123,7 +122,9 @@ class DataAccess:
         self.allTimestampsAdded= False
         self.allStocksDataInited= False
         
-        print "Starting to read in data..." + str(time.strftime("%H:%M:%S"))
+        if (verbose is True):
+            print "Starting to read in data..." + str(time.strftime("%H:%M:%S"))
+        #if ends
         
         if (isFolderList is True):
          for stockName in listOfSymbols:
@@ -229,9 +230,6 @@ class DataAccess:
                      fileIterator= fileIteratorNode.where (str(self.TIMESTAMP)+'<='+str(endTS))
                  else:
                       fileIterator= fileIteratorNode.iterrows() #a hack so that the rest of the program works    
-                         
-
-            
             
             for row in fileIterator:
              
@@ -285,8 +283,9 @@ class DataAccess:
             h5f.close()
          #for stockName in listOfSymbols: ends  
           
-    print "Finished reading all data." + str(time.strftime("%H:%M:%S"))
-    
+        if (verbose is True):
+            print "Finished reading all data." + str(time.strftime("%H:%M:%S"))
+            #if ends
     # constructor ends
     def getMatrixFromTS(self, stocksList, dataItem, ts, days):
         '''
@@ -395,7 +394,6 @@ class DataAccess:
         
     def getMatrixBetweenIndex (self, stocksList, dataItem, beginIndex, endIndex):
         '''
-        @return: returns data for the specific stocks between and inclusive of the beginIndex and the endIndex. So it returns (endindex- beginIndex)+1 number of rows and len (stockList) number of columns.
         @return: a 2D numpy array such that: No. or rows = (endIndex- beginIndex +1) becuase both timestamps are included. No. of cols.= len (@param stocksList ) The data will be in the same order as the list of stocks passed to this function and not the same as the order in which the stock data was read in from disk
         @attention: If a stock is not found the data values for that stock in the array will be all NaN
         '''      
@@ -632,7 +630,9 @@ class DataAccess:
           
           if ((ts == self.timestamps[0]) and (self.timestamps.size > 1)):
               self.allTimestampsAdded= True
-              print "Done adding all timestamps"
+              if (self.verbose is True ):
+                print "Done adding all timestamps"
+                #if ends
               self.currIndex=0
               return self.currIndex
           #if done
@@ -669,7 +669,7 @@ class DataAccess:
     #appendToTimestampsAndGetIndex done             
             
     def insertIntoArrayFromRow(self, tsIndex, stockIndex, row):
-        
+       
         for dataItem in self.dataItemsList:
            try:
                self.allStocksData[self.dataItemsList.index(dataItem)][tsIndex][stockIndex]= row[str(dataItem)]
@@ -687,3 +687,8 @@ class DataAccess:
     
     def getListOfStaticData(self):
         return self.staticDataItemsList
+    
+        
+        
+        
+        
