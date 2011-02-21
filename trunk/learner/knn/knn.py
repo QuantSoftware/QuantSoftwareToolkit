@@ -7,11 +7,12 @@ Created on Feb 1, 2011
           calculated naively- without any smart tricks. Euclidean distance is used to calculate the distance between two points. The implementation
           also provides some coarse parallelism. If the par_query function is used then the query points are split up equally amongst threads and their
           near neighbors are calculated in parallel. If the number of threads to use is not specified then no of threads  = no of cores as returned by
-          the cpu_count function. This may not be ideal.
+          the cpu_count function. This may not be ideal.    
 @status: complete. "mode" untested
 '''
 
 import numpy as np
+import scipy as sc
 import math
 import sys
 import time
@@ -20,16 +21,16 @@ from multiprocessing import cpu_count
 data = np.zeros (0)#this is the global data
 
 
-
-'''
-@summary: Finds the k- nearest nrighbors in parallel. Based on function "query"
-@param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.
-@param k: no. of neighbors to consider
-@param method: method of combining the 'y' values of the nearest neighbors. Default is mean.
-@param noOfThreads: optional parameter that specifies how many threads to create. Default value: no. of threads = value returned by cpu_count
-@return: A numpy array with the predicted 'y' values for the query points. The ith element in the array is the 'y' value for the ith query point.
-'''
 def par_query (allQueries, k, method='mean', noOfThreads=None):
+    '''
+    @summary: Finds the k- nearest nrighbors in parallel. Based on function "query"
+    @param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.
+    @param k: no. of neighbors to consider
+    @param method: method of combining the 'y' values of the nearest neighbors. Default is mean.
+    @param noOfThreads: optional parameter that specifies how many threads to create. Default value: no. of threads = value returned by cpu_count
+    @return: A numpy array with the predicted 'y' values for the query points. The ith element in the array is the 'y' value for the ith query point.
+    '''
+    
     #Here we basically start 'noOfThreads' threads. Each thread calculates the neighbors for (noOfQueryPoints / noOfThreads) query points.
     
     if (noOfThreads == None):
@@ -66,14 +67,16 @@ def par_query (allQueries, k, method='mean', noOfThreads=None):
     return answer
     #par_query ends
 
-'''
-@summary: A serial implementation of k-nearest neighbors.
-@param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.
-@param k: no. of neighbors to consider
-@param method: method of combining the 'y' values of the nearest neighbors. Default is mean.
-@return: A numpy array with the predicted 'y' values for the query points. The ith element in the array is the 'y' value for the ith query point.
-'''
+
 def query(allQueries, k, method='mean'):
+    '''
+    @summary: A serial implementation of k-nearest neighbors.
+    @param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.
+    @param k: no. of neighbors to consider
+    @param method: method of combining the 'y' values of the nearest neighbors. Default is mean.
+    @return: A numpy array with the predicted 'y' values for the query points. The ith element in the array is the 'y' value for the ith query point. If there is more than one mode then only the first mode is returned.
+    '''
+    
     limit = allQueries.shape [0]
     data_limit = data.shape[0]
     omitLastCol = data.shape [1] - 1; #It must have two columns at least. Possibly add a check for this?
@@ -123,33 +126,20 @@ def query(allQueries, k, method='mean'):
             answer [ctr] = np.median (data[index [0:k], -1])
             # if median ends
         if (method == 'mode'):
-            maxCount = 0
-            curCount = 0
-            modeVal = 0
-            #we need to count the #times each element occours and then return the element having max count..
-            for i in range (1, k):
-                if (data[index[i], -1] == data [index[i-1], -1]):
-                    curCount= curCount + 1                    
-                    if (curCount >= maxCount):
-                        maxCount = curCount
-                        modeVal = data [index[i] , -1]
-                        #if ends
-                else:
-                    #this number is different from the last one...
-                    curCount = 1
-                    #else ends
-                #for loop ends
+            answer [ctr] = sc.stats.mode (data[index[0:k],-1])[0][0]; #The first mode. If there is more than one mode then the only the first mode is returned
             #endif mode    
         #for ctr in range (0, limit) ends
     return answer
     #getAnswer ends
 
-'''
-@summary: This is the funtion to be called to add data. This function can be called multiple times- to add data whenever you like.
-@note: Any dimensional data can be added the first time. After that- the data must have the same number of columns as the data that was added the first time.
-@param newData: A 2D numpy array. Each row is a data point and each column is a dimension
-'''
+
 def addEvidence (newData):
+    '''
+    @summary: This is the funtion to be called to add data. This function can be called multiple times- to add data whenever you like.
+    @note: Any dimensional data can be added the first time. After that- the data must have the same number of columns as the data that was added the first time.
+    @param newData: A 2D numpy array. Each row is a data point and each column is a dimension. The last dimension corresponds to 'y' values.
+    '''
+    
     global data
     if (data.shape[0] == 0):
         data = newData
@@ -162,20 +152,18 @@ def addEvidence (newData):
             #except ends   
     #addEvidence ends
 
-'''
-@param dataFile: Specifies the location of the data file.
-@param queryFile: Specifies the location of the query file.
-@param method: Possible values are mean, mode
-@summary: This function is just for testing. Will not be used as such...
-'''
+
 def main(args):
+    '''
+    @summary: This function is just for testing. Will not be used as such...
+    '''
     
     #Below code just for testing
     a = np.loadtxt ("/nethome/sjoshi42/knn_naive/data/3_D_1000_diskQueryPoints.txt")
     b= np.loadtxt ("/nethome/sjoshi42/knn_naive/data/3_D_128000_diskDataPoints.txt")
     addEvidence(b)
 
-    answer = par_query(a, 5 ,'mean')
+    answer = par_query(a, 5 ,'mode')
     #answer = query(a, 5, 'mean')
     
     for i in range (0, answer.shape[0]):
