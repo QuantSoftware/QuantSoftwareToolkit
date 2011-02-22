@@ -1,9 +1,10 @@
 #
-# quickSim.py
+# example.py
 #
-# A simulator that quickly produces a fund history.
+# An example script which makes use of the quickSim module.
 #
-# Drew Bratcher
+# @author: Drew Bratcher
+# @contact: dbratcher@gatech.edu
 #
 
 #sample_alloc setup
