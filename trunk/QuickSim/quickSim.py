@@ -1,17 +1,17 @@
-# # quickSim.py # # A module that contains simulators that quickly produce a fund history.
-# # Drew Bratcher #
-#TODO:Calander for fund value
-#input as data
-#backtester-no gui
-#Reports subdirectory 
-# -total return
-# -sharp ratio
-# -plot
+# 
+# quickSim.py 
+# 
+# A module that contains simulators that quickly produce a fund history.
+# 
+# Drew Bratcher 
+#
+
 from pylab import *
 from qstkutil import DataAccess as da
 from qstkutil import timeutil as tu
 from qstkutil import pseries as ps
 from pandas import *
+
 import quickSim as simulator
 import matplotlib.pyplot as plt
 import time as t
@@ -19,11 +19,8 @@ import cPickle
 import sys
 import calendar
 
-
-
 def quickSim(alloc,historic,start_cash):
-	#quickSim
-	#
+
     #original quick simulator
     #not designed to handle shorts
 

@@ -7,7 +7,6 @@
 # @contact: dbratcher@gatech.edu
 #
 
-#sample_alloc setup
 from pylab import *
 from qstkutil import DataAccess as da
 from qstkutil import timeutil as tu
@@ -16,7 +15,8 @@ from pandas import *
 import quickSim as simulator
 import matplotlib.pyplot as plt
 import datetime as dt
-    
+
+#sample allocation table setup    
 dates= [dt.date(2008,1,2),
         dt.date(2008,1,21),
         dt.date(2008,2,1),
@@ -53,6 +53,7 @@ sample_historic = ps.getDataMatrixFromData(storename,fieldname,symbols,tsstart,t
 
 funds=simulator.quickSim(sample_alloc,sample_historic,1000)
 
+#plot funds
 plt.clf()
 plt.plot(funds.index,funds.values)
 plt.ylabel('Fund Value')
