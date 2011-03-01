@@ -15,8 +15,15 @@ def getMonths(funds,year):
 			months.append(date.month)
 	return(months)
 
+def getDays(funds,year,month):
+	days=[]
+	for date in funds.index:
+		if((date.year==year) and (date.month==month)):
+			days.append(date)
+	return(days)
+
 def getFirstDay(funds,year,month):
 	for date in funds.index:
 		if((date.year==year) and (date.month==month)):
-			return(date.day)
+			return(date)
 	return('ERROR') 

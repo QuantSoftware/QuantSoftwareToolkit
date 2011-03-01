@@ -121,24 +121,10 @@ def shortingQuickSim(alloc,historic,start_cash,leverage):
 
     #return fund record
 	return fund_ts
-    
-    
-if __name__ == "__main__":
-    #
-	# CmdlnQuickSim
-	#
-	# A function which runs a quick sim on an allocation provided via command line,
-	# along with a starting cash value
-	# 
-	# sample call:
-	# python quickSim.py 'alloc_file.pkl' 1000 'fund_output.pkl'
-	#
-	# Drew Bratcher
-	#
 
-
+def alloc_backtest(alloc,start,output_name):
 	#read in alloc table from command line arguements
-	alloc_input_file=open(sys.argv[1],"rb")
+	alloc_input_file=open(alloc,"rb")
 	alloc=cPickle.load(alloc_input_file)
 	
 	#setup historic table using command line arguements
@@ -156,8 +142,41 @@ if __name__ == "__main__":
 	
 	historic = ps.getDataMatrixFromData(storename,fieldname,symbols,tsstart,tsend)
 	
-	funds=simulator.quickSim(alloc,historic,int(sys.argv[2]))
+	funds=simulator.quickSim(alloc,historic,int(start))
 	
-	print str(sys.argv[3])
-	output=open(sys.argv[3],"wb")
+	print str(output_name)
+	output=open(output_name,"wb")
 	cPickle.dump(funds, output)
+    
+if __name__ == "__main__":
+    #
+	# CmdlnQuickSim
+	#
+	# A function which runs a quick sim on an allocation provided via command line,
+	# along with a starting cash value
+	# 
+	# sample call:
+	# python quickSim.py -a 'alloc_file.pkl' 1000 'fund_output.pkl'
+	#
+	# python quickSim.py -s 'strategy.py' '2/2/2007' '2/2/2009' 10 1 1000 'fund_output.pkl' 
+	#
+	# Drew Bratcher
+	#
+
+	if(sys.argv[1]=='-a'):
+		alloc_backtest(sys.argv[2],sys.argv[3],sys.argv[4])
+	elif(sys.argv[1]=='-s'):
+		print 'strategy backtest'
+		#for number of tests
+		for i in range(1,sys.argv[5]):
+			#create alloc with strategy and a date
+			os.system('python '+str(sys.argv[2])+' '+str(sys.argv[3]+i*sys.argv[6])+' '+str(sys.argv[4]+i*sys.argv[6])+' alloc.pkl')
+			#backtest alloc
+			alloc_backtest('_alloc.pkl',sys.argv[7],'_funds.pkl')
+			#add to 3d funds
+			#merge _funds.pkl and sys.argv[8]
+		
+	else:
+		print 'invalid command line call'
+		print 'use python quickSim.py -a alloc_pkl start_value output_pkl'
+		print 'or python quickSim.py -s strategy start_date end_date number_of_tests test_offset_in_days start_value output_pkl'

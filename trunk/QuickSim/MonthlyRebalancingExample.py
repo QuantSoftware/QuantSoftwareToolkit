@@ -43,6 +43,8 @@ output=open("allocations.pkl","wb")
 cPickle.dump(alloc, output)
 
 funds=simulator.quickSim(alloc,historic,1000)
+output2=open("funds2.pkl","wb")
+cPickle.dump(funds, output2)
 
 plt.clf()
 plt.plot(funds.index,funds.values)
