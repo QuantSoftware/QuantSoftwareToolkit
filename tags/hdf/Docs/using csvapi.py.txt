@@ -1,0 +1,11 @@
+The csvapi.py file converts stock data from the csv format to the hdf5 format. 
+
+The important variables that need to be changed are:
+
+1- stockDataFolder : this is where all the csv files should be
+2- outputFileFolder: this is there all the hdf5 files will go (or should exist if you want them updated. If an hdf5 file does not exist, it will be created)
+3- timestampsFile  : this is the path to the timestamps file. If the file does not exist, the program will take a lot longer to finish- because it needs to                      create this file.
+4- startDate and endDate: These are dates in the YYYYMMDD format
+
+NOTE: If there are thousands of stocks and no timestamps file- then the program may take very long to finish. (6 hours or so)
+

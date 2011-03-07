@@ -1,0 +1,10 @@
+#!/bin/bash
+ls $QSDATA/Processed/Norgate/Equities/OTC > tmpnames.txt
+#ls $QSDATA/Processed/Norgate/Equities/US_Delisted >> tmpnames.txt
+#ls $QSDATA/Processed/Norgate/Equities/Delisted_US_Recent >> tmpnames.txt
+ls $QSDATA/Processed/Norgate/Equities/US_AMEX >> tmpnames.txt
+ls $QSDATA/Processed/Norgate/Equities/US_NASDAQ >> tmpnames.txt
+ls $QSDATA/Processed/Norgate/Equities/US_NYSE >> tmpnames.txt
+#ls $QSDATA/Processed/Norgate/Equities/US_NYSE\ Arca >> tmpnames.txt
+rmext .h5 < tmpnames.txt | sort > allsyms.csv
+#rm tmpnames.txt
