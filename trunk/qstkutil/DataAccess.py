@@ -27,16 +27,15 @@ class DataAccess(object):
         self.folderList = list()
         
         if (source == "norgate"):
-            self.folderList.append("C:\\test\\temp\\pkl1\\")
+            #self.folderList.append("C:\\test\\temp\\pkl1\\")
             
-#            self.folderList.append(object)
-#            self.folderList.append("C:\\generated data files\\pkl\\Delisted_US_Recent\\")
-#            self.folderList.append("C:\\generated data files\\pkl\\US_AMEX\\")
-#            self.folderList.append("C:\\generated data files\\pkl\\US_Delisted\\")
-#            self.folderList.append("C:\\generated data files\\pkl\\OTC\\")
-#            self.folderList.append("C:\\generated data files\\pkl\\US_NASDAQ\\")
-#            self.folderList.append("C:\\generated data files\\pkl\\US_NYSE\\")
-#            self.folderList.append("C:\\generated data files\\pkl\\US_NYSE Arca\\")
+            self.folderList.append("C:\\generated data files\\pkl\\Delisted_US_Recent\\")
+            self.folderList.append("C:\\generated data files\\pkl\\US_AMEX\\")
+            self.folderList.append("C:\\generated data files\\pkl\\US_Delisted\\")
+            self.folderList.append("C:\\generated data files\\pkl\\OTC\\")
+            self.folderList.append("C:\\generated data files\\pkl\\US_NASDAQ\\")
+            self.folderList.append("C:\\generated data files\\pkl\\US_NYSE\\")
+            self.folderList.append("C:\\generated data files\\pkl\\US_NYSE Arca\\")
             
             #if ends
         #__init__ ends
@@ -164,15 +163,18 @@ class DataAccess(object):
     
         for path in self.folderList:
             stocksAtThisPath=list ()
-       
+            print str(path)
             stocksAtThisPath= dircache.listdir(str(path))
             #Next, throw away everything that is not a .h5 And these are our stocks!
             stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
             #Now, we remove the .h5 to get the name of the stock
             stocksAtThisPath = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),stocksAtThisPath)
             
-            for stock in stocksAtThisPath:
-                listOfStocks.append(stock)
+            listOfStocks.extend(stocksAtThisPath)
+            #for stock in stocksAtThisPath:
+                #listOfStocks.append(stock)
+                
+                
         return listOfStocks    
         #get_all_symbols ends
         
