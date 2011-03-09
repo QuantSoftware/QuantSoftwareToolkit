@@ -30,28 +30,37 @@ def main ():
     fileExtensionToRemove = ".csv"
     
     listOfInputPaths= list()
-#    listOfInputPaths.append("C:\\test\\temp\\csv1\\")
-#    listOfInputPaths.append("C:\\test\\temp\\csv2\\")
+
+# For Javelin    
+#    listOfInputPaths.append("C:\\Trading data text\\Stocks\\Delisted Securities\\US Recent\\")
+#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\AMEX\\")
+#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\Delisted Securities\\")
+#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\OTC\\")
+#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NASDAQ\\")
+#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\NYSE\\")
+#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NYSE Arca\\")
     
-    listOfInputPaths.append("C:\\Trading data text\\Stocks\\Delisted Securities\\US Recent\\")
-    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\AMEX\\")
-    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\Delisted Securities\\")
-    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\OTC\\")
-    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NASDAQ\\")
-    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\NYSE\\")
-    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NYSE Arca\\")
+#For Gekko
+    listOfInputPaths.append("/hzr71/research/QSData/Processed/Norgate/raw/Delisted Securities/US Recent/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/AMEX/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/Delisted Securities/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/OTC/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/NASDAQ/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/NYSE/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/NYSE Arca/")
     
     listOfOutputPaths= list()
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl1\\")
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl2\\")    
     
-    listOfOutputPaths.append("C:\\generated data files\\pkl\\Delisted_US_Recent\\")
-    listOfOutputPaths.append("C:\\generated data files\\pkl\\US_AMEX\\")
-    listOfOutputPaths.append("C:\\generated data files\\pkl\\US_Delisted\\")
-    listOfOutputPaths.append("C:\\generated data files\\pkl\\OTC\\")
-    listOfOutputPaths.append("C:\\generated data files\\pkl\\US_NASDAQ\\")
-    listOfOutputPaths.append("C:\\generated data files\\pkl\\US_NYSE\\")
-    listOfOutputPaths.append("C:\\generated data files\\pkl\\US_NYSE Arca\\")
+    
+    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/Delisted_US_Recent/")
+    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_AMEX/")
+    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_Delisted/")
+    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/OTC/")
+    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NASDAQ/")
+    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE/")
+    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE Arca/")    
     
       #If the output paths don't exist, then create them...
     for path in listOfOutputPaths:
