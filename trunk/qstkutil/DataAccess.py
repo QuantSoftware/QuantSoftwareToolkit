@@ -8,6 +8,7 @@ import pandas as pa
 import os
 import pickle as pkl
 import time
+import datetime as dt
 import dircache
 
 
@@ -90,31 +91,35 @@ class DataAccess(object):
             
             #we convert the dates to time since epoch
             for i in range (0, temp_np.shape[0]):
-                #print "date is: " + str(long(temp_np[i][0]))
+                
                 temp_np[i][0] = time.mktime(time.strptime(str(long(temp_np[i][0])),'%Y%m%d'))
+                #print "date is: " + str(dt.datetime.fromtimestamp(temp_np[i][0]))
                 #for ends
             
             ts_ctr = 0
-            while ((temp_np[ts_ctr][0] < ts_list[0]) and (ts_ctr < temp_np.shape[0])):
+            
+            while ((dt.datetime.fromtimestamp(temp_np[ts_ctr][0])< ts_list[0]) and (ts_ctr < temp_np.shape[0])):
                 ts_ctr=  ts_ctr+1
+                
                 #print "skipping initial data"
                 #while ends
             
             for time_stamp in ts_list:
                 #print "at time_stamp: " + str(time_stamp) + " and temp_np[ts_ctr][0]"  + str(temp_np[ts_ctr][0])
-                if (time_stamp == temp_np[ts_ctr][0]):
+                if (time_stamp == dt.datetime.fromtimestamp(temp_np[ts_ctr][0])):
                     
                     #add to numpy array
                     #print "    adding to numpy array"
                     self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = temp_np [ts_ctr][1]
                     ts_ctr = ts_ctr +1
-                elif (temp_np[ts_ctr][0] > time_stamp):
+                    
+                elif (dt.datetime.fromtimestamp(temp_np[ts_ctr][0]) > time_stamp):
                     #we don't have data for this timestamp. Add a NaN.
                     #print "    we don't have data for this ts. putting in a NaN"
                     self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = np.NAN
                 else:
                     # (temp_np[ts_ctr][0] is < time_stamp)
-                    while ((ts_ctr < temp_np.shape[0]) and (temp_np[ts_ctr][0]< time_stamp)):
+                    while ((ts_ctr < temp_np.shape[0]) and (dt.datetime.fromtimestamp(temp_np[ts_ctr][0])< time_stamp)):
                         ts_ctr = ts_ctr+1
                         #while ends
                     
@@ -184,17 +189,29 @@ def main():
     
     da = DataAccess('norgate');
     symbol_list = list()
-    symbol_list.append ("AAAGY")
-    symbol_list.append("ABII")
-    symbol_list.append ("AAERF")
-    ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
+    symbol_list.append ("AAPL")
+    symbol_list.append("AMZN")
+    symbol_list.append ("MSFT")
+    #ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
+    ts_list = list()
+    
+    ts_list.append(dt.datetime(2010, 11, 21))
+    ts_list.append(dt.datetime(2010, 11, 22))
+    ts_list.append(dt.datetime(2010, 11, 23))
+    ts_list.append(dt.datetime(2010, 11, 24))
+    ts_list.append(dt.datetime(2010, 11, 25))
+    ts_list.append(dt.datetime(2010, 11, 26))
+    ts_list.append(dt.datetime(2010, 11, 26, 10))
+    ts_list.append(dt.datetime(2010, 11, 27))
+    
+    
     data_frame= da.get_data(ts_list, symbol_list, "volume")
     print str (data_frame)
     
-    list_of_symbols= da.get_all_symbols();
-    
-    for symbol in list_of_symbols:
-        print symbol
+#    list_of_symbols= da.get_all_symbols();
+#    
+#    for symbol in list_of_symbols:
+#        print symbol
     
 #main ends 
  
