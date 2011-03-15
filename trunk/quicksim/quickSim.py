@@ -7,9 +7,10 @@
 #
 
 from pylab import *
-from qstkutil import DataAccess as da
 from qstkutil import timeutil as tu
 from qstkutil import pseries as ps
+from qstkutil import dateutil as du
+from qstkutil import DataAccess
 from pandas import *
 import os
 import quickSim as simulator
@@ -139,9 +140,12 @@ def alloc_backtest(alloc,start):
 	
 	# Get the data from the data store
 	storename = "Norgate" # get data from our daily prices source
-	fieldname = "adj_close" # adj_open, adj_close, adj_high, adj_low, close, volume
+	fieldname = "close" # adj_open, adj_close, adj_high, adj_low, close, volume
 	
-	historic = ps.getDataMatrixFromData(storename,fieldname,symbols,tsstart,tsend)
+	da = DataAccess.DataAccess(storename)
+	ts_list = du.getDaysBetween(tu.epoch2date(tsstart), tu.epoch2date(tsend))
+	symbol_list=symbols
+	historic = da.get_data(ts_list, symbol_list, fieldname)
 	
 	funds=simulator.quickSim(alloc,historic,int(start))
 	
