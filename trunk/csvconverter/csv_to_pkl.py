@@ -1,7 +1,11 @@
 '''
 Created on Feb 25, 2011
+
 @note: This assumes that all the CSV files will have exactly 7 columns. It ignores the first row in the csv files because it it the heading.
-@author: sjoshi42
+        All the data is converted from csv to pkl
+@author: Shreyas Joshi
+@contact: shreyasj@gatech.edu
+@summary: This is used to convert CSV files from norgate to pkl files- which are used when the simulator runs.
 '''
 
 import numpy as np
@@ -12,6 +16,9 @@ import time
 import sys
 
 def clean_output_paths (listOfOutputPaths):
+ '''
+ @summary: Removes any previous files in the output path.
+ '''
 
  for path in listOfOutputPaths:
     files_at_this_path = dircache.listdir(str(path))
