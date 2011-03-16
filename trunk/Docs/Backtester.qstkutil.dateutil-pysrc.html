@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Backtester.qstkutil.dateutil</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Backtester-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Backtester-module.html">Package&nbsp;Backtester</a> ::
+        <a href="Backtester.qstkutil-module.html">Package&nbsp;qstkutil</a> ::
+        Module&nbsp;dateutil
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Backtester.qstkutil.dateutil-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="Backtester.qstkutil.dateutil-module.html">Module Backtester.qstkutil.dateutil</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">datetime</tt> <tt class="py-keyword">import</tt> <tt class="py-name">timedelta</tt> </tt>
+<a name="getMonthNames"></a><div id="getMonthNames-def"><a name="L2"></a><tt class="py-lineno"> 2</tt> <a class="py-toggle" href="#" id="getMonthNames-toggle" onclick="return toggle('getMonthNames');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Backtester.qstkutil.dateutil-module.html#getMonthNames">getMonthNames</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getMonthNames-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="getMonthNames-expanded"><a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">'JAN'</tt><tt class="py-op">,</tt><tt class="py-string">'FEB'</tt><tt class="py-op">,</tt><tt class="py-string">'MAR'</tt><tt class="py-op">,</tt><tt class="py-string">'APR'</tt><tt class="py-op">,</tt><tt class="py-string">'MAY'</tt><tt class="py-op">,</tt><tt class="py-string">'JUN'</tt><tt class="py-op">,</tt><tt class="py-string">'JUL'</tt><tt class="py-op">,</tt><tt class="py-string">'AUG'</tt><tt class="py-op">,</tt><tt class="py-string">'SEP'</tt><tt class="py-op">,</tt><tt class="py-string">'OCT'</tt><tt class="py-op">,</tt><tt class="py-string">'NOV'</tt><tt class="py-op">,</tt><tt class="py-string">'DEC'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"> </tt>
+<a name="getYears"></a><div id="getYears-def"><a name="L5"></a><tt class="py-lineno"> 5</tt> <a class="py-toggle" href="#" id="getYears-toggle" onclick="return toggle('getYears');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Backtester.qstkutil.dateutil-module.html#getYears">getYears</a><tt class="py-op">(</tt><tt class="py-param">funds</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getYears-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="getYears-expanded"><a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line">        <tt id="link-0" class="py-name" targets="Variable Backtester.qstkutil.report.years=Backtester.qstkutil.report-module.html#years"><a title="Backtester.qstkutil.report.years" class="py-name" href="#" onclick="return doclink('link-0', 'years', 'link-0');">years</a></tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-1" class="py-name" targets="Variable Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date=Backtester.csvconverter.StrategyDataModel.StrategyDataModel-class.html#date,Variable Backtester.csvconverter.csvapi.StrategyDataModel.date=Backtester.csvconverter.csvapi.StrategyDataModel-class.html#date"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-1', 'date', 'link-1');">date</a></tt> <tt class="py-keyword">in</tt> <tt id="link-2" class="py-name" targets="Variable Backtester.qstkutil.report.funds=Backtester.qstkutil.report-module.html#funds,Variable Backtester.quicksim.MonthlyRebalancingExample.funds=Backtester.quicksim.MonthlyRebalancingExample-module.html#funds,Variable Backtester.quicksim.example.funds=Backtester.quicksim.example-module.html#funds"><a title="Backtester.qstkutil.report.funds
+Backtester.quicksim.MonthlyRebalancingExample.funds
+Backtester.quicksim.example.funds" class="py-name" href="#" onclick="return doclink('link-2', 'funds', 'link-2');">funds</a></tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">:</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt><tt class="py-op">(</tt><tt class="py-keyword">not</tt><tt class="py-op">(</tt><tt id="link-3" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-3', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">year</tt> <tt class="py-keyword">in</tt> <tt id="link-4" class="py-name"><a title="Backtester.qstkutil.report.years" class="py-name" href="#" onclick="return doclink('link-4', 'years', 'link-0');">years</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line">                        <tt id="link-5" class="py-name"><a title="Backtester.qstkutil.report.years" class="py-name" href="#" onclick="return doclink('link-5', 'years', 'link-0');">years</a></tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt id="link-6" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-6', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">year</tt><tt class="py-op">)</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt><tt class="py-op">(</tt><tt id="link-7" class="py-name"><a title="Backtester.qstkutil.report.years" class="py-name" href="#" onclick="return doclink('link-7', 'years', 'link-0');">years</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"> </tt>
+<a name="getMonths"></a><div id="getMonths-def"><a name="L12"></a><tt class="py-lineno">12</tt> <a class="py-toggle" href="#" id="getMonths-toggle" onclick="return toggle('getMonths');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Backtester.qstkutil.dateutil-module.html#getMonths">getMonths</a><tt class="py-op">(</tt><tt class="py-param">funds</tt><tt class="py-op">,</tt><tt class="py-param">year</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getMonths-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="getMonths-expanded"><a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line">        <tt class="py-name">months</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-8" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-8', 'date', 'link-1');">date</a></tt> <tt class="py-keyword">in</tt> <tt id="link-9" class="py-name"><a title="Backtester.qstkutil.report.funds
+Backtester.quicksim.MonthlyRebalancingExample.funds
+Backtester.quicksim.example.funds" class="py-name" href="#" onclick="return doclink('link-9', 'funds', 'link-2');">funds</a></tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">:</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt id="link-10" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-10', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">year</tt><tt class="py-op">==</tt><tt class="py-name">year</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-keyword">not</tt><tt class="py-op">(</tt><tt id="link-11" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-11', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">month</tt> <tt class="py-keyword">in</tt> <tt class="py-name">months</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line">                        <tt class="py-name">months</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt id="link-12" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-12', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">month</tt><tt class="py-op">)</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt><tt class="py-op">(</tt><tt class="py-name">months</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"> </tt>
+<a name="getDays"></a><div id="getDays-def"><a name="L19"></a><tt class="py-lineno">19</tt> <a class="py-toggle" href="#" id="getDays-toggle" onclick="return toggle('getDays');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Backtester.qstkutil.dateutil-module.html#getDays">getDays</a><tt class="py-op">(</tt><tt class="py-param">funds</tt><tt class="py-op">,</tt><tt class="py-param">year</tt><tt class="py-op">,</tt><tt class="py-param">month</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getDays-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="getDays-expanded"><a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line">        <tt class="py-name">days</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-13" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-13', 'date', 'link-1');">date</a></tt> <tt class="py-keyword">in</tt> <tt id="link-14" class="py-name"><a title="Backtester.qstkutil.report.funds
+Backtester.quicksim.MonthlyRebalancingExample.funds
+Backtester.quicksim.example.funds" class="py-name" href="#" onclick="return doclink('link-14', 'funds', 'link-2');">funds</a></tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">:</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt id="link-15" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-15', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">year</tt><tt class="py-op">==</tt><tt class="py-name">year</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-op">(</tt><tt id="link-16" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-16', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">month</tt><tt class="py-op">==</tt><tt class="py-name">month</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">                        <tt class="py-name">days</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt id="link-17" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-17', 'date', 'link-1');">date</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt><tt class="py-op">(</tt><tt class="py-name">days</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"> </tt>
+<a name="getDaysBetween"></a><div id="getDaysBetween-def"><a name="L26"></a><tt class="py-lineno">26</tt> <a class="py-toggle" href="#" id="getDaysBetween-toggle" onclick="return toggle('getDaysBetween');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Backtester.qstkutil.dateutil-module.html#getDaysBetween">getDaysBetween</a><tt class="py-op">(</tt><tt class="py-param">ts_start</tt><tt class="py-op">,</tt> <tt class="py-param">ts_end</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getDaysBetween-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="getDaysBetween-expanded"><a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line">        <tt class="py-name">days</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-18" class="py-name" targets="Variable Backtester.qstkutil.report.i=Backtester.qstkutil.report-module.html#i"><a title="Backtester.qstkutil.report.i" class="py-name" href="#" onclick="return doclink('link-18', 'i', 'link-18');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-op">(</tt><tt class="py-name">ts_end</tt><tt class="py-op">-</tt><tt class="py-name">ts_start</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">days</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">                <tt class="py-name">days</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">ts_start</tt><tt class="py-op">+</tt><tt class="py-name">timedelta</tt><tt class="py-op">(</tt><tt class="py-name">days</tt><tt class="py-op">=</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">*</tt><tt id="link-19" class="py-name"><a title="Backtester.qstkutil.report.i" class="py-name" href="#" onclick="return doclink('link-19', 'i', 'link-18');">i</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt><tt class="py-op">(</tt><tt class="py-name">days</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"> </tt>
+<a name="getFirstDay"></a><div id="getFirstDay-def"><a name="L32"></a><tt class="py-lineno">32</tt> <a class="py-toggle" href="#" id="getFirstDay-toggle" onclick="return toggle('getFirstDay');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Backtester.qstkutil.dateutil-module.html#getFirstDay">getFirstDay</a><tt class="py-op">(</tt><tt class="py-param">funds</tt><tt class="py-op">,</tt><tt class="py-param">year</tt><tt class="py-op">,</tt><tt class="py-param">month</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getFirstDay-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="getFirstDay-expanded"><a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-20" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-20', 'date', 'link-1');">date</a></tt> <tt class="py-keyword">in</tt> <tt id="link-21" class="py-name"><a title="Backtester.qstkutil.report.funds
+Backtester.quicksim.MonthlyRebalancingExample.funds
+Backtester.quicksim.example.funds" class="py-name" href="#" onclick="return doclink('link-21', 'funds', 'link-2');">funds</a></tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">:</tt> </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt id="link-22" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-22', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">year</tt><tt class="py-op">==</tt><tt class="py-name">year</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-op">(</tt><tt id="link-23" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-23', 'date', 'link-1');">date</a></tt><tt class="py-op">.</tt><tt class="py-name">month</tt><tt class="py-op">==</tt><tt class="py-name">month</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line">                        <tt class="py-keyword">return</tt><tt class="py-op">(</tt><tt id="link-24" class="py-name"><a title="Backtester.csvconverter.StrategyDataModel.StrategyDataModel.date
+Backtester.csvconverter.csvapi.StrategyDataModel.date" class="py-name" href="#" onclick="return doclink('link-24', 'date', 'link-1');">date</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt><tt class="py-op">(</tt><tt class="py-string">'ERROR'</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Backtester-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Wed Mar 16 15:00:32 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
