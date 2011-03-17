@@ -26,8 +26,14 @@ class DataAccess(object):
         @note: No data is actually read in the constructor. Only paths for the source are initialized
         '''
         self.folderList = list()
+
+	try:
+	    rootdir = os.environ['QSDATA']
+	except KeyError:
+	    rootdir = "/hzr71/research/QSData"
+	    print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"
         
-        if (source == "norgate"):
+        if ((source == "norgate") | (source == "Norgate"))
             #self.folderList.append("C:\\test\\temp\\pkl1\\")
             
             self.folderList.append("C:\\generated data files\\pkl\\Delisted_US_Recent\\")
