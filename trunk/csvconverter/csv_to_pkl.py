@@ -59,17 +59,23 @@ def main ():
     listOfOutputPaths= list()
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl1\\")
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl2\\")    
+    try:
+        rootdir = os.environ['QSDATA']
+    except KeyError:
+        #rootdir = "/hzr71/research/QSData"
+        print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"
     
+    listOfOutputPaths.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
+    listOfOutputPaths.append(rootdir + "/Norgate/US/AMEX/")
+    listOfOutputPaths.append(rootdir + "/Norgate/US/Delisted Securities/")
+    listOfOutputPaths.append(rootdir + "/Norgate/OTC/")
+    listOfOutputPaths.append(rootdir + "/Norgate/US/NASDAQ/")
+    listOfOutputPaths.append(rootdir + "/Norgate/US/NYSE/")
+    listOfOutputPaths.append(rootdir + "/Norgate/US/NYSE Arca/")
     
-    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/Delisted_US_Recent/")
-    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_AMEX/")
-    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_Delisted/")
-    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/OTC/")
-    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NASDAQ/")
-    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE/")
-    listOfOutputPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE Arca/")    
+                
     
-      #If the output paths don't exist, then create them...
+    #If the output paths don't exist, then create them...
     for path in listOfOutputPaths:
         if not (os.access(path, os.F_OK)):
             #Path does not exist, so create it
