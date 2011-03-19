@@ -29,22 +29,21 @@ class DataAccess(object):
         '''
         self.folderList = list()
 
-	try:
-	    rootdir = os.environ['QSDATA']
-	except KeyError:
-	    rootdir = "/hzr71/research/QSData"
-	    print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"
+        try:
+            rootdir = os.environ['QSDATA']
+        except KeyError:
+            #rootdir = "/hzr71/research/QSData"
+            print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"
         
-        if ((source == "norgate") | (source == "Norgate"))
-            #self.folderList.append("C:\\test\\temp\\pkl1\\")
+        if ((source == "norgate") | (source == "Norgate")):
             
-            self.folderList.append("C:\\generated data files\\pkl\\Delisted_US_Recent\\")
-            self.folderList.append("C:\\generated data files\\pkl\\US_AMEX\\")
-            self.folderList.append("C:\\generated data files\\pkl\\US_Delisted\\")
-            self.folderList.append("C:\\generated data files\\pkl\\OTC\\")
-            self.folderList.append("C:\\generated data files\\pkl\\US_NASDAQ\\")
-            self.folderList.append("C:\\generated data files\\pkl\\US_NYSE\\")
-            self.folderList.append("C:\\generated data files\\pkl\\US_NYSE Arca\\")
+            self.folderList.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
+            self.folderList.append(rootdir + "/Norgate/US/AMEX/")
+            self.folderList.append(rootdir + "/Norgate/US/Delisted Securities/")
+            self.folderList.append(rootdir + "/Norgate/US/NASDAQ/")
+            self.folderList.append(rootdir + "/Norgate/US/NYSE/")
+            self.folderList.append(rootdir + "/Norgate/US/NYSE Arca/")
+            self.folderList.append(rootdir + "/Norgate/OTC/")
             
             #if ends
         #__init__ ends
@@ -132,7 +131,7 @@ class DataAccess(object):
                         #while ends
                     
                     if  (ts_ctr >= temp_np.shape[0]):
-                        print "breaking"
+                        #print "breaking"
                         break
                         #break out of the for loop
                         #if ends
@@ -168,7 +167,6 @@ class DataAccess(object):
     
         listOfStocks=list()
         #Path does not exist
-        print "Reading in all stock names..."
         fileExtensionToRemove=".pkl"
         
         if (len(self.folderList) == 0):
@@ -176,7 +174,7 @@ class DataAccess(object):
     
         for path in self.folderList:
             stocksAtThisPath=list ()
-            print str(path)
+            #print str(path)
             stocksAtThisPath= dircache.listdir(str(path))
             #Next, throw away everything that is not a .h5 And these are our stocks!
             stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
@@ -196,6 +194,7 @@ class DataAccess(object):
 def main():
     
     da = DataAccess('norgate');
+    
     symbol_list = list()
     symbol_list.append ("AAPL")
     symbol_list.append("AMZN")
@@ -216,8 +215,7 @@ def main():
     data_frame= da.get_data(ts_list, symbol_list, "volume")
     print str (data_frame)
     
-#    list_of_symbols= da.get_all_symbols();
-#    
+#    list_of_symbols= da.get_all_symbols();    
 #    for symbol in list_of_symbols:
 #        print symbol
     
