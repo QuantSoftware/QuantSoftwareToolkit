@@ -2,7 +2,9 @@
 Created on Feb 26, 2011
 
 @author: sjoshi42
+@contact: shreyasj@gatech.edu
 '''
+
 import numpy as np
 import pandas as pa
 import os
