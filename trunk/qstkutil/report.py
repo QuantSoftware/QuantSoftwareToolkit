@@ -15,7 +15,7 @@ from qstkutil import converter
 from qstkutil import returns
 from qstkutil import sharpe
 from qstkutil import dateutil
-from QuickSim import quickSim as simulator
+from quicksim import quicksim
 
 from pandas import *
 import matplotlib.pyplot as plt

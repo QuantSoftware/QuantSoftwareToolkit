@@ -29,12 +29,11 @@ if __name__ == "__main__":
 	tsstart=tu.ymd2epoch(t[2],t[0],t[1])
 	t = map(int,sys.argv[2].split('-'))
 	tsend = tu.ymd2epoch(t[2],t[0],t[1])
+	num_days=(tsend-tsstart).days
+	ts_list=[ tsstart + datetime.timedelta(days=x) for x in range(0,num_days) ]
 	
 	# Get the data from the data store
-	storename = "Norgate" # get data from our daily prices source
-	fieldname = "adj_close" # adj_open, adj_close, adj_high, adj_low, close, volume
-	
-	historic = ps.getDataMatrixFromData(storename,fieldname,symbols,tsstart,tsend)
+	historic = DataAccess.DataAccess(ts_list,symbols,"close")
 	alloc_vals=.8/(len(historic.values[0,:])-1)*ones((1,len(historic.values[0,:])))
 	alloc=DataMatrix(index=[historic.index[0]], data=alloc_vals, columns=symbols)
 	for date in range(1, len(historic.index)):
