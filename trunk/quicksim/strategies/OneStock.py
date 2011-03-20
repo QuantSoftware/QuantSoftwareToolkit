@@ -16,7 +16,7 @@ from qstkutil import dateutil as du
 from qstkutil import timeutil as tu
 from qstkutil import pseries as ps
 from pandas import *
-import quickSim as simulator
+import quicksim as simulator
 import matplotlib.pyplot as plt
 import time as t
 import cPickle
