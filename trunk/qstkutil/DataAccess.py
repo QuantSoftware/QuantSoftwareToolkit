@@ -36,13 +36,13 @@ class DataAccess(object):
         
         if ((source == "norgate") | (source == "Norgate")):
             
-            self.folderList.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
-            self.folderList.append(rootdir + "/Norgate/US/AMEX/")
-            self.folderList.append(rootdir + "/Norgate/US/Delisted Securities/")
-            self.folderList.append(rootdir + "/Norgate/US/NASDAQ/")
-            self.folderList.append(rootdir + "/Norgate/US/NYSE/")
-            self.folderList.append(rootdir + "/Norgate/US/NYSE Arca/")
-            self.folderList.append(rootdir + "/Norgate/OTC/")
+            self.folderList.append(rootdir + "/Processed/Norgate/Delisted Securities/US Recent/")
+            self.folderList.append(rootdir + "/Processed/Norgate/US/AMEX/")
+            self.folderList.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
+            self.folderList.append(rootdir + "/Processed/Norgate/US/NASDAQ/")
+            self.folderList.append(rootdir + "/Processed/Norgate/US/NYSE/")
+            self.folderList.append(rootdir + "/Processed/Norgate/US/NYSE Arca/")
+            self.folderList.append(rootdir + "/Processed/Norgate/OTC/")
             
             #if ends
         #__init__ ends
@@ -82,6 +82,7 @@ class DataAccess(object):
         for symbol in symbol_list:
             
             symbol_ctr = symbol_ctr + 1
+	    print self.getPathOfFile(symbol)
             try:
                 _file= open(self.getPathOfFile(symbol), "rb")
             except IOError:
