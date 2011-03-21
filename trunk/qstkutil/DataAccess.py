@@ -13,7 +13,6 @@ import time
 import datetime as dt
 import dircache
 
-
 class DataAccess(object):
     '''
     @summary: This class is used to access all the symbol data. It readin in pickled numpy arrays converts them into appropriate pandas objects
@@ -138,8 +137,8 @@ class DataAccess(object):
                     #else ends
                 #inner for ends
             #outer for ends        
-        data_frame = pa.DataFrame (self.all_stocks_data, ts_list, symbol_list)            
-        return data_frame            
+        data_matrix = pa.DataMatrix (self.all_stocks_data, ts_list, symbol_list)            
+        return data_matrix            
                         
         
         #get_data ends
@@ -212,8 +211,8 @@ def main():
     ts_list.append(dt.datetime(2010, 11, 27))
     
     
-    data_frame= da.get_data(ts_list, symbol_list, "volume")
-    print str (data_frame)
+    data_matrix = da.get_data(ts_list, symbol_list, "volume")
+    print str (data_matrix)
     
 #    list_of_symbols= da.get_all_symbols();    
 #    for symbol in list_of_symbols:
