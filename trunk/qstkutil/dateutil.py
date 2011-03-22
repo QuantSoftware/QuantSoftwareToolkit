@@ -1,4 +1,19 @@
+"""
+Created on March 22, 2011
+
+@author: Drew Bratcher & Tucker Balch
+@contact: tucker@cc.gatech.edu
+
+utilities for date and time manipulation
+"""
+
+__version__ = "$Revision: 295 $"
+
+import datetime as dt
 from datetime import timedelta
+import numpy as np
+import os
+
 def getMonthNames():
 	return(['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'])
 
@@ -34,3 +49,34 @@ def getFirstDay(funds,year,month):
 		if((date.year==year) and (date.month==month)):
 			return(date)
 	return('ERROR') 
+
+def getNYSEDays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31)):
+	"""
+	@summary Create a list of timestamps between startday and endday (inclusive) 
+	that correspond to the days there was trading at the NYSE. This function 
+	depends on a separately created a file that lists all days since July 4, 
+	1962 that the NYSE has been open, going forward to 2020 (based
+	on the holidays that NYSE recognizes).
+
+	@param startday: First timestamp to consider (inclusive)
+	@param endday: Last day to consider (inclusive)
+	@return list: of timestamps between startday and endday on which NYSE traded
+	@rtype datetime
+	"""
+ 
+	try:
+		filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt"
+	except KeyError:
+		print "Please be sure to set the value for QS in config.sh or\n"
+		print "in local.sh and then \'source local.sh\'.\n"
+
+	datestxt = np.loadtxt(filename,dtype=str)
+	dates = []
+
+	for i in datestxt:
+		dates.append(dt.datetime.strptime(i,"%m/%d/%Y"))
+
+	dates = [x for x in dates if x >= startday]
+	dates = [x for x in dates if x <= endday]
+
+	return(dates)
