@@ -1,10 +1,9 @@
-'''
+"""
 Created on March 22, 2011
 
 @author: Tucker Balch
 @contact: tucker@cc.gatech.edu
-'''
-"""
+
 This script generates a list of days on which we expect the NYSE to be
 open.  Information is drawn from two websites:
 
@@ -15,7 +14,6 @@ http://www.nyse.com/about/newsevents/1176373643795.html
 __version__ = "$Revision$"
 
 from datetime import *
-
 
 rootday = datetime(2011,1,3) # first monday in 2011
 endday = datetime(2021,1,1) # don't go beyond this date
