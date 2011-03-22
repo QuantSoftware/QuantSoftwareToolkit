@@ -1,0 +1,13 @@
+#/bin/sh
+source ../local.sh
+echo $QS
+rsync --verbose \
+      --progress \
+      --stats \
+      --compress \
+      --update \
+      --times \
+      --rsh="/usr/bin/ssh -ltucker777 -i /Users/tucker/.ssh/remote-key" \
+      --recursive --times --perms --links \
+      --exclude "*bak" --exclude "*~" --exclude "QSData/" \
+      $QS/ quantsoftware.org:~tucker777/quantsoftware.org/
