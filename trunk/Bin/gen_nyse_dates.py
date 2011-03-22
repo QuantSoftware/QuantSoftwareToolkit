@@ -13,7 +13,6 @@ http://www.nyse.com/about/newsevents/1176373643795.html
 """
 
 __version__ = "$Revision$"
-# $Source$
 
 from datetime import *
 
