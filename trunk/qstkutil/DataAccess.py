@@ -27,12 +27,12 @@ class DataAccess(object):
         @note: No data is actually read in the constructor. Only paths for the source are initialized
         '''
         self.folderList = list()
-
         try:
             rootdir = os.environ['QSDATA']
         except KeyError:
             #rootdir = "/hzr71/research/QSData"
-            print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"
+            raise KeyError("Please be sure to set the value for QSDATA in config.sh or local.sh")
+        
         
         if ((source == "norgate") | (source == "Norgate")):
             
@@ -82,7 +82,7 @@ class DataAccess(object):
         for symbol in symbol_list:
             
             symbol_ctr = symbol_ctr + 1
-	    print self.getPathOfFile(symbol)
+            #print self.getPathOfFile(symbol)
             try:
                 _file= open(self.getPathOfFile(symbol), "rb")
             except IOError:
@@ -99,7 +99,7 @@ class DataAccess(object):
             #we convert the dates to time since epoch
             for i in range (0, temp_np.shape[0]):
                 
-                temp_np[i][0] = time.mktime(time.strptime(str(long(temp_np[i][0])),'%Y%m%d'))
+                temp_np[i][0] = time.mktime(time.strptime(str(long(temp_np[i][0])),'%Y%m%d')) + 57600 # To make the time 1600 hrs on the day previous to this midnight
                 #print "date is: " + str(dt.datetime.fromtimestamp(temp_np[i][0]))
                 #for ends
             
@@ -190,37 +190,3 @@ class DataAccess(object):
         #get_all_symbols ends
         
     #class DataAccess ends
- 
-def main():
-    
-    da = DataAccess('norgate');
-    
-    symbol_list = list()
-    symbol_list.append ("AAPL")
-    symbol_list.append("AMZN")
-    symbol_list.append ("MSFT")
-    #ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
-    ts_list = list()
-    
-    ts_list.append(dt.datetime(2010, 11, 21))
-    ts_list.append(dt.datetime(2010, 11, 22))
-    ts_list.append(dt.datetime(2010, 11, 23))
-    ts_list.append(dt.datetime(2010, 11, 24))
-    ts_list.append(dt.datetime(2010, 11, 25))
-    ts_list.append(dt.datetime(2010, 11, 26))
-    ts_list.append(dt.datetime(2010, 11, 26, 10))
-    ts_list.append(dt.datetime(2010, 11, 27))
-    
-    
-    data_matrix = da.get_data(ts_list, symbol_list, "volume")
-    print str (data_matrix)
-    
-#    list_of_symbols= da.get_all_symbols();    
-#    for symbol in list_of_symbols:
-#        print symbol
-    
-#main ends 
- 
-        
-if __name__ == '__main__':
-    main()
