@@ -8,6 +8,8 @@
 #
 # October 29, 2010
 #
+# "$Revision$"
+
 rm -f tmpnames.txt
 rm -f tmpnames2.txt
 ls $QSDATA/Processed/Norgate/Equities/OTC > tmpnames.txt
