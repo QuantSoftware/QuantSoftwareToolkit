@@ -18,8 +18,6 @@ class DataAccess(object):
     @summary: This class is used to access all the symbol data. It readin in pickled numpy arrays converts them into appropriate pandas objects
     and returns that object. The {main} function currently demonstrates use.
     '''
-
-
     def __init__(self, source = "norgate"):
         '''
         Constructor
@@ -36,13 +34,13 @@ class DataAccess(object):
         
         if ((source == "norgate") | (source == "Norgate")):
             
-            self.folderList.append(rootdir + "/Processed/Norgate/Delisted Securities/US Recent/")
+            #self.folderList.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
             self.folderList.append(rootdir + "/Processed/Norgate/US/AMEX/")
             self.folderList.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
             self.folderList.append(rootdir + "/Processed/Norgate/US/NASDAQ/")
             self.folderList.append(rootdir + "/Processed/Norgate/US/NYSE/")
             self.folderList.append(rootdir + "/Processed/Norgate/US/NYSE Arca/")
-            self.folderList.append(rootdir + "/Processed/Norgate/OTC/")
+            self.folderList.append(rootdir + "/Processed/Norgate/US/OTC/")
             
             #if ends
         #__init__ ends
