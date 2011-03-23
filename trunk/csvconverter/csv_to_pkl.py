@@ -48,14 +48,13 @@ def main ():
 #    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NYSE Arca\\")
     
 #For Gekko
-    listOfInputPaths.append("/hzr71/research/QSData/Processed/Norgate/raw/Delisted Securities/US Recent/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/AMEX/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/Delisted Securities/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/OTC/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/NASDAQ/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/NYSE/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Processed/Norgate/raw/US/NYSE Arca/")
-    
+    #listOfInputPaths.append("/hzr71/research/QSData/Processed/Norgate/raw/Delisted Securities/US Recent/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/US/AMEX/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/Delisted Securities/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NASDAQ/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NYSE/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NYSE Arca/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/OTC/")
     listOfOutputPaths= list()
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl1\\")
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl2\\")    
@@ -65,14 +64,13 @@ def main ():
         #rootdir = "/hzr71/research/QSData"
         print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"
     
-    listOfOutputPaths.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
-    listOfOutputPaths.append(rootdir + "/Norgate/US/AMEX/")
-    listOfOutputPaths.append(rootdir + "/Norgate/US/Delisted Securities/")
-    listOfOutputPaths.append(rootdir + "/Norgate/OTC/")
-    listOfOutputPaths.append(rootdir + "/Norgate/US/NASDAQ/")
-    listOfOutputPaths.append(rootdir + "/Norgate/US/NYSE/")
-    listOfOutputPaths.append(rootdir + "/Norgate/US/NYSE Arca/")
-    
+    #listOfOutputPaths.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/AMEX/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NASDAQ/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NYSE/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NYSE Arca/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/OTC/")    
                 
     
     #If the output paths don't exist, then create them...
