@@ -31,7 +31,6 @@ class DataAccess(object):
             #rootdir = "/hzr71/research/QSData"
             raise KeyError("Please be sure to set the value for QSDATA in config.sh or local.sh")
         
-        
         if ((source == "norgate") | (source == "Norgate")):
             
             #self.folderList.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
