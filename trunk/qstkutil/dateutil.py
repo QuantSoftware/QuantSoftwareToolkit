@@ -50,7 +50,8 @@ def getFirstDay(funds,year,month):
 			return(date)
 	return('ERROR') 
 
-def getNYSEDays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31)):
+def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31),
+	timeofday = dt.timedelta(0)):
 	"""
 	@summary Create a list of timestamps between startday and endday (inclusive) 
 	that correspond to the days there was trading at the NYSE. This function 
@@ -74,7 +75,7 @@ def getNYSEDays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,3
 	dates = []
 
 	for i in datestxt:
-		dates.append(dt.datetime.strptime(i,"%m/%d/%Y"))
+		dates.append(dt.datetime.strptime(i,"%m/%d/%Y")+timeofday)
 
 	dates = [x for x in dates if x >= startday]
 	dates = [x for x in dates if x <= endday]

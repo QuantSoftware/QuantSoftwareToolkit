@@ -66,7 +66,7 @@ class DataAccess(object):
             list_index.remove(4)
         elif(data_item == 'volume'):
             list_index.remove(5)
-        elif (data_item == 'open'):
+        elif (data_item == 'actual_close'):
             list_index.remove(6)
         else:
             #incorrect value
