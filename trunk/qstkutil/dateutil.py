@@ -11,6 +11,7 @@ __version__ = "$Revision: 295 $"
 
 import datetime as dt
 from datetime import timedelta
+import time as t
 import numpy as np
 import os
 
@@ -81,3 +82,22 @@ def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,3
 	dates = [x for x in dates if x <= endday]
 
 	return(dates)
+
+def ymd2epoch(year, month, day):
+	"""
+	@summary Convert YMD info into a unix epoch value.
+	@param year: The year
+	@param month: The month
+	@param day: Duh, by now you should get it
+	@return epoch: number of seconds since epoch
+	"""
+	return(t.mktime(dt.date(year,month,day).timetuple()))
+
+def epoch2date(ts):
+	"""
+	@summary Convert seconds since epoch into date
+	@param ts: Seconds since epoch
+	@return thedate: A date object
+	"""
+	tm = t.gmtime(ts)
+	return(dt.date(tm.tm_year,tm.tm_mon,tm.tm_mday))
