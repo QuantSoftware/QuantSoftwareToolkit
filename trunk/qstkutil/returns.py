@@ -1,5 +1,6 @@
 import cPickle
 import math
+import numpy as np
 from pandas import *
 from qstkutil import dateutil
 
@@ -61,3 +62,23 @@ def fillbackward(nd):
 		for row in range(nd.shape[0]-2,-1,-1):
 			if math.isnan(nd[row,col]):
 				nd[row,col] = nd[row+1,col]
+
+def returnize0(nd):
+	"""
+	@summary Removes NaNs from a 2D array by scanning backward in the 
+	1st dimension.  If a cell is NaN, the value above it is carried backward.
+	@param nd: the array to fill backward
+	@return the array is revised in place
+	"""
+	nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
+	nd[0,:] = np.zeros(nd.shape[1])
+
+def returnize1(nd):
+	"""
+	@summary Removes NaNs from a 2D array by scanning backward in the 
+	1st dimension.  If a cell is NaN, the value above it is carried backward.
+	@param nd: the array to fill backward
+	@return the array is revised in place
+	"""
+	nd[1:,:] = (nd[1:,:]/nd[0:-1])
+	nd[0,:] = np.ones(nd.shape[1])
