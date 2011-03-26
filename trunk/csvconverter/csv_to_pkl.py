@@ -49,7 +49,7 @@ def main ():
     
 #For Gekko
     #listOfInputPaths.append("/hzr71/research/QSData/Processed/Norgate/raw/Delisted Securities/US Recent/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/US/AMEX/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/AMEX/")
     listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/Delisted Securities/")
     listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NASDAQ/")
     listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NYSE/")
