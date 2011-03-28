@@ -65,9 +65,8 @@ def fillbackward(nd):
 
 def returnize0(nd):
 	"""
-	@summary Removes NaNs from a 2D array by scanning backward in the 
-	1st dimension.  If a cell is NaN, the value above it is carried backward.
-	@param nd: the array to fill backward
+	@summary Computes stepwise (usually daily) returns relative to 0, where
+	0 implies no change in value.
 	@return the array is revised in place
 	"""
 	nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
@@ -75,8 +74,8 @@ def returnize0(nd):
 
 def returnize1(nd):
 	"""
-	@summary Removes NaNs from a 2D array by scanning backward in the 
-	1st dimension.  If a cell is NaN, the value above it is carried backward.
+	@summary Computes stepwise (usually daily) returns relative to 1, where
+	1 implies no change in value.
 	@param nd: the array to fill backward
 	@return the array is revised in place
 	"""
