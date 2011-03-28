@@ -7,8 +7,8 @@
 #
 
 from pylab import *
-from qstkutil import timeutil as tu
-from qstkutil import pseries as ps
+from qstkutil import tsutil as tsu
+#from qstkutil import pseries as ps
 from qstkutil import dateutil as du
 from qstkutil import DataAccess
 from pandas import *
@@ -134,16 +134,16 @@ def alloc_backtest(alloc,start):
 	symbols = symbols[0:-1];
 	#Set start and end boundary times.  They must be specified in Unix Epoch
 	t = map(int,str(alloc.index[0]).split('-'))
-	tsstart=tu.ymd2epoch(t[0],t[1],t[2])
+	tsstart=tsu.ymd2epoch(t[0],t[1],t[2])
 	t = map(int,str(alloc.index[-1]).split('-'))
-	tsend = tu.ymd2epoch(t[0],t[1],t[2])
+	tsend = tsu.ymd2epoch(t[0],t[1],t[2])
 	
 	# Get the data from the data store
 	storename = "Norgate" # get data from our daily prices source
 	fieldname = "close" # adj_open, adj_close, adj_high, adj_low, close, volume
 	
 	da = DataAccess.DataAccess(storename)
-	ts_list = du.getDaysBetween(tu.epoch2date(tsstart), tu.epoch2date(tsend))
+	ts_list = du.getDaysBetween(tsu.epoch2date(tsstart), tsu.epoch2date(tsend))
 	symbol_list=symbols
 	historic = da.get_data(ts_list, symbol_list, fieldname)
 	
