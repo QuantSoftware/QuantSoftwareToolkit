@@ -1,5 +1,5 @@
 import qstkutil.dateutil as du
-import qstkutil.returns as ret
+import qstkutil.tsutil as tsu
 import qstkutil.DataAccess as da
 import datetime as dt
 import matplotlib.pyplot as plt
@@ -47,7 +47,7 @@ savefig('normalized.pdf',format='pdf')
 #
 plt.clf()
 plt.cla()
-ret.returnize0(normdat)
+tsu.returnize0(normdat)
 plt.plot(newtimestamps[0:50],normdat[0:50,3]) # SPY 50 days
 plt.plot(newtimestamps[0:50],normdat[0:50,4]) # XOM 50 days
 plt.axhline(y=0,color='r')
