@@ -33,15 +33,21 @@ def main():
     #ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
     ts_list = list()
     
+    ts_list.append(dt.datetime(1610, 11, 21, 16))
+    ts_list.append(dt.datetime(1610, 11, 21, 11))
+    
     ts_list.append(dt.datetime(2010, 11, 21, 16))
     ts_list.append(dt.datetime(2010, 11, 22, 16))
     ts_list.append(dt.datetime(2010, 11, 23, 16))
     ts_list.append(dt.datetime(2010, 11, 24, 16))
     ts_list.append(dt.datetime(2010, 11, 25, 16))
     ts_list.append(dt.datetime(2010, 11, 26, 16))
-    ts_list.append(dt.datetime(2010, 11, 26, 10))
+    ts_list.append(dt.datetime(2010, 11, 27, 10))
     ts_list.append(dt.datetime(2010, 11, 27, 16))
     
+    
+    ts_list.append(dt.datetime(2020, 11, 27, 16))
+    ts_list.append(dt.datetime(2020, 11, 27, 18))
     
     data_matrix = da.get_data(ts_list, symbol_list, "volume")
     print str (data_matrix)
