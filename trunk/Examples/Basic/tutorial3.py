@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from pylab import *
 from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
-from qstkutil import returns as qr
+from qstkutil import tsutil as tsu
 import datetime as dt
 
 #
@@ -67,8 +67,8 @@ print "end read"
 # Copy, prep, and compute daily returns
 #
 rets = close.values.copy()
-qr.fillforward(rets)
-qr.returnize0(rets)
+tsu.fillforward(rets)
+tsu.returnize0(rets)
 
 #
 # Estimate portfolio total returns
