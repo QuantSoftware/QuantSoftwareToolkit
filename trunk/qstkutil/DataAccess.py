@@ -1,7 +1,7 @@
 '''
 Created on Feb 26, 2011
 
-@author: sjoshi42
+@author: Shreyas Joshi
 @contact: shreyasj@gatech.edu
 '''
 
@@ -56,7 +56,7 @@ class DataAccess(object):
         #__init__ ends
     def get_data (self, ts_list, symbol_list, data_item):
         '''
-        @param ts_list: List of timestamps for which the data values are needed.
+        @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
         @param data_item: The data_item needed. Like open, close, volume etc.
         @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then 
@@ -197,6 +197,11 @@ class DataAccess(object):
         return listOfStocks    
         #get_all_symbols ends
     def get_all_symbols_on_exchange (self, exchange):
+        '''
+        @summary: Returns all the symbols belonging to that exchange. Exchange is figured out by the path of the file.
+        @param exchange: Specifies what exchange you want. Valid values: nyse, delisted, nasdaq, arca, amex, otc
+        @return: A list of symbols belonging to that exchange 
+        '''
         
         
         if (exchange == 'nyse'):
