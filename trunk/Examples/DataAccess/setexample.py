@@ -31,6 +31,9 @@ def main():
     
     symbol_list=  list (set(symbol_list) & set (da.get_all_symbols())) #Intersecting with all symbols to get rid of symbols that do not exist
     #ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
+    
+    print da.get_all_symbols_on_exchange('nasdaq')
+    
     ts_list = list()
     
     ts_list.append(dt.datetime(1610, 11, 21, 16))
