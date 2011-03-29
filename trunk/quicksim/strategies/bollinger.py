@@ -1,20 +1,30 @@
-#imports
-from qstkutil import DataAccess
-import datetime
+#
+# bollinger.py
+#
+# A module which contains a bollinger strategy.
+#
+#
+
+#python imports
+import cPickle
+from pylab import *
+from pandas import *
+import matplotlib.pyplot as plt
+import datetime as dt
+
+#qstk imports
+import qstkutil.DataAccess as da
+import qstkutil.dateutil as du
 
 #creates an allocation pkl based on bollinger strategy
 def create(symbols, start, end, start_fund, lookback, spread, high, low, bet, duration, output):
 	print "Running a Bollinger strategy..."
 
-	#get historic data for period
-	da=DataAccess.DataAccess('norgate')
-	date=start.split('-')
-	tsstart=datetime.datetime(date[0],date[1],date[2])
-	date=end.split('-')
-	tsend=datetime.datetime(date[0],date[1],date[2])
-	num_days=(tsend-tsstart).days
-	ts_list=[ tsstart+datetime.timedelta(days=x) for x in range(0,num_days) ]
-	da.get_data(ts_list, symbols, "close")	
+	# Get historic data for period
+	timeofday=dt.timedelta(hours=16)
+	timestamps = du.getNYSEdays(start,end,timeofday)
+	dataobj = da.DataAccess('Norgate')
+	historic = dataobj.get_data(timestamps, symbols, "close")
 	
 	#create allocation table
 	

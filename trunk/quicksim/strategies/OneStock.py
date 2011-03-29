@@ -1,51 +1,51 @@
 #
-# MonthlyRebalancingExample.py
+# OneStock.py
 #
-# An example which creates a daily allocation table
-# from 2004 to 2009 and using one stock.
-# It then dumps the allocation table to a picklefile format
-# file named allocations.pkl
+# Usage: python OneStock.py '1-1-2004' '1-1-2009' 'alloc.pkl'
 #
-# Drew Bratcher
+# A strategy script which creates a daily allocation table using one stock (GOOG)
+# and the start and end dates provided by the user.
+# It then dumps the allocation table to a pickle file.
+#
 #
 
-#sample_alloc setup
-from pylab import *
-from qstkutil import DataAccess
-from qstkutil import dateutil as du
-from qstkutil import timeutil as tu
-from qstkutil import pseries as ps
-from pandas import *
-import quicksim as simulator
-import matplotlib.pyplot as plt
-import time as t
+# python imports
 import cPickle
 import random
+from pylab import *
+from pandas import *
+import matplotlib.pyplot as plt
+import datetime as dt
+
+# qstk imports
+import qstkutil.DataAccess as da
+import qstkutil.dateutil as du
 
 if __name__ == "__main__":
-	#sample_historic setup
-	#use google 
-	symbol = 'GOOG'
+	# Use google symbol
+	symbols = list('GOOG')
 
-	#Set start and end boundary times.  They must be specified in Unix Epoch
+	# Set start and end dates
 	t = map(int,sys.argv[1].split('-'))
-	tsstart=tu.ymd2epoch(t[2],t[0],t[1])
+	startday = dt.datetime(t[2],t[0],t[1])
 	t = map(int,sys.argv[2].split('-'))
-	tsend = tu.ymd2epoch(t[2],t[0],t[1])
+	endday = dt.datetime(t[2],t[0],t[1])
+	
+	# Get desired timestamps
+	timeofday=dt.timedelta(hours=16)
+	timestamps = du.getNYSEdays(startday,endday,timeofday)
 	
 	# Get the data from the data store
-	storename = "Norgate" # get data from our daily prices source
-	fieldname = "close" # adj_open, adj_close, adj_high, adj_low, close, volume
+	dataobj = da.DataAccess('Norgate')
+	historic = dataobj.get_data(timestamps, symbols, "close")
 	
-	da=DataAccess.DataAccess(storename)
-	symbol_list=list(symbol)
-	ts_list=du.getDaysBetween(tu.epoch2date(tsstart),tu.epoch2date(tsend))
-	historic = da.get_data(ts_list, symbol_list, fieldname)
+	# Setup the allocation table
 	alloc=DataMatrix(index=[historic.index[0]], data=alloc_vals, columns=symbols)
 	for date in range(1, len(historic.index)):
 		alloc_val=random.randint(0,1);
 		alloc=alloc.append(DataMatrix(index=[historic.index[date]], data=alloc_val, columns=symbol))
 		alloc['_CASH']=1-alloc_val;
 
+	# Dump to pkl file
 	output=open(sys.argv[3],"wb")
 	cPickle.dump(alloc, output)

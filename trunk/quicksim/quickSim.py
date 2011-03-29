@@ -3,23 +3,22 @@
 # 
 # A module that contains simulators that quickly produce a fund history.
 # 
-# Drew Bratcher 
 #
 
+#python imports
 from pylab import *
-from qstkutil import tsutil as tsu
-#from qstkutil import pseries as ps
-from qstkutil import dateutil as du
-from qstkutil import DataAccess
 from pandas import *
 import os
-import quickSim as simulator
 import matplotlib.pyplot as plt
-import time as t
+import time
 import cPickle
 import sys
 import calendar
-from datetime import *
+
+#qstk imports
+import qstkutil.tsutil as tsu
+import qstkutil.dateutil as du
+import qstkutil.DataAccess as da
 
 def quickSim(alloc,historic,start_cash):
 
