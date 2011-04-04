@@ -11,19 +11,21 @@
 
 # python imports
 import cPickle
-import random
 from pylab import *
 from pandas import *
 import matplotlib.pyplot as plt
 import datetime as dt
+import random
 
 # qstk imports
 import qstkutil.DataAccess as da
 import qstkutil.dateutil as du
 
 if __name__ == "__main__":
+	print "Running One Stock strategy from "+sys.argv[1] +" to "+sys.argv[2]
+
 	# Use google symbol
-	symbols = list('GOOG')
+	symbols = list(['GOOG'])
 
 	# Set start and end dates
 	t = map(int,sys.argv[1].split('-'))
@@ -40,11 +42,12 @@ if __name__ == "__main__":
 	historic = dataobj.get_data(timestamps, symbols, "close")
 	
 	# Setup the allocation table
-	alloc=DataMatrix(index=[historic.index[0]], data=alloc_vals, columns=symbols)
+	alloc_val= random.random()
+	alloc=DataMatrix(index=[historic.index[0]], data=[alloc_val], columns=symbols)
 	for date in range(1, len(historic.index)):
-		alloc_val=random.randint(0,1);
-		alloc=alloc.append(DataMatrix(index=[historic.index[date]], data=alloc_val, columns=symbol))
-		alloc['_CASH']=1-alloc_val;
+		alloc_val=random.random()
+		alloc=alloc.append(DataMatrix(index=[historic.index[date]], data=[alloc_val], columns=[symbols[0]]))
+	alloc['_CASH']=1-alloc[symbols[0]]
 
 	# Dump to pkl file
 	output=open(sys.argv[3],"wb")
