@@ -15,15 +15,17 @@ from pylab import *
 from pandas import *
 import matplotlib.pyplot as plt
 import datetime as dt
+import os
 
 #qstk imports
 import qstkutil.DataAccess as da
 import qstkutil.dateutil as du
 
 if __name__ == "__main__":
-	
+	print "Running Monthly Rebalancing strategy starting "+sys.argv[1]+" and ending "+sys.argv[2]+"."
+
 	#Get first 20 S&P Symbols 
-	symbols = list(np.loadtxt	('S&P500.csv',dtype='str',delimiter=',',comments='#',skiprows=0))
+	symbols = list(np.loadtxt('./strategies/S&P500.csv',dtype='str',delimiter=',',comments='#',skiprows=0))
 	symbols = symbols[0:19]
 	
 	#Set start and end boundary times

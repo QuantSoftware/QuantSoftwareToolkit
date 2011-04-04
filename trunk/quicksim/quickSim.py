@@ -14,6 +14,7 @@ import time
 import cPickle
 import sys
 import calendar
+import datetime as dt
 
 #qstk imports
 import qstkutil.tsutil as tsu
@@ -21,48 +22,54 @@ import qstkutil.dateutil as du
 import qstkutil.DataAccess as da
 
 def quickSim(alloc,historic,start_cash):
+	"""
+	@summary Quickly back tests an allocation for certain historical data, using a starting fund value
+	@param alloc: DataMatrix containing timestamps to test as indices and Symbols to test as columns, with _CASH symbol as the last column
+	@param start_cash: integer specifing initial fund value
+	@return funds: TimeSeries with fund values for each day in the back test
+	@rtype TimeSeries
+	"""
+	
+	#original quick simulator
+	#not designed to handle shorts
+	
+	#check each row in alloc
+	for row in range(0,len(alloc.values[:,0])):
+		if(abs(alloc.values[row,:].sum()-1)>.1):
+			print alloc.values[row,:]
+			print alloc.values[row,:].sum()
+			print "warning, alloc row "+str(row)+" does not sum to one"
+	
+	#fix invalid days
+	historic=historic.fill(method='backfill')
+	
+	#add cash column
+	historic['_CASH'] = ones((len(historic.values[:,0]),1), dtype=int)
+	
+	closest=historic[historic.index<=alloc.index[0]]
+	fund_ts=Series([start_cash], index=[closest.index[-1]])
+	shares=alloc.values[0,:]*fund_ts.values[-1]/closest.values[-1,:]
+	cash_values=DataMatrix([shares*closest.values[-1,:]],index=[closest.index[-1]])
+	
+	#compute all trade
+	for i in range(1,len(alloc.values[:,0])):
+		#get closest date(previous date)
+		closest=historic[historic.index<=alloc.index[i]]
+		#for loop to calculate fund daily (without rebalancing)
+		for date in closest[closest.index>fund_ts.index[-1]].index:
+			#compute and record total fund value (Sum(closest close * stocks))
+			fund_ts=fund_ts.append(Series([(closest.xs(date)*shares).sum()],index=[date]))
+			cash_values=cash_values.append(DataMatrix([shares*closest.xs(date)],index=[date]))
+		#distribute fund in accordance with alloc
+		shares=alloc.values[i,:]*fund_ts.values[-1]/closest.xs(closest.index[-1])
+	
+	#compute fund value for rest of historic data with final share distribution
+	for date in historic[historic.index>alloc.index[-1]].index:
+		if date in closest.index :
+			fund_ts=fund_ts.append(Series([(closest.xs(date)*shares).sum()],index=[date]))  
+	#return fund record
+	return fund_ts
 
-    #original quick simulator
-    #not designed to handle shorts
-
-    #check each row in alloc
-    for row in range(0,len(alloc.values[:,0])):
-        if(abs(alloc.values[row,:].sum()-1)>.1):
-            print alloc.values[row,:]
-            print alloc.values[row,:].sum()
-            print "warning, alloc row "+str(row)+" does not sum to one"
-  
-    #fix invalid days
-    historic=historic.fill(method='backfill')
-    
-    #add cash column
-    historic['_CASH'] = ones((len(historic.values[:,0]),1), dtype=int)
-    
-    closest=historic[historic.index<=alloc.index[0]]
-    fund_ts=Series([start_cash], index=[closest.index[-1]])
-    shares=alloc.values[0,:]*fund_ts.values[-1]/closest.values[-1,:]
-    cash_values=DataMatrix([shares*closest.values[-1,:]],index=[closest.index[-1]])
-    
-    #compute all trades
-    for i in range(1,len(alloc.values[:,0])):
-        #get closest date(previous date)
-        closest=historic[historic.index<=alloc.index[i]]
-        #for loop to calculate fund daily (without rebalancing)
-        for date in closest[closest.index>fund_ts.index[-1]].index:
-        	#compute and record total fund value (Sum(closest close * stocks))
-            fund_ts=fund_ts.append(Series([(closest.xs(date)*shares).sum()],index=[date]))
-            cash_values=cash_values.append(DataMatrix([shares*closest.xs(date)],index=[date]))
-        #distribute fund in accordance with alloc
-        shares=alloc.values[i,:]*fund_ts.values[-1]/closest.xs(closest.index[-1])
-
-    #compute fund value for rest of historic data with final share distribution
-    for date in historic[historic.index>alloc.index[-1]].index:
-    	if date in closest.index :
-        	fund_ts=fund_ts.append(Series([(closest.xs(date)*shares).sum()],index=[date]))  
-
-    #return fund record
-    return fund_ts
-    
 def computeShort(arr):
 	tally=0
 	for i in range(0,len(arr)-1):
@@ -124,29 +131,26 @@ def shortingQuickSim(alloc,historic,start_cash,leverage):
 	return fund_ts
 
 def alloc_backtest(alloc,start):
+	"""
+	@summary Back tests an allocation from a pickle file. Uses a starting portfolio value of start.
+	@param alloc: Name of allocation pickle file. Pickle file contains a DataMatrix with timestamps as indexes
+	and stock symbols as columns, with the last column being the _CASH symbol, indicating how much
+	of the allocation is in cash.
+	@param start: integer specifying the starting value of the portfolio
+	@return funds: List of fund values indicating the value of the portfolio throughout the back test.
+	@rtype timeseries
+	"""
+	
 	#read in alloc table from command line arguements
 	alloc_input_file=open(alloc,"rb")
 	alloc=cPickle.load(alloc_input_file)
 	
-	#setup historic table using command line arguements
-	symbols = alloc.cols()
-	symbols = symbols[0:-1];
-	#Set start and end boundary times.  They must be specified in Unix Epoch
-	t = map(int,str(alloc.index[0]).split('-'))
-	tsstart=tsu.ymd2epoch(t[0],t[1],t[2])
-	t = map(int,str(alloc.index[-1]).split('-'))
-	tsend = tsu.ymd2epoch(t[0],t[1],t[2])
-	
 	# Get the data from the data store
-	storename = "Norgate" # get data from our daily prices source
-	fieldname = "close" # adj_open, adj_close, adj_high, adj_low, close, volume
+	dataobj=da.DataAccess('Norgate')
+	historic = dataobj.get_data(list(alloc.index), list(alloc.cols()[0:-1]), "close")
 	
-	da = DataAccess.DataAccess(storename)
-	ts_list = du.getDaysBetween(tsu.epoch2date(tsstart), tsu.epoch2date(tsend))
-	symbol_list=symbols
-	historic = da.get_data(ts_list, symbol_list, fieldname)
-	
-	funds=simulator.quickSim(alloc,historic,int(start))
+	#backtest
+	funds=quickSim(alloc,historic,int(start))
 	
 	return funds
     
@@ -171,19 +175,16 @@ if __name__ == "__main__":
 		cPickle.dump(funds,output)
 	elif(sys.argv[1]=='-s'):
 		fundsmatrix=[]
-		for i in range(0,int(sys.argv[5])):
-			#create alloc with strategy and a date
-			dash='-'
-			temps=sys.argv[3].split('-')
-			d=timedelta(days=int(sys.argv[6]))
-			adate=date(int(temps[2]),int(temps[1]),int(temps[0]))
-			adate=adate+i*d
-			temps=adate.strftime("%d-%m-%y")
-			tempe=sys.argv[4].split('-')
-			adate=date(int(tempe[2]),int(tempe[1]),int(tempe[0]))
-			adate=adate+i*d
-			tempe=adate.strftime("%d-%m-%y")
-			os.system('python '+str(sys.argv[2])+' '+str(temps)+' '+str(tempe)+' temp_alloc.pkl')
+
+		t = map(int, sys.argv[3].split('-'))
+		startday= dt.datetime(t[2],t[0],t[1])
+		t = map(int, sys.argv[4].split('-'))
+		endday = dt.datetime(t[2],t[0],t[1])
+
+		startdates=du.getNextNNYSEdays(startday,int(sys.argv[5]),dt.timedelta(hours=16))
+		enddates=du.getNextNNYSEdays(endday,int(sys.argv[5]),dt.timedelta(hours=16))
+		for i in range(0,int(len(enddates))):
+			os.system('python '+str(sys.argv[2])+' '+startdates[i].strftime("%m-%d-%Y")+' '+enddates[i].strftime("%m-%d-%Y")+' temp_alloc.pkl')
 			funds=alloc_backtest('temp_alloc.pkl',sys.argv[7])
 			fundsmatrix.append(funds)
 		output=open(sys.argv[8],"w")

@@ -83,6 +83,31 @@ def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,3
 
 	return(dates)
 
+def getNextNNYSEdays(startday, days, timeofday):
+	"""
+	@summary: Create a list of timestamps from startday that is days days long
+	that correspond to the days there was trading at  NYSE. This function 
+	depends on the file used in getNYSEdays and assumes the dates within are
+	in order.
+	@param startday: First timestamp to consider (inclusive)
+	@param days: Number of timestamps to return
+	@return list: List of timestamps starting at startday on which NYSE traded
+	@rtype datetime
+	"""
+	try:
+		filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt" 
+	except KeyError:
+		print "Please be sure to set the value for QS in config.sh or\n"
+		print "in local.sh and then \'source local.sh\'.\n"
+	
+	datestxt = np.loadtxt(filename,dtype=str)
+	dates=[]
+	for i in datestxt:
+		if(len(dates)<days):
+			if((dt.datetime.strptime(i,"%m/%d/%Y")+timeofday)>=startday):
+				dates.append(dt.datetime.strptime(i,"%m/%d/%Y")+timeofday)
+	return(dates)
+
 def ymd2epoch(year, month, day):
 	"""
 	@summary Convert YMD info into a unix epoch value.
