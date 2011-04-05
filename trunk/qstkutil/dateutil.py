@@ -54,7 +54,7 @@ def getFirstDay(funds,year,month):
 def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31),
 	timeofday = dt.timedelta(0)):
 	"""
-	@summary Create a list of timestamps between startday and endday (inclusive) 
+	@summary: Create a list of timestamps between startday and endday (inclusive) 
 	that correspond to the days there was trading at the NYSE. This function 
 	depends on a separately created a file that lists all days since July 4, 
 	1962 that the NYSE has been open, going forward to 2020 (based
@@ -110,10 +110,10 @@ def getNextNNYSEdays(startday, days, timeofday):
 
 def ymd2epoch(year, month, day):
 	"""
-	@summary Convert YMD info into a unix epoch value.
+	@summary: Convert YMD info into a unix epoch value.
 	@param year: The year
 	@param month: The month
-	@param day: Duh, by now you should get it
+	@param day: The day
 	@return epoch: number of seconds since epoch
 	"""
 	return(t.mktime(dt.date(year,month,day).timetuple()))

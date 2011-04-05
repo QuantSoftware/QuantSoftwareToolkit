@@ -25,7 +25,7 @@ if __name__ == "__main__":
 	print "Running Monthly Rebalancing strategy starting "+sys.argv[1]+" and ending "+sys.argv[2]+"."
 
 	#Get first 20 S&P Symbols 
-	symbols = list(np.loadtxt('./strategies/S&P500.csv',dtype='str',delimiter=',',comments='#',skiprows=0))
+	symbols = list(np.loadtxt(os.environ['QS']+'/quicksim/strategies/S&P500.csv',dtype='str',delimiter=',',comments='#',skiprows=0))
 	symbols = symbols[0:19]
 	
 	#Set start and end boundary times
