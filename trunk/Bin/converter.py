@@ -18,7 +18,8 @@ import cPickle
 
 def fundsToPNG(funds,output_file):
 	plt.clf()
-	plt.plot(funds.index,funds.values)
+	for i in range(0,len(funds)):
+		plt.plot(funds[i].index,funds[i].values)
 	plt.ylabel('Fund Value')
 	plt.xlabel('Date')
 	plt.draw()

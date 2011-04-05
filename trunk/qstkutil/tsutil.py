@@ -84,12 +84,12 @@ def returnize1(nd):
 	nd[0,:] = np.ones(nd.shape[1])
 
 def getRatio(funds):
-	daily=returns.daily(funds)
-	avg=float(sum(daily))/len(daily)
+	d=daily(funds)
+	avg=float(sum(d))/len(d)
 	std=0
-	for a in daily:
+	for a in d:
 		std=std+float((float(a-avg))**2)
-	std=sqrt(float(std)/(len(daily)-1))
+	std=sqrt(float(std)/(len(d)-1))
 	return(avg/std)
 
 def getYearRatio(funds,year):

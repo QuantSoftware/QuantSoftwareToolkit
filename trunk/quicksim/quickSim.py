@@ -200,7 +200,7 @@ if __name__ == "__main__":
 		startday= dt.datetime(t[2],t[0],t[1])
 		t = map(int, sys.argv[4].split('-'))
 		endday = dt.datetime(t[2],t[0],t[1])
-		fundsmatrix=strat_backtest(sys.argv[2],start,end,int(sys.argv[5]),sys.argv[6],sys.argv[7])
+		fundsmatrix=strat_backtest(sys.argv[2],startday,endday,int(sys.argv[5]),sys.argv[6],sys.argv[7])
 		output=open(sys.argv[8],"w")
 		cPickle.dump(fundsmatrix,output)
 	else:
