@@ -10,7 +10,7 @@
 from pylab import *
 from qstkutil import DataAccess as da
 from qstkutil import timeutil as tu
-from QuickSim import quickSim
+from quicksim import quickSim
 from qstkutil import pseries as ps
 from pandas import *
 import matplotlib.pyplot as plt

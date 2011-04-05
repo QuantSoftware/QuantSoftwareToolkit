@@ -132,7 +132,7 @@ def shortingQuickSim(alloc,historic,start_cash,leverage):
 
 def alloc_backtest(alloc,start):
 	"""
-	@summary Back tests an allocation from a pickle file. Uses a starting portfolio value of start.
+	@summary: Back tests an allocation from a pickle file. Uses a starting portfolio value of start.
 	@param alloc: Name of allocation pickle file. Pickle file contains a DataMatrix with timestamps as indexes
 	and stock symbols as columns, with the last column being the _CASH symbol, indicating how much
 	of the allocation is in cash.
@@ -153,6 +153,28 @@ def alloc_backtest(alloc,start):
 	funds=quickSim(alloc,historic,int(start))
 	
 	return funds
+
+def strat_backtest(strat,start,end,num,diff,startval):
+	"""
+	@summary: Back tests a strategy defined in a python script that takes in a start
+	and end date along with a starting value. 
+	@param strat: filename of python script strategy
+	@param start: starting date in a datetime object
+	@param end: ending date in a datetime object
+	@param num: number of tests to perform
+	@param diff: offset in days of the tests
+	@param startval: starting value of fund during back tests
+	@return fundsmatrix: Datamatrix of fund values returned from each test
+	@rtype datanatrix
+	"""
+	fundsmatrix=[]
+	startdates=du.getNextNNYSEdays(start,num,dt.timedelta(hours=16))
+	enddates=du.getNextNNYSEdays(end,num,dt.timedelta(hours=16))
+	for i in range(0,len(enddates)):
+		os.system('python '+strat+' '+startdates[i].strftime("%m-%d-%Y")+' '+enddates[i].strftime("%m-%d-%Y")+' temp_alloc.pkl')
+		funds=alloc_backtest('temp_alloc.pkl',startval)
+		fundsmatrix.append(funds)
+	return fundsmatrix
     
 if __name__ == "__main__":
     #
@@ -170,23 +192,15 @@ if __name__ == "__main__":
 	#
 
 	if(sys.argv[1]=='-a'):
-		alloc_backtest(sys.argv[2],sys.argv[3])
+		funds=alloc_backtest(sys.argv[2],sys.argv[3])
 		output=open(sys.argv[4],"rb")
 		cPickle.dump(funds,output)
 	elif(sys.argv[1]=='-s'):
-		fundsmatrix=[]
-
 		t = map(int, sys.argv[3].split('-'))
 		startday= dt.datetime(t[2],t[0],t[1])
 		t = map(int, sys.argv[4].split('-'))
 		endday = dt.datetime(t[2],t[0],t[1])
-
-		startdates=du.getNextNNYSEdays(startday,int(sys.argv[5]),dt.timedelta(hours=16))
-		enddates=du.getNextNNYSEdays(endday,int(sys.argv[5]),dt.timedelta(hours=16))
-		for i in range(0,int(len(enddates))):
-			os.system('python '+str(sys.argv[2])+' '+startdates[i].strftime("%m-%d-%Y")+' '+enddates[i].strftime("%m-%d-%Y")+' temp_alloc.pkl')
-			funds=alloc_backtest('temp_alloc.pkl',sys.argv[7])
-			fundsmatrix.append(funds)
+		fundsmatrix=strat_backtest(sys.argv[2],start,end,int(sys.argv[5]),sys.argv[6],sys.argv[7])
 		output=open(sys.argv[8],"w")
 		cPickle.dump(fundsmatrix,output)
 	else:

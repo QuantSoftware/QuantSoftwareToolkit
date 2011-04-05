@@ -9,19 +9,17 @@
 
 from pylab import *
 from qstkutil import DataAccess as da
-from qstkutil import timeutil as tu
-from qstkutil import pseries as ps
-from qstkutil import converter
-from qstkutil import returns
-from qstkutil import sharpe
-from qstkutil import dateutil
-from quicksim import quicksim
+from qstkutil import dateutil as du
+from qstkutil import tsutil as tsu
+from quicksim import quickSim as qs
+from Bin import converter
 
 from pandas import *
 import matplotlib.pyplot as plt
 import cPickle
 
-input=open(str(sys.argv[1]),"r")
+print sys.argv[1]
+input=open(sys.argv[1],"r")
 funds=cPickle.load(input)
 
 filename = "report.html"
@@ -41,21 +39,21 @@ html_file.write("<IMG SRC=\'./funds.png\'/>\n")
 html_file.write("<BR/>\n\n")
 
 #montly returns
-mrets=returns.monthly(funds)
+mrets=tsu.monthly(funds)
 html_file.write("<H2>Monthly Returns</H2>\n")
 html_file.write("<TABLE CELLPADDING=10>\n")
 html_file.write("<TR>\n")
 html_file.write("<TH></TH>\n")
-month_names=dateutil.getMonthNames()
+month_names=du.getMonthNames()
 for name in month_names:
 	html_file.write("<TH>"+str(name)+"</TH>\n")
 html_file.write("</TR>\n")
-years=dateutil.getYears(funds)
+years=du.getYears(funds)
 i=0
 for year in years:
 	html_file.write("<TR>\n")
 	html_file.write("<TH>"+str(year)+"</TH>\n")
-	months=dateutil.getMonths(funds,year)
+	months=du.getMonths(funds,year)
 	for month in months:
 		html_file.write("<TD>"+str(mrets[i]*100)[:4]+"%</TD>\n")
 		i+=1
@@ -64,7 +62,7 @@ html_file.write("</TABLE>\n")
 html_file.write("<BR/>\n\n")
 
 #sharpe ratio
-ratio=sharpe.getRatio(funds)
+ratio=tsu.getRatio(funds)
 html_file.write("<H3>Overall Sharpe Ratio: "+str(ratio)+"</H3>\n")
 html_file.write("<TABLE CELLPADDING=10>\n")
 html_file.write("<TR><TH></TH>\n")
@@ -74,7 +72,7 @@ html_file.write("</TR>\n")
 html_file.write("<TR>\n")
 html_file.write("<TH>Sharpe Ratio:</TH>\n")
 for year in years:
-	ratio=sharpe.getYearRatio(funds,year)
+	ratio=tsu.getYearRatio(funds,year)
 	html_file.write("<TD>"+str(ratio)+"</TD>\n")
 html_file.write("</TR>\n")
 html_file.write("</TABLE>\n")
