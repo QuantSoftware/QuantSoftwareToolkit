@@ -18,7 +18,7 @@ from pandas import *
 from quicksim import quickSim as qs
 
 #strategy to use
-strat = os.environ['QS']+"/quicksim/strategies/MonthlyRebalancing.py"
+strat = os.environ['QS']+"/quicksim/strategies/OneStock.py"
 
 #start and end dates to start from
 start = dt.datetime(2004,1,1)
