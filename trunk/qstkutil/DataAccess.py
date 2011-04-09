@@ -13,17 +13,40 @@ import time
 import datetime as dt
 import dircache
 
+class Exchange (object):
+    AMEX=1
+    NYSE=2
+    NYSE_ARCA=3
+    OTC=4
+    DELISTED=5
+    NASDAQ=6
+    
+class DataItem (object):
+    OPEN=1
+    HIGH=2
+    LOW=3
+    CLOSE=4
+    VOL=5
+    ACTUAL_CLOSE=6    
+    
+class DataSource(object):
+    NORGATE=1
+    YAHOO=2
+    
+    #class DataSource ends
+
 class DataAccess(object):
     '''
     @summary: This class is used to access all the symbol data. It readin in pickled numpy arrays converts them into appropriate pandas objects
     and returns that object. The {main} function currently demonstrates use.
+    @note: The earliest time for which this works is platform dependent because the python date functionality is platform dependent.
     '''
-    def __init__(self, source = "norgate"):
+    def __init__(self, source = DataSource.NORGATE):
         '''
-        Constructor
         @param source: Specifies the source of the data. Initializes paths based on source.
         @note: No data is actually read in the constructor. Only paths for the source are initialized
         '''
+        
         self.folderList = list()
         
         
@@ -33,7 +56,7 @@ class DataAccess(object):
             #rootdir = "/hzr71/research/QSData"
             raise KeyError("Please be sure to set the value for QSDATA in config.sh or local.sh")
         
-        if ((source == "norgate") | (source == "Norgate")):
+        if (source == DataSource.NORGATE):
             
             self.fileExtensionToRemove=".pkl"
             #setting up path variables
@@ -53,6 +76,9 @@ class DataAccess(object):
             self.folderList.append(self.NORGATE_OTC_PATH)
             
             #if ends
+            
+            #Raise error for incorrect source
+            
         #__init__ ends
     def get_data (self, ts_list, symbol_list, data_item):
         '''
@@ -62,22 +88,23 @@ class DataAccess(object):
         @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then 
         continues as usual. No errors are raised at the moment.
         '''
+        
         #init data struct
         self.all_stocks_data = np.zeros ((len(ts_list), len(symbol_list)));
         self.all_stocks_data[:][:] = np.NAN
         list_index= [1,2,3,4,5,6]
         
-        if  (data_item == 'open'):
+        if  (data_item == DataItem.OPEN):
             list_index.remove(1)
-        elif (data_item == 'high'):
+        elif (data_item == DataItem.HIGH):
             list_index.remove (2)
-        elif (data_item =='low'):
+        elif (data_item ==DataItem.LOW):
             list_index.remove(3)
-        elif (data_item == 'close'):
+        elif (data_item == DataItem.CLOSE):
             list_index.remove(4)
-        elif(data_item == 'volume'):
+        elif(data_item == DataItem.VOL):
             list_index.remove(5)
-        elif (data_item == 'actual_close'):
+        elif (data_item == DataItem.ACTUAL_CLOSE):
             list_index.remove(6)
         else:
             #incorrect value
@@ -99,51 +126,57 @@ class DataAccess(object):
                 
             temp_np = pkl.load (_file)
             _file.close()
+            
             #now remove all the columns except the timestamps and one data column
             temp_np = np.delete(temp_np, list_index, 1)
-            
             #now we have only timestamps and one data column
-            
-            #we convert the dates to time since epoch
+            symbol_ts_list = list() #This list will have all the timestamps for this symbol
+
+            #convert the dates to time since epoch
             for i in range (0, temp_np.shape[0]):
+                time_delta= dt.timedelta(seconds= 57600)
+                #The earliest time it can generate a time for is platform dependent
+                symbol_ts_list.append((dt.datetime.strptime(str(long(temp_np[i][0])),'%Y%m%d')) + time_delta) # To make the time 1600 hrs on the day previous to this midnight
                 
-                temp_np[i][0] = time.mktime(time.strptime(str(long(temp_np[i][0])),'%Y%m%d')) + 57600 # To make the time 1600 hrs on the day previous to this midnight
                 #print "date is: " + str(dt.datetime.fromtimestamp(temp_np[i][0]))
                 #for ends
             
             ts_ctr = 0
             
-            while ((dt.datetime.fromtimestamp(temp_np[ts_ctr][0])< ts_list[0]) and (ts_ctr < temp_np.shape[0])):
+            #Skip data from file which is before the first timestamp in ts_list
+            while (ts_ctr < temp_np.shape[0]) and (symbol_ts_list[ts_ctr] < ts_list[0]):
                 ts_ctr=  ts_ctr+1
                 
                 #print "skipping initial data"
                 #while ends
             
             for time_stamp in ts_list:
-                #print "at time_stamp: " + str(time_stamp) + " and temp_np[ts_ctr][0]"  + str(temp_np[ts_ctr][0])
-                if (time_stamp == dt.datetime.fromtimestamp(temp_np[ts_ctr][0])):
-                    
-                    #add to numpy array
+                
+                if (symbol_ts_list[-1] < time_stamp):
+                    #The timestamp is after the last timestamp for which we have data. So we give up. Note that we don't have to fill in NaNs because that is 
+                    #the default value.
+                    break;
+                else:
+                    while ((ts_ctr < temp_np.shape[0]) and (symbol_ts_list[ts_ctr]< time_stamp)):
+                        ts_ctr = ts_ctr+1
+                        #while ends
+                    #else ends
+                                        
+                #print "at time_stamp: " + str(time_stamp) + " and symbol_ts"  + str(symbol_ts_list[ts_ctr])
+                
+                if (time_stamp == symbol_ts_list[ts_ctr]):
+                    #Data is present for this timestamp. So add to numpy array.
                     #print "    adding to numpy array"
                     self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = temp_np [ts_ctr][1]
                     ts_ctr = ts_ctr +1
                     
-                elif (dt.datetime.fromtimestamp(temp_np[ts_ctr][0]) > time_stamp):
-                    #we don't have data for this timestamp. Add a NaN.
-                    #print "    we don't have data for this ts. putting in a NaN"
-                    self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = np.NAN
-                else:
-                    # (temp_np[ts_ctr][0] is < time_stamp)
-                    while ((ts_ctr < temp_np.shape[0]) and (dt.datetime.fromtimestamp(temp_np[ts_ctr][0])< time_stamp)):
-                        ts_ctr = ts_ctr+1
-                        #while ends
                     
-                    if  (ts_ctr >= temp_np.shape[0]):
-                        #print "breaking"
-                        break
-                        #break out of the for loop
-                        #if ends
-                    #else ends
+#We do not need the following code because the values are NaN by default                    
+#                if (symbol_ts_list[ts_ctr] > time_stamp):
+#                    #we don't have data for this timestamp. Add a NaN.
+#                    #print "    we don't have data for this ts. putting in a NaN"
+#                    self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = np.NAN
+                
                 #inner for ends
             #outer for ends        
         data_matrix = pa.DataMatrix (self.all_stocks_data, ts_list, symbol_list)            
@@ -204,17 +237,17 @@ class DataAccess(object):
         '''
         
         
-        if (exchange == 'nyse'):
+        if (exchange == Exchange.NYSE):
             stocksAtThisPath= dircache.listdir(self.NORGATE_NYSE_PATH)
-        elif (exchange == 'delisted'):
+        elif (exchange == Exchange.DELISTED):
             stocksAtThisPath= dircache.listdir(self.NORGATE_DELISTED_PATH)
-        elif (exchange == 'nasdaq'):
+        elif (exchange == Exchange.NASDAQ):
             stocksAtThisPath= dircache.listdir(self.NORGATE_NASDAQ_PATH)
-        elif (exchange == 'arca'):
+        elif (exchange == Exchange.NYSE_ARCA):
             stocksAtThisPath = dircache.listdir(self.NORGATE_NYSE_ARCA_PATH)
-        elif (exchange == 'amex'):
+        elif (exchange == Exchange.AMEX):
             stocksAtThisPath= dircache.listdir(self.NORGATE_AMEX_PATH)
-        elif (exchange == 'otc'):
+        elif (exchange == Exchange.OTC):
             stocksAtThisPath= dircache.listdir(self.NORGATE_OTC_PATH)
         else:
             raise ValueError ("Incorrect value for exchange")
