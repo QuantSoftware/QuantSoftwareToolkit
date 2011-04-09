@@ -22,8 +22,8 @@ export QS=$HOME/QSTK
 # Where is your data. To use the default data that comes with the
 # distribution, use the first line (default).  If you are using the 
 # machines at GT use the second line (with hzr71)
-export QSDATA=$QS/QSData
-#export QSDATA=/hzr71/research/QSData
+#export QSDATA=$QS/QSData
+export QSDATA=/hzr71/research/QSData
 
 ###########
 # You probably should not need to revise any of the lines below.

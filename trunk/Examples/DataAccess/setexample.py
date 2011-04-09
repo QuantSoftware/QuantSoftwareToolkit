@@ -20,7 +20,7 @@ import datetime as dt
 
 def main():
     
-    da = DA.DataAccess('norgate');
+    da = DA.DataAccess(DA.DataSource.NORGATE);
     
     symbol_list = list()
     symbol_list.append ("AAPL")
@@ -28,11 +28,12 @@ def main():
     symbol_list.append ("BOB")
     symbol_list.append("GLD")
     symbol_list.append("SPY")
+    symbol_list.append("D")
     
     symbol_list=  list (set(symbol_list) & set (da.get_all_symbols())) #Intersecting with all symbols to get rid of symbols that do not exist
     #ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
     
-    print da.get_all_symbols_on_exchange('nasdaq')
+    print da.get_all_symbols_on_exchange(DA.Exchange.NASDAQ)
     
     ts_list = list()
     
@@ -52,7 +53,7 @@ def main():
     ts_list.append(dt.datetime(2020, 11, 27, 16))
     ts_list.append(dt.datetime(2020, 11, 27, 18))
     
-    data_matrix = da.get_data(ts_list, symbol_list, "volume")
+    data_matrix = da.get_data(ts_list, symbol_list, DA.DataItem.VOL)
     print str (data_matrix)
     
 #    list_of_symbols= da.get_all_symbols();    
