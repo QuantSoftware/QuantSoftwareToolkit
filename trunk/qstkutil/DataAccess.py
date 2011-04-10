@@ -41,7 +41,7 @@ class DataAccess(object):
     and returns that object. The {main} function currently demonstrates use.
     @note: The earliest time for which this works is platform dependent because the python date functionality is platform dependent.
     '''
-    def __init__(self, source = DataSource.NORGATE):
+    def __init__(self, source = 'Norgate'):
         '''
         @param source: Specifies the source of the data. Initializes paths based on source.
         @note: No data is actually read in the constructor. Only paths for the source are initialized
@@ -49,14 +49,13 @@ class DataAccess(object):
         
         self.folderList = list()
         
-        
         try:
             rootdir = os.environ['QSDATA']
         except KeyError:
             #rootdir = "/hzr71/research/QSData"
             raise KeyError("Please be sure to set the value for QSDATA in config.sh or local.sh")
         
-        if (source == DataSource.NORGATE):
+        if (source == 'Norgate')|(source == 'norgate') :
             
             self.fileExtensionToRemove=".pkl"
             #setting up path variables
@@ -66,7 +65,7 @@ class DataAccess(object):
             self.NORGATE_NYSE_PATH= rootdir + "/Processed/Norgate/US/NYSE/"
             self.NORGATE_NYSE_ARCA_PATH= rootdir + "/Processed/Norgate/US/NYSE Arca/"
             self.NORGATE_OTC_PATH= rootdir + "/Processed/Norgate/US/OTC/"            
-            #self.folderList.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
+            self.folderList.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
             
             self.folderList.append(self.NORGATE_AMEX_PATH)
             self.folderList.append(self.NORGATE_DELISTED_PATH )
@@ -80,6 +79,8 @@ class DataAccess(object):
             #Raise error for incorrect source
             
         #__init__ ends
+
+
     def get_data (self, ts_list, symbol_list, data_item):
         '''
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
@@ -208,7 +209,6 @@ class DataAccess(object):
     
         listOfStocks=list()
         #Path does not exist
-        
         
         if (len(self.folderList) == 0):
             raise ValueError ("DataAccess source not set")   
