@@ -286,9 +286,6 @@ class DataAccess(object):
         pathtolook = self.rootdir+self.midPath+subdir
         stocksAtThisPath= dircache.listdir(pathtolook)
         
-        print pathtolook
-        print stocksAtThisPath
-        
         #Next, throw away everything that is not a .pkl And these are our stocks!
         try:
             stocksAtThisPath = filter (lambda x:(str(x).find(str(self.fileExtensionToRemove)) > -1), stocksAtThisPath)
