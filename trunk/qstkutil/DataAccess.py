@@ -48,31 +48,46 @@ class DataAccess(object):
         '''
         
         self.folderList = list()
+        self.folderSubList = list()
         
         try:
-            rootdir = os.environ['QSDATA']
+            self.rootdir = os.environ['QSDATA']
         except KeyError:
-            #rootdir = "/hzr71/research/QSData"
+            #self.rootdir = "/hzr71/research/QSData"
             raise KeyError("Please be sure to set the value for QSDATA in config.sh or local.sh")
         
         if (source == 'Norgate')|(source == 'norgate') :
+
+            self.midPath = "/Processed/Norgate"
             
             self.fileExtensionToRemove=".pkl"
-            #setting up path variables
-            self.NORGATE_AMEX_PATH= rootdir + "/Processed/Norgate/US/AMEX/"
-            self.NORGATE_DELISTED_PATH= rootdir + "/Processed/Norgate/US/Delisted Securities/"
-            self.NORGATE_NASDAQ_PATH= rootdir + "/Processed/Norgate/US/NASDAQ/"
-            self.NORGATE_NYSE_PATH= rootdir + "/Processed/Norgate/US/NYSE/"
-            self.NORGATE_NYSE_ARCA_PATH= rootdir + "/Processed/Norgate/US/NYSE Arca/"
-            self.NORGATE_OTC_PATH= rootdir + "/Processed/Norgate/US/OTC/"            
-            self.folderList.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
-            
-            self.folderList.append(self.NORGATE_AMEX_PATH)
-            self.folderList.append(self.NORGATE_DELISTED_PATH )
-            self.folderList.append(self.NORGATE_NASDAQ_PATH)
-            self.folderList.append(self.NORGATE_NYSE_PATH)
-            self.folderList.append(self.NORGATE_NYSE_ARCA_PATH)
-            self.folderList.append(self.NORGATE_OTC_PATH)
+            #
+            #setting up path variables (old Shreyas)
+            #
+            #self.NORGATE_AMEX_PATH= self.rootdir + "/Processed/Norgate/US/AMEX/"
+            #self.NORGATE_DELISTED_PATH= self.rootdir + "/Processed/Norgate/US/Delisted Securities/"
+            #self.NORGATE_NASDAQ_PATH= self.rootdir + "/Processed/Norgate/US/NASDAQ/"
+            #self.NORGATE_NYSE_PATH= self.rootdir + "/Processed/Norgate/US/NYSE/"
+            #self.NORGATE_NYSE_ARCA_PATH= self.rootdir + "/Processed/Norgate/US/NYSE Arca/"
+            #self.NORGATE_OTC_PATH= self.rootdir + "/Processed/Norgate/US/OTC/"            
+            #self.NORGATE_DELISTED_PATH = self.rootdir + "/Processed/Norgate/US/Delisted Securities/")
+
+            self.folderSubList.append("/US/AMEX/")
+            self.folderSubList.append("/US/NASDAQ/")
+            self.folderSubList.append("/US/NYSE/")
+            self.folderSubList.append("/US/NYSE Arca/")
+            self.folderSubList.append("/US/OTC/")
+            self.folderSubList.append("/US/Delisted Securities/")
+
+            for i in self.folderSubList:
+                self.folderList.append(self.rootdir+self.midPath+i)
+
+            #self.folderList.append(self.NORGATE_AMEX_PATH)
+            #self.folderList.append(self.NORGATE_DELISTED_PATH )
+            #self.folderList.append(self.NORGATE_NASDAQ_PATH)
+            #self.folderList.append(self.NORGATE_NYSE_PATH)
+            #self.folderList.append(self.NORGATE_NYSE_ARCA_PATH)
+            #self.folderList.append(self.NORGATE_OTC_PATH)
             
             #if ends
             
@@ -225,18 +240,16 @@ class DataAccess(object):
             listOfStocks.extend(stocksAtThisPath)
             #for stock in stocksAtThisPath:
                 #listOfStocks.append(stock)
-                
-                
         return listOfStocks    
         #get_all_symbols ends
+
     def get_all_symbols_on_exchange (self, exchange):
         '''
         @summary: Returns all the symbols belonging to that exchange. Exchange is figured out by the path of the file.
         @param exchange: Specifies what exchange you want. Valid values: nyse, delisted, nasdaq, arca, amex, otc
         @return: A list of symbols belonging to that exchange 
         '''
-        
-        
+
         if (exchange == Exchange.NYSE):
             stocksAtThisPath= dircache.listdir(self.NORGATE_NYSE_PATH)
         elif (exchange == Exchange.DELISTED):
@@ -261,4 +274,26 @@ class DataAccess(object):
         #get_all_symbols_on_exchange ends
         
         
+    def get_all_symbols_in_subdir (self, subdir):
+        '''
+        @summary: Returns all the symbols belonging to that subdir of the data store.
+        @param subdir: Specifies which subdir you want.
+        @return: A list of symbols belonging to that subdir 
+        '''
+
+        stocksAtThisPath= dircache.listdir(self.rootdir+self.midPath+subdir)
+        
+        #Next, throw away everything that is not a .pkl And these are our stocks!
+        try
+            stocksAtThisPath = filter (lambda x:(str(x).find(str(self.fileExtensionToRemove)) > -1), stocksAtThisPath)
+            #Now, we remove the .pkl to get the name of the stock
+            stocksAtThisPath = map(lambda x:(x.partition(str(self.fileExtensionToRemove))[0]),stocksAtThisPath)
+        except:
+            print "error: no path to " + subdir
+            stocksAtThisPath = list()
+        
+        return stocksAtThisPath
+        #get_all_symbols_on_exchange ends
+        
     #class DataAccess ends
+
