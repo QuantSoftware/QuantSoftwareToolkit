@@ -22,16 +22,18 @@ class Exchange (object):
     NASDAQ=6
     
 class DataItem (object):
-    OPEN=1
-    HIGH=2
-    LOW=3
-    CLOSE=4
-    VOL=5
-    ACTUAL_CLOSE=6    
+    OPEN="open"
+    HIGH="high"
+    LOW="low"
+    CLOSE="close"
+    VOL="volume"
+    VOLUME="volume"
+    ACTUAL_CLOSE="actual_close"
     
 class DataSource(object):
-    NORGATE=1
-    YAHOO=2
+    NORGATE="Norgate"
+    NORGATElc="norgate"
+    YAHOO="Yahoo"
     
     #class DataSource ends
 
@@ -41,9 +43,9 @@ class DataAccess(object):
     and returns that object. The {main} function currently demonstrates use.
     @note: The earliest time for which this works is platform dependent because the python date functionality is platform dependent.
     '''
-    def __init__(self, source = 'Norgate'):
+    def __init__(self, sourcein = DataSource.NORGATE):
         '''
-        @param source: Specifies the source of the data. Initializes paths based on source.
+        @param sourcestr: Specifies the source of the data. Initializes paths based on source.
         @note: No data is actually read in the constructor. Only paths for the source are initialized
         '''
         
@@ -56,13 +58,14 @@ class DataAccess(object):
             #self.rootdir = "/hzr71/research/QSData"
             raise KeyError("Please be sure to set the value for QSDATA in config.sh or local.sh")
         
-        if (source == 'Norgate')|(source == 'norgate') :
+        if (sourcein == DataSource.NORGATE)|(sourcein == DataSource.NORGATElc) :
 
+            self.source = DataSource.NORGATE
             self.midPath = "/Processed/Norgate"
             
             self.fileExtensionToRemove=".pkl"
             #
-            #setting up path variables (old Shreyas)
+            #setting up path variables (old Shreyas), consider to remove
             #
             #self.NORGATE_AMEX_PATH= self.rootdir + "/Processed/Norgate/US/AMEX/"
             #self.NORGATE_DELISTED_PATH= self.rootdir + "/Processed/Norgate/US/Delisted Securities/"
@@ -273,18 +276,21 @@ class DataAccess(object):
         return stocksAtThisPath
         #get_all_symbols_on_exchange ends
         
-        
-    def get_all_symbols_in_subdir (self, subdir):
+    def get_symbols_in_sublist (self, subdir):
         '''
         @summary: Returns all the symbols belonging to that subdir of the data store.
         @param subdir: Specifies which subdir you want.
         @return: A list of symbols belonging to that subdir 
         '''
 
-        stocksAtThisPath= dircache.listdir(self.rootdir+self.midPath+subdir)
+        pathtolook = self.rootdir+self.midPath+subdir
+        stocksAtThisPath= dircache.listdir(pathtolook)
+        
+        print pathtolook
+        print stocksAtThisPath
         
         #Next, throw away everything that is not a .pkl And these are our stocks!
-        try
+        try:
             stocksAtThisPath = filter (lambda x:(str(x).find(str(self.fileExtensionToRemove)) > -1), stocksAtThisPath)
             #Now, we remove the .pkl to get the name of the stock
             stocksAtThisPath = map(lambda x:(x.partition(str(self.fileExtensionToRemove))[0]),stocksAtThisPath)
@@ -295,5 +301,50 @@ class DataAccess(object):
         return stocksAtThisPath
         #get_all_symbols_on_exchange ends
         
-    #class DataAccess ends
+    def get_sublists (self):
+        '''
+        @summary: Returns a list of all the sublists for a data store.
+        @return: A list of the valid sublists for the data store.
+        '''
 
+        return self.folderSubList
+        #get_sublists
+
+    def get_info (self):
+        '''
+        @summary: Returns and prints a string that describes the datastore.
+        @return: A string.
+        '''
+
+        if (self.source == DataSource.NORGATE):
+            retstr = "Norgate:\n"
+            retstr = retstr + "Daily price and volume data from Norgate (premiumdata.net)\n"
+            retstr = retstr + "that is valid at the time of NYSE close each trading day.\n"
+            retstr = retstr + "\n"
+            retstr = retstr + "Valid data items include: \n"
+            retstr = retstr + "\topen, high, low, close, volume, actual_close\n"
+            retstr = retstr + "\n"
+            retstr = retstr + "Valid subdirs include: \n"
+            for i in self.folderSubList:
+                retstr = retstr + "\t" + i + "\n"
+
+        elif (self.source == DataSource.YAHOO):
+            retstr = "Yahoo:\n"
+            retstr = retstr + "To be completed by Shreyas\n"
+            retstr = retstr + "Valid data items include: \n"
+            retstr = retstr + "\topen, high, low, close, volume, actual_close\n"
+            retstr = retstr + "\n"
+            retstr = retstr + "Valid subdirs include: \n"
+            for i in self.folderSubList:
+                retstr = retstr + "\t" + i + "\n"
+
+        else:
+            retstr = "DataAccess internal error\n"
+
+        print retstr
+
+        return retstr
+        #get_sublists
+        
+        
+    #class DataAccess ends
