@@ -258,17 +258,26 @@ class DataAccess(object):
                 readfile = True
                 cachefile.close()
             except IOError:
-                print "error reading cache: " + cachefilename
-                print "recovering..."
+                if verbose:
+                    print "error reading cache: " + cachefilename
+                    print "recovering..."
             except EOFError:
-                print "error reading cache: " + cachefilename
-                print "recovering..."
-        else:
-            print "cache miss"
-
+                if verbose:
+                    print "error reading cache: " + cachefilename
+                    print "recovering..."
         if (readfile!=True):
+            if verbose:
+                print "cache miss"
+                print "beginning hardread"
             retval = self.get_data_hardread(ts_list, 
-                symbol_list, data_item, verbose=False)
+                symbol_list, data_item, verbose)
+            if verbose:
+                print "end hardread"
+                print "saving to cache"
+            cachefile = open(cachefilename,"wb")
+            pkl.dump(retval, cachefile, -1)
+            if verbose:
+                print "end saving to cache"
 
         return retval
 
