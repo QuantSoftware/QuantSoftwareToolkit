@@ -98,9 +98,9 @@ class DataAccess(object):
             
         #__init__ ends
 
-
-    def get_data (self, ts_list, symbol_list, data_item, verbose=False):
+    def get_data_hardread(self, ts_list, symbol_list, data_item, verbose=False):
         '''
+        Read data into a DataMatrix no matter what.
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
         @param data_item: The data_item needed. Like open, close, volume etc.
@@ -129,23 +129,6 @@ class DataAccess(object):
             #incorrect value
             raise ValueError ("Incorrect value for data_item")
         #end elif
-
-        #
-        # Construct hash
-        #
-        hashsyms = 0
-        for i in symbol_list:
-            hashsyms = (hashsyms + hash(i)) % 10000000
-        hashts = 0
-        for i in ts_list:
-            hashts = (hashts + hash(i)) % 10000000
-        hashstr = 'qstk-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
-            + '-' + str(data_item)
-        if verbose:
-            print "hash is:"+hashstr
-
-
-
         
         #read in data for a stock
         symbol_ctr=-1
@@ -222,9 +205,73 @@ class DataAccess(object):
             #outer for ends        
         data_matrix = pa.DataMatrix (self.all_stocks_data, ts_list, symbol_list)            
         return data_matrix            
-                        
         
-        #get_data ends
+        #get_data_hardread ends
+
+    def get_data (self, ts_list, symbol_list, data_item, verbose=False):
+        '''
+        Read data into a DataMatrix, but check to see if it is in a cache first.
+        @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
+        @param symbol_list: The list of symbols for which the data values are needed
+        @param data_item: The data_item needed. Like open, close, volume etc.
+        @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then 
+        continues as usual. No errors are raised at the moment.
+        '''
+
+        # Construct hash -- filename where data may be already
+        #
+        # The idea here is to create a filename from the arguments provided.
+        # We then check to see if the filename exists alread, meaning that
+        # the data has already been created and we can just read that file.
+
+        # Create the has from the symbols
+        hashsyms = 0
+        for i in symbol_list:
+            hashsyms = (hashsyms + hash(i)) % 10000000
+
+        # Create the has from the timestamps
+        hashts = 0
+        for i in ts_list:
+            hashts = (hashts + hash(i)) % 10000000
+        hashstr = 'qstk-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
+            + '-' + str(data_item)
+
+        # get the directory for scratch files from environment
+        try:
+            scratchdir = os.environ['QSSCRATCH']
+        except KeyError:
+            #self.rootdir = "/hzr71/research/QSData"
+            raise KeyError("Please be sure to set the value for QSSCRATCH in config.sh or local.sh")
+
+        # final complete filename
+        cachefilename = scratchdir + '/' + hashstr + '.pkl'
+        if verbose:
+            print "cachefilename is:"+cachefilename
+
+        # now eather read the pkl file, or do a hardread
+        readfile = False
+	if os.path.exists(cachefilename):
+            print "cache hit"
+            try:
+                cachefile = open(cachefilename, "rb")
+                retval = pkl.load(cachefile)
+                readfile = True
+                cachefile.close()
+            except IOError:
+                print "error reading cache: " + cachefilename
+                print "recovering..."
+            except EOFError:
+                print "error reading cache: " + cachefilename
+                print "recovering..."
+        else:
+            print "cache miss"
+
+        if (readfile!=True):
+            retval = self.get_data_hardread(ts_list, 
+                symbol_list, data_item, verbose=False)
+
+        return retval
+
         
     def getPathOfFile(self, symbol_name):
         '''
@@ -361,7 +408,6 @@ class DataAccess(object):
             retstr = "DataAccess internal error\n"
 
         print retstr
-
         return retstr
         #get_sublists
         
