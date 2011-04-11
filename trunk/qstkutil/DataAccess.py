@@ -149,13 +149,19 @@ class DataAccess(object):
             #now remove all the columns except the timestamps and one data column
             temp_np = np.delete(temp_np, list_index, 1)
             #now we have only timestamps and one data column
-            symbol_ts_list = list() #This list will have all the timestamps for this symbol
+
+            symbol_ts_list = range(temp_np.shape[0]) # preallocate
 
             #convert the dates to time since epoch
             for i in range (0, temp_np.shape[0]):
-                time_delta= dt.timedelta(seconds= 57600)
+                timebase = temp_np[i][0]
+		timeyear = int(timebase/10000)
+                timemonth = int((timebase-timeyear*10000)/100)
+		timeday = int((timebase-timeyear*10000-timemonth*100))
+                timehour = 16
+
                 #The earliest time it can generate a time for is platform dependent
-                symbol_ts_list.append((dt.datetime.strptime(str(long(temp_np[i][0])),'%Y%m%d')) + time_delta) # To make the time 1600 hrs on the day previous to this midnight
+                symbol_ts_list[i]=dt.datetime(timeyear,timemonth,timeday,timehour) # To make the time 1600 hrs on the day previous to this midnight
                 
                 #print "date is: " + str(dt.datetime.fromtimestamp(temp_np[i][0]))
                 #for ends
