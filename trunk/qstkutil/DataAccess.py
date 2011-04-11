@@ -99,7 +99,7 @@ class DataAccess(object):
         #__init__ ends
 
 
-    def get_data (self, ts_list, symbol_list, data_item):
+    def get_data (self, ts_list, symbol_list, data_item, verbose=False):
         '''
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
@@ -129,6 +129,22 @@ class DataAccess(object):
             #incorrect value
             raise ValueError ("Incorrect value for data_item")
         #end elif
+
+        #
+        # Construct hash
+        #
+        hashsyms = 0
+        for i in symbol_list:
+            hashsyms = (hashsyms + hash(i)) % 10000000
+        hashts = 0
+        for i in ts_list:
+            hashts = (hashts + hash(i)) % 10000000
+        hashstr = 'qstk-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
+            + '-' + str(data_item)
+        if verbose:
+            print "hash is:"+hashstr
+
+
 
         
         #read in data for a stock
