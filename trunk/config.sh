@@ -41,6 +41,9 @@ export PYTHONPATH=$PYTHONPATH:$QS:$QSBIN
 # expand the PATH
 export PATH=$PATH:$QSBIN
 
+# location to store scratch files
+export QSSCRATCH=/tmp
+
 # Info regarding remote hosting of the system.
 # This is where, for instance we might place a copy of
 # the system for remote execution, or for the website.
