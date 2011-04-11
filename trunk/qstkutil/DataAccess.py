@@ -221,15 +221,15 @@ class DataAccess(object):
         # Construct hash -- filename where data may be already
         #
         # The idea here is to create a filename from the arguments provided.
-        # We then check to see if the filename exists alread, meaning that
+        # We then check to see if the filename exists already, meaning that
         # the data has already been created and we can just read that file.
 
-        # Create the has from the symbols
+        # Create the hash for the symbols
         hashsyms = 0
         for i in symbol_list:
             hashsyms = (hashsyms + hash(i)) % 10000000
 
-        # Create the has from the timestamps
+        # Create the hash for the timestamps
         hashts = 0
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
@@ -249,13 +249,15 @@ class DataAccess(object):
             print "cachefilename is:"+cachefilename
 
         # now eather read the pkl file, or do a hardread
-        readfile = False
+        readfile = False # indicate that we have not yet read the file
 	if os.path.exists(cachefilename):
             print "cache hit"
             try:
                 cachefile = open(cachefilename, "rb")
+                start = time.time() # start timer
                 retval = pkl.load(cachefile)
-                readfile = True
+                elapsed = time.time() - start # end timer
+                readfile = True # remember success
                 cachefile.close()
             except IOError:
                 if verbose:
@@ -269,8 +271,10 @@ class DataAccess(object):
             if verbose:
                 print "cache miss"
                 print "beginning hardread"
+            start = time.time() # start timer
             retval = self.get_data_hardread(ts_list, 
                 symbol_list, data_item, verbose)
+            elapsed = time.time() - start # end timer
             if verbose:
                 print "end hardread"
                 print "saving to cache"
@@ -279,8 +283,9 @@ class DataAccess(object):
             if verbose:
                 print "end saving to cache"
 
+        if verbose:
+            print "reading took " + str(elapsed) + " seconds"
         return retval
-
         
     def getPathOfFile(self, symbol_name):
         '''
