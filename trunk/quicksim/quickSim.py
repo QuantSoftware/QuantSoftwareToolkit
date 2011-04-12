@@ -193,15 +193,15 @@ if __name__ == "__main__":
 
 	if(sys.argv[1]=='-a'):
 		funds=alloc_backtest(sys.argv[2],sys.argv[3])
-		output=open(sys.argv[4],"rb")
+		output=open(sys.argv[4],"w")
 		cPickle.dump(funds,output)
 	elif(sys.argv[1]=='-s'):
 		t = map(int, sys.argv[3].split('-'))
                 startday= dt.datetime(t[2],t[0],t[1])
                 t = map(int, sys.argv[4].split('-'))
                 endday = dt.datetime(t[2],t[0],t[1])  
-                fundsmatrix=strat_backtest(sys.argv[2],startday,endday,1,0,sys.argv[7])
-                output=open(sys.argv[8],"w")
+                fundsmatrix=strat_backtest(sys.argv[2],startday,endday,1,0,sys.argv[5])
+                output=open(sys.argv[6],"w")
                 cPickle.dump(fundsmatrix,output) 
 	elif(sys.argv[1]=='-r'):
 		t = map(int, sys.argv[3].split('-'))

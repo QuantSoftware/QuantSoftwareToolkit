@@ -38,7 +38,8 @@ html_file.write("<IMG SRC=\'./funds.png\'/>\n")
 html_file.write("<BR/>\n\n")
 
 #montly returns
-mrets=tsu.monthly(funds[0])
+#mrets=tsu.monthly(funds[0])
+mrets=[]
 html_file.write("<H2>Monthly Returns</H2>\n")
 html_file.write("<TABLE CELLPADDING=10>\n")
 html_file.write("<TR>\n")
@@ -47,12 +48,13 @@ month_names=du.getMonthNames()
 for name in month_names:
 	html_file.write("<TH>"+str(name)+"</TH>\n")
 html_file.write("</TR>\n")
-years=du.getYears(funds[0])
+#years=du.getYears(funds[0])
+years=[]
 i=0
 for year in years:
 	html_file.write("<TR>\n")
 	html_file.write("<TH>"+str(year)+"</TH>\n")
-	months=du.getMonths(funds[0],year)
+#	months=du.getMonths(funds[0],year)
 	for month in months:
 		html_file.write("<TD>"+str(mrets[i]*100)[:4]+"%</TD>\n")
 		i+=1
@@ -61,7 +63,8 @@ html_file.write("</TABLE>\n")
 html_file.write("<BR/>\n\n")
 
 #sharpe ratio
-ratio=tsu.getRatio(funds[0])
+#ratio=tsu.getRatio(funds[0])
+ratio=0
 html_file.write("<H3>Overall Sharpe Ratio: "+str(ratio)+"</H3>\n")
 html_file.write("<TABLE CELLPADDING=10>\n")
 html_file.write("<TR><TH></TH>\n")
@@ -71,7 +74,7 @@ html_file.write("</TR>\n")
 html_file.write("<TR>\n")
 html_file.write("<TH>Sharpe Ratio:</TH>\n")
 for year in years:
-	ratio=tsu.getYearRatio(funds[0],year)
+#	ratio=tsu.getYearRatio(funds[0],year)
 	html_file.write("<TD>"+str(ratio)+"</TD>\n")
 html_file.write("</TR>\n")
 html_file.write("</TABLE>\n")
