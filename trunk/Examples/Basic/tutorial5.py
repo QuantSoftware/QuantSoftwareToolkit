@@ -1,8 +1,8 @@
 #
 # tutorial5.py
 #
-# @summary: Uses the quicksim backtester and MonthlyRebalancing strategy to create
-# and back test allocations. Displays the result using the report module.
+# @summary: Uses the quicksim backtester and OneStock strategy to create
+# and back test an allocation. Displays the result using the report module.
 #
 # @author: Drew Bratcher
 #
@@ -32,7 +32,7 @@ offset = 1
 startval=1000
 
 #perform tests
-fundsmatrix = qs.strat_backtest(strat,start,end,num,offset,startval)
+fundsmatrix = qs.strat_backtest(strat,start,end,1,offset,startval)
 
 #output fundsmatrix to pickle file
 output=open(os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl',"w")
