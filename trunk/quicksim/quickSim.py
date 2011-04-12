@@ -197,6 +197,14 @@ if __name__ == "__main__":
 		cPickle.dump(funds,output)
 	elif(sys.argv[1]=='-s'):
 		t = map(int, sys.argv[3].split('-'))
+                startday= dt.datetime(t[2],t[0],t[1])
+                t = map(int, sys.argv[4].split('-'))
+                endday = dt.datetime(t[2],t[0],t[1])  
+                fundsmatrix=strat_backtest(sys.argv[2],startday,endday,1,0,sys.argv[7])
+                output=open(sys.argv[8],"w")
+                cPickle.dump(fundsmatrix,output) 
+	elif(sys.argv[1]=='-r'):
+		t = map(int, sys.argv[3].split('-'))
 		startday= dt.datetime(t[2],t[0],t[1])
 		t = map(int, sys.argv[4].split('-'))
 		endday = dt.datetime(t[2],t[0],t[1])
@@ -206,4 +214,5 @@ if __name__ == "__main__":
 	else:
 		print 'invalid command line call'
 		print 'use python quickSim.py -a alloc_pkl start_value output_pkl'
-		print 'or python quickSim.py -s strategy start_date end_date number_of_tests test_offset_in_days start_value output_pkl'
+		print 'or python quickSim.py -s strategy start_date end_date start_value output_pkl'
+		print 'or python quickSim.py -r strategy start_date end_date number_of_tests test_offset_in_days start_value output_pkl'

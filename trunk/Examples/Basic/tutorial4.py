@@ -2,51 +2,64 @@
 # tutorial4.py
 #
 # @summary: An example which creates a monthly allocation table
-# from 2004 to 2009. It then dumps the allocation table to a pickle
+# from 2004 to 2009 using a random allocation and the first 20 stocks of S&P500.
+# It then dumps the allocation table to a pickle
 # file named allocations.pkl
 #
 # @author: Drew Bratcher
 #
 
 #python imports
-import time as t
 import cPickle
 import os
 import datetime as dt
 from pylab import *
 from pandas import *
 import matplotlib.pyplot as plt
-
+import random
 
 #qstk imports
 from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
-from qstkutil import pseries as ps
-import quicksim as simulator
 
-#sample_historic setup
 # Get first 20 S&P Symbols 
 symbols = list(np.loadtxt(os.environ['QS']+"/quicksim/strategies/S&P500.csv",dtype='str',delimiter=',',comments='#',skiprows=0))
-symbols = symbols[0:19]
+symbols = symbols[0:20]
+symbols.append('_CASH')
 
-#Set start and end boundary times.  They must be specified in Unix Epoch
+#Set start and end boundary times.
 tsstart = dt.datetime(2004,1,1)
 tsend = dt.datetime(2009,12,31)
 timeofday = dt.timedelta(hours=16)
 timestamps=du.getNYSEdays(tsstart,tsend,timeofday)
 
-# Get the data from the data store
-dataobj=da.DataAccess('Norgate')
-historic = dataobj.get_data(timestamps,symbols,"close")
+# Create First Allocation Row
+vals=[]
+for i in range(21):
+	vals.append(random.randint(0,1000))
 
-# Compute allocations
-alloc_vals=.8/(len(historic.values[0,:])-1)*ones((1,len(historic.values[0,:])))
-alloc=DataMatrix(index=[historic.index[0]], data=alloc_vals, columns=symbols)
-for date in range(0, len(historic.index)):
-	if(historic.index[date].day==1):
-		alloc=alloc.append(DataMatrix(index=[historic.index[date]], data=alloc_vals, columns=symbols))
-alloc[symbols[0]] = .1
-alloc['_CASH'] = .1
+# Normalize
+for i in range(21):
+	vals[i]=vals[i]/sum(vals)
+
+# Create Allocation DataMatrix
+alloc=DataMatrix(index=[tsstart], columns=symbols, data=[vals]) 
+
+# Add a row for each new month
+last=tsstart
+for day in timestamps:
+	if(last.month!=day.month):
+		# Create Random Allocation
+		vals=[]
+		for i in range(21):
+			vals.append(random.randint(0,1000))
+		# Normalize
+		for i in range(21):
+			vals[i]=vals[i]/sum(vals)
+		# Append new row
+		alloc=alloc.append(DataMatrix(index=[day], columns=symbols, data=[vals]))
+	last=day
+
 
 #output alloc table to a pickle file
 output=open("allocations.pkl","wb")
