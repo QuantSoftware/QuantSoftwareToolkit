@@ -15,6 +15,22 @@ import datetime as dt
 #qstk imports
 import qstkutil.DataAccess as da
 import qstkutil.dateutil as du
+import qstkutil.bollinger as boil
+
+#simple version
+def createStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
+	alloc=DataMatrix(index=timestamps(0),cols=adjclose.cols, data=zeros(len(adjclose(0))))
+	bs=boil.calcbvals(adjclose, timestamps, lookback)
+	for day in timestamps:
+		vals=zeros(10, len(adjclose(0)))
+		for stock in bs(day):
+			if(stock>1):
+				vals[0:10,stock]=-.05
+			elif(stock<-1):
+				vals[0:10,stock]=.05
+		alloc.append(DataMatrix(index=day,cols=adjclose.cols,data=vals(0))
+		vals.remove(0)
+		vals.append(zeros(len(adjclose(0))))
 
 #creates an allocation pkl based on bollinger strategy
 def create(symbols, start, end, start_fund, lookback, spread, high, low, bet, duration, output):
