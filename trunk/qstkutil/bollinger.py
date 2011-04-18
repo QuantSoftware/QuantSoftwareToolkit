@@ -9,28 +9,34 @@ import qstkutil.DataAccess as da
 import qstkutil.dateutil as du
 
 def calcavg(period):
-	sum = zeros(len(period(0)))
+	sum = zeros(len(period.columns))
 	count=0
-	for day in period:
-		sum+=period(day)
+	for day in period.index:
+		sum+=period.xs(day)
 		count+=1
 	return(sum/count)
 
 def calcdev(period):
 	avg=calcavg(period)
-	devs=zeros(len(period(0)))
+	devs=zeros(len(period.columns))
 	count=0
-	for day in period:
-		devs+=(period(day)-avg)*(period(day)-avg)
+	for day in period.index:
+		devs+=(period.xs(day)-avg*ones(len(period.columns)))*(period.xs(day)-avg*ones(len(period.columns)))
 		count+=1
 	return(sqrt(devs/count))
 
-def bollinger(adjclose, timestamps, stocks, lookback):
-	bvals=DataMatrix(index=timestamps[0],columns=stocks,data=zeros(len(stocks))) 
-	for day in timestamps:
-		lookbackperiod=adjclose[day-lookback:day]
-		avg = calcavg(lookbackperiod)
-		stddev = calcdev(lookbackperiod)
-		b=(adjclose(day)-avg)/stddev
-		bvals=bvals.append(DataMatrix(day,stocks,b)
+def calcbvals(adjclose, timestamps, stocks, lookback):
+	bvals=DataMatrix(index=[timestamps[0]],columns=stocks,data=[zeros(len(stocks))]) 
+	for i in range(0,len(timestamps)):
+		s=i-lookback
+		if s<0:
+			s=0
+		if s!=i:
+			lookbackperiod=adjclose[s:i]
+			print lookbackperiod
+			avg = calcavg(lookbackperiod)
+			stddevs = calcdev(lookbackperiod)
+			if avg[0]>0 and stddevs[0]>0:
+				b=(adjclose[i:i+1]-avg*ones(len(lookbackperiod.columns)))/stddevs
+				bvals=bvals.append(DataMatrix(index=[timestamps[i]],columns=stocks,data=[b]))
 	return(bvals)
