@@ -23,7 +23,9 @@ def clean_output_paths (listOfOutputPaths):
  for path in listOfOutputPaths:
     files_at_this_path = dircache.listdir(str(path))
     for _file in files_at_this_path:
-         os.remove(path + _file) 
+        if (os.path.isfile(path + _file)):
+            os.remove(path + _file)
+            #if ends 
     #for ends
  #oter for ends   
     
@@ -55,6 +57,10 @@ def main ():
     listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NYSE/")
     listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NYSE Arca/")
     listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/OTC/")
+    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/Indices/")
+    
+    
+    
     listOfOutputPaths= list()
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl1\\")
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl2\\")    
@@ -71,7 +77,20 @@ def main ():
     listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NYSE/")
     listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NYSE Arca/")
     listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/OTC/")    
-                
+    listOfOutputPaths.append (rootdir + "/Processed/Norgate/US/Indices/")
+    
+    
+    list_of_paths= dircache.listdir(str(listOfInputPaths[-1])) #Adding the paths in the indices folder
+    
+    for path in list_of_paths:
+        if (os.path.isdir("/hzr71/research/QSData/Raw/Norgate/US/Indices/"+ path) == 1):
+            listOfInputPaths.append("/hzr71/research/QSData/Raw/Norgate/US/Indices/"+ path+"/") #Add path to list of input paths
+            listOfOutputPaths.append (rootdir + "/Processed/Norgate/US/Indices/" + os.path.split(path)[1]+"/") #Added paths to the list of output paths
+        #for loop done    
+#    print "Printing paths done"        
+            
+            
+    
     
     #If the output paths don't exist, then create them...
     for path in listOfOutputPaths:
