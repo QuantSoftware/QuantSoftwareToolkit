@@ -18,8 +18,9 @@ import qstkutil.DataAccess as da
 import qstkutil.dateutil as du
 import qstkutil.bollinger as boil
 
-#simple version
-def createStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
+#simple versions
+#stateful
+def createStatefulStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
 	alloc=DataMatrix(index=[timestamps[0]],columns=adjclose.columns, data=[zeros(len(adjclose.columns))])
 	bs=boil.calcbvals(adjclose, timestamps, adjclose.columns, lookback)
 	hold=[]
@@ -34,6 +35,22 @@ def createStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
 		for j in range(0,len(hold)):
 			vals[hold[j]]=.1
 		alloc=alloc.append(DataMatrix(index=[i],columns=adjclose.columns,data=[vals]))
+	return alloc
+	
+#stateless
+def createStatelessStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
+	alloc=DataMatrix(index=[timestamps[0]],columns=adjclose.columns, data=[zeros(len(adjclose.columns))])
+	bs=boil.calcbvals(adjclose, timestamps, adjclose.columns, lookback)
+	vals=zeros([11,len(bs.columns)])
+ 	for i in bs.index[1:]:
+		for stock in range(0,len(bs.columns)):
+			if(bs.xs(i)[stock]<lowthresh):
+				vals[0:10,stock]+=1
+			elif(bs.xs(i)[stock]>highthresh):
+				vals[0:10,stock]-=1
+		alloc=alloc.append(DataMatrix(index=[i],columns=adjclose.columns,data=[vals[0,:]]))
+		for j in range(0,10):
+			vals[j,:]=vals[j+1,:]
 	return alloc
 
 #creates an allocation pkl based on bollinger strategy
@@ -92,7 +109,7 @@ if __name__ == "__main__":
 		symbols.pop(index)
 	historic = dataobj.get_data(timestamps,symbols,"close")
 	
-	alloc=createStrat(historic,timestamps,5,5,-5)
+	alloc=createStatefulStrat(historic,timestamps,5,5,-5)
 	
 	output=open(sys.argv[3],"wb")
 	cPickle.dump(alloc,output)
