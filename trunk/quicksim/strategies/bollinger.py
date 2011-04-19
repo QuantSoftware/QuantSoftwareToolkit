@@ -22,16 +22,19 @@ import qstkutil.bollinger as boil
 def createStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
 	alloc=DataMatrix(index=[timestamps[0]],columns=adjclose.columns, data=[zeros(len(adjclose.columns))])
 	bs=boil.calcbvals(adjclose, timestamps, adjclose.columns, lookback)
-	for day in timestamps:
-		vals=zeros(10, len(adjclose.columns))
-		for stock in bs(day):
-			if(stock>1):
-				vals[0:10,stock]=-.05
-			elif(stock<-1):
-				vals[0:10,stock]=.05
-		alloc.append(DataMatrix(index=[day],columns=adjclose.columns,data=[vals[0]]))
-		vals.remove(0)
-		vals.append(zeros(len(adjclose[day])))
+	hold=[]
+ 	for i in bs.index[1:]:
+		for stock in range(0,len(bs.columns)):
+			if(bs.xs(i)[stock]<lowthresh and len(hold)<10):
+				hold.append(stock)
+			elif(bs.xs(i)[stock]>highthresh):
+				if stock in hold:
+					hold.remove(stock)
+		vals=zeros(len(adjclose.columns))
+		for j in range(0,len(hold)):
+			vals[hold[j]]=.1
+		alloc=alloc.append(DataMatrix(index=[i],columns=adjclose.columns,data=[vals]))
+	return alloc
 
 #creates an allocation pkl based on bollinger strategy
 def create(symbols, start, end, start_fund, lookback, spread, high, low, bet, duration, output):
@@ -89,7 +92,8 @@ if __name__ == "__main__":
 		symbols.pop(index)
 	historic = dataobj.get_data(timestamps,symbols,"close")
 	
-	alloc=createStrat(historic,timestamps,10,1,-1)
+	alloc=createStrat(historic,timestamps,5,5,-5)
 	
 	output=open(sys.argv[3],"wb")
 	cPickle.dump(alloc,output)
+	output.close()

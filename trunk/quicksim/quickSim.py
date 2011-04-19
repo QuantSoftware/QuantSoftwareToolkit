@@ -37,8 +37,13 @@ def quickSim(alloc,historic,start_cash):
 	for row in range(0,len(alloc.values[:,0])):
 		if(abs(alloc.values[row,:].sum()-1)>.1):
 			print alloc.values[row,:]
-			print alloc.values[row,:].sum()
-			print "warning, alloc row "+str(row)+" does not sum to one"
+			#print alloc.values[row,:].sum()
+			print "warning, alloc row "+str(row)+" does not sum to one, rebalancing"
+			#if no allocation, all in cash
+			if(alloc.values[row,:].sum()==0):
+				alloc.values[row,-1]=1
+			else:
+				alloc.values[row,:]=alloc.values[row,:]/alloc.values[row,:].sum()
 	
 	#fix invalid days
 	historic=historic.fill(method='backfill')
@@ -142,7 +147,7 @@ def alloc_backtest(alloc,start):
 	"""
 	
 	#read in alloc table from command line arguements
-	alloc_input_file=open(alloc,"rb")
+	alloc_input_file=open(alloc,"r")
 	alloc=cPickle.load(alloc_input_file)
 	
 	# Get the data from the data store
@@ -188,6 +193,7 @@ if __name__ == "__main__":
 	#
 	# python quickSim.py -s 'strategy.py' '2/2/2007' '2/2/2009' 10 1 1000 'fund_output.pkl' 
 	#
+	# python quickSim.py -r 'strategy.py' '1-1-2004' '1-1-2007' 10 1 10000 'out.pkl'
 	# Drew Bratcher
 	#
 
