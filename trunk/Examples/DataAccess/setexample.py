@@ -23,22 +23,26 @@ def main():
     da = DA.DataAccess(DA.DataSource.NORGATE);
     
     symbol_list = list()
+    symbol_list.append("$SPXFDGR")
     symbol_list.append ("AAPL")
     symbol_list.append("AMZN")
-    symbol_list.append ("BOB")
-    symbol_list.append("GLD")
-    symbol_list.append("SPY")
-    symbol_list.append("D")
+#    symbol_list.append ("BOB")
+#    symbol_list.append("GLD")
+#    symbol_list.append("SPY")
+#    symbol_list.append("D")
+    symbol_list.append("$DWCPF")
+    symbol_list.append("#NASHI")
     
-    symbol_list=  list (set(symbol_list) & set (da.get_all_symbols())) #Intersecting with all symbols to get rid of symbols that do not exist
+    #symbol_list=  list (set(symbol_list) & set (da.get_all_symbols())) #Intersecting with all symbols to get rid of symbols that do not exist
     #ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
-    
-    print da.get_all_symbols_on_exchange(DA.Exchange.NASDAQ)
     
     ts_list = list()
     
     ts_list.append(dt.datetime(1610, 11, 21, 16))
     ts_list.append(dt.datetime(1610, 11, 21, 11))
+    
+    ts_list.append(dt.datetime(2010, 10, 14, 16))
+    ts_list.append(dt.datetime(2010, 10, 15, 16))
     
     ts_list.append(dt.datetime(2010, 11, 21, 16))
     ts_list.append(dt.datetime(2010, 11, 22, 16))
@@ -53,7 +57,7 @@ def main():
     ts_list.append(dt.datetime(2020, 11, 27, 16))
     ts_list.append(dt.datetime(2020, 11, 27, 18))
     
-    data_matrix = da.get_data(ts_list, symbol_list, DA.DataItem.VOL)
+    data_matrix = da.get_data(ts_list, symbol_list, DA.DataItem.OPEN)
     print str (data_matrix)
     
 #    list_of_symbols= da.get_all_symbols();    
