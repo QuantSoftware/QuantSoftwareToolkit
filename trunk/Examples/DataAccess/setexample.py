@@ -20,7 +20,7 @@ import datetime as dt
 
 def main():
     
-    da = DA.DataAccess(DA.DataSource.NORGATE);
+    da = DA.DataAccess(DA.DataSource.YAHOO);
     
     symbol_list = list()
     symbol_list.append("$SPXFDGR")

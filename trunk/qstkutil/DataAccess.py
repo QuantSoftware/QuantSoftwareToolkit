@@ -86,21 +86,22 @@ class DataAccess(object):
             for i in self.folderSubList:
                 self.folderList.append(self.rootdir+self.midPath+i)            
                     
-            print str (self.folderList)        
-            #self.folderList.append(self.NORGATE_AMEX_PATH)
-            #self.folderList.append(self.NORGATE_DELISTED_PATH )
-            #self.folderList.append(self.NORGATE_NASDAQ_PATH)
-            #self.folderList.append(self.NORGATE_NYSE_PATH)
-            #self.folderList.append(self.NORGATE_NYSE_ARCA_PATH)
-            #self.folderList.append(self.NORGATE_OTC_PATH)
-            
             #if ends
-            if (sourcein == DataSource.YAHOO):
+        if (sourcein == DataSource.YAHOO):
+            self.source= DataSource.YAHOO
+            self.midPath= "/Processed/Yahoo"
+            #What if these paths don't exist?
+            self.folderSubList.append ("/US/NASDAQ/")
+            self.folderSubList.append ("/US/NYSE/")
+            self.folderSubList.append ("/US/AMEX/")
                 
-                self.source= DataSource.YAHOO
+            for i in self.folderSubList:
+                self.folderList.append(self.rootdir+self.midPath+i)
+                                    
                 
-                #if DataSource.YAHOO ends
-            #Raise error for incorrect source
+            #if DataSource.YAHOO ends
+        else:
+            raise ValueError("Incorrect data source requested.")        
             
         #__init__ ends
 
@@ -243,9 +244,10 @@ class DataAccess(object):
         hashts = 0
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
-        hashstr = 'qstk-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
+        hashstr = 'qstk-' + str (self.source)+'-' +str(abs(hashsyms)) + '-' + str(abs(hashts)) \
             + '-' + str(data_item)
 
+        
         # get the directory for scratch files from environment
         try:
             scratchdir = os.environ['QSSCRATCH']
