@@ -32,7 +32,7 @@ class DataItem (object):
     
 class DataSource(object):
     NORGATE="Norgate"
-    NORGATElc="norgate"
+    NORGATElc="norgate" #For backward compatibility
     YAHOO="Yahoo"
     
     #class DataSource ends
@@ -51,6 +51,7 @@ class DataAccess(object):
         
         self.folderList = list()
         self.folderSubList = list()
+        self.fileExtensionToRemove=".pkl"
         
         try:
             self.rootdir = os.environ['QSDATA']
@@ -63,28 +64,29 @@ class DataAccess(object):
             self.source = DataSource.NORGATE
             self.midPath = "/Processed/Norgate"
             
-            self.fileExtensionToRemove=".pkl"
-            #
-            #setting up path variables (old Shreyas), consider to remove
-            #
-            #self.NORGATE_AMEX_PATH= self.rootdir + "/Processed/Norgate/US/AMEX/"
-            #self.NORGATE_DELISTED_PATH= self.rootdir + "/Processed/Norgate/US/Delisted Securities/"
-            #self.NORGATE_NASDAQ_PATH= self.rootdir + "/Processed/Norgate/US/NASDAQ/"
-            #self.NORGATE_NYSE_PATH= self.rootdir + "/Processed/Norgate/US/NYSE/"
-            #self.NORGATE_NYSE_ARCA_PATH= self.rootdir + "/Processed/Norgate/US/NYSE Arca/"
-            #self.NORGATE_OTC_PATH= self.rootdir + "/Processed/Norgate/US/OTC/"            
-            #self.NORGATE_DELISTED_PATH = self.rootdir + "/Processed/Norgate/US/Delisted Securities/")
-
             self.folderSubList.append("/US/AMEX/")
             self.folderSubList.append("/US/NASDAQ/")
             self.folderSubList.append("/US/NYSE/")
             self.folderSubList.append("/US/NYSE Arca/")
             self.folderSubList.append("/US/OTC/")
             self.folderSubList.append("/US/Delisted Securities/")
+            self.folderSubList.append("/US/Indices/")
+            
+
+            #Adding all the paths under Indices
+            indices_paths= dircache.listdir(self.rootdir + self.midPath + "/US/Indices/") #Adding the paths in the indices folder
+            
+            for path in indices_paths:
+#                print str(self.rootdir+self.midPath +"/US/Indices/"+ path)
+                if (os.path.isdir(self.rootdir+self.midPath +"/US/Indices/"+ path) == 1):
+                    self.folderSubList.append ("/US/Indices/"+ path+"/")
+                    #endif
+                #endfor
 
             for i in self.folderSubList:
-                self.folderList.append(self.rootdir+self.midPath+i)
-
+                self.folderList.append(self.rootdir+self.midPath+i)            
+                    
+            print str (self.folderList)        
             #self.folderList.append(self.NORGATE_AMEX_PATH)
             #self.folderList.append(self.NORGATE_DELISTED_PATH )
             #self.folderList.append(self.NORGATE_NASDAQ_PATH)
@@ -93,7 +95,11 @@ class DataAccess(object):
             #self.folderList.append(self.NORGATE_OTC_PATH)
             
             #if ends
-            
+            if (sourcein == DataSource.YAHOO):
+                
+                self.source= DataSource.YAHOO
+                
+                #if DataSource.YAHOO ends
             #Raise error for incorrect source
             
         #__init__ ends
@@ -137,10 +143,14 @@ class DataAccess(object):
             symbol_ctr = symbol_ctr + 1
             #print self.getPathOfFile(symbol)
             try:
+                file_path= self.getPathOfFile(symbol);
+                if (type (file_path) != type ("random string")):
+                    continue; #File not found
+                
                 _file= open(self.getPathOfFile(symbol), "rb")
             except IOError:
-                # If unable to read then break. The value will be nan
-                break;
+                # If unable to read then continue. The value for this stock will be nan
+                continue;
                 
             temp_np = pkl.load (_file)
             _file.close()
@@ -154,9 +164,9 @@ class DataAccess(object):
             #convert the dates to time since epoch
             for i in range (0, temp_np.shape[0]):
                 timebase = temp_np[i][0]
-		timeyear = int(timebase/10000)
+                timeyear = int(timebase/10000)
                 timemonth = int((timebase-timeyear*10000)/100)
-		timeday = int((timebase-timeyear*10000-timemonth*100))
+                timeday = int((timebase-timeyear*10000-timemonth*100))
                 timehour = 16
 
                 #The earliest time it can generate a time for is platform dependent
@@ -250,7 +260,7 @@ class DataAccess(object):
 
         # now eather read the pkl file, or do a hardread
         readfile = False # indicate that we have not yet read the file
-	if os.path.exists(cachefilename):
+        if os.path.exists(cachefilename):
             print "cache hit"
             try:
                 cachefile = open(cachefilename, "rb")
@@ -283,8 +293,8 @@ class DataAccess(object):
             if verbose:
                 print "end saving to cache"
 
-        if verbose:
-            print "reading took " + str(elapsed) + " seconds"
+            if verbose:
+                print "reading took " + str(elapsed) + " seconds"
         return retval
         
     def getPathOfFile(self, symbol_name):
@@ -300,7 +310,7 @@ class DataAccess(object):
 #            else:
 #                print str(path1)+str(stockName)+".h5" + " does not exist!"
             #for ends
-        print "Did not find path to " + str (symbol_name)+". Looks like this file is missing"        
+        print "Did not find path to " + str (symbol_name)+". Looks like this file is missing"    
     
     def get_all_symbols (self):
         '''
@@ -328,36 +338,6 @@ class DataAccess(object):
                 #listOfStocks.append(stock)
         return listOfStocks    
         #get_all_symbols ends
-
-    def get_all_symbols_on_exchange (self, exchange):
-        '''
-        @summary: Returns all the symbols belonging to that exchange. Exchange is figured out by the path of the file.
-        @param exchange: Specifies what exchange you want. Valid values: nyse, delisted, nasdaq, arca, amex, otc
-        @return: A list of symbols belonging to that exchange 
-        '''
-
-        if (exchange == Exchange.NYSE):
-            stocksAtThisPath= dircache.listdir(self.NORGATE_NYSE_PATH)
-        elif (exchange == Exchange.DELISTED):
-            stocksAtThisPath= dircache.listdir(self.NORGATE_DELISTED_PATH)
-        elif (exchange == Exchange.NASDAQ):
-            stocksAtThisPath= dircache.listdir(self.NORGATE_NASDAQ_PATH)
-        elif (exchange == Exchange.NYSE_ARCA):
-            stocksAtThisPath = dircache.listdir(self.NORGATE_NYSE_ARCA_PATH)
-        elif (exchange == Exchange.AMEX):
-            stocksAtThisPath= dircache.listdir(self.NORGATE_AMEX_PATH)
-        elif (exchange == Exchange.OTC):
-            stocksAtThisPath= dircache.listdir(self.NORGATE_OTC_PATH)
-        else:
-            raise ValueError ("Incorrect value for exchange")
-        
-        #Next, throw away everything that is not a .pkl And these are our stocks!
-        stocksAtThisPath = filter (lambda x:(str(x).find(str(self.fileExtensionToRemove)) > -1), stocksAtThisPath)
-        #Now, we remove the .pkl to get the name of the stock
-        stocksAtThisPath = map(lambda x:(x.partition(str(self.fileExtensionToRemove))[0]),stocksAtThisPath)
-        
-        return stocksAtThisPath
-        #get_all_symbols_on_exchange ends
         
     def get_symbols_in_sublist (self, subdir):
         '''
