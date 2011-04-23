@@ -6,6 +6,7 @@ Created on Apr 8, 2011
 '''
 
 import qstkutil.DataAccess as da
+import qstkutil.utils as utils
 import urllib2
 import urllib
 import datetime
@@ -17,8 +18,8 @@ def main():
     path= os.environ['QSDATA']
     
     get_data_for_exchange("NASDAQ", path)
-#    get_data_for_exchange("NYSE", path)
-#    get_data_for_exchange("AMEX", path)
+    get_data_for_exchange("NYSE", path)
+    get_data_for_exchange("AMEX", path)
     
     #main ends
 def get_data_for_exchange (exchange, data_path):
@@ -30,9 +31,10 @@ def get_data_for_exchange (exchange, data_path):
     #Create path if it doesn't exist
     if not (os.access(data_path, os.F_OK)):
         os.makedirs(data_path)
+        
+    utils.clean_paths(data_path)    
     
     symbol_list= list()
-    symbol_list.append("MKTG")
     
     print "Getting list of stocks.."
     
@@ -57,9 +59,8 @@ def get_data_for_exchange (exchange, data_path):
     except:
         print"Unknown error occoured when getting list of stocks from server."
     
-#    print symbol_list
-            
     print "Got " + str (len(symbol_list)) + " symbols. Now getting symbol data..."
+    
     _now =datetime.datetime.now();
     miss_ctr=0; #Counts how many symbols we could get
     
@@ -98,7 +99,6 @@ def get_data_for_exchange (exchange, data_path):
 #            f.close()
                         
         except urllib2.HTTPError:
-            got_data= False;
             miss_ctr= miss_ctr+1
             print "Unable to fetch data for stock: " + str (symbol)
 #        except:

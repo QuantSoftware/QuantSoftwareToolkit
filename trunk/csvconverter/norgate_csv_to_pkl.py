@@ -10,65 +10,43 @@ Created on Feb 25, 2011
 
 import numpy as np
 import pickle as pkl
+import qstkutil.utils as utils
 import os
 import dircache
 import time
 import sys
 
-def clean_output_paths (listOfOutputPaths):
- '''
- @summary: Removes any previous files in the output path.
- '''
-
- for path in listOfOutputPaths:
-    files_at_this_path = dircache.listdir(str(path))
-    for _file in files_at_this_path:
-        if (os.path.isfile(path + _file)):
-            os.remove(path + _file)
-            #if ends 
-    #for ends
- #oter for ends   
-    
-#clean_output_paths  ends
 
 def main ():
     
     print "Starting..."+ str(time.strftime("%H:%M:%S"))
     
+    try:
+        rootdir = os.environ['QSDATA']
+    except KeyError:
+        #rootdir = "/hzr71/research/QSData"
+        print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"    
     
     fileExtensionToRemove = ".csv"
     
     listOfInputPaths= list()
 
-# For Javelin    
-#    listOfInputPaths.append("C:\\Trading data text\\Stocks\\Delisted Securities\\US Recent\\")
-#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\AMEX\\")
-#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\Delisted Securities\\")
-#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\OTC\\")
-#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NASDAQ\\")
-#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\NYSE\\")
-#    listOfInputPaths.append ("C:\\Trading data text\\Stocks\\US\\NYSE Arca\\")
     
 #For Gekko
     #listOfInputPaths.append("/hzr71/research/QSData/Processed/Norgate/raw/Delisted Securities/US Recent/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/AMEX/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/Delisted Securities/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NASDAQ/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NYSE/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/NYSE Arca/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/OTC/")
-    listOfInputPaths.append ("/hzr71/research/QSData/Raw/Norgate/US/Indices/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/AMEX/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/Delisted Securities/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/NASDAQ/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/NYSE/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/NYSE Arca/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/OTC/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/Indices/")
     
     
     
     listOfOutputPaths= list()
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl1\\")
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl2\\")    
-    try:
-        rootdir = os.environ['QSDATA']
-    except KeyError:
-        #rootdir = "/hzr71/research/QSData"
-        print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"
     
     #listOfOutputPaths.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
     listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/AMEX/")
@@ -100,7 +78,7 @@ def main ():
     #done making all output paths!
     
     #In case there are already some files there- remove them. This will remove all the pkl fils from the previous run
-    clean_output_paths (listOfOutputPaths)
+    utils.clean_paths (listOfOutputPaths)
     
     
     if (len(listOfInputPaths)!= len(listOfOutputPaths)):

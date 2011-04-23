@@ -10,26 +10,12 @@ Created on Feb 25, 2011
 
 import numpy as np
 import pickle as pkl
+import qstkutil.utils as utils
 import os
 import dircache
 import time
 import sys
 
-def clean_output_paths (listOfOutputPaths):
- '''
- @summary: Removes any previous files in the output path.
- '''
-
- for path in listOfOutputPaths:
-    files_at_this_path = dircache.listdir(str(path))
-    for _file in files_at_this_path:
-        if (os.path.isfile(path + _file)):
-            os.remove(path + _file)
-            #if ends 
-    #for ends
- #oter for ends   
-    
-#clean_output_paths  ends
 
 def main ():
     
@@ -67,11 +53,11 @@ def main ():
     for path in listOfOutputPaths:
         if not (os.access(path, os.F_OK)):
             #Path does not exist, so create it
-            os.makedirs(path)
+            os.makedirs(path) #Makes paths recursively
     #done making all output paths!
     
     #In case there are already some files there- remove them. This will remove all the pkl fils from the previous run
-    clean_output_paths (listOfOutputPaths)
+    utils.clean_paths (listOfOutputPaths)
     
     
     if (len(listOfInputPaths)!= len(listOfOutputPaths)):
