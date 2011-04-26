@@ -87,7 +87,7 @@ class DataAccess(object):
                 self.folderList.append(self.rootdir+self.midPath+i)            
                     
             #if ends
-        if (sourcein == DataSource.YAHOO):
+        elif (sourcein == DataSource.YAHOO):
             self.source= DataSource.YAHOO
             self.midPath= "/Processed/Yahoo"
             #What if these paths don't exist?
