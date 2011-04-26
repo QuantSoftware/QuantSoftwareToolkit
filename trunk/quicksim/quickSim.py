@@ -159,10 +159,10 @@ def alloc_backtest(alloc,start):
 	
 	return funds
 
-def strat_backtest(strat,start,end,num,diff,startval):
+def strat_backtest1(strat,start,end,num,diff,startval):
 	"""
 	@summary: Back tests a strategy defined in a python script that takes in a start
-	and end date along with a starting value. 
+	and end date along with a starting value a set number of times. 
 	@param strat: filename of python script strategy
 	@param start: starting date in a datetime object
 	@param end: ending date in a datetime object
@@ -170,13 +170,38 @@ def strat_backtest(strat,start,end,num,diff,startval):
 	@param diff: offset in days of the tests
 	@param startval: starting value of fund during back tests
 	@return fundsmatrix: Datamatrix of fund values returned from each test
-	@rtype datanatrix
+	@rtype datamatrix
 	"""
 	fundsmatrix=[]
-	startdates=du.getNextNNYSEdays(start,num,dt.timedelta(hours=16))
-	enddates=du.getNextNNYSEdays(end,num,dt.timedelta(hours=16))
-	for i in range(0,len(enddates)):
+	startdates=du.getNextNNYSEdays(start,num*diff,dt.timedelta(hours=16))
+	enddates=du.getNextNNYSEdays(end,num*diff,dt.timedelta(hours=16))
+	for i in range(0,num):
 		os.system('python '+strat+' '+startdates[i].strftime("%m-%d-%Y")+' '+enddates[i].strftime("%m-%d-%Y")+' temp_alloc.pkl')
+		funds=alloc_backtest('temp_alloc.pkl',startval)
+		fundsmatrix.append(funds)
+	return fundsmatrix
+	
+def strat_backtest2(strat,start,end,diff,dur,startval):
+	"""
+	@summary: Back tests a strategy defined in a python script that takes in a start
+	and end date along with a starting value over a given period. 
+	@param strat: filename of python script strategy
+	@param start: starting date in a datetime object
+	@param end: ending date in a datetime object
+	@param diff: offset in days of the tests
+	@param dur: length of a test
+	@param startval: starting value of fund during back tests
+	@return fundsmatrix: Datamatrix of fund values returned from each test
+	@rtype datamatrix
+	"""
+	fundsmatrix=[]
+	startdates=du.getNYSEdays(start,end,dt.timedelta(hours=16))
+	for i in range(0,len(startdates)/diff):
+		if(i+dur>len(startdates)):
+			enddate=startdates[-1]
+		else:
+			enddate=startdates[i+dur]
+		os.system('python '+strat+' '+startdates[i].strftime("%m-%d-%Y")+' '+enddate.strftime("%m-%d-%Y")+' temp_alloc.pkl')
 		funds=alloc_backtest('temp_alloc.pkl',startval)
 		fundsmatrix.append(funds)
 	return fundsmatrix
@@ -188,12 +213,17 @@ if __name__ == "__main__":
 	# A function which runs a quick sim on an allocation provided via command line,
 	# along with a starting cash value
 	# 
-	# sample call:
+	# Allocation Backtest:
+	# python quickSim.py -a allocation_fiel start_value output_file
 	# python quickSim.py -a 'alloc_file.pkl' 1000 'fund_output.pkl'
 	#
-	# python quickSim.py -s 'strategy.py' '2/2/2007' '2/2/2009' 10 1 1000 'fund_output.pkl' 
+	# Strategy backtest:
+	# python quickSim.py -s strategy start end start_value output_file
+	# python quickSim.py -s 'strategy.py' '2/2/2007' '2/2/2009' 1000 'fund_output.pkl' 
 	#
-	# python quickSim.py -r 'strategy.py' '1-1-2004' '1-1-2007' 10 1 10000 'out.pkl'
+	# Robust backtest:
+	# python quickSim.py -r strategy start end days_between duration start_value output
+	# python quickSim.py -r 'strategy.py' '1-1-2004' '1-1-2007' 7 28 10000 'out.pkl'
 	# Drew Bratcher
 	#
 
@@ -203,22 +233,22 @@ if __name__ == "__main__":
 		cPickle.dump(funds,output)
 	elif(sys.argv[1]=='-s'):
 		t = map(int, sys.argv[3].split('-'))
-                startday= dt.datetime(t[2],t[0],t[1])
-                t = map(int, sys.argv[4].split('-'))
-                endday = dt.datetime(t[2],t[0],t[1])  
-                fundsmatrix=strat_backtest(sys.argv[2],startday,endday,1,0,sys.argv[5])
-                output=open(sys.argv[6],"w")
-                cPickle.dump(fundsmatrix,output) 
+		startday= dt.datetime(t[2],t[0],t[1])
+		t = map(int, sys.argv[4].split('-'))
+		endday = dt.datetime(t[2],t[0],t[1])  
+		fundsmatrix=strat_backtest1(sys.argv[2],startday,endday,1,0,int(sys.argv[5]))
+		output=open(sys.argv[6],"w")
+		cPickle.dump(fundsmatrix,output) 
 	elif(sys.argv[1]=='-r'):
 		t = map(int, sys.argv[3].split('-'))
 		startday= dt.datetime(t[2],t[0],t[1])
 		t = map(int, sys.argv[4].split('-'))
 		endday = dt.datetime(t[2],t[0],t[1])
-		fundsmatrix=strat_backtest(sys.argv[2],startday,endday,int(sys.argv[5]),sys.argv[6],sys.argv[7])
+		fundsmatrix=strat_backtest2(sys.argv[2],startday,endday,int(sys.argv[5]),int(sys.argv[6]),int(sys.argv[7]))
 		output=open(sys.argv[8],"w")
 		cPickle.dump(fundsmatrix,output)
 	else:
 		print 'invalid command line call'
 		print 'use python quickSim.py -a alloc_pkl start_value output_pkl'
 		print 'or python quickSim.py -s strategy start_date end_date start_value output_pkl'
-		print 'or python quickSim.py -r strategy start_date end_date number_of_tests test_offset_in_days start_value output_pkl'
+		print 'or python quickSim.py -r strategy start_date end_date test_offset_in_days duration start_value output_pkl'

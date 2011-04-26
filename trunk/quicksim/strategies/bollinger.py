@@ -53,34 +53,32 @@ def createStatelessStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
 			vals[j,:]=vals[j+1,:]
 	return alloc
 
-#creates an allocation pkl based on bollinger strategy
-def create(symbols, start, end, start_fund, lookback, spread, high, low, bet, duration, output):
-	print "Running a Bollinger strategy..."
-
-	# Get historic data for period
-	timeofday=dt.timedelta(hours=16)
-	timestamps = du.getNYSEdays(start,end,timeofday)
-	dataobj = da.DataAccess('Norgate')
-	historic = dataobj.get_data(timestamps, symbols, "close")
-	
-	#create allocation table
-	
-	
-	#for each day
-	for i in range(0,num_days):
-		#compute returns
-		#compute deviation over lookback
-		#find best stocks to short and long
-		#throw out any bets that have lasted the duration/other exit strategy
-		#for number of high/low
-		for k in range(0,high):
-			#compute allocation to make appropriate bets
-			print 'high'
-		for k in range(0,low):
-			#compute allocation...
-			print 'low'
-		#print allocation row
-	#print table to file
+#creates an allocation DataMatrix based on bollinger strategy and paramaters
+def create(adjclose, timestamps, lookback, spread, high, low, bet, duration):
+	alloc=DataMatrix(index=[timestamps[0]],columns=adjclose.columns, data=[zeros(len(adjclose.columns))])
+	bs=boil.calcbvals(adjclose, timestamps, adjclose.columns, lookback)
+	hold=[]
+	time=[]
+ 	for i in bs.index[1:]:
+		for stock in range(0,len(bs.columns)):
+			if(bs.xs(i)[stock]<low and len(hold)<spread):
+				hold.append(stock)
+				time.append(duration)
+			elif(bs.xs(i)[stock]>high):
+				if stock in hold:
+					del time[hold.index(stock)]
+					hold.remove(stock)
+		for j in range(0,len(time)):
+			time[j]-=1
+			if(time[j]<=0):
+				del hold[j]
+				del time[j]
+		
+		vals=zeros(len(adjclose.columns))
+		for j in range(0,len(hold)):
+			vals[hold[j]]=bet
+		alloc=alloc.append(DataMatrix(index=[i],columns=adjclose.columns,data=[vals]))
+	return alloc
 
 if __name__ == "__main__":
 	#Usage: python bollinger.py '1-1-2004' '1-1-2009' 'alloc.pkl'
@@ -109,7 +107,7 @@ if __name__ == "__main__":
 		symbols.pop(index)
 	historic = dataobj.get_data(timestamps,symbols,"close")
 	
-	alloc=createStatefulStrat(historic,timestamps,5,5,-5)
+	alloc=createStatefulStrat(historic,timestamps,10,1,-1)
 	
 	output=open(sys.argv[3],"wb")
 	cPickle.dump(alloc,output)
