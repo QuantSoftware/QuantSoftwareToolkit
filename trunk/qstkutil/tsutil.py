@@ -9,7 +9,7 @@ def daily(funds):
 	prev=0
 	rets=[]
 	for line in funds:
-		rets.append(float(line-prev)/line-1)
+		rets.append(float(line-prev)/line)
 		prev=line	
 	return(rets)
 

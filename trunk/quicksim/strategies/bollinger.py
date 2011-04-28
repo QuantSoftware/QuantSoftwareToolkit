@@ -14,7 +14,7 @@ import datetime as dt
 import os
 
 #qstk imports
-import qstkutil.DataAccess as da
+from qstkutil import DataAccess as da
 import qstkutil.dateutil as du
 import qstkutil.bollinger as boil
 
@@ -95,7 +95,8 @@ if __name__ == "__main__":
 	timeofday=dt.timedelta(hours=16)
 	timestamps=du.getNYSEdays(startday,endday,timeofday)
 	
-	dataobj=da.DataAccess('Norgate')
+	
+	dataobj=da.DataAccess(da.DataSource.NORGATE)
 	intersectsyms=list(set(dataobj.get_all_symbols())&set(symbols))
 	badsyms=[]
 	if size(intersectsyms)<size(symbols):

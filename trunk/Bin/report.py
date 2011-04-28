@@ -67,15 +67,15 @@ if __name__ == '__main__':
 	
 	#montly returns
 	#mrets=tsu.monthly(funds[0])
-	mrets=[]
-	html_file.write("<H2>Monthly Returns</H2>\n")
-	html_file.write("<TABLE CELLPADDING=10>\n")
-	html_file.write("<TR>\n")
-	html_file.write("<TH></TH>\n")
-	month_names=du.getMonthNames()
-	for name in month_names:
-	html_file.write("<TH>"+str(name)+"</TH>\n")
-	html_file.write("</TR>\n")
+	#mrets=[]
+	#html_file.write("<H2>Monthly Returns</H2>\n")
+	#html_file.write("<TABLE CELLPADDING=10>\n")
+	#html_file.write("<TR>\n")
+	#html_file.write("<TH></TH>\n")
+	#month_names=du.getMonthNames()
+	#for name in month_names:
+	#	html_file.write("<TH>"+str(name)+"</TH>\n")
+	#html_file.write("</TR>\n")
 	#years=du.getYears(funds[0])
 	years=[]
 	i=0
