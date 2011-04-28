@@ -4,14 +4,14 @@ import numpy as np
 from pandas import *
 from qstkutil import dateutil
 from math import sqrt
+from copy import deepcopy
 
 def daily(funds):
-	prev=0
-	rets=[]
-	for line in funds:
-		rets.append(float(line-prev)/line)
-		prev=line	
-	return(rets)
+	nd=deepcopy(funds)
+	nd[0]=0
+	for i in range(1,len(funds)):
+		nd[i]=funds[i]/funds[i-1]-1
+	return(nd)
 
 def monthly(funds):
 	funds2=[]

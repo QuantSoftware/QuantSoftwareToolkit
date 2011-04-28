@@ -56,13 +56,14 @@ if __name__ == '__main__':
 	
 	#fund value graph
 	converter.fundsToPNG(funds,'funds.png')
-	converter.fundsAnalysisToPNG(funds,'analysis.png')
 	if(robust==1):
+		converter.fundsAnalysisToPNG(funds,'analysis.png')
 		html_file.write("<H2>QSTK Generated Report:"+str(sys.argv[2])+"</H2>\n")
 	else:
 		html_file.write("<H2>QSTK Generated Report:"+str(sys.argv[1])+"</H2>\n")
 	html_file.write("<IMG SRC=\'./funds.png\'/>\n")
-	html_file.write("<IMG SRC=\'./analysis.png\'/>\n")
+	if(robust==1):
+		html_file.write("<IMG SRC=\'./analysis.png\'/>\n")
 	html_file.write("<BR/>\n\n")
 	
 	#montly returns

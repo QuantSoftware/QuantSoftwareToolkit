@@ -86,7 +86,7 @@ if __name__ == "__main__":
 	
 	#Run S&P500 for thresholds 1 and -1 in simple version for lookback of 10 days
 	symbols = list(np.loadtxt(os.environ['QS']+'/quicksim/strategies/S&P500.csv',dtype='str',delimiter=',',comments='#',skiprows=0))
-	
+
 	t=map(int,sys.argv[1].split('-'))
 	startday = dt.datetime(t[2],t[0],t[1])
 	t=map(int,sys.argv[2].split('-'))
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 		symbols.pop(index)
 	historic = dataobj.get_data(timestamps,symbols,"close")
 	
-	alloc=createStatefulStrat(historic,timestamps,10,1,-1)
+	alloc=createStatelessStrat(historic,timestamps,10,1,-1)
 	
 	output=open(sys.argv[3],"wb")
 	cPickle.dump(alloc,output)
