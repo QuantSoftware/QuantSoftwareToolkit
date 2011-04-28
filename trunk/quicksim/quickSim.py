@@ -17,9 +17,9 @@ import calendar
 import datetime as dt
 
 #qstk imports
-import qstkutil.tsutil as tsu
-import qstkutil.dateutil as du
-import qstkutil.DataAccess as da
+from qstkutil import tsutil as tsu
+from qstkutil import dateutil as du
+from qstkutil import DataAccess as da
 
 def quickSim(alloc,historic,start_cash):
 	"""
@@ -36,9 +36,9 @@ def quickSim(alloc,historic,start_cash):
 	#check each row in alloc
 	for row in range(0,len(alloc.values[:,0])):
 		if(abs(alloc.values[row,:].sum()-1)>.1):
-			print alloc.values[row,:]
+			#print alloc.values[row,:]
 			#print alloc.values[row,:].sum()
-			print "warning, alloc row "+str(row)+" does not sum to one, rebalancing"
+			#print "warning, alloc row "+str(row)+" does not sum to one, rebalancing"
 			#if no allocation, all in cash
 			if(alloc.values[row,:].sum()==0):
 				alloc.values[row,-1]=1
@@ -196,8 +196,8 @@ def strat_backtest2(strat,start,end,diff,dur,startval):
 	"""
 	fundsmatrix=[]
 	startdates=du.getNYSEdays(start,end,dt.timedelta(hours=16))
-	for i in range(0,len(startdates)/diff):
-		if(i+dur>len(startdates)):
+	for i in range(0,len(startdates),diff):
+		if(i+dur>=len(startdates)):
 			enddate=startdates[-1]
 		else:
 			enddate=startdates[i+dur]
