@@ -28,7 +28,7 @@ def calcdev(period):
 def calcbvals(adjclose, timestamps, stocks, lookback):
 	for i in adjclose.values:
 		if i == 'NaN':
-			adjclose.values[adjclose.values.index(i)]=0
+			adjclose.values[adjclose.values.index(i)]=1;
 	bvals=DataMatrix(index=[timestamps[0]],columns=stocks,data=[zeros(len(stocks))]) 
 	for i in range(1,len(timestamps)):
 		s=i-lookback
@@ -37,7 +37,7 @@ def calcbvals(adjclose, timestamps, stocks, lookback):
 		lookbackperiod=adjclose[s:i]
 		avg = calcavg(lookbackperiod)
 		stddevs = calcdev(lookbackperiod)
-		if avg[0]>0 and stddevs[0]>0:
+		if not(0 in stddevs):
 			b=(adjclose[i:i+1]-avg*ones(len(lookbackperiod.columns)))/stddevs
 			bvals=bvals.append(DataMatrix(index=[timestamps[i]],columns=stocks,data=b))
 	return(bvals)
