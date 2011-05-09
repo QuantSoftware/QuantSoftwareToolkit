@@ -58,21 +58,28 @@ def fundsAnalysisToPNG(funds,output_file):
 	for i in range(0,len(funds)):
 		temp=tsu.daily(funds[i].values)
 		for j in range(0,len(temp)):
+			std[dates.index(funds[i].index[j])]=0
 			std[dates.index(funds[i].index[j])]+=math.pow(temp[j]-tot_ret[dates.index(funds[i].index[j])],2)
 	
-	for i in range(0, len(std)):
-		std[i]=math.sqrt(std[i]/count[i])*3
-
+	for i in range(1, len(std)):
+#		std[i]=math.sqrt(std[i]/count[i])+std[i-1]
+		std[i]=math.sqrt(std[i]/count[i])
+	
 	#compute total returns
 	lower=deepcopy(tot_ret)
 	upper=deepcopy(tot_ret)
 	tot_ret[0]=funds[0].values[0]
 	lower[0]=funds[0].values[0]
 	upper[0]=lower[0]
+#	for i in range(1,len(tot_ret)):
+#		tot_ret[i]=tot_ret[i-1]+(tot_ret[i])*tot_ret[i-1]
+#		lower[i]=tot_ret[i-1]-(std[i])*tot_ret[i-1]
+#		upper[i]=tot_ret[i-1]+(std[i])*tot_ret[i-1]
 	for i in range(1,len(tot_ret)):
-		tot_ret[i]=tot_ret[i-1]+(tot_ret[i])*tot_ret[i-1]
-		lower[i]=tot_ret[i]-(std[i])*tot_ret[i]
-		upper[i]=tot_ret[i]+(std[i])*tot_ret[i]
+		lower[i]=(tot_ret[i]-std[i]+1)*lower[i-1]
+		upper[i]=(tot_ret[i]+std[i]+1)*upper[i-1]
+		tot_ret[i]=(tot_ret[i]+1)*tot_ret[i-1]
+		
 	
 	plt.clf()
 	plt.plot(dates,tot_ret)
@@ -80,5 +87,6 @@ def fundsAnalysisToPNG(funds,output_file):
 	plt.plot(dates,upper)
 	plt.legend(('Tot_Ret','Lower','Upper'),loc='upper left')
 	plt.ylabel('Fund Total Return')
+	plt.ylim(ymin=0,ymax=2*tot_ret[0])
 	plt.draw()
 	savefig(output_file, format='png')

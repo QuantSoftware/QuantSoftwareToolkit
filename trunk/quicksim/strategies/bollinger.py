@@ -39,19 +39,7 @@ def createStatefulStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
 	
 #stateless
 def createStatelessStrat(adjclose, timestamps, lookback, highthresh, lowthresh):
-	alloc=DataMatrix(index=[timestamps[0]],columns=adjclose.columns, data=[zeros(len(adjclose.columns))])
-	bs=boil.calcbvals(adjclose, timestamps, adjclose.columns, lookback)
-	vals=zeros([11,len(bs.columns)])
- 	for i in bs.index[1:]:
-		for stock in range(0,len(bs.columns)):
-			if(bs.xs(i)[stock]<lowthresh):
-				vals[0:10,stock]+=1
-			elif(bs.xs(i)[stock]>highthresh):
-				vals[0:10,stock]-=1
-		alloc=alloc.append(DataMatrix(index=[i],columns=adjclose.columns,data=[vals[0,:]]))
-		for j in range(0,10):
-			vals[j,:]=vals[j+1,:]
-	return alloc
+	return create(adjclose,timestamps,lookback,len(adjclose.columns),highthresh,lowthresh,.1,len(adjclose.index))
 
 #creates an allocation DataMatrix based on bollinger strategy and paramaters
 def create(adjclose, timestamps, lookback, spread, high, low, bet, duration):
@@ -86,7 +74,7 @@ if __name__ == "__main__":
 	
 	#Run S&P500 for thresholds 1 and -1 in simple version for lookback of 10 days
 	symbols = list(np.loadtxt(os.environ['QS']+'/quicksim/strategies/S&P500.csv',dtype='str',delimiter=',',comments='#',skiprows=0))
-
+	
 	t=map(int,sys.argv[1].split('-'))
 	startday = dt.datetime(t[2],t[0],t[1])
 	t=map(int,sys.argv[2].split('-'))
