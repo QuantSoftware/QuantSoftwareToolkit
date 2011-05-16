@@ -17,7 +17,7 @@
 
 # Where is your installation of QSTK? If you followed instructions on
 # on the wiki, this line should be correct:
-export QS=$HOME/QSTK
+export QS=$HOME/QSTK/trunk
 
 # Where is your data. To use the default data that comes with the
 # distribution, use the first line (default).  If you are using the 
