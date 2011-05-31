@@ -1,1 +1,0 @@
-python C:\installations\Python26\Scripts\epydoc.py --html ..\..\ -o ..\ --name QSTK
