@@ -157,6 +157,9 @@ class DataAccess(object):
             _file.close()
             
             #now remove all the columns except the timestamps and one data column
+            if verbose:
+                print self.getPathOfFile(symbol)
+
             temp_np = np.delete(temp_np, list_index, 1)
             #now we have only timestamps and one data column
 
@@ -179,6 +182,11 @@ class DataAccess(object):
             ts_ctr = 0
             
             #Skip data from file which is before the first timestamp in ts_list
+            # print ts_ctr
+            # print temp_np.shape[0]
+            # print len(symbol_ts_list)
+            # print len(ts_list)
+
             while (ts_ctr < temp_np.shape[0]) and (symbol_ts_list[ts_ctr] < ts_list[0]):
                 ts_ctr=  ts_ctr+1
                 
@@ -242,6 +250,9 @@ class DataAccess(object):
 
         # Create the hash for the timestamps
         hashts = 0
+
+	# print "test point 1: " + str(len(ts_list))
+
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str (self.source)+'-' +str(abs(hashsyms)) + '-' + str(abs(hashts)) \
@@ -284,6 +295,9 @@ class DataAccess(object):
                 print "cache miss"
                 print "beginning hardread"
             start = time.time() # start timer
+            if verbose:
+                print "data_item: " + data_item
+                print "symbols to read: " + str(symbol_list)
             retval = self.get_data_hardread(ts_list, 
                 symbol_list, data_item, verbose)
             elapsed = time.time() - start # end timer
