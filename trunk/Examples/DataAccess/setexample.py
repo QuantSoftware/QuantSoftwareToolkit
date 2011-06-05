@@ -23,15 +23,20 @@ def main():
     da = DA.DataAccess(DA.DataSource.NORGATE);
     
     symbol_list = list()
-    symbol_list.append("$SPXFDGR")
+    #symbol_list.append("$SPXFDGR")
     symbol_list.append ("AAPL")
-    symbol_list.append("AMZN")
-#    symbol_list.append ("BOB")
-#    symbol_list.append("GLD")
-#    symbol_list.append("SPY")
-#    symbol_list.append("D")
-    symbol_list.append("$DWCPF")
-    symbol_list.append("#NASHI")
+    symbol_list.append("DLMAF")
+    
+    all_sym= da.get_all_symbols()
+    print str("All symbols: " + str (all_sym))
+    
+    sublists= da.get_sublists()
+    
+    print str ("All sublists: " + str (sublists))
+    
+    sublist_sym= da.get_symbols_in_sublist(sublists[0])
+    
+    print str ("Symbols in sublist " + str (sublists[0]) + ": " + str(sublist_sym))
     
     #symbol_list=  list (set(symbol_list) & set (da.get_all_symbols())) #Intersecting with all symbols to get rid of symbols that do not exist
     #ts_list = range (1267419600,1267419600 + (86400*10) ,86400)
