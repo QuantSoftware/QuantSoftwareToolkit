@@ -159,33 +159,40 @@ class DataAccess(object):
             #now remove all the columns except the timestamps and one data column
             if verbose:
                 print self.getPathOfFile(symbol)
+            
+            if (temp_np.ndim > 1):
+                #We need to change the axis because numpy refuses to delete axis=1 in an array with one row only
+                temp_np = np.delete(temp_np, list_index, 1)
+                num_rows= temp_np.shape[0]
+                
+                symbol_ts_list = range(num_rows) # preallocate
+                for i in range (0, num_rows):
 
-            temp_np = np.delete(temp_np, list_index, 1)
-            #now we have only timestamps and one data column
+                    timebase = temp_np[i][0]
+                    timeyear = int(timebase/10000)
+                    timemonth = int((timebase-timeyear*10000)/100)
+                    timeday = int((timebase-timeyear*10000-timemonth*100))
+                    timehour = 16
 
-            symbol_ts_list = range(temp_np.shape[0]) # preallocate
-
-            #convert the dates to time since epoch
-            for i in range (0, temp_np.shape[0]):
-                timebase = temp_np[i][0]
+                    #The earliest time it can generate a time for is platform dependent
+                    symbol_ts_list[i]=dt.datetime(timeyear,timemonth,timeday,timehour) # To make the time 1600 hrs on the day previous to this midnight
+                #for ends
+            else:
+                #dimensionality= 1
+                temp_np = np.delete(temp_np, list_index, 0)
+                timebase = temp_np[0]
                 timeyear = int(timebase/10000)
                 timemonth = int((timebase-timeyear*10000)/100)
                 timeday = int((timebase-timeyear*10000-timemonth*100))
                 timehour = 16
-
-                #The earliest time it can generate a time for is platform dependent
-                symbol_ts_list[i]=dt.datetime(timeyear,timemonth,timeday,timehour) # To make the time 1600 hrs on the day previous to this midnight
                 
-                #print "date is: " + str(dt.datetime.fromtimestamp(temp_np[i][0]))
-                #for ends
+                symbol_ts_list = range(1) # preallocate. We have only 1 row
+                symbol_ts_list[0]=dt.datetime(timeyear,timemonth,timeday,timehour) # To make the time 1600 hrs on the day previous to this midnight
+            #now we have only timestamps and one data column
             
             ts_ctr = 0
             
             #Skip data from file which is before the first timestamp in ts_list
-            # print ts_ctr
-            # print temp_np.shape[0]
-            # print len(symbol_ts_list)
-            # print len(ts_list)
 
             while (ts_ctr < temp_np.shape[0]) and (symbol_ts_list[ts_ctr] < ts_list[0]):
                 ts_ctr=  ts_ctr+1
@@ -210,7 +217,12 @@ class DataAccess(object):
                 if (time_stamp == symbol_ts_list[ts_ctr]):
                     #Data is present for this timestamp. So add to numpy array.
                     #print "    adding to numpy array"
-                    self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = temp_np [ts_ctr][1]
+                    if (temp_np.ndim > 1): #This if is needed because if a stock has data for 1 day only then the numpy array is 1-D rather than 2-D
+                        self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = temp_np [ts_ctr][1]
+                    else:
+                        self.all_stocks_data[ts_list.index(time_stamp)][symbol_ctr] = temp_np [1]
+                    #if ends
+                    
                     ts_ctr = ts_ctr +1
                     
                     
@@ -251,7 +263,7 @@ class DataAccess(object):
         # Create the hash for the timestamps
         hashts = 0
 
-	# print "test point 1: " + str(len(ts_list))
+    # print "test point 1: " + str(len(ts_list))
 
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
