@@ -34,6 +34,7 @@ class DataSource(object):
     NORGATE="Norgate"
     NORGATElc="norgate" #For backward compatibility
     YAHOO="Yahoo"
+    COMPUSTAT="Compustat"
     
     #class DataSource ends
 
