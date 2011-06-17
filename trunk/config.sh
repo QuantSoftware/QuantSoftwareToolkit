@@ -32,7 +32,7 @@ export QSDATA=/hzr71/research/QSData
 # Which machine are we on?
 export HOSTNAME=`hostname`
 
-export QSDATAPROCESSED=/hzr71/research/QSData/Processed
+export QSDATAPROCESSED=$QSDATA/Processed
 export QSDATATMP=$QSDATA/Tmp
 export QSBIN=$QS/Bin
 
