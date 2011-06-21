@@ -32,7 +32,7 @@ offset = 1
 startval=1000
 
 #perform tests
-fundsmatrix = qs.strat_backtest(strat,start,end,1,offset,startval)
+fundsmatrix = qs.strat_backtest1(strat,start,end,1,offset,startval)
 
 #output fundsmatrix to pickle file
 output=open(os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl',"w")
