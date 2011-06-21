@@ -46,7 +46,7 @@ def quickSim(alloc,historic,start_cash):
 				alloc.values[row,:]=alloc.values[row,:]/alloc.values[row,:].sum()
 	
 	#fix invalid days
-	historic=historic.fill(method='backfill')
+	historic=historic.reindex(historic.index,method='pad')
 	
 	#add cash column
 	historic['_CASH'] = ones((len(historic.values[:,0]),1), dtype=int)
@@ -103,7 +103,7 @@ def shortingQuickSim(alloc,historic,start_cash,leverage):
 	#ignore alloc cash column
 	del alloc['_CASH']
 	#fix invalid days
-	historic=historic.fill(method='backfill') 
+	historic=historic.reindex(historic.index,method='pad') 
     
     #compute first trade
 	closest=historic[historic.index<=alloc.index[0]]
