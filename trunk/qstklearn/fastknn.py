@@ -2,8 +2,15 @@
 This package is an implementation of a novel improvement to KNN which
 speeds up query times
 """
-import math,random,sys,bisect
-import numpy
+import math,random,sys,bisect,time
+import numpy,scipy.spatial.distance
+
+def adistfun(u,v):
+	#assuming 1xN ndarrays
+	#return math.sqrt(((u-v)**2).sum())
+	#return ((u-v)**2).sum()
+	tmp = (u-v)
+	return math.sqrt(numpy.dot(tmp,tmp))
 
 class FastKNN:
 	"""
@@ -35,6 +42,9 @@ class FastKNN:
 		self.data_by_anchors = dict()
 		self.data_classes = dict()
 		self.is_sorted = False
+		#self.distfun = scipy.spatial.distance.euclidean
+		self.distfun = adistfun
+		self.num_checks = 0
 	
 	def resetAnchors(self,selection_type='random'):
 		"""
@@ -70,7 +80,7 @@ class FastKNN:
 			self.data_classes[new_idx] = label
 			if self.is_sorted:
 				for a in self.anchors:
-					dist = math.sqrt(((data-self.training_data[a])**2).sum())
+					dist = self.distfun(data,self.training_data[a])
 					bisect.insort(self.data_by_anchors[a],(dist,new_idx))
 		elif len(data.shape)>1:
 			for i in xrange(len(data)):
@@ -80,7 +90,7 @@ class FastKNN:
 				self.data_classes[new_idx] = label[i]
 				if self.is_sorted:
 					for a in self.anchors:
-						dist = math.sqrt(((thing-self.training_data[a])**2).sum())
+						dist = self.distfun(thing,self.training_data[a])
 						bisect.insort(self.data_by_anchors[a],(dist,new_idx))
 	
 	def query(self,point,k,method='mode'):
@@ -89,19 +99,20 @@ class FastKNN:
 		neighbors. 'method' determines how the class of the unlabled point is
 		determined.
 		"""
+		#stime = time.time()
 		if len(self.anchors) < self.num_anchors:
 			self.resetAnchors()
 		if not self.is_sorted:
 			for a in self.anchors:
-				self.data_by_anchors[a] = [ ( math.sqrt(((self.training_data[datai]-self.training_data[a])**2).sum()), datai) for datai in range(len(self.training_data))]
+				self.data_by_anchors[a] = [ ( self.distfun(self.training_data[datai],self.training_data[a]), datai) for datai in range(len(self.training_data))]
 				self.data_by_anchors[a].sort(key=lambda pnt: pnt[0])
 		#select the anchor to search from
 		#right now pick the anchor closest to the query point
 		anchor = self.anchors[0]
-		anchor_dist = math.sqrt(((point-self.training_data[anchor])**2).sum())
+		anchor_dist = self.distfun(point,self.training_data[anchor]) 
 		for i in xrange(1,len(self.anchors)):
 			new_anchor = self.anchors[i]
-			new_anchor_dist = math.sqrt(((point-self.training_data[new_anchor])**2).sum())
+			new_anchor_dist = self.distfun(point,self.training_data[new_anchor])
 			if new_anchor_dist < anchor_dist:
 				anchor = new_anchor
 				anchor_dist = new_anchor_dist
@@ -109,13 +120,14 @@ class FastKNN:
 		anchor_list = self.data_by_anchors[anchor]
 		neighbors = list()
 		for i in xrange(0,len(anchor_list)):
-			nextpnt_dist = math.sqrt(((point-(self.training_data[anchor_list[i][1]]))**2).sum())
+			nextpnt_dist = self.distfun(point,self.training_data[anchor_list[i][1]])
+			#self.num_checks += 1
 			nextthing = (nextpnt_dist,anchor_list[i][1])
 			bisect.insort(neighbors,nextthing)
 			if len(neighbors) > k:
+				neighbors = neighbors[0:k]
 				if anchor_dist + neighbors[k-1][0] < anchor_list[i][0]:
 					break
-		neighbors = neighbors[0:k]
 		#we have the k neighbors, report the class
 		#of the query point via method
 		if method == 'mode':
@@ -128,4 +140,38 @@ class FastKNN:
 				else:
 					tmp = 0
 				class_count[clss] = tmp+1
-			return max(class_count.iteritems(),key=lambda item:item[1])[0]
+			rv = max(class_count.iteritems(),key=lambda item:item[1])[0]
+		#etime = time.time()
+		#print "Query time:", etime-stime
+		return rv
+
+#def test():
+#	for leftout in xrange(1,11):
+#		print "Fold",leftout
+#		foo = FastKNN(10)
+#		for x in xrange(1,11):
+#			if x != leftout:
+#				somedata = open("spiral/spiralfold%d.txt" % x)
+#				pnts = list()
+#				clss = list()
+#				for line in somedata:
+#					pbbbt,x,y = line.split()
+#					x,y = float(x),float(y)
+#					pnts.append((x,y))
+#					clss.append(line.split()[0])
+#				somedata.close()
+#				pnts = numpy.array(pnts)
+#				foo.addEvidence(pnts,clss)
+#		somedata = open("spiral/spiralfold%d.txt" % leftout)
+#		correct = total = 0
+#		for line in somedata:
+#			pbbbt,x,y = line.split()
+#			x,y = float(x),float(y)
+#			guess=foo.query((x,y),10)
+#			#print guess, pbbbt
+#			if guess == pbbbt:
+#				correct += 1
+#			total += 1
+#		print correct,"/",total,":",float(correct)/float(total)
+#		#print "Average number of checks per query:", 
+#		print float(foo.num_checks)/float(total)
