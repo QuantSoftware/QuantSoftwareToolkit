@@ -108,6 +108,41 @@ def getNextNNYSEdays(startday, days, timeofday):
 				dates.append(dt.datetime.strptime(i,"%m/%d/%Y")+timeofday)
 	return(dates)
 
+def getPrevNNYSEday(startday, timeofday):
+	"""
+	@summary: This function returns the last valid trading day before the start
+	day, or returns the start day if it is a valid trading day. This function 
+	depends on the file used in getNYSEdays and assumes the dates within are
+	in order.
+	@param startday: First timestamp to consider (inclusive)
+	@param days: Number of timestamps to return
+	@return list: List of timestamps starting at startday on which NYSE traded
+	@rtype datetime
+	"""
+	try:
+		filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt" 
+	except KeyError:
+		print "Please be sure to set the value for QS in config.sh or\n"
+		print "in local.sh and then \'source local.sh\'.\n"
+	
+	datestxt = np.loadtxt(filename,dtype=str)
+	dates=[]
+	
+	''' Set return to first day '''
+	dtReturn = dt.datetime.strptime( datestxt[0],"%m/%d/%Y")+timeofday
+	
+	''' Loop through all but first '''
+	for i in datestxt[1:]:
+		dtNext = dt.datetime.strptime(i,"%m/%d/%Y")
+		
+		''' If we are > startday, then use previous valid day '''
+		if( dtNext > startday ):
+			break
+		
+		dtReturn = dtNext + timeofday
+	
+	return(dtReturn)
+
 def ymd2epoch(year, month, day):
 	"""
 	@summary: Convert YMD info into a unix epoch value.
