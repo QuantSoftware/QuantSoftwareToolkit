@@ -70,7 +70,18 @@ def _analyze():
         
         if( i % 10000 == 0 ):
             print (i / 1378625.0)*100, '%'   
-    print badSet     
+    
+    print 'Bad (non float) labels:'
+    print badSet   
+    
+    for i,label in enumerate(lsLabels):
+        if label in lsBadLabels:
+            del lsLabels[i]
+    
+    print '\n\nGood (float) labels:'
+    print lsLabels
+    
+    return  
     
 
 def convert ():
@@ -237,7 +248,7 @@ def convert ():
 if __name__ == '__main__':
     
     #_analyze()
-    
+    execfile( "C:\John's Folder\Code\Eclipse64\Python\QuantSoftware\src\openquantsoftware\config.py" )
     convert()
     
     
