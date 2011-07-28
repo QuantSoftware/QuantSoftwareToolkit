@@ -1,6 +1,8 @@
 import cPickle
 import math
+import datetime as dt
 import numpy as np
+from pylab import *
 from pandas import *
 from qstkutil import dateutil
 from math import sqrt
@@ -99,3 +101,42 @@ def getYearRatio(funds,year):
 			funds2.append(funds[date])
 	return(getRatio(funds2))
 
+def getSharpeRatio( naRets, fFreeReturn=0.00 ):
+	"""
+	@summary Returns the daily Sharpe ratio of the returns.
+	@param naRets: 1d numpy array or list of daily returns
+	@param fFreeReturn: risk free returns, default is 3%
+	@return Annualized rate of return, not converted to percent
+	"""
+	
+	fDev = np.std( naRets - 1 )
+	fMean = np.mean( naRets - 1 )
+	
+	''' Convert to yearly standard deviation '''
+	fSharpe = (fMean * 365 - fFreeReturn) / ( fDev * sqrt(365) )
+	
+	#print fDev, fMean, fSharpe
+
+	return fSharpe
+
+def getRorAnnual( naRets ):
+	"""
+	@summary Returns the rate of return annualized.  Assumes len(naRets) is number of days.
+	@param naRets: 1d numpy array or list of daily returns
+	@return Annualized rate of return, not converted to percent
+	"""
+
+	''' Calculate final value of investment of 1.0 '''
+	fInv = 1.0
+	for fReturn in naRets:
+		fInv = fInv * fReturn
+	
+	fRorYtd = fInv - 1.0	
+	
+	print ' RorYTD =', fInv, 'Over days:', len(naRets)
+	
+	return ( (1.0 + fRorYtd)**( 1.0/(len(naRets)/365.0) ) ) - 1.0
+		
+	
+		
+	 
