@@ -15,6 +15,9 @@ from pylab import *
 from math import isnan
 from copy import copy
 
+
+symbols = ['GE','MSFT','XOM','PFE','C','WMT','INTC','AAPL','GOOG']
+
 ''' Create compustat object and query it for some information '''
 
 compustatObj = da.DataAccess('Compustat')
@@ -24,7 +27,7 @@ compustatObj.get_info()
 ''' Get data items and create dictionary to translate between string and index '''
 lsItems = compustatObj.get_data_labels()
 dLabel = dict( zip(lsItems,range(len(lsItems))) )
-print 'Valid data items (sorted):\n', sorted(lsItems)
+print 'Valid data items (sorted):\n', sort(lsItems[:])
 
     
 
@@ -98,7 +101,7 @@ for i, sStock in enumerate( symbols ):
     
 plt.gcf().autofmt_xdate(rotation=45)
 plt.legend( symbols, loc='upper left' )
-plt.title( 'EPS for various companies' )
+plt.title('EPS of various stocks')
 
 plt.show()
 
