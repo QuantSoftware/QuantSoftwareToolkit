@@ -1,7 +1,6 @@
 '''
 Created on June 1, 2011
 
-@note: 
 @author: John Cornwell
 @contact: JohnWCornwellV@gmail.com
 @summary: Used to extract Compustat data from a csv dump and convert into individual pickle files
@@ -18,8 +17,14 @@ import time
 import csv
 import sys
 
-''' dump files from dictionary dData, set of paths lSets '''
+
 def _dumpFiles( dData, lSets, lsOutPaths ):
+    '''
+    @summary Helper function to store files on disk: files from dictionary dData, set of paths lSets
+    @param dData: Dictionary of indexes to data label strings. 
+    @param lSets: List of symbol sets, each corresponds to a directory, e.g. NYSE, NASDAQ.
+    @param lsOutPaths: List of path strings, same indexes as lSets.
+    '''
     lKeys = dData.keys()
      
     for key in lKeys:
@@ -33,8 +38,10 @@ def _dumpFiles( dData, lSets, lsOutPaths ):
         fOut.close()
     
     
-''' Analyzes the csv data to determine which columns are float values '''
 def _analyze():
+    '''
+    @summary Helper function to analyzes the csv data to determine which columns are float values, and generate the set of valid labels.
+    '''
     try:
         rootdir = os.environ['QSDATA']
     except KeyError:
@@ -75,7 +82,7 @@ def _analyze():
     print badSet   
     
     for i,label in enumerate(lsLabels):
-        if label in lsBadLabels:
+        if label in badSet:
             del lsLabels[i]
     
     print '\n\nGood (float) labels:'
@@ -85,6 +92,9 @@ def _analyze():
     
 
 def convert ():
+    '''
+    @summary: Converts a Compustat CSV file to pickle files of numpy arrays.
+    '''
     
     print "Starting..."+ str(time.strftime("%H:%M:%S"))
     
@@ -246,9 +256,8 @@ def convert ():
     return
     
 if __name__ == '__main__':
-    
+
     #_analyze()
-    execfile( "C:\John's Folder\Code\Eclipse64\Python\QuantSoftware\src\openquantsoftware\config.py" )
     convert()
     
     
