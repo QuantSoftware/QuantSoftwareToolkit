@@ -19,6 +19,7 @@ import time
 from multiprocessing import Pool
 from multiprocessing import cpu_count
 data = np.zeros (0)#this is the global data
+import scipy.stats
 
 
 def par_query (allQueries, k, method='mean', noOfThreads=None):
