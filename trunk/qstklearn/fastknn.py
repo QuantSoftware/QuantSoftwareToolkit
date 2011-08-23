@@ -250,10 +250,10 @@ def getflatcsv(fname):
 
 def testgendata():
 	anchors = 10
-	fname = 'test.dat'
+	fname = 'test2.dat'
 	querys = 1000
-	d = 10
-	bnds = ((-10,10),)*10
+	d = 2
+	bnds = ((-10,10),)*d
 	clsses = (0,1)
 	foo = FastKNN(anchors)
 	data = getflatcsv(fname)
