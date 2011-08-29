@@ -34,13 +34,13 @@ def main ():
     
 #For Gekko
     #listOfInputPaths.append("/hzr71/research/QSData/Processed/Norgate/raw/Delisted Securities/US Recent/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/AMEX/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/Delisted Securities/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/NASDAQ/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/NYSE/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/NYSE Arca/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/OTC/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/US/Indices/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/AMEX/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/Delisted Securities/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/NASDAQ/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/NYSE/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/NYSE Arca/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/OTC/")
+    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/Indices/")
     
     
     
@@ -49,13 +49,13 @@ def main ():
 #    listOfOutputPaths.append("C:\\test\\temp\\pkl2\\")    
     
     #listOfOutputPaths.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/AMEX/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/Delisted Securities/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NASDAQ/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NYSE/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/NYSE Arca/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/US/OTC/")    
-    listOfOutputPaths.append (rootdir + "/Processed/Norgate/US/Indices/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/AMEX/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/Delisted Securities/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/NASDAQ/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/NYSE/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/NYSE Arca/")
+    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/OTC/")    
+    listOfOutputPaths.append (rootdir + "/Processed/Norgate/Stocks/US/Indices/")
     
     
     list_of_paths= dircache.listdir(str(listOfInputPaths[-1])) #Adding the paths in the indices folder
