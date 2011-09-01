@@ -137,6 +137,94 @@ def getRorAnnual( naRets ):
 	
 	return ( (1.0 + fRorYtd)**( 1.0/(len(naRets)/365.0) ) ) - 1.0
 		
+def getReindexedRets( naRets, lPeriod ):
+	"""
+	@summary Reindexes returns using the cumulative product. E.g. if returns are 1.5 and 1.5, a period of 2 will
+	         produce a 2-day return of 2.25.  Note, these must be returns centered around 1.
+	@param naRets: Daily returns of the various stocks (using returnize1)
+	@param lPeriod: New target period.
+	@note: Note that this function does not track actual weeks or months, it only approximates with trading days.
+	       You can use 5 for week, or 21 for month, etc.
+	"""	
+	naCumData = np.cumprod(naRets, axis=0)
+
+	lNewRows =(naRets.shape[0]-1) / (lPeriod)
+	''' We compress data into height / lPeriod + 1 new rows '''
+	for i in range( lNewRows ):
+		lCurInd = -1 - i*lPeriod
+		''' Just hold new data in same array, new return is cumprod on day x / cumprod on day x-lPeriod '''
+		naCumData[-1 - i,:] = naCumData[lCurInd,:] / naCumData[lCurInd - lPeriod,:] 
+		''' Select new returns from end of cumulative array '''
 	
+	return naCumData[-lNewRows:, ]
+
 		
-	 
+def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebug=0 ):
+	"""
+	@summary Returns the Markowitz optimum portfolio for a specific return.
+	@param naRets: Daily returns of the various stocks (using returnize1)
+	@param fTarget: Target return, i.e. 0.04 = 4% per period
+	@param lPeriod: Period to compress the returns to, e.g. 7 = weekly
+	@param lfLower: List of floats which corresponds to lower portfolio% for each stock
+	@param lfUpper: List of floats which corresponds to upper portfolio% for each stock 
+	@return tuple: (weights of portfolio, min possible return, max possible return)
+	"""
+	
+	''' Attempt to import library '''
+	try:
+		pass
+		import nagint as nag
+	except ImportError:
+		print 'Could not import NAG library, make sure nagint.so is in your python path'
+		return ([], 0, 0)
+	
+	''' Get number of stocks '''
+	lStocks = naRets.shape[1]
+	
+	''' If period != 1 we need to restructure the data '''
+	if( lPeriod != 1 ):
+		naRets = getReindexedRets( naRets, lPeriod)
+	
+	''' Calculate means and covariance '''
+	naAvgRets = np.average( naRets, axis=0 )
+	naCov = np.cov( naRets, rowvar=False )
+	
+	''' Special case for None == fTarget, simply return average returns and cov '''
+	if( fTarget is None ):
+		return naAvgRets, np.std(naRets, axis=0)
+	
+	''' Calculate upper and lower limits of variables as well as constraints '''
+	if( naUpper is None ): 
+		naUpper = np.ones( lStocks )  # max portfolio % is 1
+	
+	if( naLower is None ): 
+		naLower = np.zeros( lStocks ) # min is 0, set negative for shorting
+	''' Two extra constraints for linear conditions, result = desired return, and sum of weights = 1 '''
+	naUpper = np.append( naUpper, [fTarget, 1.0] )
+	naLower = np.append( naLower, [fTarget, 1.0] )
+	
+	''' Initial estimate of portfolio '''
+	naInitial = [1.0/lStocks]*lStocks
+	
+	''' Set up constraints matrix, composed of expected returns in row one, unity row in row two '''
+	naConstraints = np.vstack( (naAvgRets, np.ones(lStocks)) )
+
+	''' Get portfolio weights, last entry in array is actually variance '''
+	try:
+		naReturn = nag.optPort( naConstraints, naLower, naUpper, naCov, naInitial, lNagDebug )
+	except RuntimeError:
+		print 'NAG Runtime error with target: %.02lf'%(fTarget)
+		return ( naInitial, sqrt( naCov[0][0] ) )  #return semi-junk to not mess up the rest of the plot
+
+	''' Calculate stdev of entire portfolio to return, what NAG returns is slightly different '''
+	fPortDev = np.std( np.dot(naRets, naReturn[0,0:-1]) )
+	
+	''' Show difference between above stdev and sqrt NAG covariance, possibly not taking correlation into account '''
+	#print fPortDev / sqrt(naReturn[0,-1]) 
+
+	''' Return weights and stdDev of portfolio.  note again the last value of naReturn is NAG's reported variance '''
+	return (naReturn[0,0:-1], fPortDev)
+
+
+
+
