@@ -1,0 +1,6 @@
+To compile the nagint.so run ./makelib.sh
+
+This .so must be placed somewhere in your python path.  Additionally, an environment variable, NAG_KUSARI_FILE,
+which points to a license file must also be defined.
+
+Both of these are defined in config.sh under the NAG section.
