@@ -31,7 +31,7 @@ print 'Valid data items (sorted):\n', sort(lsItems[:])
 
     
 
-''' Create timestamps for 2 year period, must include all days, financial report may have been filed on non-NYSE day '''
+''' Create timestamps for 5 year period, must include all days, financial report may have been filed on non-NYSE day '''
 ''' get todays date, time = 16:00:00 '''
 dtEnd = dt.datetime.combine( dt.datetime.now().date(), dt.time(16) )
 dtStart = dtEnd.replace( year=dtEnd.year-5 )
