@@ -48,7 +48,7 @@ def _analyze():
         print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"    
         
     ''' Create lists of input and output paths '''
-    fFile = ( rootdir + "\Raw\Compustat\Compustat.csv")
+    fFile = ( rootdir + "/Raw/Compustat/Compustat.csv")
       
     spamReader = csv.reader(open(fFile, 'rb'), delimiter=',')
     
@@ -107,7 +107,7 @@ def convert ():
         print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"    
     
     ''' Create lists of input and output paths '''
-    fFile = ( rootdir + "\Raw\Compustat\Compustat.csv")
+    fFile = ( rootdir + "/Raw/Compustat/Compustat.csv")
 
     listOfOutputPaths= []
     listOfOutputPaths.append(rootdir + "/Processed/Compustat/US/AMEX/")
