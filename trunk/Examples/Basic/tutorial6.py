@@ -103,5 +103,5 @@ plt.gcf().autofmt_xdate(rotation=45)
 plt.legend( symbols, loc='upper left' )
 plt.title('EPS of various stocks')
 
-plt.show()
+savefig('tutorial6.pdf',format='pdf')
 
