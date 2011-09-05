@@ -51,3 +51,10 @@ export QSSCRATCH=/tmp
 export REMOTEUSER=tb34
 export REMOTEHOST=gekko.cc.gatech.edu
 export REMOTEHOME=/nethome/$REMOTEUSER
+
+# NAG Library Specific Defines.  Only needed
+# if you have a NAG library license.
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/NAG/
+export NAG_KUSARI_FILE=/usr/local/lib/NAG/nagkey.txt
+
+
