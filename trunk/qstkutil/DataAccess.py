@@ -65,7 +65,7 @@ class DataAccess(object):
         if (sourcein == DataSource.NORGATE)|(sourcein == DataSource.NORGATElc) :
 
             self.source = DataSource.NORGATE
-            self.midPath = "/Processed/Norgate"
+            self.midPath = "/Processed/Norgate/Stocks"
             
             self.folderSubList.append("/US/AMEX/")
             self.folderSubList.append("/US/NASDAQ/")
