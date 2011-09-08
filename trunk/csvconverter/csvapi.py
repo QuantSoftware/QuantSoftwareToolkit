@@ -418,7 +418,7 @@ if __name__ == "__main__":
     for path in listOfOutputPaths:
         if not (os.access(path, os.F_OK)):
             #Path does not exist, so create it
-            os.mkdir(path)
+            os.makedirs(path)
     #done making all output paths!        
     
     if (len(listOfInputPaths)!= len(listOfOutputPaths)):

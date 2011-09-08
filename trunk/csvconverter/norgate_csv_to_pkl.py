@@ -41,14 +41,8 @@ def main ():
     listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/NYSE Arca/")
     listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/OTC/")
     listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/Indices/")
-    
-    
-    
+
     listOfOutputPaths= list()
-#    listOfOutputPaths.append("C:\\test\\temp\\pkl1\\")
-#    listOfOutputPaths.append("C:\\test\\temp\\pkl2\\")    
-    
-    #listOfOutputPaths.append(rootdir + "/Norgate/Delisted Securities/US Recent/")
     listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/AMEX/")
     listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/Delisted Securities/")
     listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/NASDAQ/")
@@ -74,12 +68,11 @@ def main ():
     for path in listOfOutputPaths:
         if not (os.access(path, os.F_OK)):
             #Path does not exist, so create it
-            os.mkdir(path)
+            os.makedirs(path)
     #done making all output paths!
     
     #In case there are already some files there- remove them. This will remove all the pkl fils from the previous run
     utils.clean_paths (listOfOutputPaths)
-    
     
     if (len(listOfInputPaths)!= len(listOfOutputPaths)):
         print "No. of input paths not equal to the number of output paths.. quitting"
@@ -98,18 +91,11 @@ def main ():
         stock_ctr = -1
         for stock in filtered_names:
             stock_ctr = stock_ctr + 1
-            #print "Reading file: " + str (path + stock)
+            print "norgate_to_csv: processing: " + str (path + stock)
             #read in the stock date from the CSV file
             stock_data= np.loadtxt (path + stock+".csv", np.float, None, ",", None, 1, use_cols)
-            
             stock_data_shape = stock_data.shape
             #print "stock_data_shape is: " + str(stock_data_shape)
-        
-            
-#            for i in range (0, stock_data_shape[0]):
-#                print stock_data [i,: ]
-            
-#            print "Reading: " + str(stock)
             f = open (listOfOutputPaths[path_ctr] + filtered_names[stock_ctr] + ".pkl", "wb" )
             pkl.dump (stock_data, f, -1)
             f.close()
