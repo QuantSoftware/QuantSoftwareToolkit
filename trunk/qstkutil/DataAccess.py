@@ -73,16 +73,16 @@ class DataAccess(object):
             self.folderSubList.append("/US/NYSE Arca/")
             self.folderSubList.append("/US/OTC/")
             self.folderSubList.append("/US/Delisted Securities/")
-            self.folderSubList.append("/US/Indices/")
+            #self.folderSubList.append("/US/Indices/")
             
 
             #Adding all the paths under Indices
-            indices_paths= dircache.listdir(self.rootdir + self.midPath + "/US/Indices/") #Adding the paths in the indices folder
+            #indices_paths= dircache.listdir(self.rootdir + self.midPath + "/US/Indices/") #Adding the paths in the indices folder
             
-            for path in indices_paths:
-#                print str(self.rootdir+self.midPath +"/US/Indices/"+ path)
-                if (os.path.isdir(self.rootdir+self.midPath +"/US/Indices/"+ path) == 1):
-                    self.folderSubList.append ("/US/Indices/"+ path+"/")
+            #for path in indices_paths:
+##                print str(self.rootdir+self.midPath +"/US/Indices/"+ path)
+                #if (os.path.isdir(self.rootdir+self.midPath +"/US/Indices/"+ path) == 1):
+                    #self.folderSubList.append ("/US/Indices/"+ path+"/")
                     #endif
                 #endfor
 
