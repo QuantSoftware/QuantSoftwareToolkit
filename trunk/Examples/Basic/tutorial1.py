@@ -15,9 +15,9 @@ timeofday=dt.timedelta(hours=16)
 timestamps = du.getNYSEdays(startday,endday,timeofday)
 
 dataobj = da.DataAccess('Norgate')
-voldata = dataobj.get_data(timestamps, symbols, "volume")
-close = dataobj.get_data(timestamps, symbols, "close")
-actualclose = dataobj.get_data(timestamps, symbols, "actual_close")
+voldata = dataobj.get_data(timestamps, symbols, "volume",verbose=True)
+close = dataobj.get_data(timestamps, symbols, "close",verbose=True)
+actualclose = dataobj.get_data(timestamps, symbols, "actual_close",verbose=True)
 
 #
 # Plot the adjusted close data

@@ -75,17 +75,6 @@ class DataAccess(object):
             self.folderSubList.append("/US/Delisted Securities/")
             self.folderSubList.append("/US/Indices/")
             
-
-            #Adding all the paths under Indices
-            #indices_paths= dircache.listdir(self.rootdir + self.midPath + "/US/Indices/") #Adding the paths in the indices folder
-            
-            #for path in indices_paths:
-##                print str(self.rootdir+self.midPath +"/US/Indices/"+ path)
-                #if (os.path.isdir(self.rootdir+self.midPath +"/US/Indices/"+ path) == 1):
-                    #self.folderSubList.append ("/US/Indices/"+ path+"/")
-                    #endif
-                #endfor
-
             for i in self.folderSubList:
                 self.folderList.append(self.rootdir+self.midPath+i)            
                     
@@ -303,14 +292,13 @@ class DataAccess(object):
         # Create the hash for the timestamps
         hashts = 0
 
-    # print "test point 1: " + str(len(ts_list))
+        # print "test point 1: " + str(len(ts_list))
 
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str (self.source)+'-' +str(abs(hashsyms)) + '-' + str(abs(hashts)) \
             + '-' + str(hash(str(data_item)))
 
-        
         # get the directory for scratch files from environment
         try:
             scratchdir = os.environ['QSSCRATCH']
@@ -325,8 +313,9 @@ class DataAccess(object):
 
         # now eather read the pkl file, or do a hardread
         readfile = False # indicate that we have not yet read the file
-        if os.path.exists('FIXME'):
-            print "cache hit"
+        if os.path.exists(cachefilename):
+            if verbose:
+                print "cache hit"
             try:
                 cachefile = open(cachefilename, "rb")
                 start = time.time() # start timer
@@ -356,11 +345,14 @@ class DataAccess(object):
             if verbose:
                 print "end hardread"
                 print "saving to cache"
-            cachefile = open(cachefilename,"wb")
-            pkl.dump(retval, cachefile, -1)
+            try:
+                cachefile = open(cachefilename,"wb")
+                pkl.dump(retval, cachefile, -1)
+                os.chmod(cachefilename,0666)
+            except IOError:
+                print "error writing cache: " + cachefilename
             if verbose:
                 print "end saving to cache"
-
             if verbose:
                 print "reading took " + str(elapsed) + " seconds"
         return retval
