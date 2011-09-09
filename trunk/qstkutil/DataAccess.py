@@ -73,7 +73,7 @@ class DataAccess(object):
             self.folderSubList.append("/US/NYSE Arca/")
             self.folderSubList.append("/US/OTC/")
             self.folderSubList.append("/US/Delisted Securities/")
-            #self.folderSubList.append("/US/Indices/")
+            self.folderSubList.append("/US/Indices/")
             
 
             #Adding all the paths under Indices

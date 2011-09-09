@@ -16,7 +16,6 @@ import dircache
 import time
 import sys
 
-
 def main ():
     
     print "Starting..."+ str(time.strftime("%H:%M:%S"))
@@ -33,36 +32,80 @@ def main ():
 
     
 #For Gekko
-    #listOfInputPaths.append("/hzr71/research/QSData/Processed/Norgate/raw/Delisted Securities/US Recent/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/AMEX/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/Delisted Securities/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/NASDAQ/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/NYSE/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/NYSE Arca/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/OTC/")
-    listOfInputPaths.append (rootdir + "/Raw/Norgate/Stocks/CSV/US/Indices/")
+    rootindir = rootdir + "/Raw/Norgate/Stocks/CSV/US"
+    listOfInputPaths.append (rootindir + "/AMEX/")
+    listOfInputPaths.append (rootindir + "/Delisted Securities/")
+    listOfInputPaths.append (rootindir + "/NASDAQ/")
+    listOfInputPaths.append (rootindir + "/NYSE/")
+    listOfInputPaths.append (rootindir + "/NYSE Arca/")
+    listOfInputPaths.append (rootindir + "/OTC/")
+    listOfInputPaths.append (rootindir + "/Indices/ADRs/")
+    listOfInputPaths.append (rootindir + "/Indices/AMEX/")
+    listOfInputPaths.append (rootindir + "/Indices/CBOE/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones Americas/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones Averages/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones Broad Market/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones Misc/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones Style/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones US Industries/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones US Sectors/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones US Subsectors/")
+    listOfInputPaths.append (rootindir + "/Indices/Dow Jones US Supersectors/")
+    listOfInputPaths.append (rootindir + "/Indices/ISE/")
+    listOfInputPaths.append (rootindir + "/Indices/Merrill Lynch/")
+    listOfInputPaths.append (rootindir + "/Indices/Misc/")
+    listOfInputPaths.append (rootindir + "/Indices/Morgan Stanley/")
+    listOfInputPaths.append (rootindir + "/Indices/NASDAQ/")
+    listOfInputPaths.append (rootindir + "/Indices/NYSE/")
+    listOfInputPaths.append (rootindir + "/Indices/NYSE Arca/")
+    listOfInputPaths.append (rootindir + "/Indices/PHLX/")
+    listOfInputPaths.append (rootindir + "/Indices/Russell/")
+    listOfInputPaths.append (rootindir + "/Indices/S&P/")
+    listOfInputPaths.append (rootindir + "/Indices/S&P 500 Industries/")
+    listOfInputPaths.append (rootindir + "/Indices/S&P 500 Industry Groups/")
+    listOfInputPaths.append (rootindir + "/Indices/S&P 500 Sectors/")
+    listOfInputPaths.append (rootindir + "/Indices/S&P 500 Sub-Industries/")
+    listOfInputPaths.append (rootindir + "/Indices/S&P Technology/")
+    listOfInputPaths.append (rootindir + "/Indices/S&P TSX/")
+    listOfInputPaths.append (rootindir + "/Indices/Wilshire/")
 
+    rootoutdir = rootdir + "/Processed/Norgate/Stocks/US"
     listOfOutputPaths= list()
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/AMEX/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/Delisted Securities/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/NASDAQ/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/NYSE/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/NYSE Arca/")
-    listOfOutputPaths.append(rootdir + "/Processed/Norgate/Stocks/US/OTC/")    
-    listOfOutputPaths.append (rootdir + "/Processed/Norgate/Stocks/US/Indices/")
-    
-    
-    list_of_paths= dircache.listdir(str(listOfInputPaths[-1])) #Adding the paths in the indices folder
-    
-    for path in list_of_paths:
-        if (os.path.isdir("/hzr71/research/QSData/Raw/Norgate/US/Indices/"+ path) == 1):
-            listOfInputPaths.append("/hzr71/research/QSData/Raw/Norgate/US/Indices/"+ path+"/") #Add path to list of input paths
-            listOfOutputPaths.append (rootdir + "/Processed/Norgate/US/Indices/" + os.path.split(path)[1]+"/") #Added paths to the list of output paths
-        #for loop done    
-#    print "Printing paths done"        
-            
-            
-    
+    listOfOutputPaths.append(rootoutdir + "/AMEX/")
+    listOfOutputPaths.append(rootoutdir + "/Delisted Securities/")
+    listOfOutputPaths.append(rootoutdir + "/NASDAQ/")
+    listOfOutputPaths.append(rootoutdir + "/NYSE/")
+    listOfOutputPaths.append(rootoutdir + "/NYSE Arca/")
+    listOfOutputPaths.append(rootoutdir + "/OTC/")    
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
+    listOfOutputPaths.append(rootoutdir + "/Indices/")
     
     #If the output paths don't exist, then create them...
     for path in listOfOutputPaths:
