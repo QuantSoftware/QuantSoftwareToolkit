@@ -136,7 +136,25 @@ def getRorAnnual( naRets ):
 	print ' RorYTD =', fInv, 'Over days:', len(naRets)
 	
 	return ( (1.0 + fRorYtd)**( 1.0/(len(naRets)/365.0) ) ) - 1.0
-		
+
+def getPeriodicRets( dmPrice, sOffset ):
+	"""
+	@summary Reindexes a DataMatrix price array and returns the new periodic returns.
+	@param dmPrice: DataMatrix of stock prices
+	@param sOffset: Offset string to use, choose from _offsetMap in pandas/core/datetools.py
+	                e.g. 'EOM', 'WEEKDAY', 'W@FRI', 'A@JAN'.  Or use a pandas DateOffset.
+	"""	
+	
+	''' Use pandas DateRange to create the dates we want, use 4:00 '''
+	drNewRange = DateRange(dmPrice.index[0], dmPrice.index[-1], timeRule=sOffset) + DateOffset(hours=16)
+	
+	dmPrice = dmPrice.reindex( drNewRange )  
+
+	returnize1( dmPrice.values )
+	
+	''' Do not leave return of 1.0 for first time period: not accurate '''
+	return dmPrice[1:]
+
 def getReindexedRets( naRets, lPeriod ):
 	"""
 	@summary Reindexes returns using the cumulative product. E.g. if returns are 1.5 and 1.5, a period of 2 will
@@ -165,8 +183,8 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 	@param naRets: Daily returns of the various stocks (using returnize1)
 	@param fTarget: Target return, i.e. 0.04 = 4% per period
 	@param lPeriod: Period to compress the returns to, e.g. 7 = weekly
-	@param lfLower: List of floats which corresponds to lower portfolio% for each stock
-	@param lfUpper: List of floats which corresponds to upper portfolio% for each stock 
+	@param naLower: List of floats which corresponds to lower portfolio% for each stock
+	@param naUpper: List of floats which corresponds to upper portfolio% for each stock 
 	@return tuple: (weights of portfolio, min possible return, max possible return)
 	"""
 	
