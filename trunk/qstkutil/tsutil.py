@@ -113,7 +113,7 @@ def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 	fMean = np.mean( naRets - 1 )
 	
 	''' Convert to yearly standard deviation '''
-	fSharpe = (fMean * 365 - fFreeReturn) / ( fDev * sqrt(365) )
+	fSharpe = (fMean * 252 - fFreeReturn) / ( fDev * sqrt(252) )
 	
 	#print fDev, fMean, fSharpe
 
@@ -145,6 +145,7 @@ def getPeriodicRets( dmPrice, sOffset ):
 	                e.g. 'EOM', 'WEEKDAY', 'W@FRI', 'A@JAN'.  Or use a pandas DateOffset.
 	"""	
 	
+	''' Could possibly use DataMatrix.asfreq here '''
 	''' Use pandas DateRange to create the dates we want, use 4:00 '''
 	drNewRange = DateRange(dmPrice.index[0], dmPrice.index[-1], timeRule=sOffset) + DateOffset(hours=16)
 	
