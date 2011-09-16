@@ -344,7 +344,8 @@ def getRandPort( lNum, dtStart, dtEnd, lsStocks=None, dmPrice=None, dmVolume=Non
 
 		lsValid = stockFilter(dmPrice, dmVolume, fNonNan, fPriceVolume)
 		for sAdd in lsValid:
-			lsRetStocks.append( sAdd )
+			if sAdd in lsCheckStocks:
+				lsRetStocks.append( sAdd )
 
 	return lsRetStocks
 		
