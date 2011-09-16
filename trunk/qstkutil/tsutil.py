@@ -245,5 +245,47 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 	return (naReturn[0,0:-1], fPortDev)
 
 
+		
+def stockFilter( dmPrice, dmVolume, fNonNan=0.9, fPriceVolume=1000*1000 ):
+	"""
+	@summary Returns the list of stocks filtered based on various criteria.
+	@param dmPrice: DataMatrix of stock prices
+	@param dmVolume: DataMatrix of stock volumes
+	@param fNonNan: Optional non-nan percent, default is .9
+	@param fPriceVolume: Optional price*volume, default is 1,000,000
+	@return list of stocks which meet the criteria
+	"""
+	
+	lsRetStocks = list( dmPrice.columns )
+
+	print type(lsRetStocks)
+
+	for sStock in dmPrice.columns:
+		print sStock
+		fValid = 0.0
+		
+		''' loop through all dates '''
+		for dtDate in dmPrice.index:
+			''' Count null (nan/inf/etc) values '''
+			fPrice = dmPrice[sStock][dtDate]
+			if( not isnull(fPrice) ):
+				fValid = fValid + 1
+				''' else test price volume '''
+				fVol = dmVolume[sStock][dtDate]
+				if( not isnull(fVol) and fVol * fPrice < fPriceVolume ):
+					lsRetStocks.remove( sStock )
+					break
+
+		''' Remove if too many nan values '''
+		if( fValid / len(dmPrice.index) < fNonNan and sStock in lsRetStocks ):
+			lsRetStocks.remove( sStock )
+
+	return lsRetStocks
+
+
+
+
+
+
 
 
