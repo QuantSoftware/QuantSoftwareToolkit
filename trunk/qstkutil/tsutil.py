@@ -8,6 +8,11 @@ from qstkutil import dateutil
 from math import sqrt
 from copy import deepcopy
 
+import random as rand
+
+from qstkutil import DataAccess as da
+from qstkutil import dateutil as du
+
 def daily(funds):
 	nd=deepcopy(funds)
 	nd[0]=0
@@ -246,22 +251,19 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 
 
 		
-def stockFilter( dmPrice, dmVolume, fNonNan=0.9, fPriceVolume=1000*1000 ):
+def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=1000*1000 ):
 	"""
 	@summary Returns the list of stocks filtered based on various criteria.
 	@param dmPrice: DataMatrix of stock prices
 	@param dmVolume: DataMatrix of stock volumes
-	@param fNonNan: Optional non-nan percent, default is .9
+	@param fNonNan: Optional non-nan percent, default is .95
 	@param fPriceVolume: Optional price*volume, default is 1,000,000
 	@return list of stocks which meet the criteria
 	"""
 	
 	lsRetStocks = list( dmPrice.columns )
 
-	print type(lsRetStocks)
-
 	for sStock in dmPrice.columns:
-		print sStock
 		fValid = 0.0
 		
 		''' loop through all dates '''
@@ -283,8 +285,76 @@ def stockFilter( dmPrice, dmVolume, fNonNan=0.9, fPriceVolume=1000*1000 ):
 	return lsRetStocks
 
 
+def getRandPort( lNum, dtStart, dtEnd, lsStocks=None, dmPrice=None, dmVolume=None, fNonNan=0.95, fPriceVolume=1000*1000, lSeed=None ):
+	"""
+	@summary Returns a random portfolio based on certain criteria.
+	@param lNum: Number of stocks to be included
+	@param dtStart: Start date for portfolio
+	@param dtEnd: End date for portfolio
+	@param lsStocks: Optional list of ticker symbols, if not provided all symbols will be used
+	@param dmPrice: Optional price data, if not provided, data access will be queried
+	@param dmVolume: Optional volume data, if not provided, data access will be queried
+	@param fNonNan: Optional non-nan percent for filter, default is .95
+	@param fPriceVolume: Optional price*volume for filter, default is 1,000,000
+	@warning: Uses a naive random selection, possibly will not work with dense selections: lNum ~ len(lsStocks) 
+	@return list of stocks which meet the criteria
+	"""
+	
+	if( lsStocks is None or dmPrice is None or dmVolume is None ):
+		norObj = da.DataAccess('Norgate')  
+		ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
+		
+	if( lsStocks is None ):
+		lsStocks = norObj.get_all_symbols()
+	
+	if( dmPrice is None ):
+		bPullPrice = True
+	if( dmVolume is None ):
+		bPullVol = True
+			
+	''' Default seed (none) uses system clock '''	
+	rand.seed(lSeed) 	
+	lsRetStocks = []
+
+	''' Loop until we have enough randomly selected stocks '''
+	lCount = 0
+	while( len(lsRetStocks) != lNum ):
+		
+		''' Safety check '''
+		lCount = lCount+1
+		if( lCount > 1000 ):
+			print 'Error, couldn\'t generate names in 1000 passes'
+			break
+		
+		''' Naive method, will spend my time on other things '''
+		lsCheckStocks = []
+		while( len(lsCheckStocks) != lNum - len(lsRetStocks) ):
+			sStock = lsStocks[rand.randint(0, len(lsStocks)-1 )]
+			if( sStock in lsRetStocks or sStock in lsCheckStocks ):
+				continue
+			lsCheckStocks.append(sStock)
+
+		''' Get data if needed '''
+		if( bPullPrice ):
+			dmPrice = norObj.get_data( ldtTimestamps, lsCheckStocks, 'close' )
+
+		''' Get data if needed '''
+		if( bPullVol ):
+			dmVolume = norObj.get_data( ldtTimestamps, lsCheckStocks, 'volume' )					
+
+		lsValid = stockFilter(dmPrice, dmVolume, fNonNan, fPriceVolume)
+		for sAdd in lsValid:
+			lsRetStocks.append( sAdd )
+
+	return lsRetStocks
+		
 
 
+		
+		
+
+	
+	
 
 
 
