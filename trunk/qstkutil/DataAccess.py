@@ -37,7 +37,7 @@ class DataSource(object):
     NORGATElc="norgate" #For backward compatibility
     YAHOO="Yahoo"
     COMPUSTAT="Compustat"
-    
+    CUSTOM="Custom"    
     #class DataSource ends
 
 class DataAccess(object):
@@ -92,7 +92,9 @@ class DataAccess(object):
                                     
                 
             #if DataSource.YAHOO ends
-        
+        elif (sourcein == DataSource.CUSTOM) :
+	    self.source = DataSource.CUSTOM
+	    self.folderList.append(self.rootdir+"/Processed/Custom/")	
         elif (sourcein == DataSource.COMPUSTAT):
             self.source= DataSource.COMPUSTAT
             self.midPath= "/Processed/Compustat"
@@ -139,6 +141,9 @@ class DataAccess(object):
         
         ''' For each item in the list, add to list_index (later used to delete non-used items) '''
         for sItem in data_item:
+	    if( self.source == DataSource.CUSTOM ) :
+		''' If custom just load what you can '''
+		list_index.append(1)
             if( self.source == DataSource.COMPUSTAT ):
                 ''' If compustat, look through list of features '''
                 for i, sLabel in enumerate(DataItem.COMPUSTAT):
@@ -170,7 +175,6 @@ class DataAccess(object):
         #read in data for a stock
         symbol_ctr=-1
         for symbol in symbol_list:
-            
             symbol_ctr = symbol_ctr + 1
             #print self.getPathOfFile(symbol)
             try:
@@ -480,6 +484,11 @@ class DataAccess(object):
             retstr = retstr + "Valid subdirs include: \n"
             for i in self.folderSubList:
                 retstr = retstr + "\t" + i + "\n"
+	elif (self.source == DataSource.CUSTOM):
+	    retstr = "Custom:\n"
+	    retstr = retstr + "Attempts to load a custom data set, assuming each stock has\n"
+	    retstr = retstr + "a pkl file with the name and first column as the stock ticker, date in second column, and data in following columns.\n"
+	    retstr = retstr + "everything should be located in QSDATA/Processed/CUSTOM.\n"
         else:
             retstr = "DataAccess internal error\n"
 
