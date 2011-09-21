@@ -251,13 +251,13 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 
 
 		
-def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=1000*1000 ):
+def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=100*1000 ):
 	"""
 	@summary Returns the list of stocks filtered based on various criteria.
 	@param dmPrice: DataMatrix of stock prices
 	@param dmVolume: DataMatrix of stock volumes
 	@param fNonNan: Optional non-nan percent, default is .95
-	@param fPriceVolume: Optional price*volume, default is 1,000,000
+	@param fPriceVolume: Optional price*volume, default is 100,000
 	@return list of stocks which meet the criteria
 	"""
 	
@@ -285,7 +285,7 @@ def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=1000*1000 ):
 	return lsRetStocks
 
 
-def getRandPort( lNum, dtStart, dtEnd, lsStocks=None, dmPrice=None, dmVolume=None, fNonNan=0.95, fPriceVolume=1000*1000, lSeed=None ):
+def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dmVolume=None, fNonNan=0.95, fPriceVolume=100*1000, lSeed=None ):
 	"""
 	@summary Returns a random portfolio based on certain criteria.
 	@param lNum: Number of stocks to be included
@@ -295,18 +295,28 @@ def getRandPort( lNum, dtStart, dtEnd, lsStocks=None, dmPrice=None, dmVolume=Non
 	@param dmPrice: Optional price data, if not provided, data access will be queried
 	@param dmVolume: Optional volume data, if not provided, data access will be queried
 	@param fNonNan: Optional non-nan percent for filter, default is .95
-	@param fPriceVolume: Optional price*volume for filter, default is 1,000,000
-	@warning: Uses a naive random selection, possibly will not work with dense selections: lNum ~ len(lsStocks) 
+	@param fPriceVolume: Optional price*volume for filter, default is 100,000
+	@warning: Does not work for all sets of optional inputs, e.g. if you don't include dtStart, dtEnd, you need 
+	          to include dmPrice/dmVolume
 	@return list of stocks which meet the criteria
 	"""
 	
-	if( lsStocks is None or dmPrice is None or dmVolume is None ):
+	if( lsStocks is None ):
+		if( dmPrice is None and dmVolume is None ):
+			norObj = da.DataAccess('Norgate') 
+			lsStocks = norObj.get_all_symbols()
+		elif( not dmPrice is None ):
+			lsStocks = list(dmPrice.columns)
+		else:
+			lsStocks = list(dmVolume.columns)
+	
+	if( dmPrice is None and dmVolume is None ):
 		norObj = da.DataAccess('Norgate')  
 		ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
-		
-	if( lsStocks is None ):
-		lsStocks = norObj.get_all_symbols()
-	
+
+	''' if dmPrice and dmVol are provided then we don't query it every time '''
+	bPullPrice = False
+	bPullVol = False
 	if( dmPrice is None ):
 		bPullPrice = True
 	if( dmVolume is None ):
@@ -317,22 +327,20 @@ def getRandPort( lNum, dtStart, dtEnd, lsStocks=None, dmPrice=None, dmVolume=Non
 	lsRetStocks = []
 
 	''' Loop until we have enough randomly selected stocks '''
-	lCount = 0
+	llRemainingIndexes = range(0,len(lsStocks))
+	lsValid = None
 	while( len(lsRetStocks) != lNum ):
-		
-		''' Safety check '''
-		lCount = lCount+1
-		if( lCount > 1000 ):
-			print 'Error, couldn\'t generate names in 1000 passes'
-			break
-		
-		''' Naive method, will spend my time on other things '''
+
 		lsCheckStocks = []
-		while( len(lsCheckStocks) != lNum - len(lsRetStocks) ):
-			sStock = lsStocks[rand.randint(0, len(lsStocks)-1 )]
-			if( sStock in lsRetStocks or sStock in lsCheckStocks ):
-				continue
-			lsCheckStocks.append(sStock)
+		for i in range( lNum - len(lsRetStocks) ):
+			lRemaining = len(llRemainingIndexes)
+			if( lRemaining == 0 ):
+				print 'Error in getRandPort: ran out of stocks'
+				return lsRetStocks
+			
+			''' Pick a stock and remove it from the list of remaining stocks '''
+			lPicked =  rand.randint(0, lRemaining-1)
+			lsCheckStocks.append( lsStocks[ llRemainingIndexes.pop(lPicked) ] )
 
 		''' Get data if needed '''
 		if( bPullPrice ):
@@ -340,9 +348,12 @@ def getRandPort( lNum, dtStart, dtEnd, lsStocks=None, dmPrice=None, dmVolume=Non
 
 		''' Get data if needed '''
 		if( bPullVol ):
-			dmVolume = norObj.get_data( ldtTimestamps, lsCheckStocks, 'volume' )					
+			dmVolume = norObj.get_data( ldtTimestamps, lsCheckStocks, 'volume' )				
 
-		lsValid = stockFilter(dmPrice, dmVolume, fNonNan, fPriceVolume)
+		''' Only query this once if data is provided, else query every time with new data '''
+		if( lsValid is None or bPullVol or bPullPrice ):
+			lsValid = stockFilter(dmPrice, dmVolume, fNonNan, fPriceVolume)
+		
 		for sAdd in lsValid:
 			if sAdd in lsCheckStocks:
 				lsRetStocks.append( sAdd )
