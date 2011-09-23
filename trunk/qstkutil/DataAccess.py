@@ -115,10 +115,10 @@ class DataAccess(object):
 
     def get_data_hardread(self, ts_list, symbol_list, data_item, verbose=False):
         '''
-        Read data into a DataMatrix no matter what.
+        Read data into a DataFrame no matter what.
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
-        @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataMatrixes is returned.
+        @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataFrame is returned.
         @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then 
         continues as usual. No errors are raised at the moment.
         '''
@@ -262,7 +262,7 @@ class DataAccess(object):
         
         ldmReturn = [] # List of data matrixes to return
         for naDataLabel in all_stocks_data:
-            ldmReturn.append( pa.DataMatrix( naDataLabel, ts_list, symbol_list) )            
+            ldmReturn.append( pa.DataFrame( naDataLabel, ts_list, symbol_list) )            
         
         ''' Contine to support single return type as a non-list '''
         if bStr:
@@ -274,10 +274,10 @@ class DataAccess(object):
 
     def get_data (self, ts_list, symbol_list, data_item, verbose=False):
         '''
-        Read data into a DataMatrix, but check to see if it is in a cache first.
+        Read data into a DataFrame, but check to see if it is in a cache first.
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
-        @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataMatrixes is returned.
+        @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataFrame is returned.
         @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then 
         continues as usual. No errors are raised at the moment.
         '''
