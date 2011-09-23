@@ -4,6 +4,9 @@ import qstkutil.DataAccess as da
 import datetime as dt
 import matplotlib.pyplot as plt
 from pylab import *
+import pandas
+
+print pandas.__version__
 
 #
 # Prepare to read the data
