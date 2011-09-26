@@ -49,7 +49,10 @@ def quickSim(alloc,historic,start_cash):
 	historic=historic.fillna(method='backfill')
 	
 	#add cash column
-	historic['_CASH'] = ones((len(historic.values[:,0]),1), dtype=int)
+        print historic.columns
+	historic['_CASH'] = 1
+
+	print historic.columns
 	
 	closest=historic[historic.index<=alloc.index[0]]
 	fund_ts=Series([start_cash], index=[closest.index[-1]])
@@ -152,7 +155,7 @@ def alloc_backtest(alloc,start):
 	
 	# Get the data from the data store
 	dataobj=da.DataAccess('Norgate')
-	historic = dataobj.get_data(list(alloc.index), list(alloc.cols()[0:-1]), "close")
+	historic = dataobj.get_data(list(alloc.index), list(alloc.columns[0:-1]), "close")
 	
 	#backtest
 	funds=quickSim(alloc,historic,int(start))

@@ -12,7 +12,7 @@
 import os
 import cPickle
 import datetime as dt
-from pandas import *
+
 
 #qstk imports
 from quicksim import quickSim as qs
