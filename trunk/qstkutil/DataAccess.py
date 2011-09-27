@@ -65,7 +65,7 @@ class DataAccess(object):
         if (sourcein == DataSource.NORGATE)|(sourcein == DataSource.NORGATElc) :
 
             self.source = DataSource.NORGATE
-            self.midPath = "/Processed/Norgate/Stocks"
+            self.midPath = "/Processed/Norgate/Stocks/"
             
             self.folderSubList.append("/US/AMEX/")
             self.folderSubList.append("/US/NASDAQ/")
@@ -143,7 +143,10 @@ class DataAccess(object):
         for sItem in data_item:
 	    if( self.source == DataSource.CUSTOM ) :
 		''' If custom just load what you can '''
-		list_index.append(1)
+            	if (sItem == DataItem.CLOSE):
+			list_index.append(1)
+            	elif (sItem == DataItem.ACTUAL_CLOSE):
+			list_index.append(2)
             if( self.source == DataSource.COMPUSTAT ):
                 ''' If compustat, look through list of features '''
                 for i, sLabel in enumerate(DataItem.COMPUSTAT):
@@ -153,23 +156,24 @@ class DataAccess(object):
                         break
                 else:
                     raise ValueError ("Incorrect value for data_item %s"%sItem)
-                        
-            elif (sItem == DataItem.OPEN):
-                list_index.append(1)
-            elif (sItem == DataItem.HIGH):
-                list_index.append (2)
-            elif (sItem ==DataItem.LOW):
-                list_index.append(3)
-            elif (sItem == DataItem.CLOSE):
-                list_index.append(4)
-            elif(sItem == DataItem.VOL):
-                list_index.append(5)
-            elif (sItem == DataItem.ACTUAL_CLOSE):
-                list_index.append(6)
-            else:
-                #incorrect value
-                raise ValueError ("Incorrect value for data_item %s"%sItem)
-            #end elif
+            
+	    if( self.source == DataSource.NORGATE ):
+		if (sItem == DataItem.OPEN):
+			list_index.append(1)
+            	elif (sItem == DataItem.HIGH):
+            	    list_index.append (2)
+            	elif (sItem ==DataItem.LOW):
+            	    list_index.append(3)
+            	elif (sItem == DataItem.CLOSE):
+            	    list_index.append(4)
+            	elif(sItem == DataItem.VOL):
+              	  list_index.append(5)
+            	elif (sItem == DataItem.ACTUAL_CLOSE):
+            	    list_index.append(6)
+            	else:
+            	    #incorrect value
+            	    raise ValueError ("Incorrect value for data_item %s"%sItem)
+            	#end elif
         #end data_item loop
 
         #read in data for a stock
@@ -263,6 +267,7 @@ class DataAccess(object):
         ldmReturn = [] # List of data matrixes to return
         for naDataLabel in all_stocks_data:
             ldmReturn.append( pa.DataFrame( naDataLabel, ts_list, symbol_list) )            
+
         
         ''' Contine to support single return type as a non-list '''
         if bStr:
