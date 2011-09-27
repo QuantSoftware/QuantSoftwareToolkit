@@ -265,7 +265,7 @@ def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=100*1000 ):
 
 	for sStock in dmPrice.columns:
 		fValid = 0.0
-		
+		print sStock
 		''' loop through all dates '''
 		for dtDate in dmPrice.index:
 			''' Count null (nan/inf/etc) values '''
@@ -285,13 +285,14 @@ def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=100*1000 ):
 	return lsRetStocks
 
 
-def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dmVolume=None, fNonNan=0.95, fPriceVolume=100*1000, lSeed=None ):
+def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dmVolume=None, bFilter=True, fNonNan=0.95, fPriceVolume=100*1000, lSeed=None ):
 	"""
 	@summary Returns a random portfolio based on certain criteria.
 	@param lNum: Number of stocks to be included
 	@param dtStart: Start date for portfolio
 	@param dtEnd: End date for portfolio
 	@param lsStocks: Optional list of ticker symbols, if not provided all symbols will be used
+	@param bFilter: If False, stocks are not filtered by price or volume data, simply return random Portfolio.
 	@param dmPrice: Optional price data, if not provided, data access will be queried
 	@param dmVolume: Optional volume data, if not provided, data access will be queried
 	@param fNonNan: Optional non-nan percent for filter, default is .95
@@ -310,7 +311,7 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dm
 		else:
 			lsStocks = list(dmVolume.columns)
 	
-	if( dmPrice is None and dmVolume is None ):
+	if( dmPrice is None and dmVolume is None and bFilter == True ):
 		norObj = da.DataAccess('Norgate')  
 		ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
 
@@ -342,6 +343,11 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dm
 			lPicked =  rand.randint(0, lRemaining-1)
 			lsCheckStocks.append( lsStocks[ llRemainingIndexes.pop(lPicked) ] )
 
+		''' If bFilter is false, simply return our first list of stocks, don't check prive/vol '''
+		if( not bFilter ):
+			return sorted(lsCheckStocks)
+			
+
 		''' Get data if needed '''
 		if( bPullPrice ):
 			dmPrice = norObj.get_data( ldtTimestamps, lsCheckStocks, 'close' )
@@ -358,7 +364,7 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dm
 			if sAdd in lsCheckStocks:
 				lsRetStocks.append( sAdd )
 
-	return lsRetStocks
+	return sorted(lsRetStocks)
 		
 
 
