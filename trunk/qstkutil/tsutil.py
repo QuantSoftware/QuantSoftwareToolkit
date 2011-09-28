@@ -228,7 +228,7 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 	naLower = np.append( naLower, [fTarget, 1.0] )
 	
 	''' Initial estimate of portfolio '''
-	naInitial = [1.0/lStocks]*lStocks
+	naInitial = np.array([1.0/lStocks]*lStocks)
 	
 	''' Set up constraints matrix, composed of expected returns in row one, unity row in row two '''
 	naConstraints = np.vstack( (naAvgRets, np.ones(lStocks)) )

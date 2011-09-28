@@ -49,10 +49,10 @@ def quickSim(alloc,historic,start_cash):
 	historic=historic.fillna(method='backfill')
 	
 	#add cash column
-        print historic.columns
+    #print historic.columns
 	historic['_CASH'] = 1
 
-	print historic.columns
+	#print historic.columns
 	
 	closest=historic[historic.index<=alloc.index[0]]
 	fund_ts=Series([start_cash], index=[closest.index[-1]])
