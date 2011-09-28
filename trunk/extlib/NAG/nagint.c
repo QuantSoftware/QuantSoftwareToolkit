@@ -7,10 +7,13 @@
  *  Created on: Aug 22, 2011
  *      Author: John Cornwell
  */
+
+/* Should be before any other includes */
+#include <python2.7/Python.h>
+
 #include <stdio.h>
 
-#include <python2.6/Python.h>
-#include <arrayobject.h>
+#include <ndarrayobject.h>
 
 #include <nag.h>
 #include <nag_stdlib.h>
@@ -33,6 +36,18 @@ PyMODINIT_FUNC initnagint(void)
 
     /* Must be called to import numpy arrays as arguments */
     import_array();
+}
+
+/* Frees intermediate array objects used */
+_freeMem( PyObject** pObjs, PyArrayObject** pArrays, int lNum )
+{
+    int i = 0;
+    for( i = 0; i < lNum; i++ )
+    {	
+	Py_XDECREF( pObjs[i] );
+	PyArray_XDECREF( pArrays[i] );
+    }
+
 }
 
 /* Function which calculates the optimal portfolio allocation for a given ROR */
@@ -162,12 +177,19 @@ static PyObject * optPort(PyObject *self, PyObject *args)
     int lTdh = lNumVar; /* same for stride of H */
 
     /* Run algorithm */
+    tOpt.inf_bound= 1.0e300;
+
+
     e04nfc( lNumVar, 2, pConstraints, lTda, pBl, pBu, pCvec, pCov, lTdh, NULLFN, pInit, &fRetVar, &tOpt, NAGCOMM_NULL, &tFail);
+    free(pCvec);
+
     if( tFail.code != NE_NOERROR )
     {
         PyErr_SetString(PyExc_RuntimeError, "Could not run nag function");
+        printf("%s\n",tFail.message);
         e04xzc(&tOpt, "all", &tFail);
-        return NULL;
+        _freeMem( pObjs, pArrays, lNumArray );
+        return PyArray_Return(pReturn);
     }
 
     /* Free memory allocatedby e04nfc to pointers in options */
@@ -176,12 +198,16 @@ static PyObject * optPort(PyObject *self, PyObject *args)
     if( tFail.code != NE_NOERROR )
     {
         PyErr_SetString(PyExc_RuntimeError, "Could not free memory");
-        return NULL;
+        _freeMem( pObjs, pArrays, lNumArray );
+        return PyArray_Return(pReturn);
     }
 
     /* Store results, as well as expected return on end */
     memcpy( pReturn->data, pInit, sizeof(double) * lNumVar );
     ((double*)pReturn->data)[lNumVar] = 2*fRetVar;
+
+    _freeMem( pObjs, pArrays, lNumArray );
+
     return PyArray_Return(pReturn);
 
 }
