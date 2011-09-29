@@ -20,8 +20,8 @@ voldata = dataobj.get_data(timestamps, symbols, "volume")
 adjcloses = dataobj.get_data(timestamps, symbols, "close")
 actualclose = dataobj.get_data(timestamps, symbols, "actual_close")
 
-adjcloses = adjcloses.fill()
-adjcloses = adjcloses.fill(method='backfill')
+adjcloses = adjcloses.fillna()
+adjcloses = adjcloses.fillna(method='backfill')
 
 means = pandas.rolling_mean(adjcloses,20,min_periods=20)
 
