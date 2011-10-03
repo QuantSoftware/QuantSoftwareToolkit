@@ -1,0 +1,35 @@
+body {
+        color: #3E3E3E;
+        background-color: #FBFFFF;
+		margin: 30px;
+		font-family: Verdana;
+}
+
+		
+.form	{
+		display: block; 
+		position: relative; 
+		margin-left: auto; 
+		margin-right: auto; 
+		width: 700px;
+	}
+	
+.textfield {
+		width: 600px;
+	}
+	
+	
+.button {
+		position: absolute;
+		top: 10%;
+		right: 10px;
+		font-family: Verdana;
+		font-weight: bold;
+		background-color:#FBFFF; 
+		border:1px solid; 
+		border-color: #696 #363 #363 #696; 
+	}	
+
+	
+
+        
