@@ -5,7 +5,7 @@ import numpy as np
 from pylab import *
 from pandas import *
 from qstkutil import dateutil
-from math import sqrt
+from math import sqrt, log
 from copy import deepcopy
 
 import random as rand
@@ -89,6 +89,16 @@ def returnize1(nd):
 	"""
 	nd[1:,:] = (nd[1:,:]/nd[0:-1])
 	nd[0,:] = np.ones(nd.shape[1])
+	
+def logreturnize(nd):
+	"""
+	@summary Computes stepwise (usually daily) logarithmic returns.
+	@param nd: the array to fill backward
+	@return the array is revised in place
+	"""
+	returnize1(nd)
+	nd = np.log(nd)
+	return nd
 
 def getRatio(funds):
 	d=daily(funds)
@@ -114,8 +124,8 @@ def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 	@return Annualized rate of return, not converted to percent
 	"""
 	
-	fDev = np.std( naRets - 1 )
-	fMean = np.mean( naRets - 1 )
+	fDev = np.std( naRets - 1, axis=0 )
+	fMean = np.mean( naRets - 1, axis=0 )
 	
 	''' Convert to yearly standard deviation '''
 	fSharpe = (fMean * 252 - fFreeReturn) / ( fDev * sqrt(252) )
@@ -154,7 +164,7 @@ def getPeriodicRets( dmPrice, sOffset ):
 	''' Use pandas DateRange to create the dates we want, use 4:00 '''
 	drNewRange = DateRange(dmPrice.index[0], dmPrice.index[-1], timeRule=sOffset) + DateOffset(hours=16)
 	
-	dmPrice = dmPrice.reindex( drNewRange )  
+	dmPrice = dmPrice.reindex( drNewRange, method='ffill' )  
 
 	returnize1( dmPrice.values )
 	
