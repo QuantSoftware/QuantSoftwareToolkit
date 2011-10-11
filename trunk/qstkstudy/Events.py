@@ -23,8 +23,9 @@ nan = no information about any event.
 """
 # Get the data from the data store
 storename = "Norgate" # get data from our daily prices source
+# Available field names: open, close, high, low, close, actual_close, volume
 closefield = "close"
-volumefield = "volume" # adj_open, adj_close, adj_high, adj_low, close, volume
+volumefield = "volume"
 window = 10
 def findEvents(symbols, startday,endday):
 	timeofday=dt.timedelta(hours=16)
@@ -40,38 +41,3 @@ def findEvents(symbols, startday,endday):
              		close[symbol][i] = 1.0 #overwriting the price by the bit
 	    close[symbol][close[symbol]< 1.0] = np.NAN
 	return close
-
-#print findEvents(['IBM','MTD'],[2008,1,1],[2010,1,1])['MTD']
-def moneyRatioIndex(signed_moneyflow,window):
-        MRI = []
-        for i in range(0,len(signed_moneyflow)-window +1):
-                slice = signed_moneyflow[i:i + window]
-                PMF = 0 #Total Positive money flow
-                NMF = 0.00000001 #Total Negative money flow. Div by Zero possibility.
-                for money in slice:
-                        if money > 0:   PMF +=money
-                        else: NMF +=money
-                mr = PMF/(-1.0*NMF)
-                MRI.append(100 - 100/(1+mr))
-        return MRI
-def findMRIEvents(symbols, startdate,enddate):
-	tsstart = tu.ymd2epoch(startdate[0],startdate[1],startdate[2])
-	tsend = tu.ymd2epoch(enddate[0],enddate[1],enddate[2])
-	volume = ps.getDataMatrixFromData(storename,volumefield,symbols,tsstart,tsend)
-	close = ps.getDataMatrixFromData(storename,closefield,symbols,tsstart,tsend)
-	close = (close.fillna()).fillna(method='backfill')
-	volume = (volume.fillna()).fillna(method='backfill')
-	moneyflow = close.copy() # Copy to retain the structure
-	for symbol in symbols:
-		moneyflow_result = close[symbol].values * volume[symbol].values
-		close_parity_result = [math.copysign(1.0,x) for x in close[symbol].values[1:]-close[symbol].values[:-1]]
-		signed_moneyflow_result = [x*y for x,y in zip(close_parity_result,moneyflow_result[1:])]
-		MRI_result = moneyRatioIndex(signed_moneyflow_result,window)
-		signal_result =[1 if x<=20 else -1 if x>=80 else np.nan for x in MRI_result]
-		for j in range(0, len(moneyflow)):
-			if j < len(signal_result):
-				moneyflow[symbol].values[j] = signal_result[j]
-			else:
-				moneyflow[symbol].values[j] = np.nan
-	return moneyflow
-	

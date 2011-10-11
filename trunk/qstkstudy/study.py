@@ -1,10 +1,12 @@
 import pandas 
 import Events as ev
 import datetime as dt
-symbols = ['BFRE','ATCS']
+import EventProfiler as ep
+symbols = ['BFRE','ATCS','SERF']
+#,'GDNEF']
+#,'LAST','ATTUF','JBFCF','CYVA','SPF','XPO','EHECF','TEMO','AOLS','CSNT','REMI','GLRP','AIFLY','BEE','DJRT','CHSTF','AICAF']
 startday = dt.datetime(2008,1,1)
 endday = dt.datetime(2009,12,31)
 eventMatrix = ev.findEvents(symbols,startday,endday)
-import EventProfiler as ep
 eventProfiler = ep.EventProfiler(eventMatrix,startday,endday)
 eventProfiler.study(filename="MyEventStudy.pdf")
