@@ -1,8 +1,11 @@
-import pandas 
+#
+# Example use of the event profiler
+#
 import Events as ev
 import datetime as dt
 import EventProfiler as ep
-symbols = ['BFRE','ATCS','SERF']
+symbols = ['BFRE','ATCS']
+#,'RSERF']
 #,'GDNEF']
 #,'LAST','ATTUF','JBFCF','CYVA','SPF','XPO','EHECF','TEMO','AOLS','CSNT','REMI','GLRP','AIFLY','BEE','DJRT','CHSTF','AICAF']
 startday = dt.datetime(2008,1,1)
