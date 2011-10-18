@@ -1,6 +1,7 @@
 import web
 import os
-
+import re
+import base64
 from pylab import *
 from pandas import *
 import matplotlib.pyplot as plt
@@ -13,6 +14,23 @@ from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 from quicksim import quickSim as qs
 
+
+urls = ('/login','login',
+	'/logout','logout',
+	'/','tutorial',
+	'/images/(.*)','images')
+
+
+allowed = (
+    ('admin','admin'),
+    ('user','user')
+)
+
+web.config.debug = False
+app = web.application(urls,globals())
+session=web.session.Session(app,web.session.DiskStore('sessions'),initializer={'logged_in':False})
+
+
 def make_text(string):
 	symbols=string.split(",");
 	tsstart = dt.datetime(2004,1,1)
@@ -21,7 +39,7 @@ def make_text(string):
 	timestamps=du.getNYSEdays(tsstart,tsend,timeofday)
 	
 	# Get the data from the data store
-	dataobj=da.DataAccess('Norgate')
+	dataobj=da.DataAccess('Custom')
 	historic = dataobj.get_data(timestamps,symbols,"close")
 	
 	# create alloc
@@ -50,39 +68,73 @@ def make_text(string):
 	plt.xlabel('Date')
 	plt.draw()
 	savefig("./images/funds"+string+".png", format='png')
-	return "<img src=funds"+string+".png>"
+	return "<center><img src=./images/funds"+string+".png></center>"
 
-urls = ('/(.*)','tutorial')
+
 render = web.template.render('templates/')
 
-app = web.application(urls, globals())
+dataobj=da.DataAccess('Custom')
+stocksyms=dataobj.get_all_symbols()
+print stocksyms
 
 my_form = web.form.Form(
-                web.form.Textbox('', class_='textfield', id='textfield'),
+		web.form.Dropdown('drop', stocksyms),
+                web.form.Textbox('textfield', class_='textfield'),
                 )
 
 class tutorial:
-    def GET(self,name):
-	print name
-	ext = name.split(".")[-1]
-
-	cType = {
-		"png" :"images/png"
-	}
-	
-	if name in os.listdir('images'):
-		web.header("Content-Type", cType[ext])
-		return open('images/%s'%name,"rb").read()
-	else:
+    def GET(self):
+	print str(session.get('logged_in',False))
+	if session.get('logged_in',False):
+		print 'logged_in!'
 	        form = my_form()
-        	return render.tutorial(form, "Your text goes here.")
+        	return render.tutorial(form, "Your graph will show up here.")
+	else:
+		print 'not logged_in'
+		return render.login()
         
-    def POST(self,name):
+    def POST(self):
         form = my_form()
         form.validates()
         s = form.value['textfield']
         return make_text(s)
 
+
+class login:
+    def GET(self):
+	return render.login()
+
+    def POST(self):
+	name=web.input(username="no data")
+	pass_code=web.input(password="no info")
+	print str(name.username)
+	print str(pass_code.password)
+	if (str(name.username), str(pass_code.password)) in allowed :
+		print 'authed'
+		session.logged_in=True
+		raise web.seeother('/')
+	return '<html>Failed to login. Try to login <a href=./login>again?</a></html>'
+	
+
+class logout:
+	def GET(self):
+		session.logged_in = False
+		return '<html>Logged out. Log back <a href=./login>in?</a></html>'
+
+class images:
+	def GET(self,name):
+		print name
+		ext = name.split(".")[-1]
+	
+		cType = {
+			"png" :"images/png"
+		}
+		
+		web.header("Content-Type", cType[ext])
+		return open('images/%s'%name,"rb").read()
+
+
 if __name__ == '__main__':
+    app.internalerror = web.debugerror
     app.run()
 
