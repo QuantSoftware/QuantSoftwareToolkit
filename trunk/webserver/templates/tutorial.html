@@ -5,14 +5,16 @@ $def with (form, text)
 <html>
 
     <head>
-        <title>Python and AJAX tutorial for beginners with webpy and jQuery</title>
+        <title>QSTK Monthly Rebalancing Backtest with Quicksim</title>
         <link rel="stylesheet" type="text/css" href="/static/tutorial.css" />
         
-        <script type="text/javascript" src="/static/jquery.js"></script>
-        
-        <script type="text/javascript">
-                                jQuery(document).ready(function() {
-                                jQuery(".button").click(function() {
+        <script type="text/javascript" src="/static/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript">
+				function buttonclick() {
+					document.myform.textfield.value=document.myform.textfield.value+","+document.myform.drop.value;
+				}
+                              jQuery(document).ready(function() {
+	                                jQuery(".button").click(function() {
                                         var input_string = $$("input#textfield").val();
                                         jQuery.ajax({
                                                 type: "POST",
@@ -29,14 +31,16 @@ $def with (form, text)
     </head>
     
     <body>
+	<a href=./logout>Logout</a>
         <br>
-        <form class="form" method="post"> 
-        $:form.render()
+        <form class="form" method="post" name="myform"> 
+	$:form.render()
+	<input type="button" onClick="buttonclick()" value="Add Stock">
         <input class="button" type="submit" value="send"/>    
         </form>
 
-        <br><br>
-        <span id="foo">$text</span>        
+        <br><br><center>
+        <span id="foo">$text</span>    </center>    
     </body>
     
 </html>
