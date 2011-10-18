@@ -43,6 +43,7 @@ class EventProfiler():
 	    self.timestamps = du.getNYSEdays(startday,endday,self.timeofday)
 	    self.close = self.dataobj.get_data(self.timestamps,self.symbols, "close")
 	    self.close = (self.close.fillna()).fillna(method='backfill')
+	    self.study = self.study2 # method name alias for temp backward compatibility
 	
 	def grabRelativeDays(self,sequence,refloc):
 	    """
@@ -62,56 +63,121 @@ class EventProfiler():
 	            returnlist.insert(i,returnlist[len(returnlist)-1])
 	    return returnlist
 
-	def study(self,filename,method="mean"):
-	    """ This method plots the average of market neutral cumulative returns, along with error bars
-		The X-axis is the relative time frame from -self.lookback_days to self.lookforward_days
-		Size of error bar on each side of the mean value on the i relative day = abs(mean @ i - standard dev @ i)
-		
-		parameters : filename. Example filename="MyStudy.pdf"
+	def study2(self,filename,method="mean",plotMarketNeutral = True,plotErrorBars = False):
+	    """ 
+	    This method is more consise ( than study ) and uses pandas objects directly
+	    instead of moving into numpy arrays.
+	    Also both study and study2 have been fixed to produce the correct plot.
 	    """
+            self.dailyret = (self.close/self.close.shift(1)) -1
+            for symbol in self.dailyret.columns:
+		self.dailyret[symbol][0]=0.0
+	    if plotMarketNeutral:
+		self.dailyret['MARKET'] = self.dailyret.mean(1)
+        	self.mktneutDM = self.dailyret - self.dailyret['MARKET'] # assuming beta = 1 for all stocks --this is unrealistic.but easily fixable.
+	    	del(self.mktneutDM['MARKET'])
+	    else:
+		self.mktneutDM = self.dailyret
 
-	    dailyret = (self.close.values[1:]/self.close.values[:-1]) - 1
-	    dailyret = np.insert(dailyret, 0, np.array([0.0]*len(self.symbols)), axis=0)
-	    self.dailyret = dailyret
-	    marketret = np.array([[np.mean(dailyret[i])]*len(dailyret[i]) for i in range(0,len(dailyret))])
-	    self.marketret = marketret
-	    mktneutralreturns = dailyret - marketret # assuming beta = 1 for all stocks --this is unrealistic.but easily fixable.
-	    self.mktneutralreturns = mktneutralreturns
-	    # Wipe out events which are on the boundary.
-	    for symbol in self.symbols:
-	        self.eventMatrix[symbol][0:self.lookback_days] = array([nan]*self.lookback_days)
-	        self.eventMatrix[symbol][len(self.eventMatrix[symbol])-self.lookforward_days:len(self.eventMatrix[symbol])] = array([nan]*self.lookback_days)
-	    # Clear out first lookback_days and last lookforward_days
-	    # Akin to DB Table PK= Index( Date ): SYMBOL->MKT Neutral Return values
-	    mktneutDM = pandas.DataMatrix(mktneutralreturns,self.eventMatrix.index,self.eventMatrix.columns)
-	    self.mktneutDM = mktneutDM
-	    # to create the impact matrix we join on the PK and iterate over symbols.
-	    self.impact = []
+            # Wipe out events which are on the boundary.
+            for symbol in self.symbols:
+                self.eventMatrix[symbol][0:self.lookback_days] = array([nan]*self.lookback_days)
+                self.eventMatrix[symbol][len(self.eventMatrix[symbol])-self.lookforward_days:len(self.eventMatrix[symbol])] = array([nan]*self.lookforward_days)
+            # Clear out first lookback_days and last lookforward_days
+            # Akin to DB Table PK= Index( Date ): SYMBOL->MKT Neutral Return values
+            # to create the impact matrix we join on the PK and iterate over symbols.
+            self.impact = []
+            for symbol in self.symbols:
+                for i in range(0,len(self.eventMatrix[symbol])):
+                    if self.eventMatrix[symbol][i] == 1.0:
+                        relativeData = self.grabRelativeDays(self.mktneutDM[symbol].values.tolist(), i)
+                        self.impact.append(relativeData)
+            for i in range(0,len(self.impact)):
+                self.impact[i] = [(self.impact[i][j] + 1) for j in range(0,len(self.impact[i]))]
+                self.impact[i]= np.cumprod(self.impact[i])/(self.impact[i][0])# Note we don't need to add 1 to self.impact[i][0]
 
-	    for symbol in self.symbols:
-	        for i in range(0,len(self.eventMatrix[symbol])):
-	            if self.eventMatrix[symbol][i] == 1.0:
-	                self.impact.append(self.grabRelativeDays(mktneutDM[symbol].values.tolist(), i))
-	    for i in range(0,len(self.impact)):
-	        self.impact[i] = [(self.impact[i][j] + 1)/(1+ self.impact[i][0]) for j in range(0,len(self.impact[i]))]
-	        self.impact[i]= np.cumprod(self.impact[i])
-	    print 'Total Events = ',len(self.impact)
-	    
-	    plt.clf()
-	    self.studystatistic =[]
-	    self.std = []
-	    if method == "mean":
-		statmethod = np.mean
-	    	for i in range(0,len(self.impact[0])):
-	        	self.studystatistic.append(statmethod([self.impact[j][i] for j in range (0, len(self.impact))]))
-		        self.std.append(np.std([self.impact[j][i] for j in range (0, len(self.impact))]))
-			self.err = [self.studystatistic[i]-self.std[i] for i in range(0, len(self.std))]
-		self.err[0:self.lookback_days] = [0]*self.lookback_days # only plot uncertainity beyond day 0
-	    	plt.errorbar(range(-self.lookback_days,self.lookforward_days+1),self.studystatistic,yerr=self.err,ecolor='r',label="mean w/ std err")
-
-	    plt.legend()	    
-	    plt.xlabel('Days')
-	    plt.ylabel('Cumulative Returns')
-	    plt.figtext(0.4,0.83,'#Events = '+str(len(self.impact)))
-	    plt.draw()
-	    savefig(filename,format='pdf')
+            plt.clf()
+            self.studystatistic =[]
+            self.std = []
+            if method == "mean":
+                statmethod = np.mean
+                for i in range(0,len(self.impact[0])):
+                        self.studystatistic.append(statmethod([self.impact[j][i] for j in range (0, len(self.impact))]))
+                        self.std.append(np.std([self.impact[j][i] for j in range (0, len(self.impact))]))
+                        self.err = [self.studystatistic[i]-self.std[i] for i in range(0, len(self.std))]
+                self.err[0:self.lookback_days] = [0]*self.lookback_days # only plot uncertainity beyond day 0
+		if plotErrorBars:	
+               		plt.errorbar(range(-self.lookback_days,self.lookforward_days+1),self.studystatistic,yerr=self.err,ecolor='r',label="mean w/ std err")
+		else:
+                	plt.errorbar(range(-self.lookback_days,self.lookforward_days+1),self.studystatistic,label="mean")
+            plt.legend()
+            plt.xlabel('Days')
+            plt.ylabel('Cumulative Returns')
+            plt.figtext(0.4,0.83,'#Events = '+str(len(self.impact)))
+            plt.draw()
+            savefig(filename,format='pdf')
+	
+#	def study(self,filename,method="mean"):
+#	    """ This method plots the average of market neutral cumulative returns, along with error bars
+#		The X-axis is the relative time frame from -self.lookback_days to self.lookforward_days
+#		Size of error bar on each side of the mean value on the i relative day = abs(mean @ i - standard dev @ i)
+#		
+#		parameters : filename. Example filename="MyStudy.pdf"
+#	    """
+#
+#	    dailyret = (self.close.values[1:]/self.close.values[:-1]) - 1
+#	    dailyret = np.insert(dailyret, 0, np.array([0.0]*len(self.symbols)), axis=0)
+#	    self.dailyret = dailyret
+#	    marketret = np.array([[np.mean(dailyret[i])]*len(dailyret[i]) for i in range(0,len(dailyret))])
+#	    self.marketret = marketret
+#	    mktneutralreturns = dailyret - marketret # assuming beta = 1 for all stocks --this is unrealistic.but easily fixable.
+#	    self.mktneutralreturns = dailyret
+#	    # Wipe out events which are on the boundary.
+#	    for symbol in self.symbols:
+#	        self.eventMatrix[symbol][0:self.lookback_days] = array([nan]*self.lookback_days)
+#	        self.eventMatrix[symbol][len(self.eventMatrix[symbol])-self.lookforward_days:len(self.eventMatrix[symbol])] = array([nan]*self.lookforward_days)
+#	    # Clear out first lookback_days and last lookforward_days
+#	    # Akin to DB Table PK= Index( Date ): SYMBOL->MKT Neutral Return values
+#	    mktneutDM = pandas.DataMatrix(self.mktneutralreturns,self.eventMatrix.index,self.eventMatrix.columns)
+#	    self.mktneutDM = mktneutDM
+#	    # to create the impact matrix we join on the PK and iterate over symbols.
+#	    self.impact = []
+#	    badsymbols = {}
+#	    for symbol in self.symbols:
+#	        for i in range(0,len(self.eventMatrix[symbol])):
+#	            if self.eventMatrix[symbol][i] == 1.0:
+#			relativeData = self.grabRelativeDays(mktneutDM[symbol].values.tolist(), i)
+#			if (max(relativeData)+1)/(1 + min(relativeData)) > 20:
+#				badsymbols[symbol]= relativeData
+#				#continue
+#	                self.impact.append(relativeData)
+#
+#	    #f = open('badsymbols','w')
+#	    #for symbol in badsymbols.keys():
+#		#f.write(symbol+" : "+ str(badsymbols[symbol]))
+#	    #f.close()
+#
+#	    for i in range(0,len(self.impact)):
+#	        self.impact[i] = [(self.impact[i][j] + 1) for j in range(0,len(self.impact[i]))]
+#	        self.impact[i]= np.cumprod(self.impact[i])/(self.impact[i][0])# Note we don't need to add 1 to self.impact[i][0]
+#	    print 'Total Events = ',len(self.impact)
+#	    
+#	    plt.clf()
+#	    self.studystatistic =[]
+#	    self.std = []
+#	    if method == "mean":
+#		statmethod = np.mean
+#	    	for i in range(0,len(self.impact[0])):
+#	        	self.studystatistic.append(statmethod([self.impact[j][i] for j in range (0, len(self.impact))]))
+#		        self.std.append(np.std([self.impact[j][i] for j in range (0, len(self.impact))]))
+#			self.err = [self.studystatistic[i]-self.std[i] for i in range(0, len(self.std))]
+#		self.err[0:self.lookback_days] = [0]*self.lookback_days # only plot uncertainity beyond day 0
+#	    	#plt.errorbar(range(-self.lookback_days,self.lookforward_days+1),self.studystatistic,yerr=self.err,ecolor='r',label="mean w/ std err")
+#	    	plt.errorbar(range(-self.lookback_days,self.lookforward_days+1),self.studystatistic,label="mean w/ std err")
+#
+#	    plt.legend()	    
+#	    plt.xlabel('Days')
+#	    plt.ylabel('Cumulative Returns')
+#	    plt.figtext(0.4,0.83,'#Events = '+str(len(self.impact)))
+#	    plt.draw()
+#	    savefig(filename,format='pdf')
