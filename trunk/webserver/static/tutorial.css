@@ -1,6 +1,6 @@
 body {
         color: #3E3E3E;
-        background-color: #FBFFFF;
+        background-color: #55FFFF;
 		margin: 30px;
 		font-family: Verdana;
 }
@@ -15,7 +15,7 @@ body {
 	}
 	
 .textfield {
-		width: 600px;
+		width: 300px;
 	}
 	
 	
