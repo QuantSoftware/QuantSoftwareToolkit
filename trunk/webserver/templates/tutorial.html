@@ -6,13 +6,24 @@ $def with (form, text)
 
     <head>
         <title>QSTK Monthly Rebalancing Backtest with Quicksim</title>
-        <link rel="stylesheet" type="text/css" href="/static/tutorial.css" />
-        
+        <link rel="stylesheet" type="text/css" href="/static/tutorial.css" />        
         <script type="text/javascript" src="/static/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript">
-				function buttonclick() {
-					document.myform.textfield.value=document.myform.textfield.value+","+document.myform.drop.value;
+				function add() {
+					if(document.myform.textfield.value!='') {
+						document.myform.textfield.value=document.myform.textfield.value+","+document.myform.drop.value;
+						document.getElementById('stockinputs').innerHTML=document.getElementById('stockinputs').innerHTML+"<br/>"+document.myform.drop.value;
+					} else {
+						document.myform.textfield.value=document.myform.drop.value;
+						document.getElementById('stockinputs').innerHTML=document.myform.drop.value;
+					}
 				}
+
+				function clearBoxes(){
+					document.myform.textfield.value='';
+					document.getElementById('stockinputs').innerHTML='A list of stock inputs will appear here.';
+				}
+
                               jQuery(document).ready(function() {
 	                                jQuery(".button").click(function() {
                                         var input_string = $$("input#textfield").val();
@@ -30,17 +41,42 @@ $def with (form, text)
                         </script>
     </head>
     
-    <body>
-	<a href=./logout>Logout</a>
-        <br>
-        <form class="form" method="post" name="myform"> 
-	$:form.render()
-	<input type="button" onClick="buttonclick()" value="Add Stock">
-        <input class="button" type="submit" value="send"/>    
-        </form>
+    <body bgcolor="#cccccc">
+	<center>
+		<div id="title" style="border:3px solid black;">
+			<h3>Lucena Portfolio Optimizer</h3>
+			<a href='./logout'>Logout</a>
+			<br/><br/>
+		</div>
+	</center>
+	<br/><br/>
+	<div id="main">
+		<div id="leftside" style=" padding:20px; float: left; height:80%; width:40%; text-align:center;  background-color:#bbbbbb; border:1px solid black">
+        		<form class="form" method="post" name="myform"> 
+				<h4>Stock Input Panel</h4><br/>
+				$:form.render()
+				<input type="button" onClick="add()" value="Add Stock Input">
+				<br/><br/>
+        			<div id="stockinputs" style="height:60%; border:1px solid grey;">
+					A list of stock inputs will appear here.
+				</div>
+				<br/>
+				<input class="button" type="submit" value="Optimize!"/>    
+        			<input type="button" onClick="clearBoxes()" value="Clear Input"/>    
+        		</form>
+		</div>
+	
+		<div id="divider" style="position:absolute; left:50%; top:25%; bottom:10%; border-left:5px solid grey;"></div>
 
-        <br><br><center>
-        <span id="foo">$text</span>    </center>    
-    </body>
+		<div id="rightside" style="padding:20px; float: right; height:80%; width:40%; text-align:center; background:#bbbbbb; border:1px solid black;">
+			<h4>Output Panel</h4>
+			<span id="foo">$text</span>
+		</div>    
+	</div>
+
+	<div id="footer" style="position:absolute; width:90%; bottom:0px; text-align:center; height:60px;"><br/>
+		Copyright Lucena Research
+	</div>
+	</body>
     
 </html>
