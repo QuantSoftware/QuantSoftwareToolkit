@@ -3,7 +3,7 @@ This package is an implementation of a novel improvement to KNN which
 speeds up query times
 """
 import math,random,sys,bisect,time
-import numpy,scipy.spatial.distance
+import numpy,scipy.spatial.distance,scipy.spatial.kdtree
 import knn,cProfile,pstats,gendata
 
 def adistfun(u,v):
@@ -32,7 +32,7 @@ class FastKNN:
 	are kept in sorted order. Initial sort is done using pythons 'sort'
 	(samplesort), and sorted insertions with 'insort' from the bisect module.
 	"""
-	def __init__(self, num_anchors):
+	def __init__(self, num_anchors, k):
 		"""
 		Creates a new FastKNN object that will use the given number of 
 		anchors.
@@ -46,6 +46,8 @@ class FastKNN:
 		#self.distfun = scipy.spatial.distance.euclidean
 		self.distfun = adistfun
 		self.num_checks = 0
+		self.kdt = None
+		self.k = k
 	
 	def resetAnchors(self,selection_type='random'):
 		"""
@@ -60,6 +62,7 @@ class FastKNN:
 			self.anchors = range(len(self.training_data))
 			random.shuffle(self.anchors)
 			self.anchors = self.anchors[0:self.num_anchors]
+			self.kdt = scipy.spatial.kdtree.KDTree(numpy.array(self.training_data)[self.anchors,:])
 		self.is_sorted = False
 				
 	
@@ -94,12 +97,14 @@ class FastKNN:
 						dist = self.distfun(thing,self.training_data[a])
 						bisect.insort(self.data_by_anchors[a],(dist,new_idx))
 	
-	def query(self,point,k,method='mode',slow=False,dumdumcheck=False):
+	def query(self,point,k=None,method='mode',slow=False,dumdumcheck=False):
 		"""
 		Returns class value for an unlabled point by examining its k nearest
 		neighbors. 'method' determines how the class of the unlabled point is
 		determined.
 		"""
+		if k is None:
+			k = self.k
 		#stime = time.time()
 		if len(self.anchors) < self.num_anchors:
 			self.resetAnchors()
@@ -109,14 +114,20 @@ class FastKNN:
 				self.data_by_anchors[a].sort(key=lambda pnt: pnt[0])
 		#select the anchor to search from
 		#right now pick the anchor closest to the query point
-		anchor = self.anchors[0]
-		anchor_dist = self.distfun(point,self.training_data[anchor]) 
-		for i in xrange(1,len(self.anchors)):
-			new_anchor = self.anchors[i]
-			new_anchor_dist = self.distfun(point,self.training_data[new_anchor])
-			if new_anchor_dist < anchor_dist:
-				anchor = new_anchor
-				anchor_dist = new_anchor_dist
+		
+		#anchor = self.anchors[0]
+		#anchor_dist = self.distfun(point,self.training_data[anchor]) 
+		#for i in xrange(1,len(self.anchors)):
+		#	new_anchor = self.anchors[i]
+		#	new_anchor_dist = self.distfun(point,self.training_data[new_anchor])
+		#	if new_anchor_dist < anchor_dist:
+		#		anchor = new_anchor
+		#		anchor_dist = new_anchor_dist
+		res = self.kdt.query(numpy.array([point,]))
+		anchor = self.anchors[res[1][0]]
+		anchor_dist = res[0][0]
+		#print "Found the anchor",anchor,anchor_dist
+		
 		#now search through the list
 		anchor_list = self.data_by_anchors[anchor]
 		neighbors = list()
@@ -249,19 +260,20 @@ def getflatcsv(fname):
 	return numpy.array([map(float,s.strip().split(',')) for s in inf.readlines()])
 
 def testgendata():
-	anchors = 10
+	anchors = 200
 	fname = 'test2.dat'
 	querys = 1000
 	d = 2
+	k = 3
 	bnds = ((-10,10),)*d
 	clsses = (0,1)
-	foo = FastKNN(anchors)
+	foo = FastKNN(anchors,k)
 	data = getflatcsv(fname)
 	foo.addEvidence(data[:,:-1],data[:,-1])
 	foo.num_checks = 0
 	for x in xrange(querys):
 		pnt = numpy.array(gendata.gensingle(d,bnds,clsses))
-		foo.query(pnt[:-1],3)
+		foo.query(pnt[:-1])
 		if x % 50 == 0:
 			print float(foo.num_checks)/float(x+1),
 			print x,"/",querys

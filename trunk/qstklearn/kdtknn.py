@@ -14,13 +14,14 @@ class KDTKNN:
 	call to 'addEvidence'. For this reason it is more efficient to add training data
 	in batches.
 	"""
-	def __init__(self):
+	def __init__(self,k):
 		"""
 		Basic setup.
 		"""
 		self.data = None
 		self.kdt = None
 		self.rebuild_tree = True
+		self.k = k
 	def addEvidence(self,data):
 		"""
 		Add training data. 
@@ -42,7 +43,7 @@ class KDTKNN:
 		self.kdt = scipy.spatial.kdtree.KDTree(self.data[:,:-1])
 		self.rebuild_tree = False
 	
-	def query(self,points,k,method='mode'):
+	def query(self,points,k=None,method='mode'):
 		"""
 		Classify a set of test points given their k nearest neighbors.
 		
@@ -50,6 +51,8 @@ class KDTKNN:
 		Returns the estimated class according to supplied method (currently only 'mode'
 		and 'mean' are supported)
 		"""
+		if k is None:
+			k = self.k
 		if self.rebuild_tree is True:
 			if self.data is None:
 				return None
@@ -68,16 +71,17 @@ def testgendata():
 	fname = 'test2.dat'
 	querys = 1000
 	d = 2
+	k=3
 	bnds = ((-10,10),)*d
 	clsses = (0,1)
 	data = getflatcsv(fname)
-	kdt = KDTKNN()
+	kdt = KDTKNN(k)
 	kdt.addEvidence(data)
 	kdt.rebuildKDT()
 	stime = time.time()
 	for x in xrange(querys):
 		pnt = numpy.array(gendata.gensingle(d,bnds,clsses))
-		reslt = kdt.query(numpy.array([pnt[:-1]]),k=3)
+		reslt = kdt.query(numpy.array([pnt[:-1]]))
 		print pnt,"->",reslt
 	etime = time.time()
 	print etime-stime,'/',querys,'=',(etime-stime)/float(querys),'avg wallclock time per query'
