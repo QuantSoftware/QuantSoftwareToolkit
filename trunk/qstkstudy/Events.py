@@ -1,3 +1,8 @@
+#
+# Find events
+# by Vishal Shekhar
+# October 2011
+#
 import pandas 
 from qstkutil import DataAccess as da
 import numpy as np
@@ -27,13 +32,16 @@ storename = "Norgate" # get data from our daily prices source
 closefield = "close"
 volumefield = "volume"
 window = 10
-def findEvents(symbols, startday,endday):
+def findEvents(symbols, startday,endday,verbose=False):
 	timeofday=dt.timedelta(hours=16)
 	timestamps = du.getNYSEdays(startday,endday,timeofday)
 	dataobj = da.DataAccess('Norgate')
+	if verbose:
+            print __name__ + " reading data"
 	close = dataobj.get_data(timestamps, symbols, closefield)
-	print close
 	close = (close.fillna()).fillna(method='backfill')
+	if verbose:
+            print __name__ + " finding events"
 	for symbol in symbols:
 	    close[symbol][close[symbol]>= 1.0] = np.NAN
 	    for i in range(1,len(close[symbol])):
