@@ -153,10 +153,10 @@ class EventProfiler():
             plt.xlim(min(studyrange)-1,max(studyrange)+1)
             # draw titles and axes
             if plotMarketNeutral:
-                plt.title(('mean of '+ str(int(numevents))+ ' events'))
-            else:
                 plt.title(('market relative mean of '+ \
                     str(int(numevents))+ ' events'))
+            else:
+                plt.title(('mean of '+ str(int(numevents))+ ' events'))
             plt.xlabel('Days')
             plt.ylabel('Cumulative Abnormal Returns')
             plt.draw()
