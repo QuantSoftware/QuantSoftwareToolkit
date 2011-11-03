@@ -21,7 +21,6 @@ from multiprocessing import cpu_count
 data = np.zeros (0)#this is the global data
 import scipy.stats
 
-
 def par_query (allQueries, k, method='mean', noOfThreads=None):
     '''
     @summary: Finds the k- nearest nrighbors in parallel. Based on function "query"
@@ -97,7 +96,6 @@ def query(allQueries, k, method='mean'):
         print "ERROR: K is greater than the total number of data points."
         raise ValueError
         #if ends
-    
     
     for ctr in range (0, limit): #for every query point...  
         #if (ctr % 10 == 0):

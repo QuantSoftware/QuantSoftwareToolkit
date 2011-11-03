@@ -4,8 +4,9 @@ A simple wrapper for scipy.spatial.kdtree.KDTree for doing KNN
 import math,random,sys,bisect,time
 import numpy,scipy.spatial.distance, scipy.spatial.kdtree
 import knn,cProfile,pstats,gendata
+import numpy as np
 
-class KDTKNN:
+class kdtknn(object):
 	"""
 	A simple wrapper of scipy.spatial.kdtree.KDTree
 	
@@ -14,7 +15,7 @@ class KDTKNN:
 	call to 'addEvidence'. For this reason it is more efficient to add training data
 	in batches.
 	"""
-	def __init__(self,k):
+	def __init__(self,k=3,method='mean'):
 		"""
 		Basic setup.
 		"""
@@ -22,6 +23,8 @@ class KDTKNN:
 		self.kdt = None
 		self.rebuild_tree = True
 		self.k = k
+		self.method = method
+
 	def addEvidence(self,data):
 		"""
 		Add training data. 
@@ -35,6 +38,23 @@ class KDTKNN:
 			self.data = data
 		else:
 			self.data = numpy.append(self.data,data,axis=0)
+
+	def addEvidence(self,dataX,dataY):
+		"""
+		Add training data as X and Y
+		
+		'data' should be a numpy array matching the same dimensions as any data 
+		provided in previous calls to addEvidence, with dataY as the 
+		training label.
+		"""
+		data = numpy.zeros([dataX.shape[0],dataX.shape[1]+1])
+		data[:,0:dataX.shape[1]]=dataX
+		data[:,(dataX.shape[1])]=dataY
+		self.rebuild_tree = True
+		if self.data is None:
+			self.data = data
+		else:
+			self.data = numpy.append(self.data,data,axis=0)
 	
 	def rebuildKDT(self):
 		"""
@@ -43,7 +63,7 @@ class KDTKNN:
 		self.kdt = scipy.spatial.kdtree.KDTree(self.data[:,:-1])
 		self.rebuild_tree = False
 	
-	def query(self,points,k=None,method='mode'):
+	def query(self,points,k=None,method=None):
 		"""
 		Classify a set of test points given their k nearest neighbors.
 		
@@ -53,6 +73,8 @@ class KDTKNN:
 		"""
 		if k is None:
 			k = self.k
+		if method is None:
+			method = self.method
 		if self.rebuild_tree is True:
 			if self.data is None:
 				return None
@@ -62,6 +84,8 @@ class KDTKNN:
 			return numpy.array(map(lambda x: scipy.stats.stats.mode(x)[0],n_clsses))
 		elif method=='mean':
 			return numpy.array(map(lambda x: numpy.mean(x),n_clsses))
+		elif method=='median':
+			return numpy.array(map(lambda x: numpy.median(x),n_clsses))
 
 def getflatcsv(fname):
 	inf = open(fname)
@@ -95,8 +119,6 @@ def testgendata():
 	#		print x,"/",querys
 	#print "Average # queries:", float(foo.num_checks)/float(querys)
 	
-	
-
 def test():
 	testgendata()
 
