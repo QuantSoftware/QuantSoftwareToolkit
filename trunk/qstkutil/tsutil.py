@@ -260,6 +260,104 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 	return (naReturn[0,0:-1], fPortDev)
 
 
+
+def getRetRange( naRets, naLower, naUpper ):
+	"""
+    @summary Returns the range of possible returns with upper and lower bounds on the portfolio participation
+    @param naRets: Expected returns
+    @param naLower: List of lower percentages by stock
+    @param naUpper: List of upper percentages by stock
+    @return tuple containing (fMin, fMax)
+    """    
+	
+	''' Calculate theoretical minimum and maximum theoretical returns '''
+	fMin = 0
+	fMax = 0
+	
+	naAvgRets = np.average( naRets, axis=0 )
+	naSortInd = naAvgRets.argsort()
+	
+	''' First add the lower bounds on portfolio participation ''' 
+	for i, fRet in enumerate(naAvgRets):
+		fMin = fMin + fRet*naLower[i]
+		fMax = fMax + fRet*naLower[i]
+
+
+	''' Now calculate minimum returns, allocate the max possible in worst performing equities '''
+	''' Subtract min since we have already counted it '''
+	naUpperAdd = naUpper - naLower
+	fTotalPercent = np.sum(naLower[:])
+	for i, lInd in enumerate(naSortInd):
+		fRetAdd = naUpperAdd[lInd] * naAvgRets[lInd]
+		fTotalPercent = fTotalPercent + naUpperAdd[lInd]
+		fMin = fMin + fRetAdd
+		
+		''' Check if this additional percent puts us over the limit '''
+		if fTotalPercent > 1.0:
+			fMin = fMin - naAvgRets[lInd] * (fTotalPercent - 1.0)
+			break
+	
+	''' Repeat for max, just reverse the sort, i.e. high to low '''
+	naUpperAdd = naUpper - naLower
+	fTotalPercent = np.sum(naLower[:])
+	for i, lInd in enumerate(naSortInd[::-1]):
+		fRetAdd = naUpperAdd[lInd] * naAvgRets[lInd]
+		fTotalPercent = fTotalPercent + naUpperAdd[lInd]
+		fMax = fMax + fRetAdd
+		
+		''' Check if this additional percent puts us over the limit '''
+		if fTotalPercent > 1.0:
+			fMax = fMax - naAvgRets[lInd] * (fTotalPercent - 1.0)
+			break
+
+	return (fMin, fMax)
+
+	
+def getFrontier( naRets, lRes=100, fUpper=0.2, fLower=0.00):
+	"""
+	@summary Generates an efficient frontier based on average returns.
+	@param naRets: Array of returns to use
+	@param lRes: Resolution of the curve, default=100
+	@param fUpper: Upper bound on portfolio percentage
+	@param fLower: Lower bound on portfolio percentage
+	@return tuple containing (lfReturn, lfStd, lnaPortfolios)
+	        lfReturn: List of returns provided by each point
+	        lfStd: list of standard deviations provided by each point
+	        lnaPortfolios: list of numpy arrays containing weights for each portfolio
+    """    
+	
+	''' Limit/enforce percent participation '''
+	naUpper = np.ones(naRets.shape[1]) * fUpper
+	naLower = np.ones(naRets.shape[1]) * fLower
+	
+	(fMin, fMax) = getRetRange( naRets, naLower, naUpper )
+	
+	''' Try to avoid intractible endpoints due to rounding errors '''
+	fMin *= 1.0000001 
+	fMax *= 0.9999999
+
+	''' Calculate target returns from min and max '''
+	lfReturn = []
+	for i in range(lRes):
+		lfReturn.append( (fMax - fMin) * i / (lRes - 1) + fMin )
+	
+	
+	lfStd = []
+	lnaPortfolios = []
+	
+	''' Call the function lRes times for the given range, use 1 for period '''
+	for fTarget in lfReturn: 
+		(naWeights, fStd) = getOptPort( naRets, fTarget, 1, naUpper=naUpper, naLower=naLower )
+		lfStd.append(fStd)
+		lnaPortfolios.append( naWeights )
+	
+	''' plot frontier '''
+	'''plt.plot( lfStd, lfReturn )
+	plt.plot( np.std( naRets, axis=0 ), np.average( naRets, axis=0 ), 'g+', markersize=10 ) 
+	#plt.show()'''
+	
+	return (lfReturn, lfStd, lnaPortfolios)
+
 		
 def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=100*1000 ):
 	"""
