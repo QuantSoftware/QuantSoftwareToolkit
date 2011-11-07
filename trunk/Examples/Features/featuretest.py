@@ -38,6 +38,7 @@ if __name__ == '__main__':
     
     dfPrice = norObj.get_data( ldtTimestamps, lsSym, 'close' )
     
+    ''' Imported functions from qstkfeat.features '''
     lfcFeatures = [ featMA, featRSI ]
 
     ''' Default Arguments '''
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     ldArgs = [ {'lLookback':30},\
                {}]                    
     
-    ''' Generate a list of FataFrames, one for each feature, with the same index/column structure as price data '''
+    ''' Generate a list of DataFrames, one for each feature, with the same index/column structure as price data '''
     ldfFeatures = applyFeatures( dfPrice, lfcFeatures, ldArgs )
     
     ''' Plot feature for XOM '''
@@ -55,7 +56,6 @@ if __name__ == '__main__':
         if fcFunc.__name__ == 'featMA':
             plt.clf()
             plt.plot( dfPrice.index, dfPrice['XOM'].values, 'r-' )
-            print  ldfFeatures[i]['XOM'].values
             plt.plot( dfPrice.index, ldfFeatures[i]['XOM'].values, 'g-' )
             plt.show()
      
