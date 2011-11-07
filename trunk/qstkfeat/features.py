@@ -29,9 +29,6 @@ def featMA( dfPrice, lLookback=30 ):
         ''' Loop over time '''
         for i in range(len(dfPrice[sStock].index)):
             
-            if sStock == 'XOM':
-                print dfPrice[sStock][i]
-            
             if pand.notnull( dfPrice[sStock][i] ):
                 lSum += dfPrice[sStock][i]
             
