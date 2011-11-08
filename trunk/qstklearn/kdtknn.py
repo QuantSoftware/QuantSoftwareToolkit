@@ -88,7 +88,7 @@ class kdtknn(object):
 		#for all the neighbors returned by kdt.query, get their class and stick that into a list
 		n_clsses = map(lambda rslt: map(lambda p: p[-1], self.data[rslt]), self.kdt.query(points,k)[1])
 		if method=='mode':
-			return numpy.array(map(lambda x: scipy.stats.stats.mode(x)[0],n_clsses))
+			return map(lambda x: scipy.stats.stats.mode(x)[0],n_clsses)[0]
 		elif method=='mean':
 			return numpy.array(map(lambda x: numpy.mean(x),n_clsses))
 		elif method=='median':
@@ -106,7 +106,7 @@ def testgendata():
 	bnds = ((-10,10),)*d
 	clsses = (0,1)
 	data = getflatcsv(fname)
-	kdt = kdtknn(k)
+	kdt = kdtknn(k,method='mode')
 	kdt.addEvidence(data)
 	kdt.rebuildKDT()
 	stime = time.time()
