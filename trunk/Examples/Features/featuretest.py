@@ -56,7 +56,7 @@ if __name__ == '__main__':
     ''' Use Dow 30 '''
     lsSym = ['AA', 'AXP', 'BA', 'BAC', 'CAT', 'CSCO', 'CVX', 'DD', 'DIS', 'GE', 'HD', 'HPQ', 'IBM', 'INTC', 'JNJ', \
              'JPM', 'KFT', 'KO', 'MCD', 'MMM', 'MRK', 'MSFT', 'PFE', 'PG', 'T', 'TRV', 'UTX', 'WMT', 'XOM'  ]
-    lsSym = ['XOM', 'AA']
+    lsSym = ['XOM']
     
     ''' Get data for 2009-2010 '''
     dtStart = dt.datetime(2010,8,01)
@@ -68,13 +68,14 @@ if __name__ == '__main__':
     dfPrice = norObj.get_data( ldtTimestamps, lsSym, 'close' )
     
     ''' Imported functions from qstkfeat.features, NOTE: last function is classification '''
-    lfcFeatures = [ featMA, featRSI, classFutRet ]
+    lfcFeatures = [ featMA, featMA, featRSI, classFutRet ]
 
     ''' Default Arguments '''
     #ldArgs = [{}] * len(lfcFeatures) 
     
     ''' Custom Arguments '''
     ldArgs = [ {'lLookback':30},\
+               {'lLookback':30, 'bRel':True},\
                {},\
                {}]                    
     
@@ -82,12 +83,16 @@ if __name__ == '__main__':
     ldfFeatures = ftu.applyFeatures( dfPrice, lfcFeatures, ldArgs )
     
     ''' Plot feature for XOM '''
-    for i, fcFunc in enumerate(lfcFeatures):
-        if fcFunc.__name__ == 'featMA':
-            plt.clf()
-            plt.plot( dfPrice.index, dfPrice['XOM'].values, 'r-' )
-            plt.plot( dfPrice.index, ldfFeatures[i]['XOM'].values, 'g-' )
-            #plt.show()
+    for i, fcFunc in enumerate(lfcFeatures[:-1]):
+        plt.clf()
+        plt.subplot(211)
+        plt.title( fcFunc.__name__ )
+        plt.plot( dfPrice.index, dfPrice['XOM'].values, 'r-' )
+        plt.subplot(212)
+        plt.plot( dfPrice.index, ldfFeatures[i]['XOM'].values, 'g-' )
+        plt.show()
+            
+    quit()
      
     ''' Stack all information into one Numpy array ''' 
     naFeatPts = ftu.stackSyms( ldfFeatures )
