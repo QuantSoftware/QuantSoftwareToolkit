@@ -25,37 +25,32 @@ class kdtknn(object):
 		self.k = k
 		self.method = method
 
-	def addEvidence(self,data):
+	def addEvidence(self,dataX,dataY=None):
 		"""
-		Add training data. 
+		@summary: Add training data
+		@param dataX: Data to add, either entire set with classification as last column, or not if
+		              the Y data is provided explicitly.  Must be same width as previously appended data.
+		@param dataY: Optional, can be used 
 		
 		'data' should be a numpy array matching the same dimensions as any data 
-		provided in previous calls to addEvidence, with the last column as the 
+		provided in previous calls to addEvidence, with dataY as the 
 		training label.
 		"""
+		
+		''' Slap on Y column if it is provided, if not assume it is there '''
+		if not dataY == None:
+			data = numpy.zeros([dataX.shape[0],dataX.shape[1]+1])
+			data[:,0:dataX.shape[1]]=dataX
+			data[:,(dataX.shape[1])]=dataY
+		else:
+			data = dataX
+		
 		self.rebuild_tree = True
 		if self.data is None:
 			self.data = data
 		else:
 			self.data = numpy.append(self.data,data,axis=0)
 
-	def addEvidence(self,dataX,dataY):
-		"""
-		Add training data as X and Y
-		
-		'data' should be a numpy array matching the same dimensions as any data 
-		provided in previous calls to addEvidence, with dataY as the 
-		training label.
-		"""
-		data = numpy.zeros([dataX.shape[0],dataX.shape[1]+1])
-		data[:,0:dataX.shape[1]]=dataX
-		data[:,(dataX.shape[1])]=dataY
-		self.rebuild_tree = True
-		if self.data is None:
-			self.data = data
-		else:
-			self.data = numpy.append(self.data,data,axis=0)
-	
 	def rebuildKDT(self):
 		"""
 		Force the internal KDTree to be rebuilt.
