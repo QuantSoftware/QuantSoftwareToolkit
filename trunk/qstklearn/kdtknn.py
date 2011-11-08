@@ -74,6 +74,18 @@ class kdtknn(object):
 			if self.data is None:
 				return None
 			self.rebuildKDT()
+		#kdt.query returns a list of distances and a list of indexes into the
+		#data array
+		tmp = self.kdt.query(points,k)
+		if k == 1:
+			#in the case of k==1, numpy fudges an array of 1 dimension into
+			#a scalar, so we handle it seperately. tmp[1] is the list of
+			#indecies, tmp[1][0] is the first one (we only need one),
+			#self.data[tmp[1][0]] is the data point corresponding to the
+			#first neighbor, and self.data[tmp[1][0]][-1] is the last column
+			#which is the class of the neighbor.
+			return self.data[tmp[1][0]][-1]
+		#for all the neighbors returned by kdt.query, get their class and stick that into a list
 		n_clsses = map(lambda rslt: map(lambda p: p[-1], self.data[rslt]), self.kdt.query(points,k)[1])
 		if method=='mode':
 			return numpy.array(map(lambda x: scipy.stats.stats.mode(x)[0],n_clsses))
@@ -94,7 +106,7 @@ def testgendata():
 	bnds = ((-10,10),)*d
 	clsses = (0,1)
 	data = getflatcsv(fname)
-	kdt = KDTKNN(k)
+	kdt = kdtknn(k)
 	kdt.addEvidence(data)
 	kdt.rebuildKDT()
 	stime = time.time()
