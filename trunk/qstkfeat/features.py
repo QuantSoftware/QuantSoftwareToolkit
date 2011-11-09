@@ -52,8 +52,6 @@ def featMA( dfPrice, lLookback=30, bRel=False ):
     return dfRet
 
 
-
-
 def featRSI( dfPrice, lLookback=14 ):
     '''
     @summary: Calculate RSI
@@ -62,7 +60,6 @@ def featRSI( dfPrice, lLookback=14 ):
     @return: DataFrame array containing values
     '''
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = dfPrice.copy(deep=True)
     fLookback = float(lLookback)
@@ -77,8 +74,7 @@ def featRSI( dfPrice, lLookback=14 ):
         
         ''' Loop over time '''
         for i in range(len(tsPrice.index)):
-            
-            
+                 
             ''' Once we have the proper number of periods we smooth the totals '''
             if i > fLookback:
                 fGain *= (fLookback - 1) / fLookback
@@ -92,6 +88,7 @@ def featRSI( dfPrice, lLookback=14 ):
                 else:
                     fLoss += fDelta / fLookback
             
+            ''' Calculate RS and then RSI '''
             if i > fLookback - 1:
                 if fLoss == 0.0:
                     tsRet[i] = 100.0
@@ -102,6 +99,59 @@ def featRSI( dfPrice, lLookback=14 ):
                     tsRet[i] = 100 - 100 / (1-fRS)
             
             
+    return dfRet
+
+
+def featDrawDown( dfPrice ):
+    '''
+    @summary: Calculate Drawdown for the stock
+    @param dfPrice: Price data for all the stocks
+    @return: DataFrame array containing values
+    @warning: Drawdown and RunUp can depend heavily on sample period
+    '''
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = dfPrice.copy(deep=True)
+    
+    ''' Loop through stocks '''
+    for sStock in dfPrice.columns:
+        tsPrice = dfPrice[sStock]
+        tsRet = dfRet[sStock]
+           
+        ''' Loop over time '''
+        fPeak = tsPrice[0]
+        for i in range(len(tsPrice.index)):
+            if tsPrice[i] > fPeak:
+                fPeak = tsPrice[i]
+            
+            tsRet[i] = tsPrice[i] / fPeak
+
+    return dfRet
+
+def featRunUp( dfPrice ):
+    '''
+    @summary: CalculateRunup for the stock
+    @param dfPrice: Price data for all the stocks
+    @return: DataFrame array containing feature values
+    @warning: Drawdown and RunUp can depend heavily on when the sample starts
+    '''
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = dfPrice.copy(deep=True)
+    
+    ''' Loop through stocks '''
+    for sStock in dfPrice.columns:
+        tsPrice = dfPrice[sStock]
+        tsRet = dfRet[sStock]
+           
+        ''' Loop over time '''
+        fTrough = tsPrice[0]
+        for i in range(len(tsPrice.index)):
+            if tsPrice[i] < fTrough:
+                fTrough = tsPrice[i]
+            
+            tsRet[i] = tsPrice[i] / fTrough
+
     return dfRet
 
 
