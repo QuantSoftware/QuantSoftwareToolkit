@@ -82,7 +82,7 @@ dataX[:,0] = X1
 dataX[:,1] = X2
 
 trainsize = floor(dataX.shape[0] * .6)
-learner.addEvidence(dataX[0:trainsize],Y[0:trainsize])
+learner.addEvidence(dataX[0:trainsize],dataY=Y[0:trainsize])
 steps = 50.0
 stepsize = 2.0/steps
 

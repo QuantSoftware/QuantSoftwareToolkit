@@ -3,7 +3,7 @@ A simple wrapper for scipy.spatial.kdtree.KDTree for doing KNN
 """
 import math,random,sys,bisect,time
 import numpy,scipy.spatial.distance, scipy.spatial.kdtree
-import knn,cProfile,pstats,gendata
+import cProfile,pstats,gendata
 import numpy as np
 
 class kdtknn(object):
