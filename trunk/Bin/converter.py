@@ -9,7 +9,6 @@
 
 from pylab import *
 from qstkutil import DataAccess as da
-from qstkutil import timeutil as tu
 from qstkutil import tsutil as tsu
 from quicksim import quickSim
 from copy import deepcopy

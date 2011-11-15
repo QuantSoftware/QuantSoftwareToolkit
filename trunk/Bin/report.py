@@ -12,7 +12,7 @@ from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 from qstkutil import tsutil as tsu
 from quicksim import quickSim as qs
-from Bin import converter
+import converter
 
 from pandas import *
 import matplotlib.pyplot as plt
