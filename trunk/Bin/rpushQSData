@@ -1,0 +1,11 @@
+#/bin/sh
+source ../local.sh
+rsync --verbose \
+      --progress \
+      --stats \
+      --compress \
+      --update \
+      --times \
+      --recursive --times --perms --links \
+      --exclude "*bak" --exclude "*~" \
+      ~/QSData/ tb34@gekko.cc.gatech.edu:/hzr71/research/QSDataCurrent/
