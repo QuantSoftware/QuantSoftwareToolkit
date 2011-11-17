@@ -25,10 +25,10 @@ urls = ('/login','login',
 	'/images/(.*)','images')
 
 
-allowed = (
-    ('admin','admin'),
-    ('user','user')
-)
+#allowed = (
+#    ('admin','admin'),
+#    ('user','user')
+#)
 
 web.config.debug = False
 app = web.application(urls,globals())
@@ -47,14 +47,14 @@ my_form = web.form.Form(
 
 class tutorial:
     def GET(self):
-	print str(session.get('logged_in',False))
-	if session.get('logged_in',False):
+#	print str(session.get('logged_in',False))
+#	if session.get('logged_in',False):
 		print 'logged_in!'
 	        form = my_form()
         	return render.tutorial(form, "Your graph will show up here.")
-	else:
-		print 'not logged_in'
-		return render.login()
+#	else:
+#		print 'not logged_in'
+#		return render.login()
         
     def POST(self):
         form = my_form()
