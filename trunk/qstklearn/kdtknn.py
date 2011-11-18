@@ -93,6 +93,8 @@ class kdtknn(object):
 			return numpy.array(map(lambda x: numpy.mean(x),n_clsses))
 		elif method=='median':
 			return numpy.array(map(lambda x: numpy.median(x),n_clsses))
+		elif method=='raw':
+			return numpy.array(n_clsses)
 
 def getflatcsv(fname):
 	inf = open(fname)
