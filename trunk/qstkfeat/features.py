@@ -155,5 +155,45 @@ def featRunUp( dfPrice ):
     return dfRet
 
 
+def featVolumeDelta( dfVolume, lLookback=30 ):
+    '''
+    @summary: Calculate moving average
+    @param dfVolume: Colume data for all the stocks
+    @param lLookback: Number of days to use for MA
+    @return: DataFrame array containing values
+    '''
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = dfVolume.copy(deep=True)
+    
+    ''' Loop through stocks '''
+    for sStock in dfVolume.columns:
+        
+        tsVol = dfVolume[sStock]
+        tsRet = dfRet[sStock]
+        lSum = 0
+        
+        ''' Loop over time '''
+        for i in range(len(tsVol.index)):
+            
+            if pand.notnull( tsVol[i] ):
+                lSum += tsVol[i]
+            
+            if i < lLookback - 1:
+                tsRet[i] = float('nan')
+                continue
+            
+            ''' If we have the bare min, take the avg, else remove the last and take the avg '''
+            if i == lLookback - 1:
+                tsRet[i] = (lSum / lLookback) 
+            else:
+                lSum -= tsVol[i-lLookback]
+                tsRet[i] = (lSum / lLookback)
+            
+            ''' Make this relative to the MA of volume '''
+            tsRet[i] /= tsVol[i]
+            
+    return dfRet
+
 if __name__ == '__main__':
     pass
