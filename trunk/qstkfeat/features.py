@@ -195,5 +195,58 @@ def featVolumeDelta( dfVolume, lLookback=30 ):
             
     return dfRet
 
+def featAroon( dfPrice, bDown=False ):
+    '''
+    @summary: Calculate Aroon - indicator indicating days since a 25-day high/low, weighted between 0 and 100
+    @param dfPrice: Price data for all the stocks
+    @param bDown: If false, calculates aroonUp (high), else aroonDown (lows)
+    @return: DataFrame array containing feature values
+    '''
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = dfPrice.copy(deep=True)
+    
+    ''' Loop through stocks '''
+    for sStock in dfPrice.columns:
+        tsPrice = dfPrice[sStock]
+        tsRet = dfRet[sStock]
+           
+        ''' Peaks will be a sorted, descending list of highs and indexes '''
+        lfPeaks = []
+        
+        ''' Loop over time '''
+        for i in range(len(tsPrice.index)):
+            j = 0
+            while j < (len(lfPeaks)):
+                if bDown:
+                    ''' If down, use troughts '''
+                    if tsPrice[i] < lfPeaks[j][0]:
+                        break
+                else:
+                    ''' If up, use peaks '''
+                    if tsPrice[i] > lfPeaks[j][0]:
+                        break
+                j+=1
+                
+            ''' Insert into sorted list, remove all lesser, older peaks '''
+            lfPeaks.insert( j, (tsPrice[i], i) )
+            lfPeaks = lfPeaks[:j+1]
+            
+            ''' Remove all outdated peaks '''
+            j = 0
+            while j < (len(lfPeaks)):
+                if i - lfPeaks[j][1] > 25:
+                    lfPeaks.pop(j)
+                    continue
+                    
+                j += 1    
+            
+            print lfPeaks
+            
+            tsRet[i] = ((25.0 - (i - lfPeaks[0][1])) / 25.0) * 100.0
+
+    return dfRet
+
+
 if __name__ == '__main__':
     pass
