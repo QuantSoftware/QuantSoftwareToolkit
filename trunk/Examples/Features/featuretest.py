@@ -66,6 +66,7 @@ if __name__ == '__main__':
     ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
     
     dfPrice = norObj.get_data( ldtTimestamps, lsSym, 'close' )
+    dfVolume = norObj.get_data( ldtTimestamps, lsSym, 'volume' )
     
     ''' Imported functions from qstkfeat.features, NOTE: last function is classification '''
     lfcFeatures = [ featMA, featMA, featRSI, classFutRet ]
@@ -80,7 +81,7 @@ if __name__ == '__main__':
                {}]                    
     
     ''' Generate a list of DataFrames, one for each feature, with the same index/column structure as price data '''
-    ldfFeatures = ftu.applyFeatures( dfPrice, lfcFeatures, ldArgs )
+    ldfFeatures = ftu.applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs )
     
     ''' Plot feature for XOM '''
     for i, fcFunc in enumerate(lfcFeatures[:-1]):
