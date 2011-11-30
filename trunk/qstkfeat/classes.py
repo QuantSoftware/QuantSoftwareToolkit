@@ -22,7 +22,7 @@ def classFutRet( dfPrice, lLookforward=21, sRel=None ):
     '''
     
     ''' Class DataFrame will be 1:1, we can use the price as a template, need to copy values '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=dfPrice.values ) 
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.copy(dfPrice.values) ) 
     
     ''' If we want market relative, calculate those values now '''
     if not sRel == None:

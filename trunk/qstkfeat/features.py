@@ -165,7 +165,7 @@ def featVolumeDelta( dfVolume, lLookback=30 ):
     '''
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = dfVolume.copy(deep=True)
+    dfRet = pand.DataFrame( index=dfVolume.index, columns=dfVolume.columns, data=np.zeros(dfVolume.shape) )
     
     ''' Loop through stocks '''
     for sStock in dfVolume.columns:
