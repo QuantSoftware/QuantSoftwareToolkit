@@ -52,7 +52,7 @@ def learnerTest( naTrain, naTest ):
     plt.legend( ('Learner Predict', 'Average Return Predict') )
     plt.xlabel('K value')
     plt.ylabel('Error')
-    plt.show()
+    #plt.show()
     plt.savefig( 'FeatureTest.png', format='png' )
     
     
