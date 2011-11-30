@@ -9,6 +9,7 @@ Created on Nov 7, 2011
 
 ''' 3rd Party Imports '''
 import pandas as pand
+import numpy as np
 
 def featMA( dfPrice, lLookback=30, bRel=False ):
     '''
@@ -19,7 +20,7 @@ def featMA( dfPrice, lLookback=30, bRel=False ):
     '''
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = dfPrice.copy(deep=True)
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) ) 
     
     ''' Loop through stocks '''
     for sStock in dfPrice.columns:
@@ -61,7 +62,7 @@ def featRSI( dfPrice, lLookback=14 ):
     '''
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = dfPrice.copy(deep=True)
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     fLookback = float(lLookback)
     
     ''' Loop through stocks '''
@@ -111,7 +112,7 @@ def featDrawDown( dfPrice ):
     '''
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = dfPrice.copy(deep=True)
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
     ''' Loop through stocks '''
     for sStock in dfPrice.columns:
@@ -137,7 +138,7 @@ def featRunUp( dfPrice ):
     '''
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = dfPrice.copy(deep=True)
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
     ''' Loop through stocks '''
     for sStock in dfPrice.columns:
@@ -204,7 +205,7 @@ def featAroon( dfPrice, bDown=False ):
     '''
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = dfPrice.copy(deep=True)
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
     ''' Loop through stocks '''
     for sStock in dfPrice.columns:

@@ -28,6 +28,7 @@ def applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs, sLog=None ):
     '''
     @summary: Calculates the feature values using a list of feature functions and arguments.
     @param dfPrice: Data frame containing the price information for all of the stocks.
+    @param dfPrice: Data frame containing the volume information for all of the stocks.
     @param lfcFeatures: List of feature functions, most likely coming from features.py
     @param ldArgs: List of dictionaries containing arguments, passed as **kwargs
     @param sLog: If not None, will be filename to log all of the features to 
@@ -65,13 +66,20 @@ def loadFeatures( sLog ):
     return ldfRet
 
 
-def stackSyms( ldfFeatures, dtStart, dtEnd, bDelNan=True ):
+def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, bDelNan=True ):
     '''
     @summary: Remove symbols from the dataframes, effectively stacking all stocks on top of each other.
     @param ldfFeatures: List of data frames of features.
+    @param dtStart: Start time, if None, uses all
+    @param dtEnd: End time, if None uses all
     @param bDelNan: Optional, default is true: delete all rows with a NaN in it
     @return: Numpy array containing all features as columns and all 
     '''
+    
+    if dtStart == None:
+        dtStart = ldfFeatures[0].index[0]
+    if dtEnd == None:
+        dtEnd = ldfFeatures[0].index[-1]
     
     naRet = None
     ''' Stack stocks vertically '''
