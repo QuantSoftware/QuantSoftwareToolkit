@@ -10,6 +10,7 @@ Created on Nov 7, 2011
 
 ''' 3rd Party Imports '''
 import pandas as pand
+import numpy as np
 
 def classFutRet( dfPrice, lLookforward=21, sRel=None ):
     '''
@@ -20,8 +21,8 @@ def classFutRet( dfPrice, lLookforward=21, sRel=None ):
     @return: DataFrame containing values
     '''
     
-    ''' Class DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) ) 
+    ''' Class DataFrame will be 1:1, we can use the price as a template, need to copy values '''
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=dfPrice.values ) 
     
     ''' If we want market relative, calculate those values now '''
     if not sRel == None:
