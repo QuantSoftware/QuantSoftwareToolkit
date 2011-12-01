@@ -52,7 +52,7 @@ def learnerTest( naTrain, naTest ):
     plt.legend( ('Learner Predict', 'Average Return Predict') )
     plt.xlabel('K value')
     plt.ylabel('Error')
-    #plt.show()
+    plt.show()
     plt.savefig( 'FeatureTest.png', format='png' )
     
     
@@ -109,15 +109,15 @@ if __name__ == '__main__':
     dtEndTest = ldtTimestamps[-1]
      
     ''' Stack all information into one Numpy array ''' 
-    naFeatPtsTest = ftu.stackSyms( ldfFeatures, dtStartTrain, dtEndTrain )
-    naQueries = ftu.stackSyms( ldfFeatures, dtStartTest, dtEndTest )
+    naFeatTrain = ftu.stackSyms( ldfFeatures, dtStartTrain, dtEndTrain )
+    naFeatTest = ftu.stackSyms( ldfFeatures, dtStartTest, dtEndTest )
     
     ''' Normalize features, use same normalization factors for testing data as training data '''
-    ltWeights = ftu.normFeatures( naFeatPtsTest, -1.0, 1.0, False )
+    ltWeights = ftu.normFeatures( naFeatTrain, -1.0, 1.0, False )
     ''' Normalize query points with same weights that come from test data '''
-    ftu.normQuery( naQueries[:,:-1], ltWeights )
+    ftu.normQuery( naFeatTest[:,:-1], ltWeights )
 
-    learnerTest( naFeatPtsTest, naQueries )
+    learnerTest( naFeatTrain, naFeatTest )
     
     
     
