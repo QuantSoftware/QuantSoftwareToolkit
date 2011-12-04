@@ -239,7 +239,7 @@ def featAroon( dfPrice, bDown=False ):
                     
                 j += 1    
             
-            print lfPeaks
+            # print lfPeaks
             
             tsRet[i] = ((25.0 - (i - lfPeaks[0][1])) / 25.0) * 100.0
 
