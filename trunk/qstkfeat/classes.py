@@ -7,7 +7,6 @@ Created on Nov 7, 2011
 
 '''
 
-
 ''' 3rd Party Imports '''
 import pandas as pand
 import numpy as np
@@ -35,7 +34,6 @@ def classFutRet( dfPrice, lLookforward=21, sRel=None ):
                 continue
             
             dfRet[sRel][i] = (dfRet[sRel][i+lLookforward] - dfRet[sRel][i]) / dfRet[sRel][i]
-            
     
     ''' Loop through stocks '''
     for sStock in dfPrice.columns:
