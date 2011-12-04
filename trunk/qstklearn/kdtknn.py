@@ -15,10 +15,11 @@ class kdtknn(object):
 	call to 'addEvidence'. For this reason it is more efficient to add training data
 	in batches.
 	"""
-	def __init__(self,k=3,method='mean'):
+	def __init__(self,k=3,method='mean',leafsize=10):
 		"""
 		Basic setup.
 		"""
+		self.leafsize = leafsize
 		self.data = None
 		self.kdt = None
 		self.rebuild_tree = True
@@ -55,7 +56,7 @@ class kdtknn(object):
 		"""
 		Force the internal KDTree to be rebuilt.
 		"""
-		self.kdt = scipy.spatial.kdtree.KDTree(self.data[:,:-1])
+		self.kdt = scipy.spatial.kdtree.KDTree(self.data[:,:-1],leafsize=self.leafsize)
 		self.rebuild_tree = False
 	
 	def query(self,points,k=None,method=None):
