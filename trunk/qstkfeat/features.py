@@ -11,7 +11,7 @@ Created on Nov 7, 2011
 import pandas as pand
 import numpy as np
 
-def featMA( dfPrice, lLookback=30, bRel=False ):
+def featMA( dfPrice, lLookback=30, bRel=True ):
     '''
     @summary: Calculate moving average
     @param dfPrice: Price data for all the stocks
@@ -49,7 +49,6 @@ def featMA( dfPrice, lLookback=30, bRel=False ):
             ''' See if we should make this relative moving average '''
             if bRel:
                 tsRet[i] /= tsPrice[i]
-            
     return dfRet
 
 
@@ -99,9 +98,7 @@ def featRSI( dfPrice, lLookback=14 ):
                     fRS = fGain / fLoss
                     tsRet[i] = 100 - 100 / (1-fRS)
             
-            
     return dfRet
-
 
 def featDrawDown( dfPrice ):
     '''
@@ -247,7 +244,6 @@ def featAroon( dfPrice, bDown=False ):
             tsRet[i] = ((25.0 - (i - lfPeaks[0][1])) / 25.0) * 100.0
 
     return dfRet
-
 
 if __name__ == '__main__':
     pass
