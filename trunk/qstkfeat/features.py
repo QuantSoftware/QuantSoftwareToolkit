@@ -7,6 +7,9 @@ Created on Nov 7, 2011
 
 '''
 
+''' Python imports '''
+import random
+
 ''' 3rd Party Imports '''
 import pandas as pand
 import numpy as np
@@ -239,9 +242,13 @@ def featAroon( dfPrice, bDown=False ):
                     
                 j += 1    
             
-            # print lfPeaks
+            #print lfPeaks
             
             tsRet[i] = ((25.0 - (i - lfPeaks[0][1])) / 25.0) * 100.0
+            
+            ''' perturb value '''
+            random.seed(i)
+            tsRet[i] += random.uniform( -0.0001, 0.0001 )
 
     return dfRet
 
