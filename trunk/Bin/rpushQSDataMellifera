@@ -8,4 +8,4 @@ rsync --verbose \
       --times \
       --recursive --times --perms --links \
       --exclude "*bak" --exclude "*~" --exclude "*Newscred*" \
-      ~/QSData/ ubuntu@www-dev.lucenaresearch.com:/home/ubuntu/QSDataCurrent/
+      ~/QSData/ tb34@mellifera.cc.gatech.edu:/research/QSData
