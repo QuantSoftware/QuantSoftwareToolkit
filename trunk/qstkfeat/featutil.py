@@ -28,7 +28,7 @@ from qstkfeat.classes import classFutRet
 def makeMarketRel( dfPrice, sRel ):
     pass
 
-def applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
+def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
     '''
     @summary: Calculates the feature values using a list of feature functions and arguments.
     @param dData - Dictionary containing data to be used, requires specific naming: open/high/low/close/volume
@@ -38,7 +38,8 @@ def applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs, sMarketRel=None, sLog
     @param sLog: If not None, will be filename to log all of the features to 
     @return: list of dataframes containing values
     '''
-    
+
+    dfPrice = dData['close']
 
     if not sMarketRel == None:
     
@@ -87,12 +88,10 @@ def applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs, sMarketRel=None, sLog
         
     ldfRet = []
     
+    ''' Loop though feature functions, pass each data dictionary and arguments '''
     for i, fcFeature in enumerate(lfcFeatures):
-        ''' Hack for our one volume indicator '''
-        if fcFeature.__name__ == 'featVolumeDelta':
-            ldfRet.append( fcFeature( dfVolume, **ldArgs[i] ) )
-        else:
-            ldfRet.append( fcFeature( dfPrice, **ldArgs[i] ) )
+        ldfRet.append( fcFeature( dData, **ldArgs[i] ) )
+
         
     if not sLog == None:
         with open( sLog, 'wb' ) as fFile:

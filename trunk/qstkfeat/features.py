@@ -14,15 +14,15 @@ import random
 import pandas as pand
 import numpy as np
 
-def featMA( dfPrice, lLookback=30, bRel=False ):
+def featMA( dData, lLookback=30, bRel=True ):
     '''
     @summary: Calculate moving average
-    @param dfPrice: Price data for all the stocks
+    @param dData: Dictionary of data to use
     @param lLookback: Number of days to look in the past
     @return: DataFrame array containing values
     '''
     
-    #dfPrice = dData['close']
+    dfPrice = dData['close']
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) ) 
@@ -58,15 +58,15 @@ def featMA( dfPrice, lLookback=30, bRel=False ):
     return dfRet
 
 
-def featRSI( dfPrice, lLookback=14 ):
+def featRSI( dData, lLookback=14 ):
     '''
     @summary: Calculate RSI
-    @param dfPrice: Price data for all the stocks
+    @param dData: Dictionary of data to use
     @param lLookback: Number of days to look in the past, 14 is standard
     @return: DataFrame array containing values
     '''
     
-    #dfPrice = dData['close']
+    dfPrice = dData['close']
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
@@ -116,13 +116,15 @@ def featRSI( dfPrice, lLookback=14 ):
     return dfRet
 
 
-def featDrawDown( dfPrice ):
+def featDrawDown( dData ):
     '''
     @summary: Calculate Drawdown for the stock
-    @param dfPrice: Price data for all the stocks
+    @param dData: Dictionary of data to use
     @return: DataFrame array containing values
     @warning: Drawdown and RunUp can depend heavily on sample period
     '''
+    
+    dfPrice = dData['close']
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
@@ -142,13 +144,15 @@ def featDrawDown( dfPrice ):
 
     return dfRet
 
-def featRunUp( dfPrice ):
+def featRunUp( dData ):
     '''
     @summary: CalculateRunup for the stock
-    @param dfPrice: Price data for all the stocks
+    @param dData: Dictionary of data to use
     @return: DataFrame array containing feature values
     @warning: Drawdown and RunUp can depend heavily on when the sample starts
     '''
+    
+    dfPrice = dData['open']
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
@@ -169,13 +173,15 @@ def featRunUp( dfPrice ):
     return dfRet
 
 
-def featVolumeDelta( dfVolume, lLookback=30 ):
+def featVolumeDelta( dData, lLookback=30 ):
     '''
     @summary: Calculate moving average
-    @param dfVolume: Colume data for all the stocks
+    @param dData: Dictionary of data to use
     @param lLookback: Number of days to use for MA
     @return: DataFrame array containing values
     '''
+    
+    dfVolume = dData['volume']
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfVolume.index, columns=dfVolume.columns, data=np.zeros(dfVolume.shape) )
@@ -205,13 +211,15 @@ def featVolumeDelta( dfVolume, lLookback=30 ):
             
     return dfRet
 
-def featAroon( dfPrice, bDown=False ):
+def featAroon( dData, bDown=False ):
     '''
     @summary: Calculate Aroon - indicator indicating days since a 25-day high/low, weighted between 0 and 100
-    @param dfPrice: Price data for all the stocks
+    @param dData: Dictionary of data to use
     @param bDown: If false, calculates aroonUp (high), else aroonDown (lows)
     @return: DataFrame array containing feature values
     '''
+    
+    dfPrice = dData['close']
     
     ''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
