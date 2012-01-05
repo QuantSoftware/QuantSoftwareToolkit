@@ -8,6 +8,7 @@ Created on Feb 26, 2011
 import numpy as np
 import pandas as pa
 import os
+import re
 import pickle as pkl
 import time
 import datetime as dt
@@ -113,12 +114,13 @@ class DataAccess(object):
             
         #__init__ ends
 
-    def get_data_hardread(self, ts_list, symbol_list, data_item, verbose=False):
+    def get_data_hardread(self, ts_list, symbol_list, data_item, verbose=False, bIncDelist=False):
         '''
         Read data into a DataFrame no matter what.
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
         @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataFrame is returned.
+        @param bIncDelist: If true, delisted securities will be included.
         @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then 
         continues as usual. No errors are raised at the moment.
         '''
@@ -179,20 +181,51 @@ class DataAccess(object):
         #read in data for a stock
         symbol_ctr=-1
         for symbol in symbol_list:
+            _file = None
             symbol_ctr = symbol_ctr + 1
             #print self.getPathOfFile(symbol)
             try:
                 file_path= self.getPathOfFile(symbol);
-                if (type (file_path) != type ("random string")):
-                    continue; #File not found
                 
-                _file= open(self.getPathOfFile(symbol), "rb")
+                ''' Get list of other files if we also want to include delisted '''
+                if bIncDelist:
+                    lsDelPaths = self.getPathOfFile( symbol, True )
+                    if file_path == None and len(lsDelPaths) > 0:
+                        print 'Found delisted paths:', lsDelPaths
+                
+                ''' If we don't have a file path continue... unless we have delisted paths '''
+                if (type (file_path) != type ("random string")):
+                    if bIncDelist == False or len(lsDelPaths) == 0:
+                        continue; #File not found
+                
+                if not file_path == None: 
+                    _file = open(file_path, "rb")
             except IOError:
                 # If unable to read then continue. The value for this stock will be nan
+                print _file
                 continue;
                 
-            naData = pkl.load (_file)
-            _file.close()
+            assert( not _file == None or bIncDelist == True )
+            ''' Open the file only if we have a valid name, otherwise we need delisted data '''
+            if _file != None:
+                naData = pkl.load (_file)
+                _file.close()
+            else:
+                naData = None
+                
+            ''' If we have delisted data, prepend to the current data '''
+            if bIncDelist == True and len(lsDelPaths) > 0 and naData == None:
+                for sFile in lsDelPaths[-1:]:
+                    ''' Changed to only use NEWEST data since sometimes there is overlap (JAVA) '''
+                    inFile = open( sFile, "rb" )
+                    naPrepend = pkl.load( inFile )
+                    inFile.close()
+                    
+                    if naData == None:
+                        naData = naPrepend
+                    else:
+                        naData = np.vstack( (naPrepend, naData) )
+                        
             
             #now remove all the columns except the timestamps and one data column
             if verbose:
@@ -277,12 +310,13 @@ class DataAccess(object):
         
         #get_data_hardread ends
 
-    def get_data (self, ts_list, symbol_list, data_item, verbose=False):
+    def get_data (self, ts_list, symbol_list, data_item, verbose=False, bIncDelist=False):
         '''
         Read data into a DataFrame, but check to see if it is in a cache first.
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
         @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataFrame is returned.
+        @param bIncDelist: If true, delisted securities will be included.
         @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then 
         continues as usual. No errors are raised at the moment.
         '''
@@ -349,7 +383,7 @@ class DataAccess(object):
                 print "data_item(s): " + data_item
                 print "symbols to read: " + str(symbol_list)
             retval = self.get_data_hardread(ts_list, 
-                symbol_list, data_item, verbose)
+                symbol_list, data_item, verbose, bIncDelist)
             elapsed = time.time() - start # end timer
             if verbose:
                 print "end hardread"
@@ -366,19 +400,36 @@ class DataAccess(object):
                 print "reading took " + str(elapsed) + " seconds"
         return retval
         
-    def getPathOfFile(self, symbol_name):
+    def getPathOfFile(self, symbol_name, bDelisted=False):
         '''
         @summary: Since a given pkl file can exist in any of the folders- we need to look for it in each one until we find it. Thats what this function does.
         @return: Complete path to the pkl file including the file name and extension
         '''
-        for path1 in self.folderList:
-            if (os.path.exists(str(path1)+str(symbol_name+".pkl"))):
-                # Yay! We found it!
-                return (str(str(path1)+str(symbol_name)+".pkl"))
-                #if ends
-#            else:
-#                print str(path1)+str(stockName)+".h5" + " does not exist!"
-            #for ends
+        
+        if not bDelisted:
+            for path1 in self.folderList:
+                if (os.path.exists(str(path1)+str(symbol_name+".pkl"))):
+                    # Yay! We found it!
+                    return (str(str(path1)+str(symbol_name)+".pkl"))
+                    #if ends
+                #for ends
+                
+        else:
+            ''' Special case for delisted securities '''
+            lsPaths = []
+            for sPath in self.folderList:
+                if re.search( 'Delisted Securities', sPath ) == None:
+                    continue
+                
+                for sFile in dircache.listdir(sPath):
+                    if not re.match( '%s-\d*.pkl'%symbol_name, sFile ) == None:
+                        lsPaths.append( sPath + sFile )
+                        
+            lsPaths.sort()
+            return lsPaths
+                    
+             
+            
         print "Did not find path to " + str (symbol_name)+". Looks like this file is missing"    
     
     def get_all_symbols (self):
