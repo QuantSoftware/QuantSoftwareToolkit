@@ -19,22 +19,72 @@ import numpy as np
 import qstklearn.kdtknn as kdt
 from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
+from qstkutil import tsutil as tsu
 
 from qstkfeat.features import *
 from qstkfeat.classes import classFutRet
 
 
-def applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs, sLog=None ):
+def makeMarketRel( dfPrice, sRel ):
+    pass
+
+def applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
     '''
     @summary: Calculates the feature values using a list of feature functions and arguments.
-    @param dfPrice: Data frame containing the price information for all of the stocks.
-    @param dfPrice: Data frame containing the volume information for all of the stocks.
+    @param dData - Dictionary containing data to be used, requires specific naming: open/high/low/close/volume
     @param lfcFeatures: List of feature functions, most likely coming from features.py
     @param ldArgs: List of dictionaries containing arguments, passed as **kwargs
+    @param sMarketRel:   
     @param sLog: If not None, will be filename to log all of the features to 
     @return: list of dataframes containing values
     '''
     
+
+    if not sMarketRel == None:
+    
+        naRets = dfPrice.values.copy()
+        tsu.returnize0( naRets )
+        
+        print sMarketRel
+        naMarkRets = naRets[:, list(dfPrice.columns).index(sMarketRel) ]
+        
+        for i, sStock in enumerate(dfPrice.columns):
+            ''' Don't change the 'market' stock '''
+            if sStock == sMarketRel:
+                continue
+            
+            naMarkRel = (naRets[:,i] - naMarkRets) + 1.0
+        
+#            if sStock == 'COV':
+#                print naRets[:,i]
+#                print naMarkRets
+#                print naMarkRel
+#                print dfPrice.values[:,i]
+        
+            for j in range(0, dfPrice.values.shape[0]):
+                if pand.isnull( dfPrice.values[j][i] ):
+                    continue
+                dfPrice.values[j][i] = 100
+                break
+                
+            for j in range(j+1, dfPrice.values.shape[0]):
+                dfPrice.values[j][i] =  dfPrice.values[j-1][i] * naMarkRel[j]
+
+#            if sStock == 'COV':
+#                print '\n\n\n'
+#                print dfPrice.values[:,i]
+
+    
+#    print dfPrice['COV'].values
+#    print dfPrice['SPY'].values
+#    import matplotlib.pyplot as plt
+#    plt.clf()
+#    plt.plot(tsBefore.index, tsBefore.values)
+#    plt.plot(dfPrice['COV'].index, dfPrice['COV'].values )
+#    plt.plot(dfPrice['SPY'].index, dfPrice['SPY'].values )
+#    plt.legend(('before', 'after', 'spy'))
+#    plt.show()
+        
     ldfRet = []
     
     for i, fcFeature in enumerate(lfcFeatures):
@@ -66,12 +116,13 @@ def loadFeatures( sLog ):
     return ldfRet
 
 
-def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, bDelNan=True ):
+def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, lsSym=None, bDelNan=True, bShowRemoved=False ):
     '''
     @summary: Remove symbols from the dataframes, effectively stacking all stocks on top of each other.
     @param ldfFeatures: List of data frames of features.
     @param dtStart: Start time, if None, uses all
     @param dtEnd: End time, if None uses all
+    @param lsSym: List of symbols to use, if None, all are used.
     @param bDelNan: Optional, default is true: delete all rows with a NaN in it
     @return: Numpy array containing all features as columns and all 
     '''
@@ -85,6 +136,9 @@ def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, bDelNan=True ):
     ''' Stack stocks vertically '''
     for sStock in ldfFeatures[0].columns:
         
+        if lsSym != None and sStock not in lsSym:
+            continue
+
         naStkData = None
         ''' Loop through all features, stacking columns horizontally '''
         for dfFeat in ldfFeatures:
@@ -99,9 +153,12 @@ def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, bDelNan=True ):
         ''' Remove nan rows possibly'''
         if True == bDelNan:
             llValidRows = []
-            for i, lRow in enumerate(naStkData):
-                if not math.isnan( np.sum(lRow) ):
+            for i in range(naStkData.shape[0]):
+                if not math.isnan( np.sum(naStkData[i,:]) ):
                     llValidRows.append(i)
+                elif bShowRemoved:
+                    print 'Removed', sStock, naStkData[i,:]
+                    
             naStkData = naStkData[llValidRows,:]
             
     

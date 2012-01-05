@@ -11,12 +11,13 @@ Created on Nov 7, 2011
 import pandas as pand
 import numpy as np
 
-def classFutRet( dfPrice, lLookforward=21, sRel=None ):
+def classFutRet( dfPrice, lLookforward=21, sRel=None, dfOpen=pand.DataFrame() ):
     '''
     @summary: Calculate classification, uses future returns 
     @param dfPrice: Price data for all the stocks
     @param lLookforward: Number of days to look in the future
     @param sRel: Stock symbol that this should be relative to, ususally SPY.
+    @patam dfOpen: If supplied, stock will be purchased at i+1 open.
     @return: DataFrame containing values
     '''
     
@@ -33,7 +34,13 @@ def classFutRet( dfPrice, lLookforward=21, sRel=None ):
                 dfRet[sRel][i] = float('nan')
                 continue
             
-            dfRet[sRel][i] = (dfRet[sRel][i+lLookforward] - dfRet[sRel][i]) / dfRet[sRel][i]
+            ''' We either buy on todays close or tomorrows open '''
+            if len( dfOpen.index ) == 0:
+                fBuy = dfRet[sRel][i]
+            else:
+                fBuy = dfOpen[sRel][i+1]
+                
+            dfRet[sRel][i] = (dfRet[sRel][i+lLookforward] - fBuy) / fBuy
     
     ''' Loop through stocks '''
     for sStock in dfPrice.columns:
@@ -50,7 +57,13 @@ def classFutRet( dfPrice, lLookforward=21, sRel=None ):
                 dfRet[sStock][i] = float('nan')
                 continue
             
-            dfRet[sStock][i] = (dfRet[sStock][i+lLookforward] - dfRet[sStock][i]) / dfRet[sStock][i]
+            ''' We either buy on todays close or tomorrows open '''
+            if len( dfOpen.index ) == 0:
+                fBuy = dfRet[sStock][i]
+            else:
+                fBuy = dfOpen[sStock][i+1]
+            
+            dfRet[sStock][i] = (dfRet[sStock][i+lLookforward] - fBuy) / fBuy
             
             ''' Make market relative '''
             if not sRel == None:
