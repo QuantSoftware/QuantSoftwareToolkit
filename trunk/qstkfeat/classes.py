@@ -11,15 +11,17 @@ Created on Nov 7, 2011
 import pandas as pand
 import numpy as np
 
-def classFutRet( dfPrice, lLookforward=21, sRel=None, dfOpen=pand.DataFrame() ):
+def classFutRet( dData, lLookforward=21, sRel=None, dfOpen=pand.DataFrame() ):
     '''
     @summary: Calculate classification, uses future returns 
-    @param dfPrice: Price data for all the stocks
+    @param dData: Dictionary of data to use
     @param lLookforward: Number of days to look in the future
     @param sRel: Stock symbol that this should be relative to, ususally SPY.
     @patam dfOpen: If supplied, stock will be purchased at i+1 open.
     @return: DataFrame containing values
     '''
+    
+    dfPrice = dData['close']
     
     ''' Class DataFrame will be 1:1, we can use the price as a template, need to copy values '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.copy(dfPrice.values) ) 

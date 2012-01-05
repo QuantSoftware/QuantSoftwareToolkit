@@ -90,6 +90,19 @@ def returnize1(nd):
 	nd[1:,:] = (nd[1:,:]/nd[0:-1])
 	nd[0,:] = np.ones(nd.shape[1])
 	
+def priceize1(nd):
+	"""
+	@summary Computes stepwise (usually daily) returns relative to 1, where
+	1 implies no change in value.
+	@param nd: the array to fill backward
+	@return the array is revised in place
+	"""
+	
+	nd[0,:] = 100 
+	for i in range(1,nd.shape[0]):
+		nd[i,:] = nd[i-1,:] * nd[i,:]
+	
+	
 def logreturnize(nd):
 	"""
 	@summary Computes stepwise (usually daily) logarithmic returns.
