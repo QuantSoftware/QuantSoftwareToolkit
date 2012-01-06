@@ -270,6 +270,70 @@ def featAroon( dData, bDown=False ):
     return dfRet
 
 
+def featStochastic( dData, lLookback=14, bFast=True, lMA=3 ):
+    '''
+    @summary: Calculate stochastic oscillator - indicates what range of recent low-high spread we are in.
+    @param dData: Dictionary of data to use
+    @param bFast: If false, do slow stochastics, 3 day MA, if not use fast, no MA
+    @return: DataFrame array containing feature values
+    '''
+
+    dfLow = dData['low']
+    dfHigh = dData['high']
+    dfPrice = dData['close']
+
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+    
+    ''' Loop through stocks '''
+    for sStock in dfPrice.columns:
+        tsPrice = dfPrice[sStock]
+        tsHigh = dfHigh[sStock]
+        tsLow = dfLow[sStock]
+        tsRet = dfRet[sStock]
+           
+        ''' For slow stochastic oscillator we need to remember 3 past values '''
+        lfPastStoch = []
+        
+        ''' Loop over time '''
+        for i in range(len(tsPrice.index)):
+            
+            ''' NaN if not enough data to do lookback '''
+            if i < lLookback:
+                tsRet[i] = float('nan')
+                continue    
+            
+            fLow = 1E300
+            fHigh = -1E300
+            ''' Find highest high and lowest low '''
+            for j in range(lLookback):
+                
+                lInd = i-j
+                
+                if tsHigh[lInd] > fHigh:
+                    fHigh = tsHigh[lInd]
+                if tsLow[lInd] < fLow:
+                    fLow = tsLow[lInd]
+             
+            fStoch = (tsPrice[i] - fLow) / (fHigh - fLow)
+            
+            ''' For fast we just take the stochastic value, slow we need 3 day MA '''
+            if bFast:
+                tsRet[i] = fStoch   
+            else:
+                if len(lfPastStoch) < lMA:
+                    lfPastStoch.append(fStoch)
+                    continue
+                
+                lfPastStoch.append(fStoch)
+                lfPastStoch.pop(0)
+                
+                tsRet[i] = sum(lfPastStoch) / float(len(lfPastStoch))
+                 
+                
+
+    return dfRet
 
 
 if __name__ == '__main__':
