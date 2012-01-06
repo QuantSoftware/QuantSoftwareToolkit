@@ -14,6 +14,10 @@ import random
 import pandas as pand
 import numpy as np
 
+''' QSTK Imports '''
+import qstkutil.tsutil as tsu
+
+
 def featMA( dData, lLookback=30, bRel=True ):
     '''
     @summary: Calculate moving average
@@ -335,6 +339,47 @@ def featStochastic( dData, lLookback=14, bFast=True, lMA=3 ):
 
     return dfRet
 
+def featBeta( dData, lLookback=14, sMarket='SPY' ):
+    '''
+    @summary: Calculate beta relative to a given stock/index.
+    @param dData: Dictionary of data to use
+    @param sStock: Stock to calculate beta relative to
+    @return: DataFrame array containing feature values
+    '''
+
+    dfPrice = dData['close']
+
+    ''' Calculate returns '''
+    naRets = dfPrice.values.copy()
+    tsu.returnize1(naRets)
+    dfHistReturns = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=naRets )
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+    
+    ''' Loop through stocks '''
+    for sStock in dfHistReturns.columns:   
+        tsHistReturns = dfHistReturns[sStock]
+        tsMarket = dfHistReturns[sMarket]
+        tsRet = dfRet[sStock]
+           
+        ''' Loop over time '''
+        for i in range(len(tsRet.index)):
+            
+            ''' NaN if not enough data to do lookback '''
+            if i < lLookback:
+                tsRet[i] = float('nan')
+                continue    
+            
+            naStock = tsHistReturns[ i - lLookback:i ]
+            naMarket = tsMarket[ i - lLookback:i ]
+            
+            ''' Beta is the slope the line, with market returns on X, stock returns on Y '''
+            fBeta, unused = np.polyfit( naMarket, naStock, 1)
+            
+            tsRet[i] = fBeta
+
+    return dfRet
 
 if __name__ == '__main__':
     pass
