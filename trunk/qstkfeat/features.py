@@ -304,7 +304,7 @@ def featStochastic( dData, lLookback=14, bFast=True, lMA=3 ):
         for i in range(len(tsPrice.index)):
             
             ''' NaN if not enough data to do lookback '''
-            if i < lLookback:
+            if i < lLookback - 1:
                 tsRet[i] = float('nan')
                 continue    
             
@@ -367,12 +367,12 @@ def featBeta( dData, lLookback=14, sMarket='SPY' ):
         for i in range(len(tsRet.index)):
             
             ''' NaN if not enough data to do lookback '''
-            if i < lLookback:
+            if i < lLookback - 1:
                 tsRet[i] = float('nan')
                 continue    
             
-            naStock = tsHistReturns[ i - lLookback:i ]
-            naMarket = tsMarket[ i - lLookback:i ]
+            naStock = tsHistReturns[ i - (lLookback - 1): i+1 ]
+            naMarket = tsMarket[ i - (lLookback - 1): i+1 ]
             
             ''' Beta is the slope the line, with market returns on X, stock returns on Y '''
             fBeta, unused = np.polyfit( naMarket, naStock, 1)
@@ -380,6 +380,40 @@ def featBeta( dData, lLookback=14, sMarket='SPY' ):
             tsRet[i] = fBeta
 
     return dfRet
+
+def featBollinger( dData, lLookback=20 ):
+    '''
+    @summary: Calculate bollinger position as a function of std deviations.
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to calculate moving average over
+    @return: DataFrame array containing feature values
+    '''
+
+    dfPrice = dData['close']
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+    
+    ''' Loop through stocks '''
+    for sStock in dfPrice.columns:   
+        tsPrice = dfPrice[sStock]
+        tsRet = dfRet[sStock]
+           
+        ''' Loop over time '''
+        for i in range(len(tsPrice.index)):
+            
+            ''' NaN if not enough data to do lookback '''
+            if i < lLookback - 1:
+                tsRet[i] = float('nan')
+                continue    
+            
+            fAvg = np.average( tsPrice[ i-(lLookback-1):i+1 ] )
+            fStd = np.std( tsPrice[ i-(lLookback-1):i+1 ] )
+            
+            tsRet[i] = (tsPrice[i] - fAvg) / fStd
+
+    return dfRet
+
 
 if __name__ == '__main__':
     pass
