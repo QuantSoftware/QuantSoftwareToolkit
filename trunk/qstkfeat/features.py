@@ -120,10 +120,11 @@ def featRSI( dData, lLookback=14 ):
     return dfRet
 
 
-def featDrawDown( dData ):
+def featDrawDown( dData, lLookback=30 ):
     '''
     @summary: Calculate Drawdown for the stock
     @param dData: Dictionary of data to use
+    @param lLookback: Days to look back
     @return: DataFrame array containing values
     @warning: Drawdown and RunUp can depend heavily on sample period
     '''
@@ -139,19 +140,28 @@ def featDrawDown( dData ):
         tsRet = dfRet[sStock]
            
         ''' Loop over time '''
-        fPeak = tsPrice[0]
         for i in range(len(tsPrice.index)):
-            if tsPrice[i] > fPeak or pand.isnull(fPeak):
-                fPeak = tsPrice[i]
+            
+            ''' Get starting and stopping indexes '''
+            if i != len(tsPrice.index):
+                lStop = i + 1
+            else:
+                lStop = None
+                
+            lStart = max( 0,  i - (lLookback - 1) )
+ 
+            ''' Calculate peak value, and subsequent drawdown '''
+            fPeak = np.max( tsPrice.values[ lStart:lStop ] )    
             
             tsRet[i] = tsPrice[i] / fPeak
 
     return dfRet
 
-def featRunUp( dData ):
+def featRunUp( dData, lLookback=30 ):
     '''
     @summary: CalculateRunup for the stock
     @param dData: Dictionary of data to use
+    @param lLookback: Number of days to calculate min over 
     @return: DataFrame array containing feature values
     @warning: Drawdown and RunUp can depend heavily on when the sample starts
     '''
@@ -167,8 +177,20 @@ def featRunUp( dData ):
         tsRet = dfRet[sStock]
            
         ''' Loop over time '''
-        fTrough = tsPrice[0]
         for i in range(len(tsPrice.index)):
+                      
+            ''' Get starting and stopping indexes '''
+            if i != len(tsPrice.index):
+                lStop = i + 1
+            else:
+                lStop = None
+                
+            lStart = max( 0,  i - (lLookback - 1) )
+ 
+            ''' Calculate trough value, and subsequent drawdown '''
+            fTrough = np.min( tsPrice.values[ lStart:lStop ] )    
+            
+            tsRet[i] = tsPrice[i] / fTrough
             if tsPrice[i] < fTrough or pand.isnull(fTrough):
                 fTrough = tsPrice[i]
             
@@ -220,6 +242,7 @@ def featAroon( dData, bDown=False, lLookback=25 ):
     @summary: Calculate Aroon - indicator indicating days since a 25-day high/low, weighted between 0 and 100
     @param dData: Dictionary of data to use
     @param bDown: If false, calculates aroonUp (high), else aroonDown (lows)
+    @param lLookback: Days to lookback to calculate high/low from
     @return: DataFrame array containing feature values
     '''
     
