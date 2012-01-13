@@ -215,7 +215,7 @@ def featVolumeDelta( dData, lLookback=30 ):
             
     return dfRet
 
-def featAroon( dData, bDown=False ):
+def featAroon( dData, bDown=False, lLookback=25 ):
     '''
     @summary: Calculate Aroon - indicator indicating days since a 25-day high/low, weighted between 0 and 100
     @param dData: Dictionary of data to use
@@ -257,7 +257,7 @@ def featAroon( dData, bDown=False ):
             ''' Remove all outdated peaks '''
             j = 0
             while j < (len(lfPeaks)):
-                if i - lfPeaks[j][1] > 25:
+                if i - lfPeaks[j][1] > lLookback:
                     lfPeaks.pop(j)
                     continue
                     
@@ -265,7 +265,7 @@ def featAroon( dData, bDown=False ):
             
             #print lfPeaks
             
-            tsRet[i] = ((25.0 - (i - lfPeaks[0][1])) / 25.0) * 100.0
+            tsRet[i] = ((lLookback - (i - lfPeaks[0][1])) / float(lLookback)) * 100.0
             
             ''' perturb value '''
             random.seed(i)
