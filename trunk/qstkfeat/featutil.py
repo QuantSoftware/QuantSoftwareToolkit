@@ -306,6 +306,50 @@ def getFeatureFuncs():
     return lfcFeatures, ldArgs, lsNames
       
 
+def testFeature( fcFeature, dArgs ):
+    '''
+    @summary: Quick function to run a feature on some data and plot it to see if it works.
+    @param fcFeature: Feature function to test
+    @param dArgs: Arguments to pass into feature function 
+    @return: Void
+    '''
+    
+    ''' Get Train data for 2009-2010 '''
+    dtStart = dt.datetime(2009, 1, 1)
+    dtEnd = dt.datetime(2009, 5, 1)
+         
+    ''' Pull in current training data and test data '''
+    norObj = da.DataAccess('Norgate')
+    ''' Get 2 extra months for moving averages and future returns '''
+    ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
+    
+    lsSym = ['GOOG']
+    lsSym.append('WMT')
+    lsSym.append('SPY')
+    lsSym.sort()        
+    
+    lsKeys = ['open', 'high', 'low', 'close', 'volume']
+    ldfData = norObj.get_data( ldtTimestamps, lsSym, lsKeys )
+    dData = dict(zip(lsKeys, ldfData))
+    dfPrice = dData['close']
+
+    #print dfPrice.values                  
+    
+    ''' Generate a list of DataFrames, one for each feature, with the same index/column structure as price data '''
+    ldfFeatures = ftu.applyFeatures( dData, [fcFeature], [dArgs] )
+    
+    ''' Use last 3 months of index, to avoid lookback nans '''
+
+    for sSym in lsSym:
+        plt.subplot( 211 )
+        plt.plot( ldfFeatures[0].index[-60:], dfPrice[sSym].values[-60:] )
+        plt.plot( ldfFeatures[0].index[-60:], dfPrice['SPY'].values[-60:] * dfPrice[sSym].values[-60] / dfPrice['SPY'].values[-60] )
+        plt.legend((sSym, 'SPY'))
+        plt.title(sSym)
+        plt.subplot( 212 )
+        plt.plot( ldfFeatures[0].index[-60:], ldfFeatures[0][sSym].values[-60:] )
+        plt.title( fcFeature.__name__)
+        plt.show()
 
 if __name__ == '__main__':
     pass
