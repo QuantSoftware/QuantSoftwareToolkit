@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 
 ''' 3rd Party Imports '''
 import numpy as np
+import matplotlib.pyplot as plt
 
 ''' Our Imports '''
 import qstklearn.kdtknn as kdt
@@ -336,7 +337,7 @@ def testFeature( fcFeature, dArgs ):
     #print dfPrice.values                  
     
     ''' Generate a list of DataFrames, one for each feature, with the same index/column structure as price data '''
-    ldfFeatures = ftu.applyFeatures( dData, [fcFeature], [dArgs] )
+    ldfFeatures = applyFeatures( dData, [fcFeature], [dArgs] )
     
     ''' Use last 3 months of index, to avoid lookback nans '''
 
