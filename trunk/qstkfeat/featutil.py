@@ -91,6 +91,11 @@ def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
     
     ''' Loop though feature functions, pass each data dictionary and arguments '''
     for i, fcFeature in enumerate(lfcFeatures):
+        
+        ''' TODO fix this, delete all MR for now '''
+        if 'MR' in ldArgs[i]:
+            del ldArgs[i]['MR']
+        
         ldfRet.append( fcFeature( dData, **ldArgs[i] ) )
 
         
