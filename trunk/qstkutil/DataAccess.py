@@ -336,11 +336,11 @@ class DataAccess(object):
         hashts = 0
 
         # print "test point 1: " + str(len(ts_list))
-
+	spyfile=os.environ['QSDATA'] + '/Processed/Norgate/Stocks/US/NYSE Arca/SPY.pkl'
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str (self.source)+'-' +str(abs(hashsyms)) + '-' + str(abs(hashts)) \
-            + '-' + str(hash(str(data_item)))
+            + '-' + str(hash(str(data_item)))+ '-' + str(hash(str(os.path.getctime(spyfile))))
 
         # get the directory for scratch files from environment
         try:
@@ -356,24 +356,27 @@ class DataAccess(object):
 
         # now eather read the pkl file, or do a hardread
         readfile = False # indicate that we have not yet read the file
+#	catchstall=os.environ['CACHESTALLTIME']
+	catchstall=dt.timedelta(hours=int(os.environ['CACHESTALLTIME']))
         if os.path.exists(cachefilename):
-            if verbose:
-                print "cache hit"
-            try:
-                cachefile = open(cachefilename, "rb")
-                start = time.time() # start timer
-                retval = pkl.load(cachefile)
-                elapsed = time.time() - start # end timer
-                readfile = True # remember success
-                cachefile.close()
-            except IOError:
-                if verbose:
-                    print "error reading cache: " + cachefilename
-                    print "recovering..."
-            except EOFError:
-                if verbose:
-                    print "error reading cache: " + cachefilename
-                    print "recovering..."
+	    if ((dt.datetime.now()-dt.datetime.fromtimestamp(os.path.getctime(cachefilename)))<catchstall):
+            	if verbose:
+            	    print "cache hit"
+            	try:
+                    cachefile = open(cachefilename, "rb")
+                    start = time.time() # start timer
+                    retval = pkl.load(cachefile)
+                    elapsed = time.time() - start # end timer
+                    readfile = True # remember success
+                    cachefile.close()
+                except IOError:
+                    if verbose:
+                        print "error reading cache: " + cachefilename
+                        print "recovering..."
+            	except EOFError:
+                    if verbose:
+                    	print "error reading cache: " + cachefilename
+                    	print "recovering..."
         if (readfile!=True):
             if verbose:
                 print "cache miss"
