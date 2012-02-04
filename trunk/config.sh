@@ -43,6 +43,8 @@ export PATH=$PATH:$QSBIN
 
 # location to store scratch files
 export QSSCRATCH=/hzr71/research/tmp
+export CACHESTALLTIME=1
+#Cachestalltime in hours
 
 # Info regarding remote hosting of the system.
 # This is where, for instance we might place a copy of
