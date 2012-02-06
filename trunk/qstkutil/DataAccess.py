@@ -356,8 +356,16 @@ class DataAccess(object):
 
         # now eather read the pkl file, or do a hardread
         readfile = False # indicate that we have not yet read the file
+
+	#check if the cachestall variable is defined.
+
 #	catchstall=os.environ['CACHESTALLTIME']
-	catchstall=dt.timedelta(hours=int(os.environ['CACHESTALLTIME']))
+	try:
+	    catchstall=dt.timedelta(hours=int(os.environ['CACHESTALLTIME']))
+	except:
+	    catchstall=dt.timedelta(hours=1)
+
+	# Check if the file is older than the cachestalltime
         if os.path.exists(cachefilename):
 	    if ((dt.datetime.now()-dt.datetime.fromtimestamp(os.path.getctime(cachefilename)))<catchstall):
             	if verbose:
