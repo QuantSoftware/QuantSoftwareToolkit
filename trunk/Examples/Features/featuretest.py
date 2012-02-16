@@ -32,7 +32,7 @@ def learnerTest( naTrain, naTest ):
     
     lfRes = []
     for lK in llRange:
-        cLearn = ftu.createKnnLearner( naTrain, lKnn=lK )
+        cLearn = ftu.createKnnLearner( naTrain, lKnn=lK, leafsize=100 )
         fError = 0.0
 
         naResult = cLearn.query( naTest[:,:-1] )
