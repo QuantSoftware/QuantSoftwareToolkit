@@ -27,19 +27,7 @@ class MLDiagnostics:
 		self.ErrTrain = np.zeros((len(lambdaArray),1))
 		self.ErrCV = copy.copy(self.ErrTrain)
 
-	def runDiagnostics(self,filename):
-		for lambdaVal in self.lambdaArray:
-			learner = copy.copy(self.learner())# is deep copy required
-			# setLambda needs to be a supported function for all ML strategies.
-			learner.setLambda(lambdaVal)
-			learner.addEvidence(self.Xtrain,self.Ytrain)
-			YtrPred = learner.query(self.Xtrain)
-			self.ErrTrain[i] = avgsqerror(self.Ytrain,YtrPred)
-			YcvPred = learner.query(self.Xcv)
-			self.ErrCV[i] = avgsqerror(self.Ycv,YcvPred)
-		plotCurves(filename)
-
-	def avgsqerror(Y,Ypred):
+	def avgsqerror(self,Y,Ypred):
 		return np.sum((Y-Ypred)**2)/len(Y)
 	
 	def plotCurves(self,filename):
@@ -51,3 +39,15 @@ class MLDiagnostics:
 		plt.ylabel('Average Error')
 		plt.draw()
 		savefig(filename,format='pdf')
+
+	def runDiagnostics(self,filename):
+		for i,lambdaVal in zip(range(len(self.lambdaArray)),self.lambdaArray):
+			learner = copy.copy(self.learner())# is deep copy required
+			# setLambda needs to be a supported function for all ML strategies.
+			learner.setLambda(lambdaVal)
+			learner.addEvidence(self.Xtrain,self.Ytrain)
+			YtrPred = learner.query(self.Xtrain)
+			self.ErrTrain[i] = self.avgsqerror(self.Ytrain,YtrPred)
+			YcvPred = learner.query(self.Xcv)
+			self.ErrCV[i] = self.avgsqerror(self.Ycv,YcvPred)
+		self.plotCurves(filename)
