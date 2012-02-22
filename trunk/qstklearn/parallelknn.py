@@ -49,7 +49,7 @@ def par_query (allQueries, k, method='mean', noOfThreads=None):
         #NOTE: we may need a -1 in above. Possible bug
         #for ends
     #the "remaining" query points go to the last thread
-    resultList.append (pool.apply_async(query , (allQueries[(math.floor(query_per_thread* (noOfThreads - 1))): -1, :] ,k ,)))    
+    resultList.append (pool.apply_async(query , (allQueries[(math.floor(query_per_thread* (noOfThreads - 1))):, :] ,k ,)))    
     
     pool.close()
     pool.join()
