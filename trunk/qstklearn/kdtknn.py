@@ -2,7 +2,8 @@
 A simple wrapper for scipy.spatial.kdtree.KDTree for doing KNN
 """
 import math,random,sys,bisect,time
-import numpy,scipy.spatial.distance, scipy.spatial.kdtree
+import numpy,scipy.spatial.distance
+from scipy.spatial import cKDTree
 import cProfile,pstats,gendata
 import numpy as np
 
@@ -56,7 +57,7 @@ class kdtknn(object):
 		"""
 		Force the internal KDTree to be rebuilt.
 		"""
-		self.kdt = scipy.spatial.kdtree.KDTree(self.data[:,:-1],leafsize=self.leafsize)
+		self.kdt = cKDTree(self.data[:,:-1],leafsize=self.leafsize)
 		self.rebuild_tree = False
 	
 	def query(self,points,k=None,method=None):
