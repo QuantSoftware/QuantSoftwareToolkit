@@ -4,7 +4,7 @@ speeds up query times
 """
 import math,random,sys,bisect,time
 import numpy,scipy.spatial.distance,scipy.spatial.kdtree
-import knn,cProfile,pstats,gendata
+import cProfile,pstats,gendata
 
 def adistfun(u,v):
 	#assuming 1xN ndarrays
@@ -80,7 +80,7 @@ class FastKNN:
 		"""
 		if len(data.shape)==1:
 			new_idx = len(self.training_data)
-			self.traning_data.append(data)
+			self.training_data.append(data)
 			self.data_classes[new_idx] = label
 			if self.is_sorted:
 				for a in self.anchors:

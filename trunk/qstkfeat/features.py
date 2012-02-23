@@ -398,9 +398,12 @@ def featBeta( dData, lLookback=14, sMarket='SPY' ):
             naMarket = tsMarket[ i - (lLookback - 1): i+1 ]
             
             ''' Beta is the slope the line, with market returns on X, stock returns on Y '''
-            fBeta, unused = np.polyfit( naMarket, naStock, 1)
-            
-            tsRet[i] = fBeta
+            try:
+                fBeta, unused = np.polyfit( naMarket, naStock, 1)
+                tsRet[i] = fBeta
+            except:
+                'Numpy Error featBeta'
+                tsRet[i] = float('NaN')
 
     return dfRet
 
