@@ -248,7 +248,7 @@ def createKnnLearner( naFeatures, lKnn=30, leafsize=10 ):
     @param bIgnoreLast: If true, last column is ignored (assumed to be classification)
     @return: None, data is modified in place
     '''    
-    cLearner = kdt.kdtknn( k=lKnn, method='mean', leafsize)
+    cLearner = kdt.kdtknn( k=lKnn, method='mean', leafsize=leafsize)
 
     cLearner.addEvidence( naFeatures )
 
