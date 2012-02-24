@@ -237,7 +237,9 @@ class DataAccess(object):
             
             ''' We open the file once, for each data item we need, fill out the array in all_stocks_data '''
             for lLabelNum, lLabelIndex in enumerate(list_index):
-    
+                
+                ts_ctr = 0
+                
                 ''' select timestamps and the data column we want '''
                 temp_np = naData[:,(0,lLabelIndex)]
                 #print temp_np
@@ -248,6 +250,14 @@ class DataAccess(object):
     
                     timebase = temp_np[i][0]
                     timeyear = int(timebase/10000)
+                    
+                    ''' Quick hack to skip most of the data '''
+                    if timeyear < ts_list[0].year:
+                        continue
+                    elif ts_ctr == 0:
+                        ts_ctr = i
+                    
+                    
                     timemonth = int((timebase-timeyear*10000)/100)
                     timeday = int((timebase-timeyear*10000-timemonth*100))
                     timehour = 16
@@ -259,7 +269,6 @@ class DataAccess(object):
     
                 #now we have only timestamps and one data column
                 
-                ts_ctr = 0
                 
                 #Skip data from file which is before the first timestamp in ts_list
     
