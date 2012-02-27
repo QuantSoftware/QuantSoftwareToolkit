@@ -52,7 +52,7 @@ def learnerTest( naTrain, naTest ):
     plt.legend( ('Learner Predict', 'Average Return Predict') )
     plt.xlabel('K value')
     plt.ylabel('Error')
-    #plt.show()
+    plt.show()
     plt.savefig( 'FeatureTest.png', format='png' )
     
     
@@ -71,8 +71,9 @@ if __name__ == '__main__':
     norObj = da.DataAccess('Norgate')      
     ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
     
-    dfPrice = norObj.get_data( ldtTimestamps, lsSym, 'close' )
-    dfVolume = norObj.get_data( ldtTimestamps, lsSym, 'volume' )
+    lsKeys = ['open', 'high', 'low', 'close', 'volume']
+    ldfData = norObj.get_data( ldtTimestamps, lsSym, lsKeys )
+    dData = dict(zip(lsKeys, ldfData))
     
     ''' Imported functions from qstkfeat.features, NOTE: last function is classification '''
     lfcFeatures = [ featMA, featRSI, classFutRet ]
@@ -86,7 +87,7 @@ if __name__ == '__main__':
                {}]                    
     
     ''' Generate a list of DataFrames, one for each feature, with the same index/column structure as price data '''
-    ldfFeatures = ftu.applyFeatures( dfPrice, dfVolume, lfcFeatures, ldArgs )
+    ldfFeatures = ftu.applyFeatures( dData, lfcFeatures, ldArgs )
     
     
     bPlot = False
