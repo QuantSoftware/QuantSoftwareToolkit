@@ -441,5 +441,47 @@ def featBollinger( dData, lLookback=20 ):
     return dfRet
 
 
+def featCorrelation( dData, lLookback=20, sRel='$SPX' ):
+    '''
+    @summary: Calculate correlation of two stocks.
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to calculate moving average over
+    @return: DataFrame array containing feature values
+    '''
+
+    dfPrice = dData['close']
+    
+    if sRel not in dfPrice.columns:
+        raise KeyError( "%s not found in data provided to featCorrelation"%sRel )
+       
+    ''' Calculate returns '''
+    naRets = dfPrice.values.copy()
+    tsu.returnize1(naRets)
+    dfHistReturns = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=naRets )
+
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+    
+    ''' Loop through stocks '''
+    for sStock in dfHistReturns.columns:   
+        tsHistReturns = dfHistReturns[sStock]
+        tsRelativeReturns = dfHistReturns[sRel]
+        tsRet = dfRet[sStock]
+        
+        ''' Loop over time '''
+        for i in range(len(tsHistReturns.index)):
+            
+            ''' NaN if not enough data to do lookback '''
+            if i < lLookback - 1:
+                tsRet[i] = float('nan')
+                continue    
+            
+            naCorr = np.corrcoef( tsHistReturns[ i-(lLookback-1):i+1 ], tsRelativeReturns[ i-(lLookback-1):i+1 ] )
+            
+            tsRet[i] = naCorr[0,1]
+
+    return dfRet
+
+
 if __name__ == '__main__':
     pass
