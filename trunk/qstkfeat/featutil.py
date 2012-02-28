@@ -26,8 +26,67 @@ from qstkfeat.features import *
 from qstkfeat.classes import classFutRet
 
 
-def makeMarketRel( dfPrice, sRel ):
-    pass
+
+def getMarketRel( dData, sRel='$SPX' ):
+    '''
+    @summary: Calculates market relative data.
+    @param dData - Dictionary containing data to be used, requires specific naming: open/high/low/close/volume
+    @param sRel - Stock ticker to make the data relative to, $SPX is default.
+    @return: Dictionary of market relative values
+    '''
+    
+    if sRel not in dData['close'].columns:
+        raise KeyError( 'Market relative stock %s not found in getMR()'%sRel )
+    
+    
+    dRet = {}
+       
+    ''' Make all data market relative, except for volume '''
+    for sKey in dData.keys():
+        
+        ''' Don't calculate market relative volume, but still copy it over '''
+        if sKey == 'volume':
+            dRet['volume'] = dData['volume']
+            continue
+        
+        dfAbsolute = dData[sKey]
+        dfRelative = pand.DataFrame( index=dfAbsolute.index, columns=dfAbsolute.columns, data=np.zeros(dfAbsolute.shape) )
+        
+        ''' Get returns and strip off the market returns '''
+        naRets = dfAbsolute.values.copy()
+        tsu.returnize0( naRets )
+        
+        naMarkRets = naRets[:, list(dfAbsolute.columns).index(sRel) ]
+        
+        for i, sStock in enumerate(dfAbsolute.columns):
+            ''' Don't change the 'market' stock '''
+            if sStock == sRel:
+                dfRelative.values[:,i] = dfAbsolute.values[:,i]
+                continue
+    
+            naMarkRel = (naRets[:,i] - naMarkRets) + 1.0
+
+            ''' Find the first non-nan value and start the price at 100 '''
+            for j in range(0, dfAbsolute.values.shape[0]):
+                if pand.isnull( dfAbsolute.values[j][i] ):
+                    dfRelative.values[j][i] = float('nan')
+                    continue
+                dfRelative.values[j][i] = 100
+                break
+                
+            ''' Now fill prices out using market relative returns '''
+            for j in range(j+1, dfAbsolute.values.shape[0]):
+                dfRelative.values[j][i] =  dfRelative.values[j-1][i] * naMarkRel[j]
+        
+        ''' Add dataFrame to dictionary to return, move to next key '''
+        dRet[sKey] = dfRelative
+        
+        
+    print dRet
+    print dRet['close'].values
+    return dRet
+
+
 
 def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
     '''
@@ -35,68 +94,38 @@ def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
     @param dData - Dictionary containing data to be used, requires specific naming: open/high/low/close/volume
     @param lfcFeatures: List of feature functions, most likely coming from features.py
     @param ldArgs: List of dictionaries containing arguments, passed as **kwargs
-    @param sMarketRel:   
+                   There is a special argument 'MR', if it exists, the data will be made market relative
+    @param sMarketRel: If not none, the data will all be made relative to the symbol provided
     @param sLog: If not None, will be filename to log all of the features to 
     @return: list of dataframes containing values
     '''
 
-    dfPrice = dData['close']
 
-    if not sMarketRel == None:
-    
-        naRets = dfPrice.values.copy()
-        tsu.returnize0( naRets )
-        
-        print sMarketRel
-        naMarkRets = naRets[:, list(dfPrice.columns).index(sMarketRel) ]
-        
-        for i, sStock in enumerate(dfPrice.columns):
-            ''' Don't change the 'market' stock '''
-            if sStock == sMarketRel:
-                continue
-            
-            naMarkRel = (naRets[:,i] - naMarkRets) + 1.0
-        
-#            if sStock == 'COV':
-#                print naRets[:,i]
-#                print naMarkRets
-#                print naMarkRel
-#                print dfPrice.values[:,i]
-        
-            for j in range(0, dfPrice.values.shape[0]):
-                if pand.isnull( dfPrice.values[j][i] ):
-                    continue
-                dfPrice.values[j][i] = 100
-                break
-                
-            for j in range(j+1, dfPrice.values.shape[0]):
-                dfPrice.values[j][i] =  dfPrice.values[j-1][i] * naMarkRel[j]
 
-#            if sStock == 'COV':
-#                print '\n\n\n'
-#                print dfPrice.values[:,i]
-
-    
-#    print dfPrice['COV'].values
-#    print dfPrice['SPY'].values
-#    import matplotlib.pyplot as plt
-#    plt.clf()
-#    plt.plot(tsBefore.index, tsBefore.values)
-#    plt.plot(dfPrice['COV'].index, dfPrice['COV'].values )
-#    plt.plot(dfPrice['SPY'].index, dfPrice['SPY'].values )
-#    plt.legend(('before', 'after', 'spy'))
-#    plt.show()
         
     ldfRet = []
+    
+    ''' Calculate market relative data '''
+    if sMarketRel != None:
+        dDataRelative = getMarketRel( dData, sRel=sMarketRel )
+    
     
     ''' Loop though feature functions, pass each data dictionary and arguments '''
     for i, fcFeature in enumerate(lfcFeatures):
         
-        ''' TODO fix this, delete all MR for now '''
+        ''' Check for special arguments '''
         if 'MR' in ldArgs[i]:
-            del ldArgs[i]['MR']
+            
+            if ldArgs[i]['MR'] == False:
+                print 'Warning, setting MR to false will still be Market Relative',\
+                      'simply do not include MR key in args'
         
-        ldfRet.append( fcFeature( dData, **ldArgs[i] ) )
+            if sMarketRel == None:
+                raise AssertionError('Functions require market relative stock but sMarketRel=None')
+            del ldArgs[i]['MR']
+            ldfRet.append( fcFeature( dDataRelative, **ldArgs[i] ) )
+        else:
+            ldfRet.append( fcFeature( dData, **ldArgs[i] ) )
 
         
     if not sLog == None:
@@ -329,7 +358,7 @@ def testFeature( fcFeature, dArgs ):
     
     lsSym = ['GOOG']
     lsSym.append('WMT')
-    lsSym.append('SPY')
+    lsSym.append('$SPX')
     lsSym.sort()        
     
     lsKeys = ['open', 'high', 'low', 'close', 'volume']
@@ -340,15 +369,16 @@ def testFeature( fcFeature, dArgs ):
     #print dfPrice.values                  
     
     ''' Generate a list of DataFrames, one for each feature, with the same index/column structure as price data '''
-    ldfFeatures = applyFeatures( dData, [fcFeature], [dArgs] )
+    ldfFeatures = applyFeatures( dData, [fcFeature], [dArgs], sMarketRel='$SPX' )
     
     ''' Use last 3 months of index, to avoid lookback nans '''
+
 
     for sSym in lsSym:
         plt.subplot( 211 )
         plt.plot( ldfFeatures[0].index[-60:], dfPrice[sSym].values[-60:] )
-        plt.plot( ldfFeatures[0].index[-60:], dfPrice['SPY'].values[-60:] * dfPrice[sSym].values[-60] / dfPrice['SPY'].values[-60] )
-        plt.legend((sSym, 'SPY'))
+        plt.plot( ldfFeatures[0].index[-60:], dfPrice['$SPX'].values[-60:] * dfPrice[sSym].values[-60] / dfPrice['$SPX'].values[-60] )
+        plt.legend((sSym, '$SPX'))
         plt.title(sSym)
         plt.subplot( 212 )
         plt.plot( ldfFeatures[0].index[-60:], ldfFeatures[0][sSym].values[-60:] )
