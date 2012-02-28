@@ -9,7 +9,7 @@ from pylab import *
 #
 # Prepare to read the data
 #
-symbols = ["AAPL","GLD","GOOG","SPY","XOM"]
+symbols = ["AAPL","GLD","GOOG","$SPX","XOM"]
 startday = dt.datetime(2008,1,1)
 endday = dt.datetime(2009,12,31)
 timeofday=dt.timedelta(hours=16)

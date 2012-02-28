@@ -11,7 +11,7 @@ print pandas.__version__
 #
 # Prepare to read the data
 #
-symbols = ["AAPL","GLD","GOOG","SPY","XOM"]
+symbols = ["AAPL","GLD","GOOG","$SPX","XOM"]
 startday = dt.datetime(2007,1,1)
 endday = dt.datetime(2010,12,31)
 timeofday=dt.timedelta(hours=16)
@@ -51,10 +51,10 @@ savefig('normalized.pdf',format='pdf')
 plt.clf()
 plt.cla()
 tsu.returnize0(normdat)
-plt.plot(newtimestamps[0:50],normdat[0:50,3]) # SPY 50 days
+plt.plot(newtimestamps[0:50],normdat[0:50,3]) # $SPX 50 days
 plt.plot(newtimestamps[0:50],normdat[0:50,4]) # XOM 50 days
 plt.axhline(y=0,color='r')
-plt.legend(['SPY','XOM'])
+plt.legend(['$SPX','XOM'])
 plt.ylabel('Daily Returns')
 plt.xlabel('Date')
 savefig('rets.pdf',format='pdf')
@@ -64,8 +64,8 @@ savefig('rets.pdf',format='pdf')
 #
 plt.clf()
 plt.cla()
-plt.scatter(normdat[:,3],normdat[:,4],c='blue') # SPY v XOM
+plt.scatter(normdat[:,3],normdat[:,4],c='blue') # $SPX v XOM
 plt.ylabel('XOM')
-plt.xlabel('SPY')
+plt.xlabel('$SPX')
 savefig('scatter.pdf',format='pdf')
 

@@ -19,7 +19,7 @@ import datetime as dt
 data = np.loadtxt('example-data.csv',delimiter=',',skiprows=1)
 pricedat = data[:,3:]
 datesdat = np.int_(data[:,0:3]) # date stuff should be integer
-pricesnames = ['SPY','XOM','GOOG','GLD']
+pricesnames = ['$SPX','XOM','GOOG','GLD']
 
 print 'first 5 rows of price data:'
 print pricedat[:5,:]
@@ -66,25 +66,25 @@ dailyrets = concatenate(([(zeros(pricedat.shape[1]))],
 plt.plot(dates[0:49],dailyrets[0:49,0]) # just plot first 50 days
 plt.plot(dates[0:49],dailyrets[0:49,1])
 plt.axhline(y=0,color='r')
-plt.legend(['SPY','XOM'])
+plt.legend(['$SPX','XOM'])
 plt.ylabel('Daily Returns')
 plt.xlabel('Date')
 savefig("dailyrets.pdf", format='pdf')
 
 #
-# scatter plot SPY v XOM
+# scatter plot $SPX v XOM
 #
 plt.clf()
 plt.scatter(dailyrets[:,0],dailyrets[:,1],c='blue')
 plt.ylabel('XOM')
-plt.xlabel('SPY')
-savefig("scatterSPYvXOM.pdf", format='pdf')
+plt.xlabel('$SPX')
+savefig("scatterSPXvXOM.pdf", format='pdf')
 
 #
-# scatter plot SPY v GLD
+# scatter plot $SPX v GLD
 #
 plt.clf()
 plt.scatter(dailyrets[:,0],dailyrets[:,3],c='red')
 plt.ylabel('GLD')
-plt.xlabel('SPY')
-savefig("scatterSPYvGLD.pdf", format='pdf')
+plt.xlabel('$SPX')
+savefig("scatterSPXvGLD.pdf", format='pdf')

@@ -362,7 +362,7 @@ def featStochastic( dData, lLookback=14, bFast=True, lMA=3 ):
 
 	return dfRet
 
-def featBeta( dData, lLookback=14, sMarket='SPY' ):
+def featBeta( dData, lLookback=14, sMarket='$SPX' ):
 	'''
 	@summary: Calculate beta relative to a given stock/index.
 	@param dData: Dictionary of data to use
