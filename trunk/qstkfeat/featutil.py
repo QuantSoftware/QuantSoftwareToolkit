@@ -82,8 +82,6 @@ def getMarketRel( dData, sRel='$SPX' ):
 		dRet[sKey] = dfRelative
 		
 		
-	print dRet
-	print dRet['close'].values
 	return dRet
 
 
