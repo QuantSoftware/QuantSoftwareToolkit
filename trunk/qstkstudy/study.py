@@ -18,4 +18,4 @@ eventProfiler.study(filename="MyEventStudy.pdf",\
 	plotErrorBars=True,\
 	plotMarketNeutral=True,\
         plotEvents=False,\
-	marketSymbol='SPY')
+	marketSymbol='$SPX')

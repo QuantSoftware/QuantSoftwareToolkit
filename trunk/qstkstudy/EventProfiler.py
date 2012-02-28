@@ -61,7 +61,7 @@ class EventProfiler():
             plotMarketNeutral = True, \
             plotErrorBars = False, \
             plotEvents = False, \
-            marketSymbol='SPY'):
+            marketSymbol='$SPX'):
 	    """ 
 	    Creates an event study plot
             the marketSymbol must exist in the data if plotMarketNeutral 

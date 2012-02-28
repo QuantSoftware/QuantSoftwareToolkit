@@ -16,7 +16,7 @@ def classFutRet( dData, lLookforward=21, sRel=None, dfOpen=pand.DataFrame() ):
 	@summary: Calculate classification, uses future returns 
 	@param dData: Dictionary of data to use
 	@param lLookforward: Number of days to look in the future
-	@param sRel: Stock symbol that this should be relative to, ususally SPY.
+	@param sRel: Stock symbol that this should be relative to, ususally $SPX.
 	@patam dfOpen: If supplied, stock will be purchased at i+1 open.
 	@return: DataFrame containing values
 	'''
