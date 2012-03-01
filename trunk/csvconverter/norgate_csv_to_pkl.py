@@ -134,7 +134,7 @@ def main ():
         stock_ctr = -1
         for stock in filtered_names:
             stock_ctr = stock_ctr + 1
-            print "norgate_to_csv: processing: " + str (path + stock)
+            print "csv_to_pkl: processing: " + str (path + stock)
             #read in the stock date from the CSV file
             stock_data= np.loadtxt (path + stock+".csv", np.float, None, ",", None, 1, use_cols)
             stock_data_shape = stock_data.shape
