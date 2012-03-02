@@ -400,7 +400,7 @@ class DataAccess(object):
                 print "beginning hardread"
             start = time.time() # start timer
             if verbose:
-                print "data_item(s): " + data_item
+                print "data_item(s): " + str(data_item)
                 print "symbols to read: " + str(symbol_list)
             retval = self.get_data_hardread(ts_list, 
                 symbol_list, data_item, verbose, bIncDelist)
