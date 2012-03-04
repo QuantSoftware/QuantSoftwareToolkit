@@ -1,3 +1,16 @@
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on September, 12, 2011
+
+@author: Who?
+@contact: 
+@summary: Time Series utilities.
+'''
+
 import cPickle
 import math
 import datetime as dt
@@ -16,6 +29,7 @@ from qstkutil import dateutil as du
 def daily(funds):
 	nd=deepcopy(funds)
 	nd[0]=0
+	# dude, use this instead: nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
 	for i in range(1,len(funds)):
 		nd[i]=funds[i]/funds[i-1]-1
 	return(nd)
