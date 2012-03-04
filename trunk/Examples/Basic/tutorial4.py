@@ -1,13 +1,18 @@
-#
-# tutorial4.py
-#
-# @summary: An example which creates a monthly allocation table
-# from 2004 to 2009 using a random allocation and the first 20 stocks of S&P500.
-# It then dumps the allocation table to a pickle
-# file named allocations.pkl
-#
-# @author: Drew Bratcher
-#
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on September, 12, 2011
+
+@author: Drew Bratcher
+@contact: dbratcher@gatech.edu
+@summary: An example which creates a monthly allocation table
+from 2004 to 2009 using a random allocation and the first 20 stocks of S&P500.
+It then dumps the allocation table to a pickle
+file named allocations.pkl
+'''
 
 #python imports
 import cPickle

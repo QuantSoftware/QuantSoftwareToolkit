@@ -1,8 +1,14 @@
 '''
-March 26, 2011
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on September, 12, 2011
 
 @author: Tucker Balch and Shreyas Joshi
-@summary: An example to show how dataAccess works.
+@contact: tucker@cc.gatech.edu
+@summary: Example tutorial code.
 '''
 
 import matplotlib.pyplot as plt
