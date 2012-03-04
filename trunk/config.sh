@@ -42,7 +42,7 @@ export PYTHONPATH=$PYTHONPATH:$QS:$QSBIN
 export PATH=$PATH:$QSBIN
 
 # location to store scratch files
-export QSSCRATCH=/hzr71/research/tmp
+export QSSCRATCH=$QSDATA/Scratch
 export CACHESTALLTIME=1
 #Cachestalltime in hours
 
