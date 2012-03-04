@@ -1,9 +1,15 @@
-#
-# Some examples of how to manipulate stock price data in Python
-#
-# by Tucker Balch
-# September 2010
-#
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on September, 12, 2011
+
+@author: Tucker Balch
+@contact: tucker@cc.gatech.edu
+@summary: Example tutorial code.
+'''
 
 #
 # imports
