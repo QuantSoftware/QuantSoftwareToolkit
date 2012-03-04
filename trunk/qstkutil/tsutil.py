@@ -27,6 +27,8 @@ from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 
 def daily(funds):
+	# shouldn't this have a name more like returnize0?  
+	# It is used for daily, monthly and other terms of returns.
 	nd=deepcopy(funds)
 	nd[0]=0
 	# dude, use this instead: nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
