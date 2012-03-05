@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>QSTK.Bin.converter</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="QSTK-module.html">Package&nbsp;QSTK</a> ::
+        <a href="QSTK.Bin-module.html">Package&nbsp;Bin</a> ::
+        Module&nbsp;converter
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="QSTK.Bin.converter-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="QSTK.Bin.converter-module.html">Module QSTK.Bin.converter</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-comment"># fundsToPNG.py</tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-comment"># Short script which produces a graph of funds </tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-comment"># over time from a pickle file.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt class="py-comment"># Drew Bratcher</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line"> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">pylab</tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package QSTK.qstkutil=QSTK.qstkutil-module.html"><a title="QSTK.qstkutil" class="py-name" href="#" onclick="return doclink('link-0', 'qstkutil', 'link-0');">qstkutil</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module QSTK.qstkutil.DataAccess=QSTK.qstkutil.DataAccess-module.html,Class QSTK.qstkutil.DataAccess.DataAccess=QSTK.qstkutil.DataAccess.DataAccess-class.html"><a title="QSTK.qstkutil.DataAccess
+QSTK.qstkutil.DataAccess.DataAccess" class="py-name" href="#" onclick="return doclink('link-1', 'DataAccess', 'link-1');">DataAccess</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">da</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="QSTK.qstkutil" class="py-name" href="#" onclick="return doclink('link-2', 'qstkutil', 'link-0');">qstkutil</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module QSTK.qstkutil.tsutil=QSTK.qstkutil.tsutil-module.html"><a title="QSTK.qstkutil.tsutil" class="py-name" href="#" onclick="return doclink('link-3', 'tsutil', 'link-3');">tsutil</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">tsu</tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name" targets="Package QSTK.quicksim=QSTK.quicksim-module.html"><a title="QSTK.quicksim" class="py-name" href="#" onclick="return doclink('link-4', 'quicksim', 'link-4');">quicksim</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Module QSTK.quicksim.quickSim=QSTK.quicksim.quickSim-module.html,Function QSTK.quicksim.quickSim.quickSim()=QSTK.quicksim.quickSim-module.html#quickSim"><a title="QSTK.quicksim.quickSim
+QSTK.quicksim.quickSim.quickSim" class="py-name" href="#" onclick="return doclink('link-5', 'quickSim', 'link-5');">quickSim</a></tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">copy</tt> <tt class="py-keyword">import</tt> <tt class="py-name">deepcopy</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">math</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">pandas</tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">matplotlib</tt><tt class="py-op">.</tt><tt class="py-name">pyplot</tt> <tt class="py-keyword">as</tt> <tt class="py-name">plt</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">cPickle</tt> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line"> </tt>
+<a name="fundsToPNG"></a><div id="fundsToPNG-def"><a name="L20"></a><tt class="py-lineno">20</tt> <a class="py-toggle" href="#" id="fundsToPNG-toggle" onclick="return toggle('fundsToPNG');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.Bin.converter-module.html#fundsToPNG">fundsToPNG</a><tt class="py-op">(</tt><tt class="py-param">funds</tt><tt class="py-op">,</tt><tt class="py-param">output_file</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="fundsToPNG-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="fundsToPNG-expanded"><a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">clf</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt><tt class="py-op">(</tt><tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">)</tt><tt class="py-op">==</tt><tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">                <tt class="py-keyword">for</tt> <tt id="link-6" class="py-name" targets="Variable QSTK.Bin.gen_nyse_dates.i=QSTK.Bin.gen_nyse_dates-module.html#i"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-6', 'i', 'link-6');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">                        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">plot</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-7" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-7', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">,</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-8" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-8', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">)</tt> </tt>
+<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line">                <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">plot</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">,</tt><tt class="py-name">funds</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">)</tt> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">ylabel</tt><tt class="py-op">(</tt><tt class="py-string">'Fund Value'</tt><tt class="py-op">)</tt> </tt>
+<a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">xlabel</tt><tt class="py-op">(</tt><tt class="py-string">'Date'</tt><tt class="py-op">)</tt> </tt>
+<a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">draw</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">        <tt class="py-name">savefig</tt><tt class="py-op">(</tt><tt class="py-name">output_file</tt><tt class="py-op">,</tt> <tt class="py-name">format</tt><tt class="py-op">=</tt><tt class="py-string">'png'</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"> </tt>
+<a name="fundsAnalysisToPNG"></a><div id="fundsAnalysisToPNG-def"><a name="L32"></a><tt class="py-lineno">32</tt> <a class="py-toggle" href="#" id="fundsAnalysisToPNG-toggle" onclick="return toggle('fundsAnalysisToPNG');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.Bin.converter-module.html#fundsAnalysisToPNG">fundsAnalysisToPNG</a><tt class="py-op">(</tt><tt class="py-param">funds</tt><tt class="py-op">,</tt><tt class="py-param">output_file</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="fundsAnalysisToPNG-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="fundsAnalysisToPNG-expanded"><a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">clf</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt><tt class="py-op">(</tt><tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">)</tt><tt class="py-op">!=</tt><tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line">                <tt class="py-keyword">print</tt> <tt class="py-string">'fundsmatrix only contains one timeseries, not able to analyze.'</tt> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line">        <tt class="py-comment">#convert to daily returns</tt> </tt>
+<a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line">        <tt class="py-name">count</tt><tt class="py-op">=</tt><tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line">        <tt class="py-name">dates</tt><tt class="py-op">=</tt><tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line">        <tt class="py-name">sum</tt><tt class="py-op">=</tt><tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-9" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-9', 'i', 'link-6');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line">                <tt class="py-name">ret</tt><tt class="py-op">=</tt><tt class="py-name">tsu</tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Function QSTK.qstkutil.tsutil.daily()=QSTK.qstkutil.tsutil-module.html#daily"><a title="QSTK.qstkutil.tsutil.daily" class="py-name" href="#" onclick="return doclink('link-10', 'daily', 'link-10');">daily</a></tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-11" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-11', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">)</tt> </tt>
+<a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line">                <tt class="py-keyword">for</tt> <tt id="link-12" class="py-name" targets="Variable QSTK.Bin.gen_nyse_dates.j=QSTK.Bin.gen_nyse_dates-module.html#j"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-12', 'j', 'link-12');">j</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">ret</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line">                        <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-13" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-13', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt id="link-14" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-14', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt> <tt class="py-keyword">in</tt> <tt class="py-name">dates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L44"></a><tt class="py-lineno">44</tt>  <tt class="py-line">                                <tt class="py-name">sum</tt><tt class="py-op">[</tt><tt class="py-name">dates</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-15" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-15', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt id="link-16" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-16', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">+=</tt><tt class="py-name">ret</tt><tt class="py-op">[</tt><tt id="link-17" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-17', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt> </tt>
+<a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line">                                <tt class="py-name">count</tt><tt class="py-op">[</tt><tt class="py-name">dates</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-18" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-18', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt id="link-19" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-19', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">+=</tt><tt class="py-number">1</tt> </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line">                        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line">                                <tt class="py-name">dates</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-20" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-20', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt id="link-21" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-21', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt>  </tt>
+<a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line">                                <tt class="py-name">count</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-number">1</tt><tt class="py-op">)</tt> </tt>
+<a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line">                                <tt class="py-name">sum</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">ret</tt><tt class="py-op">[</tt><tt id="link-22" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-22', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L50"></a><tt class="py-lineno">50</tt>  <tt class="py-line">        <tt class="py-comment">#compute average</tt> </tt>
+<a name="L51"></a><tt class="py-lineno">51</tt>  <tt class="py-line">        <tt class="py-name">tot_ret</tt><tt class="py-op">=</tt><tt class="py-name">deepcopy</tt><tt class="py-op">(</tt><tt class="py-name">sum</tt><tt class="py-op">)</tt> </tt>
+<a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-23" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-23', 'i', 'link-6');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">sum</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line">                <tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt id="link-24" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-24', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-name">sum</tt><tt class="py-op">[</tt><tt id="link-25" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-25', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">/</tt><tt class="py-name">count</tt><tt class="py-op">[</tt><tt id="link-26" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-26', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt> </tt>
+<a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line">         </tt>
+<a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line">        <tt class="py-comment">#compute std</tt> </tt>
+<a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line">        <tt class="py-name">std</tt><tt class="py-op">=</tt><tt class="py-name">zeros</tt><tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">sum</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-27" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-27', 'i', 'link-6');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line">                <tt class="py-name">temp</tt><tt class="py-op">=</tt><tt class="py-name">tsu</tt><tt class="py-op">.</tt><tt id="link-28" class="py-name"><a title="QSTK.qstkutil.tsutil.daily" class="py-name" href="#" onclick="return doclink('link-28', 'daily', 'link-10');">daily</a></tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-29" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-29', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">)</tt> </tt>
+<a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line">                <tt class="py-keyword">for</tt> <tt id="link-30" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-30', 'j', 'link-12');">j</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">temp</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line">                        <tt class="py-name">std</tt><tt class="py-op">[</tt><tt class="py-name">dates</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-31" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-31', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt id="link-32" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-32', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-number">0</tt> </tt>
+<a name="L61"></a><tt class="py-lineno">61</tt>  <tt class="py-line">                        <tt class="py-name">std</tt><tt class="py-op">[</tt><tt class="py-name">dates</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-33" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-33', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt id="link-34" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-34', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">+=</tt><tt class="py-name">math</tt><tt class="py-op">.</tt><tt class="py-name">pow</tt><tt class="py-op">(</tt><tt class="py-name">temp</tt><tt class="py-op">[</tt><tt id="link-35" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-35', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">-</tt><tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt class="py-name">dates</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">(</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt id="link-36" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-36', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt id="link-37" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.j" class="py-name" href="#" onclick="return doclink('link-37', 'j', 'link-12');">j</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">,</tt><tt class="py-number">2</tt><tt class="py-op">)</tt> </tt>
+<a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line">         </tt>
+<a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-38" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-38', 'i', 'link-6');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">1</tt><tt class="py-op">,</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">std</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line"><tt class="py-comment">#               std[i]=math.sqrt(std[i]/count[i])+std[i-1]</tt> </tt>
+<a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line">                <tt class="py-name">std</tt><tt class="py-op">[</tt><tt id="link-39" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-39', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-name">math</tt><tt class="py-op">.</tt><tt id="link-40" class="py-name" targets="Variable QSTK.Bin.converter.sqrt=QSTK.Bin.converter-module.html#sqrt,Variable QSTK.Bin.report.sqrt=QSTK.Bin.report-module.html#sqrt,Variable QSTK.qstklearn.mldiagnostics.sqrt=QSTK.qstklearn.mldiagnostics-module.html#sqrt,Variable QSTK.qstkutil.bollinger.sqrt=QSTK.qstkutil.bollinger-module.html#sqrt,Variable QSTK.quicksim.quickSim.sqrt=QSTK.quicksim.quickSim-module.html#sqrt"><a title="QSTK.Bin.converter.sqrt
+QSTK.Bin.report.sqrt
+QSTK.qstklearn.mldiagnostics.sqrt
+QSTK.qstkutil.bollinger.sqrt
+QSTK.quicksim.quickSim.sqrt" class="py-name" href="#" onclick="return doclink('link-40', 'sqrt', 'link-40');">sqrt</a></tt><tt class="py-op">(</tt><tt class="py-name">std</tt><tt class="py-op">[</tt><tt id="link-41" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-41', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">/</tt><tt class="py-name">count</tt><tt class="py-op">[</tt><tt id="link-42" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-42', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L66"></a><tt class="py-lineno">66</tt>  <tt class="py-line">         </tt>
+<a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line">        <tt class="py-comment">#compute total returns</tt> </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line">        <tt class="py-name">lower</tt><tt class="py-op">=</tt><tt class="py-name">deepcopy</tt><tt class="py-op">(</tt><tt class="py-name">tot_ret</tt><tt class="py-op">)</tt> </tt>
+<a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line">        <tt class="py-name">upper</tt><tt class="py-op">=</tt><tt class="py-name">deepcopy</tt><tt class="py-op">(</tt><tt class="py-name">tot_ret</tt><tt class="py-op">)</tt> </tt>
+<a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line">        <tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line">        <tt class="py-name">lower</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-name">funds</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line">        <tt class="py-name">upper</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-name">lower</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line"><tt class="py-comment">#       for i in range(1,len(tot_ret)):</tt> </tt>
+<a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line"><tt class="py-comment">#               tot_ret[i]=tot_ret[i-1]+(tot_ret[i])*tot_ret[i-1]</tt> </tt>
+<a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line"><tt class="py-comment">#               lower[i]=tot_ret[i-1]-(std[i])*tot_ret[i-1]</tt> </tt>
+<a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line"><tt class="py-comment">#               upper[i]=tot_ret[i-1]+(std[i])*tot_ret[i-1]</tt> </tt>
+<a name="L77"></a><tt class="py-lineno">77</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-43" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-43', 'i', 'link-6');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">1</tt><tt class="py-op">,</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">tot_ret</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line">                <tt class="py-name">lower</tt><tt class="py-op">[</tt><tt id="link-44" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-44', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-op">(</tt><tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt id="link-45" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-45', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">-</tt><tt class="py-name">std</tt><tt class="py-op">[</tt><tt id="link-46" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-46', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">+</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">*</tt><tt class="py-name">lower</tt><tt class="py-op">[</tt><tt id="link-47" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-47', 'i', 'link-6');">i</a></tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> </tt>
+<a name="L79"></a><tt class="py-lineno">79</tt>  <tt class="py-line">                <tt class="py-name">upper</tt><tt class="py-op">[</tt><tt id="link-48" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-48', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-op">(</tt><tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt id="link-49" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-49', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">+</tt><tt class="py-name">std</tt><tt class="py-op">[</tt><tt id="link-50" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-50', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">+</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">*</tt><tt class="py-name">upper</tt><tt class="py-op">[</tt><tt id="link-51" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-51', 'i', 'link-6');">i</a></tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> </tt>
+<a name="L80"></a><tt class="py-lineno">80</tt>  <tt class="py-line">                <tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt id="link-52" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-52', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">=</tt><tt class="py-op">(</tt><tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt id="link-53" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-53', 'i', 'link-6');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">+</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">*</tt><tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt id="link-54" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-54', 'i', 'link-6');">i</a></tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> </tt>
+<a name="L81"></a><tt class="py-lineno">81</tt>  <tt class="py-line">                 </tt>
+<a name="L82"></a><tt class="py-lineno">82</tt>  <tt class="py-line">         </tt>
+<a name="L83"></a><tt class="py-lineno">83</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">clf</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L84"></a><tt class="py-lineno">84</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">plot</tt><tt class="py-op">(</tt><tt class="py-name">dates</tt><tt class="py-op">,</tt><tt class="py-name">tot_ret</tt><tt class="py-op">)</tt> </tt>
+<a name="L85"></a><tt class="py-lineno">85</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">plot</tt><tt class="py-op">(</tt><tt class="py-name">dates</tt><tt class="py-op">,</tt><tt class="py-name">lower</tt><tt class="py-op">)</tt> </tt>
+<a name="L86"></a><tt class="py-lineno">86</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">plot</tt><tt class="py-op">(</tt><tt class="py-name">dates</tt><tt class="py-op">,</tt><tt class="py-name">upper</tt><tt class="py-op">)</tt> </tt>
+<a name="L87"></a><tt class="py-lineno">87</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">legend</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-string">'Tot_Ret'</tt><tt class="py-op">,</tt><tt class="py-string">'Lower'</tt><tt class="py-op">,</tt><tt class="py-string">'Upper'</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-name">loc</tt><tt class="py-op">=</tt><tt class="py-string">'upper left'</tt><tt class="py-op">)</tt> </tt>
+<a name="L88"></a><tt class="py-lineno">88</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">ylabel</tt><tt class="py-op">(</tt><tt class="py-string">'Fund Total Return'</tt><tt class="py-op">)</tt> </tt>
+<a name="L89"></a><tt class="py-lineno">89</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">ylim</tt><tt class="py-op">(</tt><tt class="py-name">ymin</tt><tt class="py-op">=</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-name">ymax</tt><tt class="py-op">=</tt><tt class="py-number">2</tt><tt class="py-op">*</tt><tt class="py-name">tot_ret</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L90"></a><tt class="py-lineno">90</tt>  <tt class="py-line">        <tt class="py-name">plt</tt><tt class="py-op">.</tt><tt class="py-name">draw</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L91"></a><tt class="py-lineno">91</tt>  <tt class="py-line">        <tt class="py-name">savefig</tt><tt class="py-op">(</tt><tt class="py-name">output_file</tt><tt class="py-op">,</tt> <tt class="py-name">format</tt><tt class="py-op">=</tt><tt class="py-string">'png'</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L92"></a><tt class="py-lineno">92</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Mar  5 00:49:16 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
