@@ -47,8 +47,8 @@ for i in range(21):
 for i in range(21):
 	vals[i]=vals[i]/sum(vals)
 
-# Create Allocation DataMatrix
-alloc=DataMatrix(index=[tsstart], columns=symbols, data=[vals]) 
+# Create Allocation DataFrame
+alloc=DataFrame(index=[tsstart], columns=symbols, data=[vals]) 
 
 # Add a row for each new month
 last=tsstart
@@ -62,7 +62,7 @@ for day in timestamps:
 		for i in range(21):
 			vals[i]=vals[i]/sum(vals)
 		# Append new row
-		alloc=alloc.append(DataMatrix(index=[day], columns=symbols, data=[vals]))
+		alloc=alloc.append(DataFrame(index=[day], columns=symbols, data=[vals]))
 	last=day
 
 
