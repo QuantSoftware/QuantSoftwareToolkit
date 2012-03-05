@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>QSTK.qstklearn.fastknn.FastKNN</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="QSTK-module.html">Package&nbsp;QSTK</a> ::
+        <a href="QSTK.qstklearn-module.html">Package&nbsp;qstklearn</a> ::
+        <a href="QSTK.qstklearn.fastknn-module.html">Module&nbsp;fastknn</a> ::
+        Class&nbsp;FastKNN
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="QSTK.qstklearn.fastknn.FastKNN-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class FastKNN</h1><p class="nomargin-top"><span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN">source&nbsp;code</a></span></p>
+<p>A class which implements the KNN learning algorithm with sped up query
+  times.</p>
+  <p>This class follows the conventions of other classes in the qstklearn 
+  module, with a constructor that initializes basic parameters and 
+  bookkeeping variables, an 'addEvidence' method for adding labeled 
+  training data individually or as a batch, and a 'query' method that 
+  returns an estimated class for an unlabled point.  Training and testing 
+  data are in the form of numpy arrays, and classes are discrete.</p>
+  <p>In order to speed up query times, this class keeps a number of lists 
+  which sort the training data by distance to 'anchor' points.  The lists 
+  aren't sorted until the first call to the 'query' method, after which, 
+  the lists are kept in sorted order. Initial sort is done using pythons 
+  'sort' (samplesort), and sorted insertions with 'insort' from the bisect 
+  module.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__init__"></a><span class="summary-sig-name">__init__</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">num_anchors</span>,
+        <span class="summary-sig-arg">k</span>)</span><br />
+      Creates a new FastKNN object that will use the given number of 
+      anchors.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="QSTK.qstklearn.fastknn.FastKNN-class.html#resetAnchors" class="summary-sig-name">resetAnchors</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">selection_type</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">random</code><code class="variable-quote">'</code></span>)</span><br />
+      Picks a new set of anchors.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN.resetAnchors">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="QSTK.qstklearn.fastknn.FastKNN-class.html#addEvidence" class="summary-sig-name">addEvidence</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">label</span>)</span><br />
+      Adds to the set of training data.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN.addEvidence">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="QSTK.qstklearn.fastknn.FastKNN-class.html#query" class="summary-sig-name">query</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">point</span>,
+        <span class="summary-sig-arg">k</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">method</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">mode</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">slow</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">dumdumcheck</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Returns class value for an unlabled point by examining its k nearest 
+      neighbors.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN.query">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="resetAnchors"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">resetAnchors</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">selection_type</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">random</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN.resetAnchors">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Picks a new set of anchors.  The anchor lists will be re-sorted upon 
+  the next call to 'query'.</p>
+  <p>selection_type - the method to use when selecting new anchor points. 
+  'random' performs a random permutation of the training points and picks 
+  the first 'num_anchors' as new anchors.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="addEvidence"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">addEvidence</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">data</span>,
+        <span class="sig-arg">label</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN.addEvidence">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Adds to the set of training data. If the anchor lists were sorted 
+  before the call to this method, the new data will be inserted into the 
+  anchor lists using 'bisect.insort'</p>
+  <p>data - a numpy array, either a single point (1D) or a set of points 
+  (2D)</p>
+  <p>label - the label for data. A single value, or a list of values in the
+  same order as the points in data.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="query"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">query</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">point</span>,
+        <span class="sig-arg">k</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">method</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">mode</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">slow</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">dumdumcheck</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="QSTK.qstklearn.fastknn-pysrc.html#FastKNN.query">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns class value for an unlabled point by examining its k nearest 
+  neighbors. 'method' determines how the class of the unlabled point is 
+  determined.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Mar  5 00:49:16 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
