@@ -73,12 +73,23 @@ plt.xlabel('Date')
 savefig('rets.pdf',format='pdf')
 
 #
-# Scatter plat
+# Scatter plot
 #
 plt.clf()
 plt.cla()
 plt.scatter(normdat[:,3],normdat[:,4],c='blue') # $SPX v XOM
 plt.ylabel('XOM')
 plt.xlabel('$SPX')
-savefig('scatter.pdf',format='pdf')
+savefig('scatterSPXvXOM.pdf',format='pdf')
 
+#
+# Scatter plot
+#
+plt.clf()
+plt.cla()
+plt.scatter(normdat[:,3],normdat[:,1],c='blue') # $SPX v GLD
+plt.ylabel('GLD')
+plt.xlabel('$SPX')
+savefig('scatterSPXvGLD.pdf',format='pdf')
+
+print actualclose
