@@ -27,8 +27,11 @@ from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 
 def daily(funds):
-	# shouldn't this have a name more like returnize0?  
-	# It is used for daily, monthly and other terms of returns.
+	"""
+	@summary Computes daily returns of funds.
+	@param funds: DataFrame of funds
+	@return Copy of funds but in return format
+	"""	
 	nd=deepcopy(funds)
 	nd[0]=0
 	# dude, use this instead: nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
@@ -36,7 +39,14 @@ def daily(funds):
 		nd[i]=funds[i]/funds[i-1]-1
 	return(nd)
 
+
 def monthly(funds):
+	"""
+	@summary Computes month returns for an array of funds
+	@param funds: DataFrame of funds
+	@return New array representing total returns on the beginning of each month
+	"""	
+	
 	funds2=[]
 	years=dateutil.getYears(funds)
 	for year in years:
@@ -45,7 +55,14 @@ def monthly(funds):
 			funds2.append(funds[dateutil.getFirstDay(funds,year,month)])
 	return(daily(funds2))
 
+
 def averageMonthly(funds):
+	"""
+	@summary Computes monthly returns and then takes averages
+	@param funds: DataFrame of funds
+	@return Average monthly returns
+	"""
+	
 	rets=daily(funds)
 	x=0
 	years=dateutil.getYears(funds)
@@ -63,6 +80,7 @@ def averageMonthly(funds):
 			averages.append(float(avg)/count)
 	return(averages)	
 
+
 def fillforward(nd):
 	"""
 	@summary Removes NaNs from a 2D array by scanning forward in the 
@@ -74,6 +92,7 @@ def fillforward(nd):
 		for row in range(1,nd.shape[0]):
 			if math.isnan(nd[row,col]):
 				nd[row,col] = nd[row-1,col]
+
 
 def fillbackward(nd):
 	"""
@@ -87,6 +106,7 @@ def fillbackward(nd):
 			if math.isnan(nd[row,col]):
 				nd[row,col] = nd[row+1,col]
 
+
 def returnize0(nd):
 	"""
 	@summary Computes stepwise (usually daily) returns relative to 0, where
@@ -95,6 +115,7 @@ def returnize0(nd):
 	"""
 	nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
 	nd[0,:] = np.zeros(nd.shape[1])
+
 
 def returnize1(nd):
 	"""
@@ -105,7 +126,8 @@ def returnize1(nd):
 	"""
 	nd[1:,:] = (nd[1:,:]/nd[0:-1])
 	nd[0,:] = np.ones(nd.shape[1])
-	
+
+
 def priceize1(nd):
 	"""
 	@summary Computes stepwise (usually daily) returns relative to 1, where
@@ -117,19 +139,27 @@ def priceize1(nd):
 	nd[0,:] = 100 
 	for i in range(1,nd.shape[0]):
 		nd[i,:] = nd[i-1,:] * nd[i,:]
-	
-	
+
+
 def logreturnize(nd):
 	"""
 	@summary Computes stepwise (usually daily) logarithmic returns.
 	@param nd: the array to fill backward
 	@return the array is revised in place
 	"""
+	
 	returnize1(nd)
 	nd = np.log(nd)
 	return nd
 
+
 def getRatio(funds):
+	"""
+	@summary Calculate sharpe ratio on an array of funds
+	@param funds: DataFrame of funds
+	@return sharpe ratio of the daily returns
+	"""
+	
 	d=daily(funds)
 	avg=float(sum(d))/len(d)
 	std=0
@@ -138,12 +168,14 @@ def getRatio(funds):
 	std=sqrt(float(std)/(len(d)-1))
 	return(avg/std)
 
+
 def getYearRatio(funds,year):
 	funds2=[]
 	for date in funds.index:
 		if(date.year==year):
 			funds2.append(funds[date])
 	return(getRatio(funds2))
+
 
 def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 	"""
@@ -163,6 +195,7 @@ def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 
 	return fSharpe
 
+
 def getRorAnnual( naRets ):
 	"""
 	@summary Returns the rate of return annualized.  Assumes len(naRets) is number of days.
@@ -181,12 +214,13 @@ def getRorAnnual( naRets ):
 	
 	return ( (1.0 + fRorYtd)**( 1.0/(len(naRets)/365.0) ) ) - 1.0
 
+
 def getPeriodicRets( dmPrice, sOffset ):
 	"""
 	@summary Reindexes a DataMatrix price array and returns the new periodic returns.
 	@param dmPrice: DataMatrix of stock prices
 	@param sOffset: Offset string to use, choose from _offsetMap in pandas/core/datetools.py
-	                e.g. 'EOM', 'WEEKDAY', 'W@FRI', 'A@JAN'.  Or use a pandas DateOffset.
+					e.g. 'EOM', 'WEEKDAY', 'W@FRI', 'A@JAN'.  Or use a pandas DateOffset.
 	"""	
 	
 	''' Could possibly use DataMatrix.asfreq here '''
@@ -200,14 +234,15 @@ def getPeriodicRets( dmPrice, sOffset ):
 	''' Do not leave return of 1.0 for first time period: not accurate '''
 	return dmPrice[1:]
 
+
 def getReindexedRets( naRets, lPeriod ):
 	"""
 	@summary Reindexes returns using the cumulative product. E.g. if returns are 1.5 and 1.5, a period of 2 will
-	         produce a 2-day return of 2.25.  Note, these must be returns centered around 1.
+			 produce a 2-day return of 2.25.  Note, these must be returns centered around 1.
 	@param naRets: Daily returns of the various stocks (using returnize1)
 	@param lPeriod: New target period.
 	@note: Note that this function does not track actual weeks or months, it only approximates with trading days.
-	       You can use 5 for week, or 21 for month, etc.
+		   You can use 5 for week, or 21 for month, etc.
 	"""	
 	naCumData = np.cumprod(naRets, axis=0)
 
@@ -221,7 +256,8 @@ def getReindexedRets( naRets, lPeriod ):
 	
 	return naCumData[-lNewRows:, ]
 
-		
+
+
 def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebug=0 ):
 	"""
 	@summary Returns the Markowitz optimum portfolio for a specific return.
@@ -292,12 +328,12 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 
 def getRetRange( naRets, naLower, naUpper ):
 	"""
-    @summary Returns the range of possible returns with upper and lower bounds on the portfolio participation
-    @param naRets: Expected returns
-    @param naLower: List of lower percentages by stock
-    @param naUpper: List of upper percentages by stock
-    @return tuple containing (fMin, fMax)
-    """    
+	@summary Returns the range of possible returns with upper and lower bounds on the portfolio participation
+	@param naRets: Expected returns
+	@param naLower: List of lower percentages by stock
+	@param naUpper: List of upper percentages by stock
+	@return tuple containing (fMin, fMax)
+	"""	
 	
 	''' Calculate theoretical minimum and maximum theoretical returns '''
 	fMin = 0
@@ -350,10 +386,10 @@ def getFrontier( naRets, lRes=100, fUpper=0.2, fLower=0.00):
 	@param fUpper: Upper bound on portfolio percentage
 	@param fLower: Lower bound on portfolio percentage
 	@return tuple containing (lfReturn, lfStd, lnaPortfolios)
-	        lfReturn: List of returns provided by each point
-	        lfStd: list of standard deviations provided by each point
-	        lnaPortfolios: list of numpy arrays containing weights for each portfolio
-    """    
+			lfReturn: List of returns provided by each point
+			lfStd: list of standard deviations provided by each point
+			lnaPortfolios: list of numpy arrays containing weights for each portfolio
+	"""	
 	
 	''' Limit/enforce percent participation '''
 	naUpper = np.ones(naRets.shape[1]) * fUpper
@@ -435,7 +471,7 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dm
 	@param fNonNan: Optional non-nan percent for filter, default is .95
 	@param fPriceVolume: Optional price*volume for filter, default is 100,000
 	@warning: Does not work for all sets of optional inputs, e.g. if you don't include dtStart, dtEnd, you need 
-	          to include dmPrice/dmVolume
+			  to include dmPrice/dmVolume
 	@return list of stocks which meet the criteria
 	"""
 	
@@ -510,7 +546,6 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dm
 
 	
 	
-
 
 
 
