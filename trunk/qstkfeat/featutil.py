@@ -332,17 +332,24 @@ def getFeatureFuncs():
 	@return: Tuple containing (list of functions, list of arguments, list of names)
 	'''
 	
-	lfcFeatures = [ featMA, featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, classFutRet ]
-	lsNames = ['Moving Average', 'Relative Moving Average', 'RSI', 'Draw Down', 'Run Up', 'Volume Delta', 'Future Returns']
+	lfcFeatures = [ featMA, featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, featAroon, featAroon, featStochastic , featBeta, featBollinger, featCorrelation, featPrice, featVolume]
+	lsNames = ['MovingAverage', 'RelativeMovingAverage', 'RSI', 'DrawDown', 'RunUp', 'VolumeDelta', 'AroonUp', 'AroonLow', 'Stochastic', 'Beta', 'Bollinger', 'Correlation', 'Price' , 'Volume']
 	  
 	''' Custom Arguments '''
-	ldArgs = [ {'lLookback':30},\
+	ldArgs = [ {'lLookback':30, 'bRel':False},\
 			   {'lLookback':30, 'bRel':True},\
+			   {'lLookback':14},\
+			   {'lLookback':30},\
+			   {'lLookback':30},\
+			   {'lLookback':30},\
+			   {'bDown':False, 'lLookback':25},\
+			   {'bDown':True, 'lLookback':25},\
+			   {'lLookback':14},\
+			   {'lLookback':14, 'sMarket':'SPY'},\
+			   {'lLookback':20},\
+			   {'lLookback':20, 'sRel':'SPY'},\
 			   {},\
-			   {},\
-			   {},\
-			   {},\
-			   {'sRel':'$SPX'}]   
+			   {}]   
 	
 	return lfcFeatures, ldArgs, lsNames
 	  
