@@ -153,14 +153,16 @@ def loadFeatures( sLog ):
 	return ldfRet
 
 
-def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, lsSym=None, bDelNan=True, bShowRemoved=False ):
+def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, lsSym=None, sDelNan='ALL', bShowRemoved=False ):
 	'''
 	@summary: Remove symbols from the dataframes, effectively stacking all stocks on top of each other.
 	@param ldfFeatures: List of data frames of features.
 	@param dtStart: Start time, if None, uses all
 	@param dtEnd: End time, if None uses all
 	@param lsSym: List of symbols to use, if None, all are used.
-	@param bDelNan: Optional, default is true: delete all rows with a NaN in it
+	@param sDelNan: Optional, default is ALL: delete any rows with a NaN in it 
+	                FEAT: Delete if any of the feature points are NaN, allow NaN classification
+	                None: Do not delete any NaN rows
 	@return: Numpy array containing all features as columns and all 
 	'''
 	
@@ -188,14 +190,17 @@ def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, lsSym=None, bDelNan=True, 
 				naStkData = np.hstack( (naStkData, dfFeat[sStock].values.reshape(-1,1)) )
    
 		''' Remove nan rows possibly'''
-		if True == bDelNan:
+		if 'ALL' == sDelNan or 'FEAT' == sDelNan:
 			llValidRows = []
 			for i in range(naStkData.shape[0]):
-				if not math.isnan( np.sum(naStkData[i,:]) ):
+				
+				
+				if 'ALL' == sDelNan and not math.isnan( np.sum(naStkData[i,:]) ) or\
+				  'FEAT' == sDelNan and not math.isnan( np.sum(naStkData[i,:-1]) ):
 					llValidRows.append(i)
-				elif bShowRemoved:
+				elif  bShowRemoved:
 					print 'Removed', sStock, naStkData[i,:]
-					
+						
 			naStkData = naStkData[llValidRows,:]
 			
 	
