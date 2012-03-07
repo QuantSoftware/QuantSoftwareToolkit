@@ -88,8 +88,8 @@ def fillforward(nd):
 	@param nd: the array to fill forward
 	@return the array is revised in place
 	"""
-	for col in range(nd.shape[1]):
-		for row in range(1,nd.shape[0]):
+	for col in range(0,nd.shape[1]):
+		for row in range(0,nd.shape[0]):
 			if math.isnan(nd[row,col]):
 				nd[row,col] = nd[row-1,col]
 
@@ -324,6 +324,93 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 	''' Return weights and stdDev of portfolio.  note again the last value of naReturn is NAG's reported variance '''
 	return (naReturn[0,0:-1], fPortDev)
 
+def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=None ):
+	"""
+	@summary Returns the Markowitz optimum portfolio for a specific return.
+	@param naData: Daily returns of the various stocks (using returnize1)
+	@param fTarget: Target return, i.e. 0.04 = 4% per period
+	@param lPeriod: Period to compress the returns to, e.g. 7 = weekly
+	@param naLower: List of floats which corresponds to lower portfolio% for each stock
+	@param naUpper: List of floats which corresponds to upper portfolio% for each stock 
+	@return tuple: (weights of portfolio, min possible return, max possible return)
+	"""
+	
+	''' Attempt to import library '''
+	try:
+		pass
+		from cvxopt import matrix
+		from cvxopt.blas import dot
+		from cvxopt.solvers import qp, options
+
+	except ImportError:
+		print 'Could not import CVX library, make sure nagint.so is in your python path'
+		return ([],0)
+	
+	''' Get number of stocks '''
+	length = naData.shape[1]
+	
+	# Reindexing the Portfolio	
+	if( lPeriod != 1 ):
+		naData = getReindexedRets( naData, lPeriod)
+	
+	# Assuming AvgReturns as the expected returns if parameter is not specified
+	if (naExpected==None):
+		naAvgRets = np.average( naData, axis=0 )
+	else: naAvgRets=naExpected
+
+	# Covariance matrix of the Data Set
+	naCov=np.cov(naData, rowvar=False)
+	
+	''' Special case for None == fTarget, simply return average returns and cov '''
+	if( fTarget is None ):
+		return (naAvgRets, np.std(naData, axis=0))
+	
+	# Upper bound of the Weights of a equity, If not specified, assumed to be 1.
+	if(naUpper==None):
+		naUpper= np.ones(length)
+	
+	# Lower bound of the Weights of a equity, If not specified assumed to be 0 (No shorting case)
+	if(naLower==None):
+		naLower= np.zeros(length)
+	
+	# Double the covariance of the diagonal elements for calculating risk.
+	for i in range(length):
+		naCov[i][i]=2*naCov[i][i]
+
+	# Setting up the parameters for the CVXOPT Library, it takes inputs in Matrix format.
+	'''
+	The Risk minimization problem is a standard Quadratic Programming problem according to the Markowitz Theory.
+	'''
+	S=matrix(naCov)
+	pbar=matrix(naAvgRets)
+	naLower.shape=(length,1)
+	naUpper.shape=(length,1)
+	zeo=matrix(0.0,(length,1))
+	I = np.eye(length)
+	minusI=-1*I
+	G=matrix(np.vstack((I, minusI)))
+	h=matrix(np.vstack((naUpper, naLower)))
+	ones=matrix(1.0,(1,length)) 
+	A=matrix(np.vstack((naAvgRets, ones)))
+	b=matrix([0.0,1.0])
+	
+	# Optional Settings for CVXOPT
+	options['show_progress'] = False
+	options['abstol']=1e-5
+	options['reltol']=1e-4
+	options['feastol']=1e-5
+	
+
+	# Optimization Calls
+	# Optimal Portfolio
+	lnaPortfolios = qp(S, -zeo, G, h, A, b+matrix([fTarget,0.0]))['x']
+	
+	# Expected Return of the Portfolio
+#	lfReturn = dot(pbar, lnaPortfolios)
+	
+	# Risk of the portfolio
+	fPortDev = np.std(np.dot(naData, lnaPortfolios))
+	return (lnaPortfolios, fPortDev)
 
 
 def getRetRange( naRets, naLower, naUpper ):
