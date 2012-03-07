@@ -343,7 +343,7 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
 		from cvxopt.solvers import qp, options
 
 	except ImportError:
-		print 'Could not import CVX library, make sure nagint.so is in your python path'
+		print 'Could not import CVX library'
 		return ([],0)
 	
 	''' Get number of stocks '''
