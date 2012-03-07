@@ -25,7 +25,7 @@ print pandas.__version__
 # Prepare to read the data
 #
 symbols = ["AAPL","GLD","GOOG","$SPX","XOM"]
-startday = dt.datetime(2007,1,1)
+startday = dt.datetime(2006,1,1)
 endday = dt.datetime(2010,12,31)
 timeofday=dt.timedelta(hours=16)
 timestamps = du.getNYSEdays(startday,endday,timeofday)
