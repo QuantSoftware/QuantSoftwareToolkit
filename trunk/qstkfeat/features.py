@@ -482,6 +482,11 @@ def featCorrelation( dData, lLookback=20, sRel='$SPX' ):
 
 	return dfRet
 
+def featPrice(dData):
+	return dData['close']
+
+def featVolume(dData):
+	return dData['volume']
 
 if __name__ == '__main__':
 	pass
