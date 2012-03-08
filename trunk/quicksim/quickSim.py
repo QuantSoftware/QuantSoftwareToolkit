@@ -21,11 +21,13 @@ from qstkutil import tsutil as tsu
 from qstkutil import dateutil as du
 from qstkutil import DataAccess as da
 
-def quickSim(alloc,historic,start_cash):
+def quickSim( alloc, historic, start_cash, historicClose=None ):
 	"""
 	@summary Quickly back tests an allocation for certain historical data, using a starting fund value
 	@param alloc: DataMatrix containing timestamps to test as indices and Symbols to test as columns, with _CASH symbol as the last column
+	@param historic: Historic dataframe of equity prices
 	@param start_cash: integer specifing initial fund value
+	@param historicClose: Optional, if provided we will buy using the closing prices of the next day
 	@return funds: TimeSeries with fund values for each day in the back test
 	@rtype TimeSeries
 	"""
@@ -35,10 +37,10 @@ def quickSim(alloc,historic,start_cash):
 	
 	#check each row in alloc
 	for row in range(0,len(alloc.values[:,0])):
-		if(abs(alloc.values[row,:].sum()-1)>.1):
+		if(abs(alloc.values[row,:].sum()-1)>.0001):
 			#print alloc.values[row,:]
 			#print alloc.values[row,:].sum()
-			#print "warning, alloc row "+str(row)+" does not sum to one, rebalancing"
+			print "warning, alloc row "+str(row)+" does not sum to one, rebalancing"
 			#if no allocation, all in cash
 			if(alloc.values[row,:].sum()==0):
 				alloc.values[row,-1]=1
@@ -46,7 +48,7 @@ def quickSim(alloc,historic,start_cash):
 				alloc.values[row,:]=alloc.values[row,:]/alloc.values[row,:].sum()
 	
 	#fix invalid days
-	historic=historic.fillna(method='backfill')
+	historic = historic.fillna(method='backfill')
 	
 	#add cash column
     #print historic.columns
@@ -54,27 +56,31 @@ def quickSim(alloc,historic,start_cash):
 
 	#print historic.columns
 	
-	closest=historic[historic.index<=alloc.index[0]]
-	fund_ts=Series([start_cash], index=[closest.index[-1]])
-	shares=alloc.values[0,:]*fund_ts.values[-1]/closest.values[-1,:]
-	cash_values=DataMatrix([shares*closest.values[-1,:]],index=[closest.index[-1]])
+	closest = historic[historic.index <= alloc.index[0]]
+	fund_ts = Series( [start_cash], index = [closest.index[-1]] )
+	shares = alloc.values[0,:] * fund_ts.values[-1] / closest.values[-1,:]
+	cash_values = DataMatrix([shares*closest.values[-1,:]],index=[closest.index[-1]])
 	
 	#compute all trade
 	for i in range(1,len(alloc.values[:,0])):
+		
 		#get closest date(previous date)
-		closest=historic[historic.index<=alloc.index[i]]
+		closest = historic[ historic.index <= alloc.index[i] ]
+		
 		#for loop to calculate fund daily (without rebalancing)
-		for date in closest[closest.index>fund_ts.index[-1]].index:
+		for date in closest[ closest.index > fund_ts.index[-1] ].index:
 			#compute and record total fund value (Sum(closest close * stocks))
-			fund_ts=fund_ts.append(Series([(closest.xs(date)*shares).sum()],index=[date]))
-			cash_values=cash_values.append(DataMatrix([shares*closest.xs(date)],index=[date]))
+			fund_ts = fund_ts.append( Series( [ (closest.xs(date) * shares).sum() ], index=[date] ) )
+			cash_values  =cash_values.append( DataMatrix( [shares*closest.xs(date)], index=[date] ) )
+		
 		#distribute fund in accordance with alloc
-		shares=alloc.values[i,:]*fund_ts.values[-1]/closest.xs(closest.index[-1])
+		shares = alloc.values[i,:] * fund_ts.values[-1] / closest.xs( closest.index[-1] )
 	
 	#compute fund value for rest of historic data with final share distribution
-	for date in historic[historic.index>alloc.index[-1]].index:
+	for date in historic[ historic.index > alloc.index[-1] ].index:
 		if date in closest.index :
-			fund_ts=fund_ts.append(Series([(closest.xs(date)*shares).sum()],index=[date]))  
+			fund_ts = fund_ts.append( Series( [ (closest.xs(date) * shares).sum() ], index=[date] ) )  
+	
 	#return fund record
 	return fund_ts
 
