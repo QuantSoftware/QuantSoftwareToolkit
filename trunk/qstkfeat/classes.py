@@ -11,24 +11,24 @@ Created on Nov 7, 2011
 import pandas as pand
 import numpy as np
 
-def classFutRet( dData, lLookforward=21, sRel=None, dfOpen=pand.DataFrame() ):
+def classFutRet( dData, lLookforward=21, sRel=None, bUseOpen=False ):
 	'''
 	@summary: Calculate classification, uses future returns 
 	@param dData: Dictionary of data to use
 	@param lLookforward: Number of days to look in the future
 	@param sRel: Stock symbol that this should be relative to, ususally $SPX.
-	@patam dfOpen: If supplied, stock will be purchased at i+1 open.
+	@param bUseOpen: If True, stock will be purchased at T+1 open, sold at T+lLookforawrd close
 	@return: DataFrame containing values
 	'''
 	
-	dfPrice = dData['close']
+	dfClose = dData['close']
 	
 	''' Class DataFrame will be 1:1, we can use the price as a template, need to copy values '''
-	dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.copy(dfPrice.values) ) 
+	dfRet = pand.DataFrame( index=dfClose.index, columns=dfClose.columns, data=np.copy(dfClose.values) ) 
 	
 	''' If we want market relative, calculate those values now '''
 	if not sRel == None:
-		lLen = len(dfPrice[sRel].index)
+		lLen = len(dfClose[sRel].index)
 		''' Loop over time '''
 		for i in range(lLen):
 			
@@ -37,21 +37,23 @@ def classFutRet( dData, lLookforward=21, sRel=None, dfOpen=pand.DataFrame() ):
 				continue
 			
 			''' We either buy on todays close or tomorrows open '''
-			if len( dfOpen.index ) == 0:
-				fBuy = dfRet[sRel][i]
-			else:
+			if bUseOpen:
+				dfOpen = dData['open']
 				fBuy = dfOpen[sRel][i+1]
+			else:
+				fBuy = dfRet[sRel][i]
+				
 				
 			dfRet[sRel][i] = (dfRet[sRel][i+lLookforward] - fBuy) / fBuy
 	
 	''' Loop through stocks '''
-	for sStock in dfPrice.columns:
+	for sStock in dfClose.columns:
 		
 		''' We have already done this stock '''
 		if sStock == sRel:
 			continue
 		
-		lLen = len(dfPrice[sStock].index)
+		lLen = len(dfClose[sStock].index)
 		''' Loop over time '''
 		for i in range(lLen):
 			
