@@ -198,6 +198,8 @@ class Visualizer(QtGui.QMainWindow):
 		self.dMaxFeat=dMaxFeat1
 		self.startday=startday1
 		self.endday=endday1
+		self.flag=1
+		self.scatterpts=[]
 		self.Xfeature=self.featureslist[0]
 		self.Yfeature=self.featureslist[0]
 		self.Zfeature=self.featureslist[0]
@@ -223,8 +225,12 @@ class Visualizer(QtGui.QMainWindow):
 		self.ZHighSlice=self.ZMax
 		self.SMin=0.0
 		self.SMax=1.0
+		self.SLow=self.SMin
+		self.SHigh=self.SMax
 		self.CMin=0.0
 		self.CMax=1.0
+		self.CLow=self.CMin
+		self.CHigh=self.CMax
 		self.dayofplot=self.timestamps[0]
 		self.create_main_frame()
         
@@ -263,7 +269,7 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.XMinTag=QtGui.QLabel('Min :', self)
 		self.XMaxTag=QtGui.QLabel('Max :', self)
-		self.XLimitTag=QtGui.QLabel('Limit:', self)
+		self.XLimitTag=QtGui.QLabel('Scale:', self)
 		self.XSliceTag=QtGui.QLabel('Slice :', self)
 
 		self.XMinLcd = QtGui.QLCDNumber(4, self)
@@ -307,7 +313,7 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.YMinTag=QtGui.QLabel('Min :', self)
 		self.YMaxTag=QtGui.QLabel('Max :', self)
-		self.YLimitTag=QtGui.QLabel('Limit:', self)
+		self.YLimitTag=QtGui.QLabel('Scale:', self)
 		self.YSliceTag=QtGui.QLabel('Slice :', self)
 
 		self.YMinLable=QtGui.QLabel(str(self.YMin), self)
@@ -331,7 +337,7 @@ class Visualizer(QtGui.QMainWindow):
 	
 		self.ZMinTag=QtGui.QLabel('Min :', self)
 		self.ZMaxTag=QtGui.QLabel('Max :', self)
-		self.ZLimitTag=QtGui.QLabel('Limit:', self)
+		self.ZLimitTag=QtGui.QLabel('Scale:', self)
 		self.ZSliceTag=QtGui.QLabel('Slice :', self)
 		
 		self.ZMinLcd = QtGui.QLCDNumber(4, self)
@@ -384,6 +390,9 @@ class Visualizer(QtGui.QMainWindow):
 		self.Frame4= QtGui.QFrame()
 		self.Frame4.setFrameShape(4)
 
+		self.Frame5= QtGui.QFrame()
+		self.Frame5.setFrameShape(4)
+
 		self.SizeLable=QtGui.QLabel('Size   ', self)
 		self.SizeLable.setFont(self.font2)
 
@@ -391,12 +400,48 @@ class Visualizer(QtGui.QMainWindow):
 		self.FeatureComboBox(self.SizeCombo)	
 		self.SizeCombo.activated[str].connect(self.SComboActivated)
 
+		self.SMinTag=QtGui.QLabel('Min :', self)
+		self.SMaxTag=QtGui.QLabel('Max :', self)
+		self.SLimitTag=QtGui.QLabel('Scale:', self)
+
+		self.SMinLcd = QtGui.QLCDNumber(4, self)
+		self.SMaxLcd = QtGui.QLCDNumber(4, self)
+		self.SMinLcd.setSegmentStyle(2)
+		self.SMaxLcd.setSegmentStyle(2)
+
+		self.SMinLable=QtGui.QLabel(str(self.SMin), self)
+		self.SMinLable.setFont(self.font1)
+		
+		self.SRange=RangeSlider(Qt.Qt.Horizontal)
+		self.SInitRangeSlider(self.SRange)
+
+		self.SMaxLable=QtGui.QLabel(str(self.SMax), self)
+		self.SMaxLable.setFont(self.font1)
+
 		self.ColorLable=QtGui.QLabel('Color', self)
 		self.ColorLable.setFont(self.font2)
 
 		self.ColorCombo = QtGui.QComboBox(self)
 		self.FeatureComboBox(self.ColorCombo)	
 		self.ColorCombo.activated[str].connect(self.CComboActivated)
+
+		self.CMinTag=QtGui.QLabel('Min :', self)
+		self.CMaxTag=QtGui.QLabel('Max :', self)
+		self.CLimitTag=QtGui.QLabel('Scale:', self)
+
+		self.CMinLcd = QtGui.QLCDNumber(4, self)
+		self.CMaxLcd = QtGui.QLCDNumber(4, self)
+		self.CMinLcd.setSegmentStyle(2)
+		self.CMaxLcd.setSegmentStyle(2)
+
+		self.CMinLable=QtGui.QLabel(str(self.CMin), self)
+		self.CMinLable.setFont(self.font1)
+		
+		self.CRange=RangeSlider(Qt.Qt.Horizontal)
+		self.CInitRangeSlider(self.CRange)
+
+		self.CMaxLable=QtGui.QLabel(str(self.CMax), self)
+		self.CMaxLable.setFont(self.font1)
 
 		self.UpdateButton =QtGui.QPushButton('Refresh',self)
 		self.UpdateButton.setToolTip('Update the plot')
@@ -522,36 +567,60 @@ class Visualizer(QtGui.QMainWindow):
 			Zhbox4.addWidget(w)
 			Zhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
 
-		shbox = QtGui.QHBoxLayout()
+		Shbox1 = QtGui.QHBoxLayout()
 
 		for w in [  self.SizeLable, self.SizeCombo]:
-			shbox.addWidget(w)
-			shbox.setAlignment(w, QtCore.Qt.AlignVCenter)
+			Shbox1.addWidget(w)
+			Shbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
 		
-		shbox.addStretch(1)
+		Shbox1.addStretch(1)
 
-		chbox = QtGui.QHBoxLayout()
+		Shbox2 = QtGui.QHBoxLayout()
+        
+		for w in [self.SMinTag, self.SMinLable]:
+			Shbox2.addWidget(w)
+			Shbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Shbox2.addStretch(1)
+		for w in [self.SMaxTag, self.SMaxLable]:
+			Shbox2.addWidget(w)
+			Shbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Shbox3 = QtGui.QHBoxLayout()
+        
+		for w in [ self.SLimitTag ,self.SMinLcd, self.SRange, self.SMaxLcd]:
+			Shbox3.addWidget(w)
+			Shbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+
+		Chbox1 = QtGui.QHBoxLayout()
 
 		for w in [self.ColorLable, self.ColorCombo]:
-			chbox.addWidget(w)
-			chbox.setAlignment(w, QtCore.Qt.AlignVCenter)
+			Chbox1.addWidget(w)
+			Chbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
 
-		chbox.addStretch(1)
+		Chbox1.addStretch(1)
+		Chbox2 = QtGui.QHBoxLayout()
+        
+		for w in [self.CMinTag, self.CMinLable]:
+			Chbox2.addWidget(w)
+			Chbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Chbox2.addStretch(2)
+		for w in [self.CMaxTag, self.CMaxLable]:
+			Chbox2.addWidget(w)
+			Chbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Chbox3 = QtGui.QHBoxLayout()
+        
+		for w in [ self.CLimitTag ,self.CMinLcd, self.CRange, self.CMaxLcd]:
+			Chbox3.addWidget(w)
+			Chbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
+
 		
-		scvbox = QtGui.QVBoxLayout()
-		scvbox.addLayout(shbox)
-		scvbox.addLayout(chbox)
-
-		schbox = QtGui.QHBoxLayout()
-		schbox.addLayout(scvbox)
-		schbox.setAlignment(schbox, QtCore.Qt.AlignVCenter)
-		schbox.addWidget(self.UpdateButton)
-		schbox.setAlignment(self.UpdateButton, QtCore.Qt.AlignVCenter)
-
 		Datehbox1 = QtGui.QHBoxLayout()
 		Datehbox1.addWidget(self.DLable)
 		Datehbox1.addWidget(self.DateLable)
 		Datehbox1.addStretch(1)
+		Datehbox1.addWidget(self.UpdateButton)
 
 		Datehbox2 = QtGui.QHBoxLayout()
         
@@ -561,7 +630,7 @@ class Visualizer(QtGui.QMainWindow):
 
 		Vbox1= QtGui.QVBoxLayout()
 		Vbox1.addWidget(self.FactorLable)
-		Vbox1.addWidget(self.Frame3)
+		Vbox1.addWidget(self.Frame1)
 		Vbox1.addLayout(Xhbox1)
 		Vbox1.addLayout(Xhbox2)
 		Vbox1.addLayout(Xhbox3)
@@ -574,34 +643,41 @@ class Visualizer(QtGui.QMainWindow):
 		Vbox1.addLayout(Zhbox2)
 		Vbox1.addLayout(Zhbox3)
 		Vbox1.addLayout(Zhbox4)
-		Vbox1.addWidget(self.Frame1)
-		Vbox1.addLayout(Datehbox1)
-		Vbox1.addLayout(Datehbox2)
-		Vbox1.addWidget(self.Frame2)
-		Vbox1.addLayout(schbox)
+		Vbox1.addWidget(self.Frame3)
+		Vbox1.addLayout(Shbox1)
+		Vbox1.addLayout(Shbox2)
+		Vbox1.addLayout(Shbox3)
+		Vbox1.addLayout(Chbox1)
+		Vbox1.addLayout(Chbox2)
+		Vbox1.addLayout(Chbox3)
 		Vbox1.addWidget(self.Frame4)
 
-		Finalvbox = QtGui.QVBoxLayout()
-#		Finalvbox.addWidget(self.Toolbar)
-		Finalvbox.addWidget(self.VisLable)
-		Finalvbox.addWidget(self.canvas)
-#		Finalvbox.addWidget(self.mpl_toolbar)
+		Vbox2 = QtGui.QVBoxLayout()
+#		Vbox2.addWidget(self.Toolbar)
+		Vbox2.addWidget(self.VisLable)
+		Vbox2.addWidget(self.canvas)
+		Vbox2.addWidget(self.Frame5)
+		Vbox2.addLayout(Datehbox1)
+		Vbox2.addLayout(Datehbox2)
+		Vbox2.addWidget(self.Frame2)
+		Vbox2.addStretch(1)
+#		Vbox2.addWidget(self.mpl_toolbar)
 		
-		FinalBox= QtGui.QHBoxLayout()
-		FinalBox.addLayout(Finalvbox)
-		FinalBox.addLayout(Vbox1)
+		HBox= QtGui.QHBoxLayout()
+		HBox.addLayout(Vbox2)
+		HBox.addLayout(Vbox1)
+		HBox.addStretch(1)
+		
+		FinalBox = QtGui.QVBoxLayout()
+#		FinalBox.addWidget(self.VisLable)
+		FinalBox.addLayout(HBox)
 		FinalBox.addStretch(1)
-		
-		SuperFinalBox = QtGui.QVBoxLayout()
-#		SuperFinalBox.addWidget(self.VisLable)
-		SuperFinalBox.addLayout(FinalBox)
-		SuperFinalBox.addStretch(1)
 
 		self.setWindowTitle('QuantViz')
 		self.setWindowIcon(QtGui.QIcon('V.png'))
 
-		self.main_frame.setLayout(SuperFinalBox)
-		self.setCentralWidget(self.main_frame)        
+		self.main_frame.setLayout(FinalBox)
+		self.setCentralWidget(self.main_frame)
 
 	def FeatureComboBox(self, combo):
 		for feat in self.featureslist:
@@ -638,11 +714,17 @@ class Visualizer(QtGui.QMainWindow):
 		self.Sfeature=text
 		self.SMax=self.dMaxFeat[str(self.Sfeature)]
 		self.SMin=self.dMinFeat[str(self.Sfeature)]
+		self.SMinLable.setText(str(round(self.SMin,1)))
+		self.SMaxLable.setText(str(round(self.SMax,1)))
+		self.SChangeValues(self.SRange.low(), self.SRange.high())
 
 	def CComboActivated(self,text):
 		self.Cfeature=text
 		self.CMax=self.dMaxFeat[str(self.Cfeature)]
 		self.CMin=self.dMinFeat[str(self.Cfeature)]
+		self.CMinLable.setText(str(round(self.CMin,1)))
+		self.CMaxLable.setText(str(round(self.CMax,1)))
+		self.CChangeValues(self.CRange.low(), self.CRange.high())
 
 	def XChangeValues(self, low, high):
 		self.XLow=low*0.02*(self.XMax-self.XMin)+self.XMin
@@ -722,6 +804,32 @@ class Visualizer(QtGui.QMainWindow):
 		slider.setHigh(50)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.ZChangeValuesSlice)
 
+	def SChangeValues(self, low, high):
+		self.SLow=low*0.02*(self.SMax-self.SMin)+self.SMin
+		self.SHigh=high*0.02*(self.SMax-self.SMin)+self.SMin		
+		self.SMinLcd.display(self.SLow)
+		self.SMaxLcd.display(self.SHigh)		
+
+	def SInitRangeSlider(self, slider):
+		slider.setMinimum(0)
+		slider.setMaximum(50)
+		slider.setLow(0)
+		slider.setHigh(50)
+		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.SChangeValues)
+
+	def CChangeValues(self, low, high):
+		self.CLow=low*0.02*(self.CMax-self.CMin)+self.CMin
+		self.CHigh=high*0.02*(self.CMax-self.CMin)+self.CMin		
+		self.CMinLcd.display(self.CLow)
+		self.CMaxLcd.display(self.CHigh)		
+
+	def CInitRangeSlider(self, slider):
+		slider.setMinimum(0)
+		slider.setMaximum(50)
+		slider.setLow(0)
+		slider.setHigh(50)
+		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.CChangeValues)
+
 	def DateActivated(self, index):
 		self.dayofplot=self.timestamps[index]
 		dateval=self.timestamps[index]
@@ -733,13 +841,20 @@ class Visualizer(QtGui.QMainWindow):
 		if x>minx and x<maxx: return x
 		else: return np.NAN
 
+	def inrangeSC(self, x, minx, maxx):
+		if x>minx and x<maxx: return x
+		else: return minx-1
+
 	def scale(self, x, minx, maxx):
-		return (599*((x-minx)/(maxx-minx))+10)
+		if x==(minx-1): return 0
+		else: return (599*((x-minx)/(maxx-minx))+10)
 
 	def PlotCanvas(self):
-		self.ax.cla()
-		self.ax.mouse_init(rotate_btn=1, zoom_btn=3)
-		self.ax.set_frame_on(False)
+
+		if self.flag==0:
+			for pt in self.scatterpts :
+				pt.remove()
+		self.scatterpts = []
 
 		xs=self.PandasObject[str(self.Xfeature)].xs(self.dayofplot)
 		ys=self.PandasObject[str(self.Yfeature)].xs(self.dayofplot)
@@ -752,25 +867,25 @@ class Visualizer(QtGui.QMainWindow):
 		ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
 		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
 
-		size1 =  [self.scale(s, self.SMin, self.SMax) for s in size]
-		color1 = [self.scale(c, self.CMin, self.CMax) for c in color]
+		size1 = [self.inrangeSC(s, self.SLow, self.SHigh) for s in size]
+		color1 = [self.inrange(c, self.CLow, self.CHigh) for c in color]
 
-		p=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color1, s=size1)
+		size2 =  [self.scale(s, self.SMin, self.SMax) for s in size1]
+		color2 = [self.scale(c, self.CMin, self.CMax) for c in color1]
+
+		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color2, s=size2)
+		self.scatterpts.append(pt)
 		
 		self.ax.set_xlim(self.XLow, self.XHigh)
 		self.ax.set_ylim(self.YLow, self.YHigh)
 		self.ax.set_zlim(self.ZLow, self.ZHigh)	
 	
-#		self.ax.set_xlabel(self.Xfeature)
-#		self.ax.set_ylabel(self.Yfeature)
-#		self.ax.set_zlabel(self.Zfeature)
-
-		self.ax.set_xlabel('X')
-		self.ax.set_ylabel('Y')
-		self.ax.set_zlabel('Z')
-
+		self.ax.set_xlabel(self.Xfeature)
+		self.ax.set_ylabel(self.Yfeature)
+		self.ax.set_zlabel(self.Zfeature)
 
 		self.canvas.draw()
+		self.flag=0
 		self.statusBar().showMessage('Update the Plot')
 
 def main():
