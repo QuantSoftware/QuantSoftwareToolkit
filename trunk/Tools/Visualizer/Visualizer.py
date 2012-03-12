@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import math 
 import AccessData as AD
 from PyQt4 import QtGui, QtCore, Qt
 from matplotlib.figure import Figure
@@ -7,6 +8,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
+
+SLIDER_RANGE=100
 
 class RangeSlider(QtGui.QSlider):
     """ A slider for ranges.
@@ -256,10 +259,12 @@ class Visualizer(QtGui.QMainWindow):
 		self.font3 = QtGui.QFont("Times", 20, QtGui.QFont.Bold, True)
 		
 		self.VisLable = QtGui.QLabel('QuantViz', self)
-		
+		self.SpacerItem = Qt.QSpacerItem(300,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)		
 		self.VisLable.setFont(self.font3)
 		self.FactorLable.setFont(self.font)
-		
+
+############################################3
+
 		self.XLable=QtGui.QLabel('X', self)
 		self.XLable.setFont(self.font2)
 
@@ -272,16 +277,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.XLimitTag=QtGui.QLabel('Scale:', self)
 		self.XSliceTag=QtGui.QLabel('Slice :', self)
 
-		self.XMinLcd = QtGui.QLCDNumber(4, self)
-		self.XMaxLcd = QtGui.QLCDNumber(4, self)
-		self.XMinLcd.setSegmentStyle(2)
-		self.XMaxLcd.setSegmentStyle(2)
-
-		self.XMinLcdSlice = QtGui.QLCDNumber(4, self)
-		self.XMaxLcdSlice = QtGui.QLCDNumber(4, self)
-		self.XMinLcdSlice.setSegmentStyle(2)
-		self.XMaxLcdSlice.setSegmentStyle(2)
-
 		self.XMinLable=QtGui.QLabel(str(self.XMin), self)
 		self.XMinLable.setFont(self.font1)
 		
@@ -293,6 +288,33 @@ class Visualizer(QtGui.QMainWindow):
 	
 		self.XMaxLable=QtGui.QLabel(str(self.XMax), self)
 		self.XMaxLable.setFont(self.font1)
+		
+		self.XMin_Box= QtGui.QLineEdit()	
+		self.XMax_Box= QtGui.QLineEdit()	
+		self.XMinSlice_Box= QtGui.QLineEdit()	
+		self.XMaxSlice_Box= QtGui.QLineEdit()
+
+		self.XMin_Box.setMaxLength(4)
+		self.XMax_Box.setMaxLength(4)
+		self.XMinSlice_Box.setMaxLength(4)	
+		self.XMaxSlice_Box.setMaxLength(4)
+		
+		self.XMin_Box.setFixedSize(50,27)
+		self.XMax_Box.setFixedSize(50,27)
+		self.XMinSlice_Box.setFixedSize(50,27)	
+		self.XMaxSlice_Box.setFixedSize(50,27)
+
+		self.XMin_Box.setText(str(self.XLow))
+		self.XMax_Box.setText(str(self.XHigh))
+		self.XMinSlice_Box.setText(str(self.XLowSlice))	
+		self.XMaxSlice_Box.setText(str(self.XHighSlice))
+
+		self.connect(self.XMin_Box, QtCore.SIGNAL('editingFinished()'), self.XMin_BoxInput)
+		self.connect(self.XMax_Box, QtCore.SIGNAL('editingFinished()'), self.XMax_BoxInput)
+		self.connect(self.XMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.XMinSlice_BoxInput)
+		self.connect(self.XMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.XMaxSlice_BoxInput)
+
+########################################
 
 		self.YLable=QtGui.QLabel('Y', self)
 		self.YLable.setFont(self.font2)
@@ -300,16 +322,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.YCombo = QtGui.QComboBox(self)
 		self.FeatureComboBox(self.YCombo)	
 		self.YCombo.activated[str].connect(self.YComboActivated)
-
-		self.YMinLcd = QtGui.QLCDNumber(4, self)
-		self.YMaxLcd = QtGui.QLCDNumber(4, self)
-		self.YMinLcd.setSegmentStyle(2)
-		self.YMaxLcd.setSegmentStyle(2)
-
-		self.YMinLcdSlice = QtGui.QLCDNumber(4, self)
-		self.YMaxLcdSlice = QtGui.QLCDNumber(4, self)
-		self.YMinLcdSlice.setSegmentStyle(2)
-		self.YMaxLcdSlice.setSegmentStyle(2)
 
 		self.YMinTag=QtGui.QLabel('Min :', self)
 		self.YMaxTag=QtGui.QLabel('Max :', self)
@@ -327,6 +339,33 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.YMaxLable=QtGui.QLabel(str(self.YMax), self)
 		self.YMaxLable.setFont(self.font1)
+		
+		self.YMin_Box= QtGui.QLineEdit()	
+		self.YMax_Box= QtGui.QLineEdit()	
+		self.YMinSlice_Box= QtGui.QLineEdit()	
+		self.YMaxSlice_Box= QtGui.QLineEdit()
+
+		self.YMin_Box.setMaxLength(4)
+		self.YMax_Box.setMaxLength(4)
+		self.YMinSlice_Box.setMaxLength(4)	
+		self.YMaxSlice_Box.setMaxLength(4)
+		
+		self.YMin_Box.setFixedSize(50,27)
+		self.YMax_Box.setFixedSize(50,27)
+		self.YMinSlice_Box.setFixedSize(50,27)	
+		self.YMaxSlice_Box.setFixedSize(50,27)
+
+		self.YMin_Box.setText(str(self.YLow))
+		self.YMax_Box.setText(str(self.YHigh))
+		self.YMinSlice_Box.setText(str(self.YLowSlice))	
+		self.YMaxSlice_Box.setText(str(self.YHighSlice))
+
+		self.connect(self.YMin_Box, QtCore.SIGNAL('editingFinished()'), self.YMin_BoxInput)
+		self.connect(self.YMax_Box, QtCore.SIGNAL('editingFinished()'), self.YMax_BoxInput)
+		self.connect(self.YMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.YMinSlice_BoxInput)
+		self.connect(self.YMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.YMaxSlice_BoxInput)
+
+###############################################
 
 		self.ZLable=QtGui.QLabel('Z', self)
 		self.ZLable.setFont(self.font2)		
@@ -339,16 +378,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.ZMaxTag=QtGui.QLabel('Max :', self)
 		self.ZLimitTag=QtGui.QLabel('Scale:', self)
 		self.ZSliceTag=QtGui.QLabel('Slice :', self)
-		
-		self.ZMinLcd = QtGui.QLCDNumber(4, self)
-		self.ZMaxLcd = QtGui.QLCDNumber(4, self)
-		self.ZMinLcd.setSegmentStyle(2)
-		self.ZMaxLcd.setSegmentStyle(2)
-
-		self.ZMinLcdSlice = QtGui.QLCDNumber(4, self)
-		self.ZMaxLcdSlice = QtGui.QLCDNumber(4, self)
-		self.ZMinLcdSlice.setSegmentStyle(2)
-		self.ZMaxLcdSlice.setSegmentStyle(2)
 
 		self.ZMinLable=QtGui.QLabel(str(self.ZMin), self)
 		self.ZMinLable.setFont(self.font1)
@@ -361,11 +390,58 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.ZMaxLable=QtGui.QLabel(str(self.ZMax), self)
 		self.ZMaxLable.setFont(self.font1)
+		
+		self.ZMin_Box= QtGui.QLineEdit()	
+		self.ZMax_Box= QtGui.QLineEdit()	
+		self.ZMinSlice_Box= QtGui.QLineEdit()	
+		self.ZMaxSlice_Box= QtGui.QLineEdit()
+
+		self.ZMin_Box.setMaxLength(4)
+		self.ZMax_Box.setMaxLength(4)
+		self.ZMinSlice_Box.setMaxLength(4)	
+		self.ZMaxSlice_Box.setMaxLength(4)
+		
+		self.ZMin_Box.setFixedSize(50,27)
+		self.ZMax_Box.setFixedSize(50,27)
+		self.ZMinSlice_Box.setFixedSize(50,27)	
+		self.ZMaxSlice_Box.setFixedSize(50,27)
+
+		self.ZMin_Box.setText(str(self.ZLow))
+		self.ZMax_Box.setText(str(self.ZHigh))
+		self.ZMinSlice_Box.setText(str(self.ZLowSlice))	
+		self.ZMaxSlice_Box.setText(str(self.ZHighSlice))
+
+		self.connect(self.ZMin_Box, QtCore.SIGNAL('editingFinished()'), self.ZMin_BoxInput)
+		self.connect(self.ZMax_Box, QtCore.SIGNAL('editingFinished()'), self.ZMax_BoxInput)
+		self.connect(self.ZMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.ZMinSlice_BoxInput)
+		self.connect(self.ZMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.ZMaxSlice_BoxInput)
+
+#######################################################
 
 		self.Frame1= QtGui.QFrame()
 		self.Frame1.setFrameShape(4)
 
-		self.DLable=QtGui.QLabel('Date ', self)
+		self.Frame2= QtGui.QFrame()
+		self.Frame2.setFrameShape(4)
+
+		self.Frame3= QtGui.QFrame()
+		self.Frame3.setFrameShape(4)
+
+		self.Frame4= QtGui.QFrame()
+		self.Frame4.setFrameShape(4)
+
+		self.Frame5= QtGui.QFrame()
+		self.Frame5.setFrameShape(4)
+
+		self.Frame6= QtGui.QFrame()
+		self.Frame6.setFrameShape(4)
+
+		self.Frame7= QtGui.QFrame()
+		self.Frame7.setFrameShape(4)
+
+#####################################################
+
+		self.DLable=QtGui.QLabel('Time ', self)
 		self.DLable.setFont(self.font2)
 
 		self.DateLable=QtGui.QLabel(self.startday.date().isoformat(), self)
@@ -381,17 +457,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.DateMaxLable=QtGui.QLabel(self.endday.date().isoformat(), self)
 		self.DateMaxLable.setFont(self.font1)
 
-		self.Frame2= QtGui.QFrame()
-		self.Frame2.setFrameShape(4)
-
-		self.Frame3= QtGui.QFrame()
-		self.Frame3.setFrameShape(4)
-
-		self.Frame4= QtGui.QFrame()
-		self.Frame4.setFrameShape(4)
-
-		self.Frame5= QtGui.QFrame()
-		self.Frame5.setFrameShape(4)
+########################################################
 
 		self.SizeLable=QtGui.QLabel('Size   ', self)
 		self.SizeLable.setFont(self.font2)
@@ -404,11 +470,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.SMaxTag=QtGui.QLabel('Max :', self)
 		self.SLimitTag=QtGui.QLabel('Scale:', self)
 
-		self.SMinLcd = QtGui.QLCDNumber(4, self)
-		self.SMaxLcd = QtGui.QLCDNumber(4, self)
-		self.SMinLcd.setSegmentStyle(2)
-		self.SMaxLcd.setSegmentStyle(2)
-
 		self.SMinLable=QtGui.QLabel(str(self.SMin), self)
 		self.SMinLable.setFont(self.font1)
 		
@@ -417,6 +478,23 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.SMaxLable=QtGui.QLabel(str(self.SMax), self)
 		self.SMaxLable.setFont(self.font1)
+
+		self.SMin_Box= QtGui.QLineEdit()	
+		self.SMax_Box= QtGui.QLineEdit()	
+
+		self.SMin_Box.setMaxLength(4)
+		self.SMax_Box.setMaxLength(4)
+		
+		self.SMin_Box.setFixedSize(50,27)
+		self.SMax_Box.setFixedSize(50,27)
+
+		self.SMin_Box.setText(str(self.SLow))
+		self.SMax_Box.setText(str(self.SHigh))
+
+		self.connect(self.SMin_Box, QtCore.SIGNAL('editingFinished()'), self.SMin_BoxInput)
+		self.connect(self.SMax_Box, QtCore.SIGNAL('editingFinished()'), self.SMax_BoxInput)
+
+#####################################################
 
 		self.ColorLable=QtGui.QLabel('Color', self)
 		self.ColorLable.setFont(self.font2)
@@ -429,11 +507,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMaxTag=QtGui.QLabel('Max :', self)
 		self.CLimitTag=QtGui.QLabel('Scale:', self)
 
-		self.CMinLcd = QtGui.QLCDNumber(4, self)
-		self.CMaxLcd = QtGui.QLCDNumber(4, self)
-		self.CMinLcd.setSegmentStyle(2)
-		self.CMaxLcd.setSegmentStyle(2)
-
 		self.CMinLable=QtGui.QLabel(str(self.CMin), self)
 		self.CMinLable.setFont(self.font1)
 		
@@ -443,10 +516,27 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMaxLable=QtGui.QLabel(str(self.CMax), self)
 		self.CMaxLable.setFont(self.font1)
 
-		self.UpdateButton =QtGui.QPushButton('Refresh',self)
+		self.CMin_Box= QtGui.QLineEdit()	
+		self.CMax_Box= QtGui.QLineEdit()	
+
+		self.CMin_Box.setMaxLength(4)
+		self.CMax_Box.setMaxLength(4)
+		
+		self.CMin_Box.setFixedSize(50,27)
+		self.CMax_Box.setFixedSize(50,27)
+
+		self.CMin_Box.setText(str(self.CLow))
+		self.CMax_Box.setText(str(self.CHigh))
+
+		self.connect(self.CMin_Box, QtCore.SIGNAL('editingFinished()'), self.CMin_BoxInput)
+		self.connect(self.CMax_Box, QtCore.SIGNAL('editingFinished()'), self.CMax_BoxInput)
+
+		self.UpdateButton =QtGui.QPushButton('Plot',self)
 		self.UpdateButton.setToolTip('Update the plot')
 		self.UpdateButton.resize(self.UpdateButton.sizeHint())
 		self.UpdateButton.clicked.connect(self.PlotCanvas)
+
+############################################################3333
 
 		ExitAction = QtGui.QAction(QtGui.QIcon('Exit.png'), 'Exit', self)
 		ExitAction.setShortcut('Ctrl+Q')
@@ -480,6 +570,8 @@ class Visualizer(QtGui.QMainWindow):
 		self.Toolbar.addAction(HelpAction)
 		self.Toolbar.addAction(AboutAction)
 
+########################################################33
+
 		Xhbox1 = QtGui.QHBoxLayout()
         
 		for w in [ self.XLable, self.XCombo]:
@@ -499,15 +591,18 @@ class Visualizer(QtGui.QMainWindow):
 
 		Xhbox3 = QtGui.QHBoxLayout()
         
-		for w in [  self.XLimitTag ,self.XMinLcd, self.XRange, self.XMaxLcd]:
+		for w in [  self.XLimitTag ,self.XMin_Box, self.XRange, self.XMax_Box]:
 			Xhbox3.addWidget(w)
 			Xhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
 		Xhbox4 = QtGui.QHBoxLayout()
         
-		for w in [  self.XSliceTag, self.XMinLcdSlice, self.XRangeSlice, self.XMaxLcdSlice]:
+		for w in [  self.XSliceTag, self.XMinSlice_Box, self.XRangeSlice, self.XMaxSlice_Box]:
 			Xhbox4.addWidget(w)
 			Xhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+
+############################################################
 
 		Yhbox1 = QtGui.QHBoxLayout()
         
@@ -528,15 +623,17 @@ class Visualizer(QtGui.QMainWindow):
 
 		Yhbox3 = QtGui.QHBoxLayout()
         
-		for w in [ self.YLimitTag, self.YMinLcd, self.YRange, self.YMaxLcd]:
+		for w in [ self.YLimitTag, self.YMin_Box, self.YRange, self.YMax_Box]:
 			Yhbox3.addWidget(w)
 			Yhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
 		Yhbox4 = QtGui.QHBoxLayout()
         
-		for w in [  self.YSliceTag,self.YMinLcdSlice, self.YRangeSlice, self.YMaxLcdSlice]:
+		for w in [  self.YSliceTag,self.YMinSlice_Box, self.YRangeSlice, self.YMaxSlice_Box]:
 			Yhbox4.addWidget(w)
 			Yhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+##############################################################3
 
 		Zhbox1 = QtGui.QHBoxLayout()
         
@@ -557,15 +654,17 @@ class Visualizer(QtGui.QMainWindow):
 
 		Zhbox3 = QtGui.QHBoxLayout()
         
-		for w in [ self.ZLimitTag ,self.ZMinLcd, self.ZRange, self.ZMaxLcd]:
+		for w in [ self.ZLimitTag ,self.ZMin_Box, self.ZRange, self.ZMax_Box]:
 			Zhbox3.addWidget(w)
 			Zhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
 		Zhbox4 = QtGui.QHBoxLayout()
         
-		for w in [  self.ZSliceTag,self.ZMinLcdSlice, self.ZRangeSlice, self.ZMaxLcdSlice]:
+		for w in [  self.ZSliceTag,self.ZMinSlice_Box, self.ZRangeSlice, self.ZMaxSlice_Box]:
 			Zhbox4.addWidget(w)
 			Zhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+#########################################################
 
 		Shbox1 = QtGui.QHBoxLayout()
 
@@ -587,10 +686,11 @@ class Visualizer(QtGui.QMainWindow):
 
 		Shbox3 = QtGui.QHBoxLayout()
         
-		for w in [ self.SLimitTag ,self.SMinLcd, self.SRange, self.SMaxLcd]:
+		for w in [ self.SLimitTag ,self.SMin_Box, self.SRange, self.SMax_Box]:
 			Shbox3.addWidget(w)
 			Shbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+##########################################################
 
 		Chbox1 = QtGui.QHBoxLayout()
 
@@ -611,7 +711,7 @@ class Visualizer(QtGui.QMainWindow):
 
 		Chbox3 = QtGui.QHBoxLayout()
         
-		for w in [ self.CLimitTag ,self.CMinLcd, self.CRange, self.CMaxLcd]:
+		for w in [ self.CLimitTag ,self.CMin_Box, self.CRange, self.CMax_Box]:
 			Chbox3.addWidget(w)
 			Chbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
@@ -628,6 +728,8 @@ class Visualizer(QtGui.QMainWindow):
 			Datehbox2.addWidget(w)
 			Datehbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+##############################################
+
 		Vbox1= QtGui.QVBoxLayout()
 		Vbox1.addWidget(self.FactorLable)
 		Vbox1.addWidget(self.Frame1)
@@ -635,31 +737,33 @@ class Visualizer(QtGui.QMainWindow):
 		Vbox1.addLayout(Xhbox2)
 		Vbox1.addLayout(Xhbox3)
 		Vbox1.addLayout(Xhbox4)
+		Vbox1.addWidget(self.Frame2)
 		Vbox1.addLayout(Yhbox1)
 		Vbox1.addLayout(Yhbox2)
 		Vbox1.addLayout(Yhbox3)
 		Vbox1.addLayout(Yhbox4)
+		Vbox1.addWidget(self.Frame3)
 		Vbox1.addLayout(Zhbox1)
 		Vbox1.addLayout(Zhbox2)
 		Vbox1.addLayout(Zhbox3)
 		Vbox1.addLayout(Zhbox4)
-		Vbox1.addWidget(self.Frame3)
+		Vbox1.addWidget(self.Frame4)
 		Vbox1.addLayout(Shbox1)
 		Vbox1.addLayout(Shbox2)
 		Vbox1.addLayout(Shbox3)
+		Vbox1.addWidget(self.Frame5)
 		Vbox1.addLayout(Chbox1)
 		Vbox1.addLayout(Chbox2)
 		Vbox1.addLayout(Chbox3)
-		Vbox1.addWidget(self.Frame4)
+		Vbox1.addItem(self.SpacerItem)
 
 		Vbox2 = QtGui.QVBoxLayout()
 #		Vbox2.addWidget(self.Toolbar)
 		Vbox2.addWidget(self.VisLable)
 		Vbox2.addWidget(self.canvas)
-		Vbox2.addWidget(self.Frame5)
+		Vbox2.addWidget(self.Frame6)
 		Vbox2.addLayout(Datehbox1)
 		Vbox2.addLayout(Datehbox2)
-		Vbox2.addWidget(self.Frame2)
 		Vbox2.addStretch(1)
 #		Vbox2.addWidget(self.mpl_toolbar)
 		
@@ -671,6 +775,7 @@ class Visualizer(QtGui.QMainWindow):
 		FinalBox = QtGui.QVBoxLayout()
 #		FinalBox.addWidget(self.VisLable)
 		FinalBox.addLayout(HBox)
+		FinalBox.addWidget(self.Frame7)
 		FinalBox.addStretch(1)
 
 		self.setWindowTitle('QuantViz')
@@ -678,6 +783,8 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.main_frame.setLayout(FinalBox)
 		self.setCentralWidget(self.main_frame)
+
+#######################################################
 
 	def FeatureComboBox(self, combo):
 		for feat in self.featureslist:
@@ -726,109 +833,263 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMaxLable.setText(str(round(self.CMax,1)))
 		self.CChangeValues(self.CRange.low(), self.CRange.high())
 
+###################################################3
+
 	def XChangeValues(self, low, high):
-		self.XLow=low*0.02*(self.XMax-self.XMin)+self.XMin
-		self.XHigh=high*0.02*(self.XMax-self.XMin)+self.XMin		
-		self.XMinLcd.display(self.XLow)
-		self.XMaxLcd.display(self.XHigh)
+		self.XLow=(low*(self.XMax-self.XMin))/SLIDER_RANGE+self.XMin
+		self.XHigh=(high*(self.XMax-self.XMin))/SLIDER_RANGE+self.XMin
+		self.XMin_Box.setText(str(round(self.XLow,2)))
+		self.XMax_Box.setText(str(round(self.XHigh,2)))
 
 	def XChangeValuesSlice(self, low, high):
-		self.XLowSlice=low*0.02*(self.XMax-self.XMin)+self.XMin
-		self.XHighSlice=high*0.02*(self.XMax-self.XMin)+self.XMin		
-		self.XMinLcdSlice.display(self.XLowSlice)
-		self.XMaxLcdSlice.display(self.XHighSlice)		
+		self.XLowSlice=(low*(self.XMax-self.XMin))/SLIDER_RANGE+self.XMin
+		self.XHighSlice=(high*(self.XMax-self.XMin))/SLIDER_RANGE+self.XMin	
+		self.XMinSlice_Box.setText(str(self.XLowSlice))
+		self.XMaxSlice_Box.setText(str(self.XHighSlice))
 		
 	def XInitRangeSlider(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.XChangeValues)
 
 	def XInitRangeSliderSlice(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.XChangeValuesSlice)
 
+	def XMin_BoxInput(self):
+		valueEntered=float(self.XMin_Box.text())
+		if valueEntered>self.XHigh or valueEntered<self.XMin:
+			self.XMin_Box.setText(str(self.XLow))
+			return
+		slide = math.floor(((valueEntered- self.XMin)*SLIDER_RANGE)/(self.XMax-self.XMin))
+		self.XRange.setLow(slide)
+		self.XChangeValues(slide, self.XRange.high())
+
+	def XMinSlice_BoxInput(self):
+		valueEntered=float(self.XMinSlice_Box.text())
+		if valueEntered>self.XHighSlice or valueEntered<self.XMin:
+			self.XMinSlice_Box.setText(str(self.XLowSlice))
+			return
+		slide = math.floor(((valueEntered- self.XMin)*SLIDER_RANGE)/(self.XMax-self.XMin))
+		self.XRangeSlice.setLow(slide)
+		self.XChangeValuesSlice(slide, self.XRangeSlice.high())
+
+	def XMax_BoxInput(self):
+		valueEntered=float(self.XMax_Box.text())
+		if valueEntered<self.XLow or valueEntered>self.XMax:
+			self.XMax_Box.setText(str(self.XHigh))
+			return
+		slide = math.ceil(((valueEntered- self.XMin)*SLIDER_RANGE)/(self.XMax-self.XMin))
+		self.XRange.setHigh(slide)
+		self.XChangeValues(self.XRange.low(),slide)
+
+	def XMaxSlice_BoxInput(self):
+		valueEntered=float(self.XMaxSlice_Box.text())
+		if valueEntered<self.XLowSlice or valueEntered>self.XMax:
+			self.XMaxSlice_Box.setText(str(self.XHighSlice))
+			return
+		slide = math.ceil(((valueEntered- self.XMin)*SLIDER_RANGE)/(self.XMax-self.XMin))
+		self.XRangeSlice.setHigh(slide)
+		self.XChangeValuesSlice(self.XRangeSlice.low(), slide)
+
+####################################################
+
 	def YChangeValues(self, low, high):
-		self.YLow=low*0.02*(self.YMax-self.YMin)+self.YMin
-		self.YHigh=high*0.02*(self.YMax-self.YMin)+self.YMin		
-		self.YMinLcd.display(self.YLow)
-		self.YMaxLcd.display(self.YHigh)	
+		self.YLow=(low*(self.YMax-self.YMin))/SLIDER_RANGE+self.YMin
+		self.YHigh=(high*(self.YMax-self.YMin))/SLIDER_RANGE+self.YMin
+		self.YMin_Box.setText(str(round(self.YLow,2)))
+		self.YMax_Box.setText(str(round(self.YHigh,2)))	
 
 	def YChangeValuesSlice(self, low, high):
-		self.YLowSlice=low*0.02*(self.YMax-self.YMin)+self.YMin
-		self.YHighSlice=high*0.02*(self.YMax-self.YMin)+self.YMin		
-		self.YMinLcdSlice.display(self.YLowSlice)
-		self.YMaxLcdSlice.display(self.YHighSlice)	
+		self.YLowSlice=(low*(self.YMax-self.YMin))/SLIDER_RANGE+self.YMin
+		self.YHighSlice=(high*(self.YMax-self.YMin))/SLIDER_RANGE+self.YMin		
+		self.YMinSlice_Box.setText(str(self.YLowSlice))
+		self.YMaxSlice_Box.setText(str(self.YHighSlice))
 
 	def YInitRangeSlider(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.YChangeValues)
 
 	def YInitRangeSliderSlice(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.YChangeValuesSlice)
 
+	def YMin_BoxInput(self):
+		valueEntered=float(self.YMin_Box.text())
+		if valueEntered>self.YHigh or valueEntered<self.YMin:
+			self.YMin_Box.setText(str(self.YLow))
+			return
+		slide = math.floor(((valueEntered- self.YMin)*SLIDER_RANGE)/(self.YMax-self.YMin))
+		self.YRange.setLow(slide)
+		self.YChangeValues(slide, self.YRange.high())
+
+	def YMinSlice_BoxInput(self):
+		valueEntered=float(self.YMinSlice_Box.text())
+		if valueEntered>self.YHighSlice or valueEntered<self.YMin:
+			self.YMinSlice_Box.setText(str(self.YLowSlice))
+			return
+		slide = math.floor(((valueEntered- self.YMin)*SLIDER_RANGE)/(self.YMax-self.YMin))
+		self.YRangeSlice.setLow(slide)
+		self.YChangeValuesSlice(slide, self.YRangeSlice.high())
+
+	def YMax_BoxInput(self):
+		valueEntered=float(self.YMax_Box.text())
+		if valueEntered<self.YLow or valueEntered>self.YMax:
+			self.YMax_Box.setText(str(self.YHigh))
+			return
+		slide = math.ceil(((valueEntered- self.YMin)*SLIDER_RANGE)/(self.YMax-self.YMin))
+		self.YRange.setHigh(slide)
+		self.YChangeValues(self.YRange.low(),slide)
+
+	def YMaxSlice_BoxInput(self):
+		valueEntered=float(self.YMaxSlice_Box.text())
+		if valueEntered<self.YLowSlice or valueEntered>self.YMax:
+			self.YMaxSlice_Box.setText(str(self.YHighSlice))
+			return
+		slide = math.ceil(((valueEntered- self.YMin)*SLIDER_RANGE)/(self.YMax-self.YMin))
+		self.YRangeSlice.setHigh(slide)
+		self.YChangeValuesSlice(self.YRangeSlice.low(), slide)
+
+######################################################################
+
 	def ZChangeValues(self, low, high):
-		self.ZLow=low*0.02*(self.ZMax-self.ZMin)+self.ZMin
-		self.ZHigh=high*0.02*(self.ZMax-self.ZMin)+self.ZMin		
-		self.ZMinLcd.display(self.ZLow)
-		self.ZMaxLcd.display(self.ZHigh)		
+		self.ZLow=(low*(self.ZMax-self.ZMin))/SLIDER_RANGE+self.ZMin
+		self.ZHigh=(high*(self.ZMax-self.ZMin))/SLIDER_RANGE+self.ZMin	
+		self.ZMin_Box.setText(str(round(self.ZLow,2)))
+		self.ZMax_Box.setText(str(round(self.ZHigh,2)))		
 
 	def ZChangeValuesSlice(self, low, high):
-		self.ZLowSlice=low*0.02*(self.ZMax-self.ZMin)+self.ZMin
-		self.ZHighSlice=high*0.02*(self.ZMax-self.ZMin)+self.ZMin		
-		self.ZMinLcdSlice.display(self.ZLowSlice)
-		self.ZMaxLcdSlice.display(self.ZHighSlice)
+		self.ZLowSlice=(low*(self.ZMax-self.ZMin))/SLIDER_RANGE+self.ZMin
+		self.ZHighSlice=(high*(self.ZMax-self.ZMin))/SLIDER_RANGE+self.ZMin		
+		self.ZMinSlice_Box.setText(str(self.ZLowSlice))
+		self.ZMaxSlice_Box.setText(str(self.ZHighSlice))
 
 	def ZInitRangeSlider(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.ZChangeValues)
 
 	def ZInitRangeSliderSlice(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.ZChangeValuesSlice)
 
+	def ZMin_BoxInput(self):
+		valueEntered=float(self.ZMin_Box.text())
+		if valueEntered>self.ZHigh or valueEntered<self.ZMin:
+			self.ZMin_Box.setText(str(self.ZLow))
+			return
+		slide = math.floor(((valueEntered- self.ZMin)*SLIDER_RANGE)/(self.ZMax-self.ZMin))
+		self.ZRange.setLow(slide)
+		self.ZChangeValues(slide, self.ZRange.high())
+
+	def ZMinSlice_BoxInput(self):
+		valueEntered=float(self.ZMinSlice_Box.text())
+		if valueEntered>self.ZHighSlice or valueEntered<self.ZMin:
+			self.ZMinSlice_Box.setText(str(self.ZLowSlice))
+			return
+		slide = math.floor(((valueEntered- self.ZMin)*SLIDER_RANGE)/(self.ZMax-self.ZMin))
+		self.ZRangeSlice.setLow(slide)
+		self.ZChangeValuesSlice(slide, self.ZRangeSlice.high())
+
+	def ZMax_BoxInput(self):
+		valueEntered=float(self.ZMax_Box.text())
+		if valueEntered<self.ZLow or valueEntered>self.ZMax:
+			self.ZMax_Box.setText(str(self.ZHigh))
+			return
+		slide = math.ceil(((valueEntered- self.ZMin)*SLIDER_RANGE)/(self.ZMax-self.ZMin))
+		self.ZRange.setHigh(slide)
+		self.ZChangeValues(self.ZRange.low(),slide)
+
+	def ZMaxSlice_BoxInput(self):
+		valueEntered=float(self.ZMaxSlice_Box.text())
+		if valueEntered<self.ZLowSlice or valueEntered>self.ZMax:
+			self.ZMaxSlice_Box.setText(str(self.ZHighSlice))
+			return
+		slide = math.ceil(((valueEntered- self.ZMin)*SLIDER_RANGE)/(self.ZMax-self.ZMin))
+		self.ZRangeSlice.setHigh(slide)
+		self.ZChangeValuesSlice(self.ZRangeSlice.low(), slide)
+
+##################################################
+
 	def SChangeValues(self, low, high):
-		self.SLow=low*0.02*(self.SMax-self.SMin)+self.SMin
-		self.SHigh=high*0.02*(self.SMax-self.SMin)+self.SMin		
-		self.SMinLcd.display(self.SLow)
-		self.SMaxLcd.display(self.SHigh)		
+		self.SLow=(low*(self.SMax-self.SMin))/SLIDER_RANGE+self.SMin
+		self.SHigh=(high*(self.SMax-self.SMin))/SLIDER_RANGE+self.SMin	
+		self.SMin_Box.setText(str(round(self.SLow,2)))
+		self.SMax_Box.setText(str(round(self.SHigh,2)))			
 
 	def SInitRangeSlider(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.SChangeValues)
 
+	def SMin_BoxInput(self):
+		valueEntered=float(self.SMin_Box.text())
+		if valueEntered>self.SHigh or valueEntered<self.SMin:
+			self.SMin_Box.setText(str(self.SLow))
+			return
+		slide = math.floor(((valueEntered- self.SMin)*SLIDER_RANGE)/(self.SMax-self.SMin))
+		self.SRange.setLow(slide)
+		self.SChangeValues(slide, self.SRange.high())
+
+	def SMax_BoxInput(self):
+		valueEntered=float(self.SMax_Box.text())
+		if valueEntered<self.SLow or valueEntered>self.SMax:
+			self.SMax_Box.setText(str(self.SHigh))
+			return
+		slide = math.ceil(((valueEntered- self.SMin)*SLIDER_RANGE)/(self.SMax-self.SMin))
+		self.SRange.setHigh(slide)
+		self.SChangeValues(self.SRange.low(),slide)
+
+###########################################################
+
 	def CChangeValues(self, low, high):
-		self.CLow=low*0.02*(self.CMax-self.CMin)+self.CMin
-		self.CHigh=high*0.02*(self.CMax-self.CMin)+self.CMin		
-		self.CMinLcd.display(self.CLow)
-		self.CMaxLcd.display(self.CHigh)		
+		self.CLow=(low*(self.CMax-self.CMin))/SLIDER_RANGE+self.CMin
+		self.CHigh=(high*(self.CMax-self.CMin))/SLIDER_RANGE+self.CMin	
+		self.CMin_Box.setText(str(round(self.CLow,2)))
+		self.CMax_Box.setText(str(round(self.CHigh,2)))				
 
 	def CInitRangeSlider(self, slider):
 		slider.setMinimum(0)
-		slider.setMaximum(50)
+		slider.setMaximum(SLIDER_RANGE)
 		slider.setLow(0)
-		slider.setHigh(50)
+		slider.setHigh(SLIDER_RANGE)
 		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.CChangeValues)
+
+	def CMin_BoxInput(self):
+		valueEntered=float(self.CMin_Box.text())
+		if valueEntered>self.CHigh or valueEntered<self.CMin:
+			self.CMin_Box.setText(str(self.CLow))
+			return
+		slide = math.floor(((valueEntered- self.CMin)*SLIDER_RANGE)/(self.CMax-self.CMin))
+		self.CRange.setLow(slide)
+		self.CChangeValues(slide, self.CRange.high())
+
+	def CMax_BoxInput(self):
+		valueEntered=float(self.CMax_Box.text())
+		if valueEntered<self.CLow or valueEntered>self.CMax:
+			self.CMax_Box.setText(str(self.CHigh))
+			return
+		slide = math.ceil(((valueEntered- self.CMin)*SLIDER_RANGE)/(self.CMax-self.CMin))
+		self.CRange.setHigh(slide)
+		self.CChangeValues(self.CRange.low(),slide)
 
 	def DateActivated(self, index):
 		self.dayofplot=self.timestamps[index]
@@ -837,17 +1098,19 @@ class Visualizer(QtGui.QMainWindow):
 		self.DateLable.setText(dateval)
 		self.DateLable.adjustSize() 
 
+#########################################################
+
 	def inrange(self, x, minx, maxx):
 		if x>minx and x<maxx: return x
 		else: return np.NAN
 
-	def inrangeSC(self, x, minx, maxx):
-		if x>minx and x<maxx: return x
-		else: return minx-1
+	def inrangeS(self, x, minx, maxx, absmin, absmax):
+		if x>minx and x<maxx: return (599*((x-absmin)/(absmax-absmin))+10)
+		else: return 0
 
-	def scale(self, x, minx, maxx):
-		if x==(minx-1): return 0
-		else: return (599*((x-minx)/(maxx-minx))+10)
+	def inrangeC(self, x, minx, maxx, absmin, absmax):
+		if x>minx and x<maxx: return (599*((x-absmin)/(absmax-absmin))+10)
+		else: return np.NAN
 
 	def PlotCanvas(self):
 
@@ -867,13 +1130,12 @@ class Visualizer(QtGui.QMainWindow):
 		ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
 		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
 
-		size1 = [self.inrangeSC(s, self.SLow, self.SHigh) for s in size]
-		color1 = [self.inrange(c, self.CLow, self.CHigh) for c in color]
+		size1 = [self.inrangeS(s, self.SLow, self.SHigh, self.SMin, self.SMax) for s in size]
+		color1 = [self.inrangeC(c, self.CLow, self.CHigh, self.CMin, self.CMax) for c in color]
 
-		size2 =  [self.scale(s, self.SMin, self.SMax) for s in size1]
-		color2 = [self.scale(c, self.CMin, self.CMax) for c in color1]
+#	If you do not want color to rescale itself then plot the scatter iteratively and use alpha as parameter of Iter.
 
-		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color2, s=size2)
+		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color1, s=size1)
 		self.scatterpts.append(pt)
 		
 		self.ax.set_xlim(self.XLow, self.XHigh)
@@ -887,6 +1149,8 @@ class Visualizer(QtGui.QMainWindow):
 		self.canvas.draw()
 		self.flag=0
 		self.statusBar().showMessage('Update the Plot')
+
+#####################################################
 
 def main():
 	(PandasObject, featureslist, symbols, timestamps)=AD.ReadData()
