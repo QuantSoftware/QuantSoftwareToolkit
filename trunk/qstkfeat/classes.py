@@ -28,6 +28,9 @@ def classFutRet( dData, lLookforward=21, sRel=None, bUseOpen=False ):
 	
 	''' If we want market relative, calculate those values now '''
 	if not sRel == None:
+		
+		#assert False, 'Use generic MR param instead recognized by applyfeatures'
+		
 		lLen = len(dfClose[sRel].index)
 		''' Loop over time '''
 		for i in range(lLen):
@@ -62,10 +65,11 @@ def classFutRet( dData, lLookforward=21, sRel=None, bUseOpen=False ):
 				continue
 			
 			''' We either buy on todays close or tomorrows open '''
-			if len( dfOpen.index ) == 0:
-				fBuy = dfRet[sStock][i]
-			else:
+			if bUseOpen:
+				dfOpen = dData['open']
 				fBuy = dfOpen[sStock][i+1]
+			else:
+				fBuy = dfRet[sStock][i]
 			
 			dfRet[sStock][i] = (dfRet[sStock][i+lLookforward] - fBuy) / fBuy
 			
