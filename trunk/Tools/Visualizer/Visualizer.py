@@ -544,7 +544,7 @@ class Visualizer(QtGui.QMainWindow):
 
 		SaveAction = QtGui.QAction(QtGui.QIcon('save.png'), 'Save', self)
 		SaveAction.setShortcut('Ctrl+S')
-		SaveAction.triggered.connect(QtGui.qApp.quit)
+		SaveAction.triggered.connect(self.save_plot)
 
 		MovieAction = QtGui.QAction(QtGui.QIcon('movie.png'), 'Movie', self)
 		MovieAction.setShortcut('Ctrl+M')
@@ -1148,7 +1148,44 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.canvas.draw()
 		self.flag=0
+
 		self.statusBar().showMessage('Update the Plot')
+
+#####################################################
+
+	def save_plot(self):
+		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', '/home/untitled.png', 'Images (*.png *.xpm *.jpg)', options=QtGui.QFileDialog.DontUseNativeDialog))
+
+		if self.flag==0:
+			for pt in self.scatterpts :
+				pt.remove()
+		self.scatterpts = []
+
+		xs=self.PandasObject[str(self.Xfeature)].xs(self.dayofplot)
+		ys=self.PandasObject[str(self.Yfeature)].xs(self.dayofplot)
+		zs=self.PandasObject[str(self.Zfeature)].xs(self.dayofplot)	
+	
+		size=self.PandasObject[str(self.Sfeature)].xs(self.dayofplot)
+		color=self.PandasObject[str(self.Cfeature)].xs(self.dayofplot)
+
+		xs1 = [self.inrange(x, max(self.XLow, self.XLowSlice), min(self.XHigh, self.XHighSlice)) for x in xs]
+		ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
+		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
+
+		size1 = [self.inrangeS(s, self.SLow, self.SHigh, self.SMin, self.SMax) for s in size]
+		color1 = [self.inrangeC(c, self.CLow, self.CHigh, self.CMin, self.CMax) for c in color]
+
+		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color1, s=size1)
+		self.scatterpts.append(pt)
+		
+		self.ax.set_xlim(self.XLow, self.XHigh)
+		self.ax.set_ylim(self.YLow, self.YHigh)
+		self.ax.set_zlim(self.ZLow, self.ZHigh)	
+	
+		self.ax.set_xlabel(self.Xfeature)
+		self.ax.set_ylabel(self.Yfeature)
+		self.ax.set_zlabel(self.Zfeature)
+		self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
 
 #####################################################
 
