@@ -231,10 +231,14 @@ class Visualizer(QtGui.QMainWindow):
 		self.SMax=1.0
 		self.SLow=self.SMin
 		self.SHigh=self.SMax
+		self.SLowSlice=self.SMin
+		self.SHighSlice=self.SMax
 		self.CMin=0.0
 		self.CMax=1.0
 		self.CLow=self.CMin
 		self.CHigh=self.CMax
+		self.CLowSlice=self.CMin
+		self.CHighSlice=self.CMax
 		self.dayofplot=self.timestamps[0]
 		self.create_main_frame()
         
@@ -244,7 +248,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.statusBar().showMessage('Ready')		
 		
 		self.dpi=100
-		self.fig = Figure((5.0, 5.0), dpi=self.dpi)
+		self.fig = Figure((5.0, 4.5), dpi=self.dpi)
 		
 		self.canvas = FigureCanvas(self.fig)
 		self.canvas.setParent(self.main_frame)
@@ -260,7 +264,9 @@ class Visualizer(QtGui.QMainWindow):
 		self.font3 = QtGui.QFont("Times", 20, QtGui.QFont.Bold, True)
 		
 		self.VisLable = QtGui.QLabel('QuantViz', self)
-		self.SpacerItem = Qt.QSpacerItem(300,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)		
+		self.SpacerItem1 = Qt.QSpacerItem(420,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)		
+		self.SpacerItem2 = Qt.QSpacerItem(300,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)	
+		self.SpacerItem3 = Qt.QSpacerItem(300,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)	
 		self.VisLable.setFont(self.font3)
 		self.FactorLable.setFont(self.font)
 
@@ -440,6 +446,11 @@ class Visualizer(QtGui.QMainWindow):
 		self.Frame7= QtGui.QFrame()
 		self.Frame7.setFrameShape(4)
 
+		self.Frame8= QtGui.QFrame()
+		self.Frame8.setFrameShape(4)
+
+		self.VFrame= QtGui.QFrame()
+		self.VFrame.setFrameShape(5)
 #####################################################
 
 		self.DLable=QtGui.QLabel('Time ', self)
@@ -470,6 +481,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.SMinTag=QtGui.QLabel('Min :', self)
 		self.SMaxTag=QtGui.QLabel('Max :', self)
 		self.SLimitTag=QtGui.QLabel('Scale:', self)
+		self.SSliceTag=QtGui.QLabel('Slice :', self)
 
 		self.SMinLable=QtGui.QLabel(str(self.SMin), self)
 		self.SMinLable.setFont(self.font1)
@@ -477,15 +489,16 @@ class Visualizer(QtGui.QMainWindow):
 		self.SRange=RangeSlider(Qt.Qt.Horizontal)
 		self.SInitRangeSlider(self.SRange)
 
+		self.SRangeSlice=RangeSlider(Qt.Qt.Horizontal)
+		self.SInitRangeSliderSlice(self.SRangeSlice)
+
 		self.SMaxLable=QtGui.QLabel(str(self.SMax), self)
 		self.SMaxLable.setFont(self.font1)
 
 		self.SMin_Box= QtGui.QLineEdit()	
 		self.SMax_Box= QtGui.QLineEdit()	
-
 		self.SMin_Box.setMaxLength(4)
 		self.SMax_Box.setMaxLength(4)
-		
 		self.SMin_Box.setFixedSize(50,27)
 		self.SMax_Box.setFixedSize(50,27)
 
@@ -494,6 +507,19 @@ class Visualizer(QtGui.QMainWindow):
 
 		self.connect(self.SMin_Box, QtCore.SIGNAL('editingFinished()'), self.SMin_BoxInput)
 		self.connect(self.SMax_Box, QtCore.SIGNAL('editingFinished()'), self.SMax_BoxInput)
+
+		self.SMinSlice_Box= QtGui.QLineEdit()	
+		self.SMaxSlice_Box= QtGui.QLineEdit()
+		self.SMinSlice_Box.setMaxLength(4)	
+		self.SMaxSlice_Box.setMaxLength(4)
+		self.SMinSlice_Box.setFixedSize(50,27)	
+		self.SMaxSlice_Box.setFixedSize(50,27)
+
+		self.SMinSlice_Box.setText(str(self.SLowSlice))	
+		self.SMaxSlice_Box.setText(str(self.SHighSlice))
+
+		self.connect(self.SMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.SMinSlice_BoxInput)
+		self.connect(self.SMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.SMaxSlice_BoxInput)
 
 #####################################################
 
@@ -507,6 +533,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMinTag=QtGui.QLabel('Min :', self)
 		self.CMaxTag=QtGui.QLabel('Max :', self)
 		self.CLimitTag=QtGui.QLabel('Scale:', self)
+		self.CSliceTag=QtGui.QLabel('Slice :', self)
 
 		self.CMinLable=QtGui.QLabel(str(self.CMin), self)
 		self.CMinLable.setFont(self.font1)
@@ -514,15 +541,16 @@ class Visualizer(QtGui.QMainWindow):
 		self.CRange=RangeSlider(Qt.Qt.Horizontal)
 		self.CInitRangeSlider(self.CRange)
 
+		self.CRangeSlice=RangeSlider(Qt.Qt.Horizontal)
+		self.CInitRangeSliderSlice(self.CRangeSlice)
+
 		self.CMaxLable=QtGui.QLabel(str(self.CMax), self)
 		self.CMaxLable.setFont(self.font1)
 
 		self.CMin_Box= QtGui.QLineEdit()	
 		self.CMax_Box= QtGui.QLineEdit()	
-
 		self.CMin_Box.setMaxLength(4)
 		self.CMax_Box.setMaxLength(4)
-		
 		self.CMin_Box.setFixedSize(50,27)
 		self.CMax_Box.setFixedSize(50,27)
 
@@ -532,46 +560,51 @@ class Visualizer(QtGui.QMainWindow):
 		self.connect(self.CMin_Box, QtCore.SIGNAL('editingFinished()'), self.CMin_BoxInput)
 		self.connect(self.CMax_Box, QtCore.SIGNAL('editingFinished()'), self.CMax_BoxInput)
 
+		self.CMinSlice_Box= QtGui.QLineEdit()	
+		self.CMaxSlice_Box= QtGui.QLineEdit()
+		self.CMinSlice_Box.setMaxLength(4)	
+		self.CMaxSlice_Box.setMaxLength(4)
+		self.CMinSlice_Box.setFixedSize(50,27)	
+		self.CMaxSlice_Box.setFixedSize(50,27)
+
+		self.CMinSlice_Box.setText(str(self.CLowSlice))	
+		self.CMaxSlice_Box.setText(str(self.CHighSlice))
+
+		self.connect(self.CMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.CMinSlice_BoxInput)
+		self.connect(self.CMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.CMaxSlice_BoxInput)
+
+############################################################
+
 		self.UpdateButton =QtGui.QPushButton('Plot',self)
 		self.UpdateButton.setToolTip('Update the plot')
-		self.UpdateButton.resize(self.UpdateButton.sizeHint())
+		sizeofbutton = self.UpdateButton.sizeHint()	
+		h = sizeofbutton.height()
+		w = sizeofbutton.width()
+		self.UpdateButton.resize(w,2.0*h)
 		self.UpdateButton.clicked.connect(self.PlotCanvas)
 
-############################################################3333
+		self.SaveButton =QtGui.QPushButton('Save',self)
+		self.SaveButton.setToolTip('Save the plot')
+		self.SaveButton.resize(self.SaveButton.sizeHint())
+		self.SaveButton.clicked.connect(self.save_plot)
 
-		ExitAction = QtGui.QAction(QtGui.QIcon('Exit.png'), 'Exit', self)
-		ExitAction.setShortcut('Ctrl+Q')
-		ExitAction.triggered.connect(QtGui.qApp.quit)
+		self.MovieButton =QtGui.QPushButton('Movie',self)
+		self.MovieButton.setToolTip('Save the plot')
+		self.MovieButton.resize(self.MovieButton.sizeHint())
+		self.MovieButton.clicked.connect(self.make_movie)
 
-		SaveAction = QtGui.QAction(QtGui.QIcon('save.png'), 'Save', self)
-		SaveAction.setShortcut('Ctrl+S')
-		SaveAction.triggered.connect(self.save_plot)
+		self.AboutButton =QtGui.QPushButton('About',self)
+		self.AboutButton.setToolTip('About the Visualizer')
+		self.AboutButton.resize(self.AboutButton.sizeHint())
+#		self.AboutButton.clicked.connect(self.make_movie)
 
-		MovieAction = QtGui.QAction(QtGui.QIcon('movie.png'), 'Movie', self)
-		MovieAction.setShortcut('Ctrl+M')
-		MovieAction.triggered.connect(QtGui.qApp.quit)
+		self.Day5Button =QtGui.QPushButton('5 Days',self)
+		self.Day5Button.setCheckable(True)
+		self.Day5Button.setToolTip('Add 5 Days to the Plot')
+		self.Day5Button.resize(self.Day5Button.sizeHint())
+#		self.Day5Button.clicked[bool].connect(self.setColor)
 
-		SettingAction = QtGui.QAction(QtGui.QIcon('settings.png'), 'Settings', self)
-		SettingAction.setShortcut('Ctrl+T')
-		SettingAction.triggered.connect(QtGui.qApp.quit)
-
-		HelpAction = QtGui.QAction(QtGui.QIcon('help.png'), 'Help', self)
-		HelpAction.setShortcut('Ctrl+H')
-		HelpAction.triggered.connect(QtGui.qApp.quit)        
-
-		AboutAction = QtGui.QAction(QtGui.QIcon('about.png'), 'About', self)
-		AboutAction.setShortcut('Ctrl+A')
-		AboutAction.triggered.connect(QtGui.qApp.quit)
-
-		self.Toolbar = self.addToolBar('Toolbar')
-		self.Toolbar.addAction(ExitAction)
-		self.Toolbar.addAction(SaveAction)
-		self.Toolbar.addAction(MovieAction)
-		self.Toolbar.addAction(SettingAction)
-		self.Toolbar.addAction(HelpAction)
-		self.Toolbar.addAction(AboutAction)
-
-########################################################33
+############################################################
 
 		Xhbox1 = QtGui.QHBoxLayout()
         
@@ -602,6 +635,11 @@ class Visualizer(QtGui.QMainWindow):
 			Xhbox4.addWidget(w)
 			Xhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+		Xvbox1 = QtGui.QVBoxLayout()
+		Xvbox1.addLayout(Xhbox1)
+		Xvbox1.addLayout(Xhbox2)
+		Xvbox1.addLayout(Xhbox3)
+		Xvbox1.addLayout(Xhbox4)
 
 ############################################################
 
@@ -634,6 +672,12 @@ class Visualizer(QtGui.QMainWindow):
 			Yhbox4.addWidget(w)
 			Yhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+		Yvbox1 = QtGui.QVBoxLayout()
+		Yvbox1.addLayout(Yhbox1)
+		Yvbox1.addLayout(Yhbox2)
+		Yvbox1.addLayout(Yhbox3)
+		Yvbox1.addLayout(Yhbox4)
+
 ##############################################################3
 
 		Zhbox1 = QtGui.QHBoxLayout()
@@ -665,6 +709,12 @@ class Visualizer(QtGui.QMainWindow):
 			Zhbox4.addWidget(w)
 			Zhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+		Zvbox1 = QtGui.QVBoxLayout()
+		Zvbox1.addLayout(Zhbox1)
+		Zvbox1.addLayout(Zhbox2)
+		Zvbox1.addLayout(Zhbox3)
+		Zvbox1.addLayout(Zhbox4)
+
 #########################################################
 
 		Shbox1 = QtGui.QHBoxLayout()
@@ -691,6 +741,18 @@ class Visualizer(QtGui.QMainWindow):
 			Shbox3.addWidget(w)
 			Shbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+		Shbox4 = QtGui.QHBoxLayout()
+        
+		for w in [  self.SSliceTag, self.SMinSlice_Box, self.SRangeSlice, self.SMaxSlice_Box]:
+			Shbox4.addWidget(w)
+			Shbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Svbox1 = QtGui.QVBoxLayout()
+		Svbox1.addLayout(Shbox1)
+		Svbox1.addLayout(Shbox2)
+		Svbox1.addLayout(Shbox3)
+		Svbox1.addLayout(Shbox4)
+
 ##########################################################
 
 		Chbox1 = QtGui.QHBoxLayout()
@@ -716,12 +778,24 @@ class Visualizer(QtGui.QMainWindow):
 			Chbox3.addWidget(w)
 			Chbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+		Chbox4 = QtGui.QHBoxLayout()
+        
+		for w in [  self.CSliceTag, self.CMinSlice_Box, self.CRangeSlice, self.CMaxSlice_Box]:
+			Chbox4.addWidget(w)
+			Chbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Cvbox1 = QtGui.QVBoxLayout()
+		Cvbox1.addLayout(Chbox1)
+		Cvbox1.addLayout(Chbox2)
+		Cvbox1.addLayout(Chbox3)
+		Cvbox1.addLayout(Chbox4)
+
+################################################
 		
 		Datehbox1 = QtGui.QHBoxLayout()
 		Datehbox1.addWidget(self.DLable)
 		Datehbox1.addWidget(self.DateLable)
 		Datehbox1.addStretch(1)
-		Datehbox1.addWidget(self.UpdateButton)
 
 		Datehbox2 = QtGui.QHBoxLayout()
         
@@ -729,59 +803,82 @@ class Visualizer(QtGui.QMainWindow):
 			Datehbox2.addWidget(w)
 			Datehbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
 
+		Datevbox1 = QtGui.QVBoxLayout()
+		Datevbox1.addLayout(Datehbox1)
+		Datevbox1.addLayout(Datehbox2)	
+
+###############################################
+
+		Buttonhbox1= QtGui.QHBoxLayout()
+		Buttonhbox1.addWidget(self.Day5Button)
+		Buttonhbox1.addWidget(self.MovieButton)
+		
+		Buttonhbox2 = QtGui.QHBoxLayout()
+		Buttonhbox2.addWidget(self.SaveButton)
+		Buttonhbox2.addWidget(self.AboutButton)
+
+		Buttonvbox1 = QtGui.QVBoxLayout()
+		Buttonvbox1.addLayout(Buttonhbox1)
+		Buttonvbox1.addLayout(Buttonhbox2)
+
+		Buttonhbox3 = QtGui.QHBoxLayout()
+		Buttonhbox3.addLayout(Buttonvbox1)
+		Buttonhbox3.addWidget(self.UpdateButton)
+
 ##############################################
 
-		Vbox1= QtGui.QVBoxLayout()
-		Vbox1.addWidget(self.FactorLable)
-		Vbox1.addWidget(self.Frame1)
-		Vbox1.addLayout(Xhbox1)
-		Vbox1.addLayout(Xhbox2)
-		Vbox1.addLayout(Xhbox3)
-		Vbox1.addLayout(Xhbox4)
-		Vbox1.addWidget(self.Frame2)
-		Vbox1.addLayout(Yhbox1)
-		Vbox1.addLayout(Yhbox2)
-		Vbox1.addLayout(Yhbox3)
-		Vbox1.addLayout(Yhbox4)
-		Vbox1.addWidget(self.Frame3)
-		Vbox1.addLayout(Zhbox1)
-		Vbox1.addLayout(Zhbox2)
-		Vbox1.addLayout(Zhbox3)
-		Vbox1.addLayout(Zhbox4)
-		Vbox1.addWidget(self.Frame4)
-		Vbox1.addLayout(Shbox1)
-		Vbox1.addLayout(Shbox2)
-		Vbox1.addLayout(Shbox3)
-		Vbox1.addWidget(self.Frame5)
-		Vbox1.addLayout(Chbox1)
-		Vbox1.addLayout(Chbox2)
-		Vbox1.addLayout(Chbox3)
-		Vbox1.addItem(self.SpacerItem)
+		Vbox1 = QtGui.QVBoxLayout()
+		Vbox1.addWidget(self.VisLable)
+		Vbox1.addWidget(self.canvas)
+		Vbox1.addItem(self.SpacerItem1)
+		Vbox1.addStretch(1)
 
-		Vbox2 = QtGui.QVBoxLayout()
-#		Vbox2.addWidget(self.Toolbar)
-		Vbox2.addWidget(self.VisLable)
-		Vbox2.addWidget(self.canvas)
-		Vbox2.addWidget(self.Frame6)
-		Vbox2.addLayout(Datehbox1)
-		Vbox2.addLayout(Datehbox2)
+		Vbox2= QtGui.QVBoxLayout()
+		Vbox2.addWidget(self.Frame1)
+		Vbox2.addLayout(Xvbox1)
+		Vbox2.addWidget(self.Frame2)
+		Vbox2.addLayout(Yvbox1)
+		Vbox2.addWidget(self.Frame3)
+		Vbox2.addLayout(Zvbox1)
 		Vbox2.addStretch(1)
-#		Vbox2.addWidget(self.mpl_toolbar)
-		
-		HBox= QtGui.QHBoxLayout()
-		HBox.addLayout(Vbox2)
-		HBox.addLayout(Vbox1)
-		HBox.addStretch(1)
-		
+		Vbox2.addItem(self.SpacerItem2)
+
+		Vbox3 = QtGui.QVBoxLayout()
+#		Vbox3.addWidget(self.FactorLable)
+#		Vbox3.addWidget(self.UpdateButton)
+		Vbox3.addWidget(self.Frame4)
+		Vbox3.addLayout(Svbox1)
+		Vbox3.addWidget(self.Frame5)
+		Vbox3.addLayout(Cvbox1)
+		Vbox3.addWidget(self.Frame6)
+		Vbox3.addLayout(Datevbox1)
+		Vbox3.addWidget(self.Frame7)
+		Vbox3.addLayout(Buttonhbox3)
+		Vbox3.addStretch(1)
+		Vbox3.addItem(self.SpacerItem3)
+
+		HBox1 = QtGui.QHBoxLayout()
+		HBox1.addLayout(Vbox2)
+		HBox1.addWidget(self.VFrame)
+		HBox1.addLayout(Vbox3)
+
+		Vbox4 = QtGui.QVBoxLayout()
+		Vbox4.addStretch(1)
+		Vbox4.addWidget(self.FactorLable)
+		Vbox4.addLayout(HBox1)
+
+		HBox2= QtGui.QHBoxLayout()
+		HBox2.addLayout(Vbox1)
+		HBox2.addLayout(Vbox4)
+		HBox2.addStretch(1)
+
 		FinalBox = QtGui.QVBoxLayout()
-#		FinalBox.addWidget(self.VisLable)
-		FinalBox.addLayout(HBox)
-		FinalBox.addWidget(self.Frame7)
+		FinalBox.addLayout(HBox2)
+#		FinalBox.addWidget(self.Frame8)
 		FinalBox.addStretch(1)
 
 		self.setWindowTitle('QuantViz')
 		self.setWindowIcon(QtGui.QIcon('V.png'))
-
 		self.main_frame.setLayout(FinalBox)
 		self.setCentralWidget(self.main_frame)
 
@@ -825,6 +922,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.SMinLable.setText(str(round(self.SMin,1)))
 		self.SMaxLable.setText(str(round(self.SMax,1)))
 		self.SChangeValues(self.SRange.low(), self.SRange.high())
+		self.SChangeValuesSlice(self.SRangeSlice.low(), self.SRangeSlice.high())
 
 	def CComboActivated(self,text):
 		self.Cfeature=text
@@ -833,6 +931,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMinLable.setText(str(round(self.CMin,1)))
 		self.CMaxLable.setText(str(round(self.CMax,1)))
 		self.CChangeValues(self.CRange.low(), self.CRange.high())
+		self.CChangeValuesSlice(self.CRangeSlice.low(), self.CRangeSlice.high())
 
 ###################################################3
 
@@ -1059,6 +1158,37 @@ class Visualizer(QtGui.QMainWindow):
 		self.SRange.setHigh(slide)
 		self.SChangeValues(self.SRange.low(),slide)
 
+	def SChangeValuesSlice(self, low, high):
+		self.SLowSlice=(low*(self.SMax-self.SMin))/SLIDER_RANGE+self.SMin
+		self.SHighSlice=(high*(self.SMax-self.SMin))/SLIDER_RANGE+self.SMin	
+		self.SMinSlice_Box.setText(str(self.SLowSlice))
+		self.SMaxSlice_Box.setText(str(self.SHighSlice))
+
+	def SInitRangeSliderSlice(self, slider):
+		slider.setMinimum(0)
+		slider.setMaximum(SLIDER_RANGE)
+		slider.setLow(0)
+		slider.setHigh(SLIDER_RANGE)
+		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.SChangeValuesSlice)
+
+	def SMinSlice_BoxInput(self):
+		valueEntered=float(self.SMinSlice_Box.text())
+		if valueEntered>self.SHighSlice or valueEntered<self.SMin:
+			self.SMinSlice_Box.setText(str(self.SLowSlice))
+			return
+		slide = math.floor(((valueEntered- self.SMin)*SLIDER_RANGE)/(self.SMax-self.SMin))
+		self.SRangeSlice.setLow(slide)
+		self.SChangeValuesSlice(slide, self.SRangeSlice.high())
+
+	def SMaxSlice_BoxInput(self):
+		valueEntered=float(self.SMaxSlice_Box.text())
+		if valueEntered<self.SLowSlice or valueEntered>self.SMax:
+			self.SMaxSlice_Box.setText(str(self.SHighSlice))
+			return
+		slide = math.ceil(((valueEntered- self.SMin)*SLIDER_RANGE)/(self.SMax-self.SMin))
+		self.SRangeSlice.setHigh(slide)
+		self.SChangeValuesSlice(self.SRangeSlice.low(), slide)
+
 ###########################################################
 
 	def CChangeValues(self, low, high):
@@ -1092,6 +1222,37 @@ class Visualizer(QtGui.QMainWindow):
 		self.CRange.setHigh(slide)
 		self.CChangeValues(self.CRange.low(),slide)
 
+	def CChangeValuesSlice(self, low, high):
+		self.CLowSlice=(low*(self.CMax-self.CMin))/SLIDER_RANGE+self.CMin
+		self.CHighSlice=(high*(self.CMax-self.CMin))/SLIDER_RANGE+self.CMin	
+		self.CMinSlice_Box.setText(str(self.CLowSlice))
+		self.CMaxSlice_Box.setText(str(self.CHighSlice))
+
+	def CInitRangeSliderSlice(self, slider):
+		slider.setMinimum(0)
+		slider.setMaximum(SLIDER_RANGE)
+		slider.setLow(0)
+		slider.setHigh(SLIDER_RANGE)
+		QtCore.QObject.connect(slider, QtCore.SIGNAL('sliderMoved'), self.CChangeValuesSlice)
+
+	def CMinSlice_BoxInput(self):
+		valueEntered=float(self.CMinSlice_Box.text())
+		if valueEntered>self.CHighSlice or valueEntered<self.CMin:
+			self.CMinSlice_Box.setText(str(self.CLowSlice))
+			return
+		slide = math.floor(((valueEntered- self.CMin)*SLIDER_RANGE)/(self.CMax-self.CMin))
+		self.CRangeSlice.setLow(slide)
+		self.CChangeValuesSlice(slide, self.CRangeSlice.high())
+
+	def CMaxSlice_BoxInput(self):
+		valueEntered=float(self.CMaxSlice_Box.text())
+		if valueEntered<self.CLowSlice or valueEntered>self.CMax:
+			self.CMaxSlice_Box.setText(str(self.CHighSlice))
+			return
+		slide = math.ceil(((valueEntered- self.CMin)*SLIDER_RANGE)/(self.CMax-self.CMin))
+		self.CRangeSlice.setHigh(slide)
+		self.CChangeValuesSlice(self.CRangeSlice.low(), slide)
+
 	def DateActivated(self, index):
 		self.dayofplot=self.timestamps[index]
 		dateval=self.timestamps[index]
@@ -1102,17 +1263,17 @@ class Visualizer(QtGui.QMainWindow):
 #########################################################
 
 	def inrange(self, x, minx, maxx):
-		if x>minx and x<maxx: return x
+		if x>=minx and x<=maxx: return x
 		else: return np.NAN
 
 	def inrangeS(self, x, minx, maxx, absmin, absmax):
-		if x>minx and x<maxx: return (599*((x-absmin)/(absmax-absmin))+10)
+		if x>=minx and x<=maxx: return (599*((x-absmin)/(absmax-absmin))+10)
 		else: return 0
 
 	def inrangeC(self, x, minx, maxx, absmin, absmax):
-		if x>minx and x<maxx: return (599*((x-absmin)/(absmax-absmin))+10)
+		if x>=minx and x<=maxx: return (599*((x-absmin)/(absmax-absmin))+10)
 		else: return np.NAN
-
+		
 	def PlotCanvas(self):
 
 		if self.flag==0:
@@ -1131,12 +1292,13 @@ class Visualizer(QtGui.QMainWindow):
 		ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
 		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
 
-		size1 = [self.inrangeS(s, self.SLow, self.SHigh, self.SMin, self.SMax) for s in size]
+		size1 = [self.inrangeS(s, max(self.SLow, self.SLowSlice), min(self.SHigh, self.SHighSlice), self.SMin, self.SMax) for s in size]
+#		color1 = [self.inrangeC(c, max(self.CLow, self.CLowSlice), min(self.CHigh, self.CHighSlice), self.CMin, self.CMax) for c in color]
 		color1 = [self.inrangeC(c, self.CLow, self.CHigh, self.CMin, self.CMax) for c in color]
 
 #	If you do not want color to rescale itself then plot the scatter iteratively and use alpha as parameter of Iter.
 
-		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color1, s=size1)
+		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=1, c=color1, s=size1)
 		self.scatterpts.append(pt)
 		
 		self.ax.set_xlim(self.XLow, self.XHigh)
@@ -1155,8 +1317,10 @@ class Visualizer(QtGui.QMainWindow):
 #####################################################
 
 	def save_plot(self):
-		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', '/home/untitled.png', 'Images (*.png *.xpm *.jpg)', options=QtGui.QFileDialog.DontUseNativeDialog))
-
+		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', os.environ['QS'] + '/Tools/Visualizer/untitled.png', 'Images (*.png *.xpm *.jpg)', options=QtGui.QFileDialog.DontUseNativeDialog))
+		if fname=='':
+			print "File dialog cancelled"
+			return
 		if self.flag==0:
 			for pt in self.scatterpts :
 				pt.remove()
@@ -1173,7 +1337,8 @@ class Visualizer(QtGui.QMainWindow):
 		ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
 		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
 
-		size1 = [self.inrangeS(s, self.SLow, self.SHigh, self.SMin, self.SMax) for s in size]
+		size1 = [self.inrangeS(s, max(self.SLow, self.SLowSlice), min(self.SHigh, self.SHighSlice), self.SMin, self.SMax) for s in size]
+#		color1 = [self.inrangeC(c, max(self.CLow, self.CLowSlice), min(self.CHigh, self.CHighSlice), self.CMin, self.CMax) for c in color]
 		color1 = [self.inrangeC(c, self.CLow, self.CHigh, self.CMin, self.CMax) for c in color]
 
 		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color1, s=size1)
@@ -1193,6 +1358,19 @@ class Visualizer(QtGui.QMainWindow):
 
 	def make_movie(self):
 		folderpath = os.environ['QS'] + '/Tools/Visualizer/Movie/'
+		text, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 'Enter name of movie:')
+		if ok:
+			if len(text)<1:
+				print "Movie name Invalid"
+				return 
+			folderpath= folderpath + str(text)
+		else:
+			return
+		if not os.path.exists(folderpath):
+			os.mkdir(folderpath)
+		
+		folderpath=folderpath + '/'
+
 		for i in range(0, len(self.timestamps)):
 			if self.flag==0:
 				for pt in self.scatterpts :
@@ -1210,7 +1388,8 @@ class Visualizer(QtGui.QMainWindow):
 			ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
 			zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
 
-			size1 = [self.inrangeS(s, self.SLow, self.SHigh, self.SMin, self.SMax) for s in size]
+			size1 = [self.inrangeS(s, max(self.SLow, self.SLowSlice), min(self.SHigh, self.SHighSlice), self.SMin, self.SMax) for s in size]
+#			color1 = [self.inrangeC(c, max(self.CLow, self.CLowSlice), min(self.CHigh, self.CHighSlice), self.CMin, self.CMax) for c in color]
 			color1 = [self.inrangeC(c, self.CLow, self.CHigh, self.CMin, self.CMax) for c in color]
 
 			pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color1, s=size1)
@@ -1226,7 +1405,7 @@ class Visualizer(QtGui.QMainWindow):
 			fname=folderpath + str(i) +'.png'
 			self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
 			self.statusBar().showMessage('Movie Complete')
-
+		
 #####################################################
 
 def main():
