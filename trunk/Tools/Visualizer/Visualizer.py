@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import math 
+import os
 import AccessData as AD
 from PyQt4 import QtGui, QtCore, Qt
 from matplotlib.figure import Figure
@@ -1186,6 +1187,45 @@ class Visualizer(QtGui.QMainWindow):
 		self.ax.set_ylabel(self.Yfeature)
 		self.ax.set_zlabel(self.Zfeature)
 		self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
+		self.statusBar().showMessage('Saved the File')
+
+#####################################################
+
+	def make_movie(self):
+		folderpath = os.environ['QS'] + '/Tools/Visualizer/Movie/'
+		for i in range(0, len(self.timestamps)):
+			if self.flag==0:
+				for pt in self.scatterpts :
+					pt.remove()
+			self.scatterpts = []
+
+			xs=self.PandasObject[str(self.Xfeature)].xs(self.timestamps[i])
+			ys=self.PandasObject[str(self.Yfeature)].xs(self.timestamps[i])
+			zs=self.PandasObject[str(self.Zfeature)].xs(self.timestamps[i])	
+		
+			size=self.PandasObject[str(self.Sfeature)].xs(self.timestamps[i])
+			color=self.PandasObject[str(self.Cfeature)].xs(self.timestamps[i])
+
+			xs1 = [self.inrange(x, max(self.XLow, self.XLowSlice), min(self.XHigh, self.XHighSlice)) for x in xs]
+			ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
+			zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
+
+			size1 = [self.inrangeS(s, self.SLow, self.SHigh, self.SMin, self.SMax) for s in size]
+			color1 = [self.inrangeC(c, self.CLow, self.CHigh, self.CMin, self.CMax) for c in color]
+
+			pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=0.5, c=color1, s=size1)
+			self.scatterpts.append(pt)
+		
+			self.ax.set_xlim(self.XLow, self.XHigh)
+			self.ax.set_ylim(self.YLow, self.YHigh)
+			self.ax.set_zlim(self.ZLow, self.ZHigh)	
+		
+			self.ax.set_xlabel(self.Xfeature)
+			self.ax.set_ylabel(self.Yfeature)
+			self.ax.set_zlabel(self.Zfeature)
+			fname=folderpath + str(i) +'.png'
+			self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
+			self.statusBar().showMessage('Movie Complete')
 
 #####################################################
 
