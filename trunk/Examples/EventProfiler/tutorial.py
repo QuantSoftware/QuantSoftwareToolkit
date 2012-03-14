@@ -20,7 +20,7 @@ import qstkutil.dateutil as du
 import datetime as dt
 import qstkutil.DataAccess as da
 import qstkutil.tsutil as tsu
-import EventProfiler as ep
+import qstkstudy.EventProfiler as ep
 
 """
 Accepts a list of symbols along with start and end date
