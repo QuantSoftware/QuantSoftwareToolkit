@@ -191,17 +191,9 @@ class RangeSlider(QtGui.QSlider):
 
 class Visualizer(QtGui.QMainWindow):
     
-	def __init__(self, PandasObject1, featureslist1, symbols1, timestamps1, dMinFeat1, dMaxFeat1, startday1, endday1):
+	def __init__(self):
 		super(Visualizer, self).__init__()
-
-		self.PandasObject=PandasObject1
-		self.featureslist=featureslist1
-		self.symbols=symbols1
-		self.timestamps=timestamps1
-		self.dMinFeat=dMinFeat1
-		self.dMaxFeat=dMaxFeat1
-		self.startday=startday1
-		self.endday=endday1
+		self.LoadData()
 		self.scatterpts=[]
 		self.textpts=[]
 		self.Xfeature=self.featureslist[0]
@@ -889,6 +881,13 @@ class Visualizer(QtGui.QMainWindow):
 		self.main_frame.setLayout(FinalBox)
 		self.setCentralWidget(self.main_frame)
 
+######################################################
+
+	def LoadData(self):
+		fname = str(QtGui.QFileDialog.getExistingDirectory(None, 'Data Directory', os.environ['QS']+'/Tools/Visualizer/Data/', options=QtGui.QFileDialog.DontUseNativeDialog))
+		fname= fname+'/'
+		(self.PandasObject, self.featureslist, self.symbols, self.timestamps, self.dMinFeat, self.dMaxFeat, self.startday, self.endday) = AD.GetData(fname)
+
 #######################################################
 
 	def FeatureComboBox(self, combo):
@@ -1439,11 +1438,9 @@ class Visualizer(QtGui.QMainWindow):
 #####################################################
 
 def main():
-	(PandasObject, featureslist, symbols, timestamps)=AD.ReadData()
-	(dMinFeat, dMaxFeat, startday, endday)=AD.DataParameter(PandasObject, featureslist, symbols, timestamps)
-	
+
 	app = QtGui.QApplication(sys.argv)
-	ex = Visualizer(PandasObject, featureslist, symbols, timestamps, dMinFeat, dMaxFeat, startday, endday)
+	ex = Visualizer()
 	ex.show()
 	sys.exit(app.exec_())
 
