@@ -17,25 +17,8 @@ from pandas import *
 # Changes made in the featutil file are : Edited the getFeatureFuncs()
 
 
-def genData(startday=None, endday=None):
+def genData(startday, endday):
 
-	# Initializing the Date Range
-	# If Startday or Endday not specified then tries to read from DateRange.csv
-		
-	if startday==None or endday==None:
-		try:
-			datesdata= np.loadtxt('DateRange.csv',delimiter=',',skiprows=1)
-			datesdata= np.int_(datesdata)	
-			dates = []
-			for i in range(0,datesdata.shape[0]):
-				dates.append(dt.datetime(datesdata[i,0],datesdata[i,1],datesdata[i,2]))
-	
-			startday=dates[0]
-			endday=dates[1]	
-		except: 
-			print "Please check if DateRange.csv exists or Specify startday and endday"
-			return
-		
 	timeofday = dt.timedelta(hours=16)
 	timestamps = du.getNYSEdays(startday,endday,timeofday)
 	
@@ -86,5 +69,7 @@ def genData(startday=None, endday=None):
 	pickle.dump(Numpyarray,open( 'ALLDATA.pkl', 'wb' ),-1)
 	
 if __name__ == '__main__':
-	genData()
+	startday=dt.datetime(2009,1,1)
+	endday=dt.datetime(2010,12,31)
+	genData(startday,endday)
 

@@ -1391,7 +1391,7 @@ class Visualizer(QtGui.QMainWindow):
 #####################################################
 
 	def save_plot(self):
-		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', '/home/untitled.png', 'Images (*.png *.xpm *.jpg)', options=QtGui.QFileDialog.DontUseNativeDialog))
+		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', os.environ['QS']+'/Tools/Visualizer/untitled.png', 'Images (*.png *.xpm *.jpg)', options=QtGui.QFileDialog.DontUseNativeDialog))
 		if fname=='':
 			return
 		self.clean()
@@ -1402,7 +1402,7 @@ class Visualizer(QtGui.QMainWindow):
 #####################################################
 
 	def make_movie(self):
-		folderpath = '/home/sourabh/QSTK/trunk/Sourabh/Visualizer/9_Exp/Movie/'
+		folderpath = os.environ['QS']+'/Tools/Visualizer/Movie/'
 		text, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 'Enter name of movie:')
 		if ok:
 			if len(text)<1:
