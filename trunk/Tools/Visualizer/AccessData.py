@@ -81,6 +81,6 @@ def GetData(directorylocation):
 
 
 if __name__ == '__main__':
-	directorylocation = '/home/sourabh/QSTK/trunk/Tools/Visualizer/Data/Dow_2009-01-01_2010-12-31/'
+	directorylocation = os.environ['QS']+'/Tools/Visualizer/Data/Dow_2009-01-01_2010-12-31/'
 	GetData(directorylocation)
 	print "The access functions are working"
