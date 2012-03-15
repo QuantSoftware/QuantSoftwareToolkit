@@ -4,22 +4,21 @@
 #import libraries
 import numpy as np
 import time
-import qstkutil.dateutil as du
 import qstkutil.tsutil as tsu
-import qstkutil.DataAccess as da
-import qstkfeat.featutil as feat
 import datetime as dt
 import pickle
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from pylab import *
 from pandas import *
+import os
+from PyQt4 import QtGui, QtCore, Qt
 
 
 # Changes made in the featutil file are : Edited the getFeatureFuncs()
 
 
-def ReadData(DataFile='ALLDATA.pkl', TimeTag='TimeStamps.txt', IDTag='Symbols.txt', FactorTag='Features.txt'):
+def ReadData(DataFile, TimeTag, IDTag, FactorTag):
 	#Reading the timestamps from a text file.
 	timestamps=[]
 	file = open(TimeTag, 'r')
@@ -69,11 +68,19 @@ def DataParameter(PandasObject, featureslist, symbols, timestamps):
 	return(dMinFeat, dMaxFeat, startday, endday)
 
 
-def main():
-	(PandasObject, featureslist, symbols, timestamps)=ReadData()
+def GetData(directorylocation):
+
+	DataFile = directorylocation + 'ALLDATA.pkl'
+	TimeTag=directorylocation + 'TimeStamps.txt'
+	IDTag=directorylocation + 'Symbols.txt'
+	FactorTag=directorylocation + 'Features.txt'	
+
+	(PandasObject, featureslist, symbols, timestamps)=ReadData(DataFile, TimeTag, IDTag, FactorTag)
 	(dMinFeat, dMaxFeat, startday, endday)=DataParameter(PandasObject, featureslist, symbols, timestamps)
-	print "The access functions are working"
+	return (PandasObject, featureslist, symbols, timestamps,dMinFeat, dMaxFeat, startday, endday)
+
 
 if __name__ == '__main__':
-	main()
-
+	directorylocation = '/home/sourabh/QSTK/trunk/Tools/Visualizer/Data/Dow_2009-01-01_2010-12-31/'
+	GetData(directorylocation)
+	print "The access functions are working"
