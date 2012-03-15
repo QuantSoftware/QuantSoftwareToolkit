@@ -1,0 +1,15 @@
+MovingAverage
+RelativeMovingAverage
+RSI
+DrawDown
+RunUp
+VolumeDelta
+AroonUp
+AroonLow
+Stochastic
+Beta
+Bollinger
+Correlation
+Price
+Volume
+FutureReturn
