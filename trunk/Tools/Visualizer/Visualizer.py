@@ -194,49 +194,12 @@ class Visualizer(QtGui.QMainWindow):
 	def __init__(self):
 		super(Visualizer, self).__init__()
 		self.LoadData()
-		self.scatterpts=[]
-		self.textpts=[]
-		self.Xfeature=self.featureslist[0]
-		self.Yfeature=self.featureslist[0]
-		self.Zfeature=self.featureslist[0]
-		self.Sfeature=self.featureslist[0]
-		self.Cfeature=self.featureslist[0]
-		self.XMin=0.0
-		self.XMax=1.0
-		self.XLow=self.XMin
-		self.XHigh=self.XMax
-		self.XLowSlice=self.XMin
-		self.XHighSlice=self.XMax
-		self.YMin=0.0
-		self.YMax=1.0
-		self.YLow=self.YMin
-		self.YHigh=self.YMax
-		self.YLowSlice=self.YMin
-		self.YHighSlice=self.YMax
-		self.ZMin=0.0
-		self.ZMax=1.0
-		self.ZLow=self.ZMin
-		self.ZHigh=self.ZMax
-		self.ZLowSlice=self.ZMin
-		self.ZHighSlice=self.ZMax
-		self.SMin=0.0
-		self.SMax=1.0
-		self.SLow=self.SMin
-		self.SHigh=self.SMax
-		self.SLowSlice=self.SMin
-		self.SHighSlice=self.SMax
-		self.CMin=0.0
-		self.CMax=1.0
-		self.CLow=self.CMin
-		self.CHigh=self.CMax
-		self.CLowSlice=self.CMin
-		self.CHighSlice=self.CMax
-		self.dayofplot=self.timestamps[0]
+		self.Reset()
 		self.create_main_frame()
+		self.ResetFunc()
         
 	def create_main_frame(self):
 		self.main_frame = QtGui.QWidget()
-
 		self.statusBar().showMessage('Ready')		
 		
 		self.dpi=100
@@ -266,7 +229,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.XLable.setFont(self.font2)
 
 		self.XCombo = QtGui.QComboBox(self)
-		self.FeatureComboBox(self.XCombo)	
 		self.XCombo.activated[str].connect(self.XComboActivated)
 
 		self.XMinTag=QtGui.QLabel('Min :', self)
@@ -278,11 +240,8 @@ class Visualizer(QtGui.QMainWindow):
 		self.XMinLable.setFont(self.font1)
 		
 		self.XRange=RangeSlider(Qt.Qt.Horizontal)
-		self.XInitRangeSlider(self.XRange)
-
 		self.XRangeSlice=RangeSlider(Qt.Qt.Horizontal)
-		self.XInitRangeSliderSlice(self.XRangeSlice)
-	
+
 		self.XMaxLable=QtGui.QLabel(str(self.XMax), self)
 		self.XMaxLable.setFont(self.font1)
 		
@@ -301,11 +260,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.XMinSlice_Box.setFixedSize(50,27)	
 		self.XMaxSlice_Box.setFixedSize(50,27)
 
-		self.XMin_Box.setText(str(self.XLow))
-		self.XMax_Box.setText(str(self.XHigh))
-		self.XMinSlice_Box.setText(str(self.XLowSlice))	
-		self.XMaxSlice_Box.setText(str(self.XHighSlice))
-
 		self.connect(self.XMin_Box, QtCore.SIGNAL('editingFinished()'), self.XMin_BoxInput)
 		self.connect(self.XMax_Box, QtCore.SIGNAL('editingFinished()'), self.XMax_BoxInput)
 		self.connect(self.XMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.XMinSlice_BoxInput)
@@ -317,7 +271,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.YLable.setFont(self.font2)
 
 		self.YCombo = QtGui.QComboBox(self)
-		self.FeatureComboBox(self.YCombo)	
 		self.YCombo.activated[str].connect(self.YComboActivated)
 
 		self.YMinTag=QtGui.QLabel('Min :', self)
@@ -329,10 +282,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.YMinLable.setFont(self.font1)
 		
 		self.YRange=RangeSlider(Qt.Qt.Horizontal)
-		self.YInitRangeSlider(self.YRange)
-
 		self.YRangeSlice=RangeSlider(Qt.Qt.Horizontal)
-		self.YInitRangeSliderSlice(self.YRangeSlice)
 
 		self.YMaxLable=QtGui.QLabel(str(self.YMax), self)
 		self.YMaxLable.setFont(self.font1)
@@ -352,11 +302,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.YMinSlice_Box.setFixedSize(50,27)	
 		self.YMaxSlice_Box.setFixedSize(50,27)
 
-		self.YMin_Box.setText(str(self.YLow))
-		self.YMax_Box.setText(str(self.YHigh))
-		self.YMinSlice_Box.setText(str(self.YLowSlice))	
-		self.YMaxSlice_Box.setText(str(self.YHighSlice))
-
 		self.connect(self.YMin_Box, QtCore.SIGNAL('editingFinished()'), self.YMin_BoxInput)
 		self.connect(self.YMax_Box, QtCore.SIGNAL('editingFinished()'), self.YMax_BoxInput)
 		self.connect(self.YMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.YMinSlice_BoxInput)
@@ -368,7 +313,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.ZLable.setFont(self.font2)		
 	
 		self.ZCombo = QtGui.QComboBox(self)
-		self.FeatureComboBox(self.ZCombo)	
 		self.ZCombo.activated[str].connect(self.ZComboActivated)
 	
 		self.ZMinTag=QtGui.QLabel('Min :', self)
@@ -380,10 +324,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.ZMinLable.setFont(self.font1)
 		
 		self.ZRange=RangeSlider(Qt.Qt.Horizontal)
-		self.ZInitRangeSlider(self.ZRange)
-
 		self.ZRangeSlice=RangeSlider(Qt.Qt.Horizontal)
-		self.ZInitRangeSliderSlice(self.ZRangeSlice)
 
 		self.ZMaxLable=QtGui.QLabel(str(self.ZMax), self)
 		self.ZMaxLable.setFont(self.font1)
@@ -402,11 +343,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.ZMax_Box.setFixedSize(50,27)
 		self.ZMinSlice_Box.setFixedSize(50,27)	
 		self.ZMaxSlice_Box.setFixedSize(50,27)
-
-		self.ZMin_Box.setText(str(self.ZLow))
-		self.ZMax_Box.setText(str(self.ZHigh))
-		self.ZMinSlice_Box.setText(str(self.ZLowSlice))	
-		self.ZMaxSlice_Box.setText(str(self.ZHighSlice))
 
 		self.connect(self.ZMin_Box, QtCore.SIGNAL('editingFinished()'), self.ZMin_BoxInput)
 		self.connect(self.ZMax_Box, QtCore.SIGNAL('editingFinished()'), self.ZMax_BoxInput)
@@ -469,7 +405,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.SizeLable.setFont(self.font2)
 
 		self.SizeCombo = QtGui.QComboBox(self)
-		self.FeatureComboBox(self.SizeCombo)	
 		self.SizeCombo.activated[str].connect(self.SComboActivated)
 
 		self.SMinTag=QtGui.QLabel('Min :', self)
@@ -481,10 +416,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.SMinLable.setFont(self.font1)
 		
 		self.SRange=RangeSlider(Qt.Qt.Horizontal)
-		self.SInitRangeSlider(self.SRange)
-
 		self.SRangeSlice=RangeSlider(Qt.Qt.Horizontal)
-		self.SInitRangeSliderSlice(self.SRangeSlice)
 
 		self.SMaxLable=QtGui.QLabel(str(self.SMax), self)
 		self.SMaxLable.setFont(self.font1)
@@ -496,9 +428,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.SMin_Box.setFixedSize(50,27)
 		self.SMax_Box.setFixedSize(50,27)
 
-		self.SMin_Box.setText(str(self.SLow))
-		self.SMax_Box.setText(str(self.SHigh))
-
 		self.connect(self.SMin_Box, QtCore.SIGNAL('editingFinished()'), self.SMin_BoxInput)
 		self.connect(self.SMax_Box, QtCore.SIGNAL('editingFinished()'), self.SMax_BoxInput)
 
@@ -509,9 +438,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.SMinSlice_Box.setFixedSize(50,27)	
 		self.SMaxSlice_Box.setFixedSize(50,27)
 
-		self.SMinSlice_Box.setText(str(self.SLowSlice))	
-		self.SMaxSlice_Box.setText(str(self.SHighSlice))
-
 		self.connect(self.SMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.SMinSlice_BoxInput)
 		self.connect(self.SMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.SMaxSlice_BoxInput)
 
@@ -521,7 +447,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.ColorLable.setFont(self.font2)
 
 		self.ColorCombo = QtGui.QComboBox(self)
-		self.FeatureComboBox(self.ColorCombo)	
 		self.ColorCombo.activated[str].connect(self.CComboActivated)
 
 		self.CMinTag=QtGui.QLabel('Min :', self)
@@ -533,10 +458,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMinLable.setFont(self.font1)
 		
 		self.CRange=RangeSlider(Qt.Qt.Horizontal)
-		self.CInitRangeSlider(self.CRange)
-
 		self.CRangeSlice=RangeSlider(Qt.Qt.Horizontal)
-		self.CInitRangeSliderSlice(self.CRangeSlice)
 
 		self.CMaxLable=QtGui.QLabel(str(self.CMax), self)
 		self.CMaxLable.setFont(self.font1)
@@ -548,9 +470,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMin_Box.setFixedSize(50,27)
 		self.CMax_Box.setFixedSize(50,27)
 
-		self.CMin_Box.setText(str(self.CLow))
-		self.CMax_Box.setText(str(self.CHigh))
-
 		self.connect(self.CMin_Box, QtCore.SIGNAL('editingFinished()'), self.CMin_BoxInput)
 		self.connect(self.CMax_Box, QtCore.SIGNAL('editingFinished()'), self.CMax_BoxInput)
 
@@ -560,9 +479,6 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMaxSlice_Box.setMaxLength(4)
 		self.CMinSlice_Box.setFixedSize(50,27)	
 		self.CMaxSlice_Box.setFixedSize(50,27)
-
-		self.CMinSlice_Box.setText(str(self.CLowSlice))	
-		self.CMaxSlice_Box.setText(str(self.CHighSlice))
 
 		self.connect(self.CMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.CMinSlice_BoxInput)
 		self.connect(self.CMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.CMaxSlice_BoxInput)
@@ -588,6 +504,16 @@ class Visualizer(QtGui.QMainWindow):
 		self.AboutButton.setToolTip('About the Visualizer')
 		self.AboutButton.resize(self.AboutButton.sizeHint())
 		self.AboutButton.clicked.connect(self.on_about)
+
+		self.ResetButton =QtGui.QPushButton('Change Data',self)
+		self.ResetButton.setToolTip('Load new Data')
+		self.ResetButton.resize(self.ResetButton.sizeHint())
+		self.ResetButton.clicked.connect(self.ChangeDataset)
+
+		self.ExitButton =QtGui.QPushButton('Exit',self)
+		self.ExitButton.setToolTip('Exit')
+		self.ExitButton.resize(self.ExitButton.sizeHint())
+		self.ExitButton.clicked.connect(QtGui.qApp.quit)
 
 ############################################################
 
@@ -816,20 +742,18 @@ class Visualizer(QtGui.QMainWindow):
 		Buttonbox = QtGui.QHBoxLayout()
 		Buttonbox.addLayout(Checkhbox1)
 		Buttonbox.addWidget(self.UpdateButton)
-#		Buttonbox.addWidget(self.AboutButton, 1,1)
-#		Buttonbox.addWidget(self.SaveButton,2,1)		
-#		Buttonbox.addWidget(self.MovieButton,3,1)
 
 		Buttonbox2 = QtGui.QHBoxLayout()
+		Buttonbox2.addWidget(self.ExitButton)
 		Buttonbox2.addWidget(self.AboutButton)
 		Buttonbox2.addWidget(self.SaveButton)		
 		Buttonbox2.addWidget(self.MovieButton)
+		Buttonbox2.addWidget(self.ResetButton)
 		Buttonbox2.addStretch()
 
 ##############################################
 
 		Vbox1 = QtGui.QVBoxLayout()
-		Vbox1.addLayout(Buttonbox2)
 		Vbox1.addWidget(self.VisLable)
 		Vbox1.addWidget(self.canvas)
 		Vbox1.addWidget(self.Frame7)
@@ -873,6 +797,7 @@ class Visualizer(QtGui.QMainWindow):
 		HBox2.addStretch(1)
 
 		FinalBox = QtGui.QVBoxLayout()
+		FinalBox.addLayout(Buttonbox2)
 		FinalBox.addLayout(HBox2)
 		FinalBox.addStretch(1)
 
@@ -890,7 +815,109 @@ class Visualizer(QtGui.QMainWindow):
 
 #######################################################
 
+	def Reset(self):
+		self.scatterpts=[]
+		self.textpts=[]
+		self.Xfeature=self.featureslist[0]
+		self.Yfeature=self.featureslist[0]
+		self.Zfeature=self.featureslist[0]
+		self.Sfeature=self.featureslist[0]
+		self.Cfeature=self.featureslist[0]
+		self.XMin=0.0
+		self.XMax=1.0
+		self.XLow=self.XMin
+		self.XHigh=self.XMax
+		self.XLowSlice=self.XMin
+		self.XHighSlice=self.XMax
+		self.YMin=0.0
+		self.YMax=1.0
+		self.YLow=self.YMin
+		self.YHigh=self.YMax
+		self.YLowSlice=self.YMin
+		self.YHighSlice=self.YMax
+		self.ZMin=0.0
+		self.ZMax=1.0
+		self.ZLow=self.ZMin
+		self.ZHigh=self.ZMax
+		self.ZLowSlice=self.ZMin
+		self.ZHighSlice=self.ZMax
+		self.SMin=0.0
+		self.SMax=1.0
+		self.SLow=self.SMin
+		self.SHigh=self.SMax
+		self.SLowSlice=self.SMin
+		self.SHighSlice=self.SMax
+		self.CMin=0.0
+		self.CMax=1.0
+		self.CLow=self.CMin
+		self.CHigh=self.CMax
+		self.CLowSlice=self.CMin
+		self.CHighSlice=self.CMax
+		self.dayofplot=self.timestamps[0]
+
+	def ResetFunc(self):
+		self.FeatureComboBox(self.XCombo)
+		self.XInitRangeSlider(self.XRange)		
+		self.XInitRangeSliderSlice(self.XRangeSlice)
+		self.XMaxLable.setText(str(self.XMax))
+		self.XMinLable.setText(str(self.XMin))
+		self.XMin_Box.setText(str(self.XLow))
+		self.XMax_Box.setText(str(self.XHigh))
+		self.XMinSlice_Box.setText(str(self.XLowSlice))	
+		self.XMaxSlice_Box.setText(str(self.XHighSlice))
+
+		self.FeatureComboBox(self.YCombo)
+		self.YInitRangeSlider(self.YRange)
+		self.YInitRangeSliderSlice(self.YRangeSlice)
+		self.YMaxLable.setText(str(self.YMax))
+		self.YMinLable.setText(str(self.YMin))
+		self.YMin_Box.setText(str(self.YLow))
+		self.YMax_Box.setText(str(self.YHigh))
+		self.YMinSlice_Box.setText(str(self.YLowSlice))	
+		self.YMaxSlice_Box.setText(str(self.YHighSlice))
+
+		self.FeatureComboBox(self.ZCombo)
+		self.ZInitRangeSlider(self.ZRange)
+		self.ZInitRangeSliderSlice(self.ZRangeSlice)
+		self.ZMaxLable.setText(str(self.ZMax))
+		self.ZMinLable.setText(str(self.ZMin))
+		self.ZMin_Box.setText(str(self.ZLow))
+		self.ZMax_Box.setText(str(self.ZHigh))
+		self.ZMinSlice_Box.setText(str(self.ZLowSlice))	
+		self.ZMaxSlice_Box.setText(str(self.ZHighSlice))
+
+		self.FeatureComboBox(self.SizeCombo)
+		self.SInitRangeSlider(self.SRange)
+		self.SInitRangeSliderSlice(self.SRangeSlice)
+		self.SMaxLable.setText(str(self.SMax))
+		self.SMinLable.setText(str(self.SMin))
+		self.SMin_Box.setText(str(self.SLow))
+		self.SMax_Box.setText(str(self.SHigh))
+		self.SMinSlice_Box.setText(str(self.SLowSlice))	
+		self.SMaxSlice_Box.setText(str(self.SHighSlice))
+
+		self.FeatureComboBox(self.ColorCombo)
+		self.CInitRangeSlider(self.CRange)
+		self.CInitRangeSliderSlice(self.CRangeSlice)
+		self.CMaxLable.setText(str(self.CMax))
+		self.CMinLable.setText(str(self.CMin))
+		self.CMin_Box.setText(str(self.CLow))
+		self.CMax_Box.setText(str(self.CHigh))
+		self.CMinSlice_Box.setText(str(self.CLowSlice))	
+		self.CMaxSlice_Box.setText(str(self.CHighSlice))
+
+#######################################################
+
+	def ChangeDataset(self):
+		self.ClearCanvas()
+		self.LoadData()
+		self.Reset()
+		self.ResetFunc()
+		self.statusBar().showMessage('Loading data set complete')
+
+#######################################################
 	def FeatureComboBox(self, combo):
+		combo.clear()
 		for feat in self.featureslist:
 			combo.addItem(feat)
         
@@ -1379,6 +1406,23 @@ class Visualizer(QtGui.QMainWindow):
 		self.ax.set_ylabel(self.Yfeature)
 		self.ax.set_zlabel(self.Zfeature)
 
+#####################################################
+
+	def ClearCanvas(self):
+		self.clean()
+		xs=self.PandasObject[str(self.Xfeature)].xs(self.dayofplot)
+		pt=self.ax.scatter(xs,xs,xs,marker='o', alpha=0, c='g', s=0)
+		self.scatterpts.append(pt)
+		self.ax.set_xlim(0, 1)
+		self.ax.set_ylim(0, 1)
+		self.ax.set_zlim(0, 1)		
+		self.ax.set_xlabel(' ')
+		self.ax.set_ylabel(' ')
+		self.ax.set_zlabel(' ')
+		self.canvas.draw()
+		self.clean()
+		self.statusBar().showMessage('Cleared the Plot')
+		
 #####################################################
 
 	def PlotCanvas(self):
