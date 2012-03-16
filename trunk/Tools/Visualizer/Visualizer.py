@@ -3,6 +3,7 @@ import numpy as np
 import math 
 import os
 import AccessData as AD
+import pickle
 from PyQt4 import QtGui, QtCore, Qt
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -386,7 +387,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.DLable=QtGui.QLabel('Time ', self)
 		self.DLable.setFont(self.font2)
 
-		self.DateLable=QtGui.QLabel(self.startday.date().isoformat(), self)
+		self.DateLable=QtGui.QLabel(self.dayofplot.date().isoformat(), self)
 		self.DateLable.setFont(self.font1)
 
 		self.DateMinLable=QtGui.QLabel(self.startday.date().isoformat(), self)
@@ -505,15 +506,30 @@ class Visualizer(QtGui.QMainWindow):
 		self.AboutButton.resize(self.AboutButton.sizeHint())
 		self.AboutButton.clicked.connect(self.on_about)
 
-		self.ResetButton =QtGui.QPushButton('Change Data',self)
-		self.ResetButton.setToolTip('Load new Data')
+		self.DataButton =QtGui.QPushButton('Change Data',self)
+		self.DataButton.setToolTip('Load new Data')
+		self.DataButton.resize(self.DataButton.sizeHint())
+		self.DataButton.clicked.connect(self.ChangeDataset)
+
+		self.ResetButton =QtGui.QPushButton('Reset',self)
+		self.ResetButton.setToolTip('Reset Settings')
 		self.ResetButton.resize(self.ResetButton.sizeHint())
-		self.ResetButton.clicked.connect(self.ChangeDataset)
+		self.ResetButton.clicked.connect(self.ResetSettings)
 
 		self.ExitButton =QtGui.QPushButton('Exit',self)
 		self.ExitButton.setToolTip('Exit')
 		self.ExitButton.resize(self.ExitButton.sizeHint())
 		self.ExitButton.clicked.connect(QtGui.qApp.quit)
+
+		self.SaveSettingsButton =QtGui.QPushButton('Save Settings',self)
+		self.SaveSettingsButton.setToolTip('Save Settings')
+		self.SaveSettingsButton.resize(self.SaveSettingsButton.sizeHint())
+		self.SaveSettingsButton.clicked.connect(self.SaveSettings)
+
+		self.LoadSettingsButton =QtGui.QPushButton('Load Settings',self)
+		self.LoadSettingsButton.setToolTip('Load Settings')
+		self.LoadSettingsButton.resize(self.LoadSettingsButton.sizeHint())
+		self.LoadSettingsButton.clicked.connect(self.LoadSettings)
 
 ############################################################
 
@@ -748,7 +764,10 @@ class Visualizer(QtGui.QMainWindow):
 		Buttonbox2.addWidget(self.AboutButton)
 		Buttonbox2.addWidget(self.SaveButton)		
 		Buttonbox2.addWidget(self.MovieButton)
+		Buttonbox2.addWidget(self.DataButton)
 		Buttonbox2.addWidget(self.ResetButton)
+		Buttonbox2.addWidget(self.SaveSettingsButton)
+		Buttonbox2.addWidget(self.LoadSettingsButton)
 		Buttonbox2.addStretch()
 
 ##############################################
@@ -906,6 +925,9 @@ class Visualizer(QtGui.QMainWindow):
 		self.CMinSlice_Box.setText(str(self.CLowSlice))	
 		self.CMaxSlice_Box.setText(str(self.CHighSlice))
 
+		self.DateLable.setText(self.dayofplot.date().isoformat())
+		self.DateSlider.setSliderPosition(self.timestamps.index(self.dayofplot))
+
 #######################################################
 
 	def ChangeDataset(self):
@@ -914,6 +936,78 @@ class Visualizer(QtGui.QMainWindow):
 		self.Reset()
 		self.ResetFunc()
 		self.statusBar().showMessage('Loading data set complete')
+
+#######################################################
+
+	def ResetSettings(self):
+		self.ClearCanvas()
+		self.Reset()
+		self.ResetFunc()
+		self.statusBar().showMessage('Reset Complete')
+
+#######################################################
+
+	def SaveSettings(self):
+		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', os.environ['QS']+'/Tools/Visualizer/Settings/settings.pkl', options=QtGui.QFileDialog.DontUseNativeDialog))
+		if fname=='':
+			return
+		SettingArray=(self.Xfeature,self.Yfeature,self.Zfeature,self.Sfeature,self.Cfeature, self.XMin,self.XMax,self.XLow,self.XHigh,self.XLowSlice,self.XHighSlice,self.YMin,self.YMax,self.YLow,self.YHigh, self.YLowSlice,self.YHighSlice,self.ZMin,self.ZMax,self.ZLow,self.ZHigh,self.ZLowSlice,self.ZHighSlice,self.SMin, self.SMax,self.SLow,self.SHigh,self.SLowSlice,self.SHighSlice,self.CMin,self.CMax,self.CLow,self.CHigh, self.CLowSlice,self.CHighSlice,self.dayofplot)
+		
+		pickle.dump(SettingArray,open(fname, 'wb' ),-1)
+		self.statusBar().showMessage('Saved Settings')
+
+#######################################################
+
+	def LoadSettings(self):
+		fname = str(QtGui.QFileDialog.getOpenFileName(self, 'Open file', os.environ['QS']+'/Tools/Visualizer/Settings/', options=QtGui.QFileDialog.DontUseNativeDialog))
+		if fname=='':
+			return
+		(self.Xfeature,self.Yfeature,self.Zfeature,self.Sfeature,self.Cfeature,self.XMin, self.XMax,self.XLow,self.XHigh,self.XLowSlice,self.XHighSlice,self.YMin,self.YMax,self.YLow,self.YHigh,self.YLowSlice,self.YHighSlice, self.ZMin,self.ZMax,self.ZLow,self.ZHigh,self.ZLowSlice,self.ZHighSlice,self.SMin,self.SMax,self.SLow,self.SHigh,self.SLowSlice, self.SHighSlice,self.CMin,self.CMax,self.CLow,self.CHigh,self.CLowSlice,self.CHighSlice,self.dayofplot)=pickle.load(open( fname, 'rb' ))
+
+		self.XCombo.setCurrentIndex(self.XCombo.findText(self.Xfeature))
+		self.XMaxLable.setText(str(self.XMax))
+		self.XMinLable.setText(str(self.XMin))
+		self.XMin_Box.setText(str(self.XLow))
+		self.XMax_Box.setText(str(self.XHigh))
+		self.XMinSlice_Box.setText(str(self.XLowSlice))	
+		self.XMaxSlice_Box.setText(str(self.XHighSlice))
+
+		self.YCombo.setCurrentIndex(self.YCombo.findText(self.Yfeature))
+		self.YMaxLable.setText(str(self.YMax))
+		self.YMinLable.setText(str(self.YMin))
+		self.YMin_Box.setText(str(self.YLow))
+		self.YMax_Box.setText(str(self.YHigh))
+		self.YMinSlice_Box.setText(str(self.YLowSlice))	
+		self.YMaxSlice_Box.setText(str(self.YHighSlice))
+
+		self.ZCombo.setCurrentIndex(self.ZCombo.findText(self.Zfeature))
+		self.ZMaxLable.setText(str(self.ZMax))
+		self.ZMinLable.setText(str(self.ZMin))
+		self.ZMin_Box.setText(str(self.ZLow))
+		self.ZMax_Box.setText(str(self.ZHigh))
+		self.ZMinSlice_Box.setText(str(self.ZLowSlice))	
+		self.ZMaxSlice_Box.setText(str(self.ZHighSlice))
+
+		self.SizeCombo.setCurrentIndex(self.SizeCombo.findText(self.Sfeature))
+		self.SMaxLable.setText(str(self.SMax))
+		self.SMinLable.setText(str(self.SMin))
+		self.SMin_Box.setText(str(self.SLow))
+		self.SMax_Box.setText(str(self.SHigh))
+		self.SMinSlice_Box.setText(str(self.SLowSlice))	
+		self.SMaxSlice_Box.setText(str(self.SHighSlice))
+
+		self.ColorCombo.setCurrentIndex(self.ColorCombo.findText(self.Cfeature))
+		self.CMaxLable.setText(str(self.CMax))
+		self.CMinLable.setText(str(self.CMin))
+		self.CMin_Box.setText(str(self.CLow))
+		self.CMax_Box.setText(str(self.CHigh))
+		self.CMinSlice_Box.setText(str(self.CLowSlice))	
+		self.CMaxSlice_Box.setText(str(self.CHighSlice))
+
+		self.DateLable.setText(self.dayofplot.date().isoformat())
+		self.DateSlider.setSliderPosition(self.timestamps.index(self.dayofplot))
+		self.ClearCanvas()
+		self.statusBar().showMessage('Loaded Settings')
 
 #######################################################
 	def FeatureComboBox(self, combo):
@@ -1375,7 +1469,7 @@ class Visualizer(QtGui.QMainWindow):
 		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
 
 		if self.SizeCheck.isChecked():
-			size1 =40
+			size1 =20
 		else: size1 = [self.inrangeS(s, self.SLow, self.SLowSlice, self.SHigh, self.SHighSlice, self.SMin, self.SMax) for s in size]
 
 		if self.ColorCheck.isChecked():
