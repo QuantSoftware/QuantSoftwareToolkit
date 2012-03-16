@@ -9,10 +9,13 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-#from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 
+
+# SLIDER range variable for all the range slider. Increasing this will increase precision
 SLIDER_RANGE=100
 
+
+# Range Slider Class, to implement the custom range slider.
 class RangeSlider(QtGui.QSlider):
     """ A slider for ranges.
     
@@ -189,34 +192,37 @@ class RangeSlider(QtGui.QSlider):
 ##  Visualizer Class     ##
 ###########################
 
-
+# Main class that contains the Visualizer Qt and all functions
 class Visualizer(QtGui.QMainWindow):
     
 	def __init__(self):
 		super(Visualizer, self).__init__()
+		# Initialization is a 3 phase process : Loading Data, Declaring Variables and Creating the GUI
 		self.LoadData()
 		self.Reset()
 		self.create_main_frame()
 		self.ResetFunc()
         
 	def create_main_frame(self):
+		# Setting Up the Main Frame of the GUI
+
 		self.main_frame = QtGui.QWidget()
-		self.statusBar().showMessage('Ready')		
-		
+		self.statusBar().showMessage('Loading')
+
+		# Declaring the matplotlib canvas for plotting graphs
 		self.dpi=100
 		self.fig = Figure((5.0, 4.5), dpi=self.dpi)
 		self.canvas = FigureCanvas(self.fig)
 		self.canvas.setParent(self.main_frame)
 		self.ax = self.fig.gca(projection='3d')
 		self.datetext = self.ax.text2D(0, 1, 'Date : ', transform=self.ax.transAxes)
-#		self.mpl_toolbar = NavigationToolbar(self.canvas, self.main_frame)
 		
+		# Declaring the Texts in the GUI, fonts and Spacers to control the size of sliders	
 		self.FactorLable=QtGui.QLabel('Factors', self)
 		self.font = QtGui.QFont("Times", 16, QtGui.QFont.Bold, True)
 		self.font1 = QtGui.QFont("Times", 12)
 		self.font2 = QtGui.QFont("Times", 14, QtGui.QFont.Bold, True)
 		self.font3 = QtGui.QFont("Times", 20, QtGui.QFont.Bold, True)
-		
 		self.VisLable = QtGui.QLabel('QuantViz', self)
 		self.SpacerItem1 = Qt.QSpacerItem(420,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)		
 		self.SpacerItem2 = Qt.QSpacerItem(300,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)	
@@ -224,7 +230,8 @@ class Visualizer(QtGui.QMainWindow):
 		self.VisLable.setFont(self.font3)
 		self.FactorLable.setFont(self.font)
 
-############################################3
+
+########### Region for declaring the varibles associated with X Axis ########################
 
 		self.XLable=QtGui.QLabel('X', self)
 		self.XLable.setFont(self.font2)
@@ -266,7 +273,44 @@ class Visualizer(QtGui.QMainWindow):
 		self.connect(self.XMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.XMinSlice_BoxInput)
 		self.connect(self.XMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.XMaxSlice_BoxInput)
 
-########################################
+############# GUI Box - Related to X ###################
+
+		Xhbox1 = QtGui.QHBoxLayout()
+        
+		for w in [ self.XLable, self.XCombo]:
+			Xhbox1.addWidget(w)
+			Xhbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Xhbox1.addStretch(1)
+
+		Xhbox2 = QtGui.QHBoxLayout()
+        
+		for w in [self.XMinTag, self.XMinLable]:
+			Xhbox2.addWidget(w)
+			Xhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Xhbox2.addStretch(1)
+		for w in [self.XMaxTag, self.XMaxLable]:
+			Xhbox2.addWidget(w)
+			Xhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Xhbox3 = QtGui.QHBoxLayout()
+        
+		for w in [  self.XLimitTag ,self.XMin_Box, self.XRange, self.XMax_Box]:
+			Xhbox3.addWidget(w)
+			Xhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Xhbox4 = QtGui.QHBoxLayout()
+        
+		for w in [  self.XSliceTag, self.XMinSlice_Box, self.XRangeSlice, self.XMaxSlice_Box]:
+			Xhbox4.addWidget(w)
+			Xhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Xvbox1 = QtGui.QVBoxLayout()
+		Xvbox1.addLayout(Xhbox1)
+		Xvbox1.addLayout(Xhbox2)
+		Xvbox1.addLayout(Xhbox3)
+		Xvbox1.addLayout(Xhbox4)
+
+########### Region for declaring the varibles associated with Y Axis ########################
 
 		self.YLable=QtGui.QLabel('Y', self)
 		self.YLable.setFont(self.font2)
@@ -308,7 +352,44 @@ class Visualizer(QtGui.QMainWindow):
 		self.connect(self.YMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.YMinSlice_BoxInput)
 		self.connect(self.YMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.YMaxSlice_BoxInput)
 
-###############################################
+############# GUI Box - Related to Y ###################
+
+		Yhbox1 = QtGui.QHBoxLayout()
+        
+		for w in [ self.YLable, self.YCombo]:
+			Yhbox1.addWidget(w)
+			Yhbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Yhbox1.addStretch(1)
+
+		Yhbox2 = QtGui.QHBoxLayout()
+        
+		for w in [self.YMinTag, self.YMinLable]:
+			Yhbox2.addWidget(w)
+			Yhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Yhbox2.addStretch(1)
+		for w in [self.YMaxTag, self.YMaxLable]:
+			Yhbox2.addWidget(w)
+			Yhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Yhbox3 = QtGui.QHBoxLayout()
+        
+		for w in [ self.YLimitTag, self.YMin_Box, self.YRange, self.YMax_Box]:
+			Yhbox3.addWidget(w)
+			Yhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Yhbox4 = QtGui.QHBoxLayout()
+        
+		for w in [  self.YSliceTag,self.YMinSlice_Box, self.YRangeSlice, self.YMaxSlice_Box]:
+			Yhbox4.addWidget(w)
+			Yhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Yvbox1 = QtGui.QVBoxLayout()
+		Yvbox1.addLayout(Yhbox1)
+		Yvbox1.addLayout(Yhbox2)
+		Yvbox1.addLayout(Yhbox3)
+		Yvbox1.addLayout(Yhbox4)
+
+########### Region for declaring the varibles associated with Z Axis ########################
 
 		self.ZLable=QtGui.QLabel('Z', self)
 		self.ZLable.setFont(self.font2)		
@@ -350,57 +431,44 @@ class Visualizer(QtGui.QMainWindow):
 		self.connect(self.ZMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.ZMinSlice_BoxInput)
 		self.connect(self.ZMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.ZMaxSlice_BoxInput)
 
-#######################################################
+############# GUI Box - Related to Z ###################
 
-		self.Frame1= QtGui.QFrame()
-		self.Frame1.setFrameShape(4)
+		Zhbox1 = QtGui.QHBoxLayout()
+        
+		for w in [ self.ZLable, self.ZCombo]:
+			Zhbox1.addWidget(w)
+			Zhbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Zhbox1.addStretch(1)
 
-		self.Frame2= QtGui.QFrame()
-		self.Frame2.setFrameShape(4)
+		Zhbox2 = QtGui.QHBoxLayout()
+        
+		for w in [self.ZMinTag, self.ZMinLable]:
+			Zhbox2.addWidget(w)
+			Zhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Zhbox2.addStretch(1)
+		for w in [self.ZMaxTag, self.ZMaxLable]:
+			Zhbox2.addWidget(w)
+			Zhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
 
-		self.Frame3= QtGui.QFrame()
-		self.Frame3.setFrameShape(4)
+		Zhbox3 = QtGui.QHBoxLayout()
+        
+		for w in [ self.ZLimitTag ,self.ZMin_Box, self.ZRange, self.ZMax_Box]:
+			Zhbox3.addWidget(w)
+			Zhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
 
-		self.Frame4= QtGui.QFrame()
-		self.Frame4.setFrameShape(4)
+		Zhbox4 = QtGui.QHBoxLayout()
+        
+		for w in [  self.ZSliceTag,self.ZMinSlice_Box, self.ZRangeSlice, self.ZMaxSlice_Box]:
+			Zhbox4.addWidget(w)
+			Zhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
 
-		self.Frame5= QtGui.QFrame()
-		self.Frame5.setFrameShape(4)
+		Zvbox1 = QtGui.QVBoxLayout()
+		Zvbox1.addLayout(Zhbox1)
+		Zvbox1.addLayout(Zhbox2)
+		Zvbox1.addLayout(Zhbox3)
+		Zvbox1.addLayout(Zhbox4)
 
-		self.Frame6= QtGui.QFrame()
-		self.Frame6.setFrameShape(4)
-
-		self.Frame7= QtGui.QFrame()
-		self.Frame7.setFrameShape(4)
-
-		self.Frame8= QtGui.QFrame()
-		self.Frame8.setFrameShape(4)
-
-		self.VFrame= QtGui.QFrame()
-		self.VFrame.setFrameShape(5)
-
-		self.VFrame1= QtGui.QFrame()
-		self.VFrame1.setFrameShape(5)
-
-#####################################################
-
-		self.DLable=QtGui.QLabel('Time ', self)
-		self.DLable.setFont(self.font2)
-
-		self.DateLable=QtGui.QLabel(self.dayofplot.date().isoformat(), self)
-		self.DateLable.setFont(self.font1)
-
-		self.DateMinLable=QtGui.QLabel(self.startday.date().isoformat(), self)
-		self.DateMinLable.setFont(self.font1)
-
-		self.DateSlider= QtGui.QSlider(QtCore.Qt.Horizontal, self)
-		self.DateSlider.setRange(0,len(self.timestamps)-1)
-		self.DateSlider.valueChanged.connect(self.DateActivated)
-
-		self.DateMaxLable=QtGui.QLabel(self.endday.date().isoformat(), self)
-		self.DateMaxLable.setFont(self.font1)
-
-########################################################
+########### Region for declaring the varibles associated with Size ########################
 
 		self.SizeLable=QtGui.QLabel('Size   ', self)
 		self.SizeLable.setFont(self.font2)
@@ -442,7 +510,45 @@ class Visualizer(QtGui.QMainWindow):
 		self.connect(self.SMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.SMinSlice_BoxInput)
 		self.connect(self.SMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.SMaxSlice_BoxInput)
 
-#####################################################
+############# GUI Box - Related to Size ###################
+
+		Shbox1 = QtGui.QHBoxLayout()
+
+		for w in [  self.SizeLable, self.SizeCombo]:
+			Shbox1.addWidget(w)
+			Shbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
+		
+		Shbox1.addStretch(1)
+
+		Shbox2 = QtGui.QHBoxLayout()
+        
+		for w in [self.SMinTag, self.SMinLable]:
+			Shbox2.addWidget(w)
+			Shbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Shbox2.addStretch(1)
+		for w in [self.SMaxTag, self.SMaxLable]:
+			Shbox2.addWidget(w)
+			Shbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Shbox3 = QtGui.QHBoxLayout()
+        
+		for w in [ self.SLimitTag ,self.SMin_Box, self.SRange, self.SMax_Box]:
+			Shbox3.addWidget(w)
+			Shbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Shbox4 = QtGui.QHBoxLayout()
+        
+		for w in [  self.SSliceTag, self.SMinSlice_Box, self.SRangeSlice, self.SMaxSlice_Box]:
+			Shbox4.addWidget(w)
+			Shbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Svbox1 = QtGui.QVBoxLayout()
+		Svbox1.addLayout(Shbox1)
+		Svbox1.addLayout(Shbox2)
+		Svbox1.addLayout(Shbox3)
+		Svbox1.addLayout(Shbox4)
+
+########### Region for declaring the varibles associated with Color ########################
 
 		self.ColorLable=QtGui.QLabel('Color', self)
 		self.ColorLable.setFont(self.font2)
@@ -484,7 +590,131 @@ class Visualizer(QtGui.QMainWindow):
 		self.connect(self.CMinSlice_Box, QtCore.SIGNAL('editingFinished()'), self.CMinSlice_BoxInput)
 		self.connect(self.CMaxSlice_Box, QtCore.SIGNAL('editingFinished()'), self.CMaxSlice_BoxInput)
 
-############################################################
+
+############# GUI Box - Related to Color ###################
+
+		Chbox1 = QtGui.QHBoxLayout()
+
+		for w in [self.ColorLable, self.ColorCombo]:
+			Chbox1.addWidget(w)
+			Chbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Chbox1.addStretch(1)
+		Chbox2 = QtGui.QHBoxLayout()
+        
+		for w in [self.CMinTag, self.CMinLable]:
+			Chbox2.addWidget(w)
+			Chbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+		Chbox2.addStretch(2)
+		for w in [self.CMaxTag, self.CMaxLable]:
+			Chbox2.addWidget(w)
+			Chbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Chbox3 = QtGui.QHBoxLayout()
+        
+		for w in [ self.CLimitTag ,self.CMin_Box, self.CRange, self.CMax_Box]:
+			Chbox3.addWidget(w)
+			Chbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Chbox4 = QtGui.QHBoxLayout()
+        
+		for w in [  self.CSliceTag, self.CMinSlice_Box, self.CRangeSlice, self.CMaxSlice_Box]:
+			Chbox4.addWidget(w)
+			Chbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Cvbox1 = QtGui.QVBoxLayout()
+		Cvbox1.addLayout(Chbox1)
+		Cvbox1.addLayout(Chbox2)
+		Cvbox1.addLayout(Chbox3)
+		Cvbox1.addLayout(Chbox4)
+
+############# GUI Lines - All horizontal and Vertical lines are declared here ###################
+
+		self.Frame1= QtGui.QFrame()
+		self.Frame1.setFrameShape(4)
+
+		self.Frame2= QtGui.QFrame()
+		self.Frame2.setFrameShape(4)
+
+		self.Frame3= QtGui.QFrame()
+		self.Frame3.setFrameShape(4)
+
+		self.Frame4= QtGui.QFrame()
+		self.Frame4.setFrameShape(4)
+
+		self.Frame5= QtGui.QFrame()
+		self.Frame5.setFrameShape(4)
+
+		self.Frame6= QtGui.QFrame()
+		self.Frame6.setFrameShape(4)
+
+		self.Frame7= QtGui.QFrame()
+		self.Frame7.setFrameShape(4)
+
+		self.Frame8= QtGui.QFrame()
+		self.Frame8.setFrameShape(4)
+
+		self.VFrame= QtGui.QFrame()
+		self.VFrame.setFrameShape(5)
+
+		self.VFrame1= QtGui.QFrame()
+		self.VFrame1.setFrameShape(5)
+
+############# Region to declare variables related to Date ###################
+
+		self.DLable=QtGui.QLabel('Time ', self)
+		self.DLable.setFont(self.font2)
+
+		self.DateLable=QtGui.QLabel(self.dayofplot.date().isoformat(), self)
+		self.DateLable.setFont(self.font1)
+
+		self.DateMinLable=QtGui.QLabel(self.startday.date().isoformat(), self)
+		self.DateMinLable.setFont(self.font1)
+
+		self.DateSlider= QtGui.QSlider(QtCore.Qt.Horizontal, self)
+		self.DateSlider.setRange(0,len(self.timestamps)-1)
+		self.DateSlider.valueChanged.connect(self.DateActivated)
+
+		self.DateMaxLable=QtGui.QLabel(self.endday.date().isoformat(), self)
+		self.DateMaxLable.setFont(self.font1)
+
+############# GUI Box - Related to Date ###################
+		
+		Datehbox1 = QtGui.QHBoxLayout()
+		Datehbox1.addWidget(self.DLable)
+		Datehbox1.addWidget(self.DateLable)
+		Datehbox1.addStretch(1)
+
+		Datehbox2 = QtGui.QHBoxLayout()
+        
+		for w in [  self.DateMinLable, self.DateSlider, self.DateMaxLable]:
+			Datehbox2.addWidget(w)
+			Datehbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
+
+		Datevbox1 = QtGui.QVBoxLayout()
+		Datevbox1.addLayout(Datehbox1)
+		Datevbox1.addLayout(Datehbox2)
+
+		Datehbox3 = QtGui.QHBoxLayout()
+		Datehbox3.addLayout(Datevbox1)
+		Datehbox3.addWidget(self.VFrame1)	
+
+############# Region for declaring all the Checkboxes for GUI ###################
+
+		self.TextCheck = QtGui.QCheckBox('Show Label', self)
+		self.Day5Check = QtGui.QCheckBox('5 Days', self)
+		self.SizeCheck = QtGui.QCheckBox('Fix Size', self)
+		self.ColorCheck = QtGui.QCheckBox('Fix Color', self)
+		self.MovieCheck = QtGui.QCheckBox('Smooth for Movie', self)
+
+		Checkhbox1 = QtGui.QVBoxLayout()
+		Checkhbox1.addWidget(self.TextCheck)
+		Checkhbox1.addWidget(self.Day5Check)
+		Checkhbox1.addWidget(self.SizeCheck)
+		Checkhbox1.addWidget(self.ColorCheck)
+		Checkhbox1.addWidget(self.MovieCheck)
+
+############# Region for Declaring all the buttons in the GUI ###################
 
 		self.UpdateButton =QtGui.QPushButton('Plot',self)
 		self.UpdateButton.setToolTip('Update the plot')
@@ -531,229 +761,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.LoadSettingsButton.resize(self.LoadSettingsButton.sizeHint())
 		self.LoadSettingsButton.clicked.connect(self.LoadSettings)
 
-############################################################
-
-		Xhbox1 = QtGui.QHBoxLayout()
-        
-		for w in [ self.XLable, self.XCombo]:
-			Xhbox1.addWidget(w)
-			Xhbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Xhbox1.addStretch(1)
-
-		Xhbox2 = QtGui.QHBoxLayout()
-        
-		for w in [self.XMinTag, self.XMinLable]:
-			Xhbox2.addWidget(w)
-			Xhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Xhbox2.addStretch(1)
-		for w in [self.XMaxTag, self.XMaxLable]:
-			Xhbox2.addWidget(w)
-			Xhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Xhbox3 = QtGui.QHBoxLayout()
-        
-		for w in [  self.XLimitTag ,self.XMin_Box, self.XRange, self.XMax_Box]:
-			Xhbox3.addWidget(w)
-			Xhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Xhbox4 = QtGui.QHBoxLayout()
-        
-		for w in [  self.XSliceTag, self.XMinSlice_Box, self.XRangeSlice, self.XMaxSlice_Box]:
-			Xhbox4.addWidget(w)
-			Xhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Xvbox1 = QtGui.QVBoxLayout()
-		Xvbox1.addLayout(Xhbox1)
-		Xvbox1.addLayout(Xhbox2)
-		Xvbox1.addLayout(Xhbox3)
-		Xvbox1.addLayout(Xhbox4)
-
-############################################################
-
-		Yhbox1 = QtGui.QHBoxLayout()
-        
-		for w in [ self.YLable, self.YCombo]:
-			Yhbox1.addWidget(w)
-			Yhbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Yhbox1.addStretch(1)
-
-		Yhbox2 = QtGui.QHBoxLayout()
-        
-		for w in [self.YMinTag, self.YMinLable]:
-			Yhbox2.addWidget(w)
-			Yhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Yhbox2.addStretch(1)
-		for w in [self.YMaxTag, self.YMaxLable]:
-			Yhbox2.addWidget(w)
-			Yhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Yhbox3 = QtGui.QHBoxLayout()
-        
-		for w in [ self.YLimitTag, self.YMin_Box, self.YRange, self.YMax_Box]:
-			Yhbox3.addWidget(w)
-			Yhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Yhbox4 = QtGui.QHBoxLayout()
-        
-		for w in [  self.YSliceTag,self.YMinSlice_Box, self.YRangeSlice, self.YMaxSlice_Box]:
-			Yhbox4.addWidget(w)
-			Yhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Yvbox1 = QtGui.QVBoxLayout()
-		Yvbox1.addLayout(Yhbox1)
-		Yvbox1.addLayout(Yhbox2)
-		Yvbox1.addLayout(Yhbox3)
-		Yvbox1.addLayout(Yhbox4)
-
-##############################################################3
-
-		Zhbox1 = QtGui.QHBoxLayout()
-        
-		for w in [ self.ZLable, self.ZCombo]:
-			Zhbox1.addWidget(w)
-			Zhbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Zhbox1.addStretch(1)
-
-		Zhbox2 = QtGui.QHBoxLayout()
-        
-		for w in [self.ZMinTag, self.ZMinLable]:
-			Zhbox2.addWidget(w)
-			Zhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Zhbox2.addStretch(1)
-		for w in [self.ZMaxTag, self.ZMaxLable]:
-			Zhbox2.addWidget(w)
-			Zhbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Zhbox3 = QtGui.QHBoxLayout()
-        
-		for w in [ self.ZLimitTag ,self.ZMin_Box, self.ZRange, self.ZMax_Box]:
-			Zhbox3.addWidget(w)
-			Zhbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Zhbox4 = QtGui.QHBoxLayout()
-        
-		for w in [  self.ZSliceTag,self.ZMinSlice_Box, self.ZRangeSlice, self.ZMaxSlice_Box]:
-			Zhbox4.addWidget(w)
-			Zhbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Zvbox1 = QtGui.QVBoxLayout()
-		Zvbox1.addLayout(Zhbox1)
-		Zvbox1.addLayout(Zhbox2)
-		Zvbox1.addLayout(Zhbox3)
-		Zvbox1.addLayout(Zhbox4)
-
-#########################################################
-
-		Shbox1 = QtGui.QHBoxLayout()
-
-		for w in [  self.SizeLable, self.SizeCombo]:
-			Shbox1.addWidget(w)
-			Shbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
-		
-		Shbox1.addStretch(1)
-
-		Shbox2 = QtGui.QHBoxLayout()
-        
-		for w in [self.SMinTag, self.SMinLable]:
-			Shbox2.addWidget(w)
-			Shbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Shbox2.addStretch(1)
-		for w in [self.SMaxTag, self.SMaxLable]:
-			Shbox2.addWidget(w)
-			Shbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Shbox3 = QtGui.QHBoxLayout()
-        
-		for w in [ self.SLimitTag ,self.SMin_Box, self.SRange, self.SMax_Box]:
-			Shbox3.addWidget(w)
-			Shbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Shbox4 = QtGui.QHBoxLayout()
-        
-		for w in [  self.SSliceTag, self.SMinSlice_Box, self.SRangeSlice, self.SMaxSlice_Box]:
-			Shbox4.addWidget(w)
-			Shbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Svbox1 = QtGui.QVBoxLayout()
-		Svbox1.addLayout(Shbox1)
-		Svbox1.addLayout(Shbox2)
-		Svbox1.addLayout(Shbox3)
-		Svbox1.addLayout(Shbox4)
-
-##########################################################
-
-		Chbox1 = QtGui.QHBoxLayout()
-
-		for w in [self.ColorLable, self.ColorCombo]:
-			Chbox1.addWidget(w)
-			Chbox1.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Chbox1.addStretch(1)
-		Chbox2 = QtGui.QHBoxLayout()
-        
-		for w in [self.CMinTag, self.CMinLable]:
-			Chbox2.addWidget(w)
-			Chbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-		Chbox2.addStretch(2)
-		for w in [self.CMaxTag, self.CMaxLable]:
-			Chbox2.addWidget(w)
-			Chbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Chbox3 = QtGui.QHBoxLayout()
-        
-		for w in [ self.CLimitTag ,self.CMin_Box, self.CRange, self.CMax_Box]:
-			Chbox3.addWidget(w)
-			Chbox3.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Chbox4 = QtGui.QHBoxLayout()
-        
-		for w in [  self.CSliceTag, self.CMinSlice_Box, self.CRangeSlice, self.CMaxSlice_Box]:
-			Chbox4.addWidget(w)
-			Chbox4.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Cvbox1 = QtGui.QVBoxLayout()
-		Cvbox1.addLayout(Chbox1)
-		Cvbox1.addLayout(Chbox2)
-		Cvbox1.addLayout(Chbox3)
-		Cvbox1.addLayout(Chbox4)
-
-################################################
-		
-		Datehbox1 = QtGui.QHBoxLayout()
-		Datehbox1.addWidget(self.DLable)
-		Datehbox1.addWidget(self.DateLable)
-		Datehbox1.addStretch(1)
-
-		Datehbox2 = QtGui.QHBoxLayout()
-        
-		for w in [  self.DateMinLable, self.DateSlider, self.DateMaxLable]:
-			Datehbox2.addWidget(w)
-			Datehbox2.setAlignment(w, QtCore.Qt.AlignVCenter)
-
-		Datevbox1 = QtGui.QVBoxLayout()
-		Datevbox1.addLayout(Datehbox1)
-		Datevbox1.addLayout(Datehbox2)
-
-		Datehbox3 = QtGui.QHBoxLayout()
-		Datehbox3.addLayout(Datevbox1)
-		Datehbox3.addWidget(self.VFrame1)	
-
-###############################################
-
-		self.TextCheck = QtGui.QCheckBox('Show Label', self)
-		self.Day5Check = QtGui.QCheckBox('5 Days', self)
-		self.SizeCheck = QtGui.QCheckBox('Fix Size', self)
-		self.ColorCheck = QtGui.QCheckBox('Fix Color', self)
-		self.MovieCheck = QtGui.QCheckBox('Smooth for Movie', self)
-
-		Checkhbox1 = QtGui.QVBoxLayout()
-		Checkhbox1.addWidget(self.TextCheck)
-		Checkhbox1.addWidget(self.Day5Check)
-		Checkhbox1.addWidget(self.SizeCheck)
-		Checkhbox1.addWidget(self.ColorCheck)
-		Checkhbox1.addWidget(self.MovieCheck)
-
-###############################################
+############# GUI Box - Related to Button Bar on the top ###################
 
 		Buttonbox = QtGui.QHBoxLayout()
 		Buttonbox.addLayout(Checkhbox1)
@@ -770,7 +778,8 @@ class Visualizer(QtGui.QMainWindow):
 		Buttonbox2.addWidget(self.LoadSettingsButton)
 		Buttonbox2.addStretch()
 
-##############################################
+
+############# Layout settings in the GUI - Arrangement of Everything ###################
 
 		Vbox1 = QtGui.QVBoxLayout()
 		Vbox1.addWidget(self.VisLable)
@@ -824,15 +833,20 @@ class Visualizer(QtGui.QMainWindow):
 		self.setWindowIcon(QtGui.QIcon('V.png'))
 		self.main_frame.setLayout(FinalBox)
 		self.setCentralWidget(self.main_frame)
+		self.statusBar().showMessage('Ready')
 
-######################################################
+		'''
+		All functions of the class start here.
+		'''
+
+############### Function to Load Data from the Dataset ####################
 
 	def LoadData(self):
 		fname = str(QtGui.QFileDialog.getExistingDirectory(None, 'Data Directory', os.environ['QS']+'/Tools/Visualizer/Data/', options=QtGui.QFileDialog.DontUseNativeDialog))
 		fname= fname+'/'
 		(self.PandasObject, self.featureslist, self.symbols, self.timestamps, self.dMinFeat, self.dMaxFeat, self.startday, self.endday) = AD.GetData(fname)
 
-#######################################################
+############### Function to Reset all the variables ####################
 
 	def Reset(self):
 		self.scatterpts=[]
@@ -873,6 +887,8 @@ class Visualizer(QtGui.QMainWindow):
 		self.CLowSlice=self.CMin
 		self.CHighSlice=self.CMax
 		self.dayofplot=self.timestamps[0]
+
+############### Function to Reset all the GUI sliders and Labels ####################
 
 	def ResetFunc(self):
 		self.FeatureComboBox(self.XCombo)
@@ -928,7 +944,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.DateLable.setText(self.dayofplot.date().isoformat())
 		self.DateSlider.setSliderPosition(self.timestamps.index(self.dayofplot))
 
-#######################################################
+############### Function to Load Data a new Dataset ####################
 
 	def ChangeDataset(self):
 		self.ClearCanvas()
@@ -937,7 +953,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.ResetFunc()
 		self.statusBar().showMessage('Loading data set complete')
 
-#######################################################
+############### Function to Reset Dataset ####################
 
 	def ResetSettings(self):
 		self.ClearCanvas()
@@ -945,7 +961,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.ResetFunc()
 		self.statusBar().showMessage('Reset Complete')
 
-#######################################################
+############### Function to Save current Settings ####################
 
 	def SaveSettings(self):
 		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', os.environ['QS']+'/Tools/Visualizer/Settings/settings.pkl', options=QtGui.QFileDialog.DontUseNativeDialog))
@@ -956,7 +972,7 @@ class Visualizer(QtGui.QMainWindow):
 		pickle.dump(SettingArray,open(fname, 'wb' ),-1)
 		self.statusBar().showMessage('Saved Settings')
 
-#######################################################
+############### Function to Load Settings previously stored ####################
 
 	def LoadSettings(self):
 		fname = str(QtGui.QFileDialog.getOpenFileName(self, 'Open file', os.environ['QS']+'/Tools/Visualizer/Settings/', options=QtGui.QFileDialog.DontUseNativeDialog))
@@ -1009,58 +1025,14 @@ class Visualizer(QtGui.QMainWindow):
 		self.ClearCanvas()
 		self.statusBar().showMessage('Loaded Settings')
 
-#######################################################
+############### Function for add Features to the Boxes ####################
+
 	def FeatureComboBox(self, combo):
 		combo.clear()
 		for feat in self.featureslist:
 			combo.addItem(feat)
         
-	def XComboActivated(self,text):
-		self.Xfeature=text
-		self.XMax=self.dMaxFeat[str(self.Xfeature)]
-		self.XMin=self.dMinFeat[str(self.Xfeature)]
-		self.XMinLable.setText(str(round(self.XMin,1)))
-		self.XMaxLable.setText(str(round(self.XMax,1)))
-		self.XChangeValues(self.XRange.low(), self.XRange.high())
-		self.XChangeValuesSlice(self.XRangeSlice.low(), self.XRangeSlice.high())
-
-	def YComboActivated(self,text):
-		self.Yfeature=text
-		self.YMax=self.dMaxFeat[str(self.Yfeature)]
-		self.YMin=self.dMinFeat[str(self.Yfeature)]
-		self.YMinLable.setText(str(round(self.YMin,1)))
-		self.YMaxLable.setText(str(round(self.YMax,1)))
-		self.YChangeValues(self.YRange.low(), self.YRange.high())
-		self.YChangeValuesSlice(self.YRangeSlice.low(), self.YRangeSlice.high())
-
-	def ZComboActivated(self,text):
-		self.Zfeature=text
-		self.ZMax=self.dMaxFeat[str(self.Zfeature)]
-		self.ZMin=self.dMinFeat[str(self.Zfeature)]
-		self.ZMinLable.setText(str(round(self.ZMin,1)))
-		self.ZMaxLable.setText(str(round(self.ZMax,1)))
-		self.ZChangeValues(self.ZRange.low(), self.ZRange.high())
-		self.ZChangeValuesSlice(self.ZRangeSlice.low(), self.ZRangeSlice.high())
-
-	def SComboActivated(self,text):
-		self.Sfeature=text
-		self.SMax=self.dMaxFeat[str(self.Sfeature)]
-		self.SMin=self.dMinFeat[str(self.Sfeature)]
-		self.SMinLable.setText(str(round(self.SMin,1)))
-		self.SMaxLable.setText(str(round(self.SMax,1)))
-		self.SChangeValues(self.SRange.low(), self.SRange.high())
-		self.SChangeValuesSlice(self.SRangeSlice.low(), self.SRangeSlice.high())
-
-	def CComboActivated(self,text):
-		self.Cfeature=text
-		self.CMax=self.dMaxFeat[str(self.Cfeature)]
-		self.CMin=self.dMinFeat[str(self.Cfeature)]
-		self.CMinLable.setText(str(round(self.CMin,1)))
-		self.CMaxLable.setText(str(round(self.CMax,1)))
-		self.CChangeValues(self.CRange.low(), self.CRange.high())
-		self.CChangeValuesSlice(self.CRangeSlice.low(), self.CRangeSlice.high())
-
-###################################################
+############### Function to Check validity of the input into the textbox of sliders ####################
 
 	def correctInput(self, valueEntered, Min, Max, boundcase):
 		low = math.floor(((valueEntered- Min)*SLIDER_RANGE)/(Max-Min))
@@ -1076,7 +1048,16 @@ class Visualizer(QtGui.QMainWindow):
 			else: return high
 		else: return low
 
-###################################################
+############### Region for Functions associated with X Axis ####################
+
+	def XComboActivated(self,text):
+		self.Xfeature=text
+		self.XMax=self.dMaxFeat[str(self.Xfeature)]
+		self.XMin=self.dMinFeat[str(self.Xfeature)]
+		self.XMinLable.setText(str(round(self.XMin,1)))
+		self.XMaxLable.setText(str(round(self.XMax,1)))
+		self.XChangeValues(self.XRange.low(), self.XRange.high())
+		self.XChangeValuesSlice(self.XRangeSlice.low(), self.XRangeSlice.high())
 
 	def XChangeValues(self, low, high):
 		self.XLow=(low*(self.XMax-self.XMin))/SLIDER_RANGE+self.XMin
@@ -1140,7 +1121,16 @@ class Visualizer(QtGui.QMainWindow):
 		self.XRangeSlice.setHigh(slide)
 		self.XChangeValuesSlice(self.XRangeSlice.low(), slide)
 
-####################################################
+############### Region for Functions associated with Y Axis ####################
+
+	def YComboActivated(self,text):
+		self.Yfeature=text
+		self.YMax=self.dMaxFeat[str(self.Yfeature)]
+		self.YMin=self.dMinFeat[str(self.Yfeature)]
+		self.YMinLable.setText(str(round(self.YMin,1)))
+		self.YMaxLable.setText(str(round(self.YMax,1)))
+		self.YChangeValues(self.YRange.low(), self.YRange.high())
+		self.YChangeValuesSlice(self.YRangeSlice.low(), self.YRangeSlice.high())
 
 	def YChangeValues(self, low, high):
 		self.YLow=(low*(self.YMax-self.YMin))/SLIDER_RANGE+self.YMin
@@ -1204,7 +1194,16 @@ class Visualizer(QtGui.QMainWindow):
 		self.YRangeSlice.setHigh(slide)
 		self.YChangeValuesSlice(self.YRangeSlice.low(), slide)
 
-######################################################################
+############### Region for Functions associated with Z Axis ####################
+
+	def ZComboActivated(self,text):
+		self.Zfeature=text
+		self.ZMax=self.dMaxFeat[str(self.Zfeature)]
+		self.ZMin=self.dMinFeat[str(self.Zfeature)]
+		self.ZMinLable.setText(str(round(self.ZMin,1)))
+		self.ZMaxLable.setText(str(round(self.ZMax,1)))
+		self.ZChangeValues(self.ZRange.low(), self.ZRange.high())
+		self.ZChangeValuesSlice(self.ZRangeSlice.low(), self.ZRangeSlice.high())
 
 	def ZChangeValues(self, low, high):
 		self.ZLow=(low*(self.ZMax-self.ZMin))/SLIDER_RANGE+self.ZMin
@@ -1268,7 +1267,16 @@ class Visualizer(QtGui.QMainWindow):
 		self.ZRangeSlice.setHigh(slide)
 		self.ZChangeValuesSlice(self.ZRangeSlice.low(), slide)
 
-##################################################
+############### Region for Functions associated with Size ####################
+
+	def SComboActivated(self,text):
+		self.Sfeature=text
+		self.SMax=self.dMaxFeat[str(self.Sfeature)]
+		self.SMin=self.dMinFeat[str(self.Sfeature)]
+		self.SMinLable.setText(str(round(self.SMin,1)))
+		self.SMaxLable.setText(str(round(self.SMax,1)))
+		self.SChangeValues(self.SRange.low(), self.SRange.high())
+		self.SChangeValuesSlice(self.SRangeSlice.low(), self.SRangeSlice.high())
 
 	def SChangeValues(self, low, high):
 		self.SLow=(low*(self.SMax-self.SMin))/SLIDER_RANGE+self.SMin
@@ -1332,7 +1340,16 @@ class Visualizer(QtGui.QMainWindow):
 		self.SRangeSlice.setHigh(slide)
 		self.SChangeValuesSlice(self.SRangeSlice.low(), slide)
 
-###########################################################
+############### Region for Functions associated with Color ####################
+
+	def CComboActivated(self,text):
+		self.Cfeature=text
+		self.CMax=self.dMaxFeat[str(self.Cfeature)]
+		self.CMin=self.dMinFeat[str(self.Cfeature)]
+		self.CMinLable.setText(str(round(self.CMin,1)))
+		self.CMaxLable.setText(str(round(self.CMax,1)))
+		self.CChangeValues(self.CRange.low(), self.CRange.high())
+		self.CChangeValuesSlice(self.CRangeSlice.low(), self.CRangeSlice.high())
 
 	def CChangeValues(self, low, high):
 		self.CLow=(low*(self.CMax-self.CMin))/SLIDER_RANGE+self.CMin
@@ -1396,6 +1413,8 @@ class Visualizer(QtGui.QMainWindow):
 		self.CRangeSlice.setHigh(slide)
 		self.CChangeValuesSlice(self.CRangeSlice.low(), slide)
 
+############### Function which is called when the date slider is changed ####################
+
 	def DateActivated(self, index):
 		self.dayofplot=self.timestamps[index]
 		dateval=self.timestamps[index]
@@ -1403,12 +1422,14 @@ class Visualizer(QtGui.QMainWindow):
 		self.DateLable.setText(dateval)
 		self.DateLable.adjustSize() 
 
-#########################################################
+############### Region for Plotting related fuctions ####################
 
+	# Checkes if the value lies between the min and max, otherwise returns a NAN
 	def inrange(self, x, minx, maxx):
 		if x>=minx and x<=maxx: return x
 		else: return np.NAN
-
+	
+	# Returns a value to be used in size array based on the scale and slice values
 	def inrangeS(self, s, low, lowslice, high, highslice ,absmin, absmax):
 		if s<=low: s=low
 		elif s>=high: s=high
@@ -1417,6 +1438,7 @@ class Visualizer(QtGui.QMainWindow):
 		elif s>=highslice: return 0
 		else: return (199*((s-absmin)/(absmax-absmin))+10)
 
+	# Returns a value to be used in color array based on the scale and slice values
 	def inrangeC(self, c, low, lowslice, high, highslice ,absmin, absmax):
 		if c<=low: c=low
 		elif c>=high: c=high
@@ -1425,6 +1447,7 @@ class Visualizer(QtGui.QMainWindow):
 		elif c>=highslice: return np.NAN
 		else: return (501*((c-absmin)/(absmax-absmin))+10)
 
+	#Remove points from the plot - Clear the plot - No actual clear function yet in matplotlib
 	def clean(self):
 		if self.scatterpts:
 			for pt in self.scatterpts :
@@ -1435,6 +1458,7 @@ class Visualizer(QtGui.QMainWindow):
 				pt.remove()
 		self.textpts = []
 
+	# Reading data from the pandas object 
 	def readdata(self, day):
 		xs=self.PandasObject[str(self.Xfeature)].xs(day)
 		ys=self.PandasObject[str(self.Yfeature)].xs(day)
@@ -1443,11 +1467,14 @@ class Visualizer(QtGui.QMainWindow):
 		color=self.PandasObject[str(self.Cfeature)].xs(day)
 		return (xs,ys,zs,size,color)
 
+	# 5 Day Average for smoothning in the movie
 	def avg(self,x1,x2,x3,x4,x5):
 		return (x1+x2+x3+x4+x5)/5.0
 
+	# Plotting Points - Just draws points - has a lot of work around techniques for bugs in matplotlib
 	def PlotPoints(self, day):
 		index = self.timestamps.index(day)
+		# Check whether smoothning is required or not
 		if self.MovieCheck.isChecked() and index<(len(self.timestamps)-2) and index>=2:
 			(x1,y1,z1,s1,c1)= self.readdata(self.timestamps[index-2])
 			(x2,y2,z2,s2,c2)= self.readdata(self.timestamps[index-1])
@@ -1463,28 +1490,34 @@ class Visualizer(QtGui.QMainWindow):
 
 		else:
 			(xs,ys,zs,size,color) = self.readdata(day)
-
+		
+		# Whether the points lie between size and scale values
 		xs1 = [self.inrange(x, max(self.XLow, self.XLowSlice), min(self.XHigh, self.XHighSlice)) for x in xs]
 		ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
 		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
 
+		# Check if size is fixed or not
 		if self.SizeCheck.isChecked():
 			size1 =20
 		else: size1 = [self.inrangeS(s, self.SLow, self.SLowSlice, self.SHigh, self.SHighSlice, self.SMin, self.SMax) for s in size]
 
+		# Check if color is fixed or not
 		if self.ColorCheck.isChecked():
 			color1 = 'g'
 		else: color1 = [self.inrangeC(c, self.CLow, self.CLowSlice, self.CHigh, self.CHighSlice, self.CMin, self.CMax) for c in color]
 
+		# Scatter Plot
 		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=1, c=color1, s=size1)
 		self.scatterpts.append(pt)
 		
+		# Check if labels need to be put in
 		if self.TextCheck.isChecked():
 			for x,y,z,l in zip(xs1,ys1,zs1,self.symbols):
 				pt=self.ax.text(x,y,z,l)
 				self.textpts.append(pt)
 		self.datetext.set_text('Date : ' + day.date().isoformat())
 
+	#Function to plot the figure, use the above and set limits and lables. To avoid redoing everything in the 5 day case
 	def PlotFigure(self, day):
 		self.PlotPoints(day)
 		if self.Day5Check.isChecked():
@@ -1500,7 +1533,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.ax.set_ylabel(self.Yfeature)
 		self.ax.set_zlabel(self.Zfeature)
 
-#####################################################
+############### Function to clear the canvas ####################
 
 	def ClearCanvas(self):
 		self.clean()
@@ -1517,7 +1550,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.clean()
 		self.statusBar().showMessage('Cleared the Plot')
 		
-#####################################################
+############### Function called when the plot button is pressed ####################
 
 	def PlotCanvas(self):
 		self.clean()
@@ -1525,7 +1558,9 @@ class Visualizer(QtGui.QMainWindow):
 		self.canvas.draw()
 		self.statusBar().showMessage('Update the Plot')
 
-#####################################################
+############### Function to save the current plot ####################
+
+	# Redraw of the Image is to account for the bug in matplotlib which loses the color -> If you have made the bug fix, No need to redraw
 
 	def save_plot(self):
 		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', os.environ['QS']+'/Tools/Visualizer/untitled.png', 'Images (*.png *.xpm *.jpg)', options=QtGui.QFileDialog.DontUseNativeDialog))
@@ -1536,7 +1571,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
 		self.statusBar().showMessage('Saved the File')
 
-#####################################################
+############### Function to create the movie over time with current settings ####################
 
 	def make_movie(self):
 		folderpath = os.environ['QS']+'/Tools/Visualizer/Movie/'
@@ -1560,7 +1595,7 @@ class Visualizer(QtGui.QMainWindow):
 			self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
 			self.statusBar().showMessage('Movie Complete')
 	
-#####################################################
+############### Function which is called when about is pressed ####################
 
 	def on_about(self):
 		msg = """ A Data Visualizer for QSTK:
@@ -1574,7 +1609,9 @@ class Visualizer(QtGui.QMainWindow):
 		QtGui.QMessageBox.about(self, "About QuantViz", msg.strip())
 
 #####################################################
+''' END OF THE CLASS - THAT WAS AWESOME !! '''
 
+# This is main (The easiest one to write in python)
 def main():
 
 	app = QtGui.QApplication(sys.argv)
