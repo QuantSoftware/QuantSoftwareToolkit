@@ -702,7 +702,7 @@ class Visualizer(QtGui.QMainWindow):
 ############# Region for declaring all the Checkboxes for GUI ###################
 
 		self.TextCheck = QtGui.QCheckBox('Show Label', self)
-		self.Day5Check = QtGui.QCheckBox('5 Days', self)
+		self.Day5Check = QtGui.QCheckBox('20 Days', self)
 		self.SizeCheck = QtGui.QCheckBox('Fix Size', self)
 		self.ColorCheck = QtGui.QCheckBox('Fix Color', self)
 		self.MovieCheck = QtGui.QCheckBox('Smooth for Movie', self)
@@ -1522,7 +1522,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.PlotPoints(day)
 		if self.Day5Check.isChecked():
 			index = self.timestamps.index(day)
-			for i in range(4):
+			for i in range(19):
 				if (index-i-1)>=0:
 					self.PlotPoints(self.timestamps[index-i-1])
 

@@ -12,4 +12,3 @@ Bollinger
 Correlation
 Price
 Volume
-FutureReturn
