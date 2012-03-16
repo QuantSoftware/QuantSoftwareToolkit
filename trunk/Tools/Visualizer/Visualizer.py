@@ -1490,8 +1490,8 @@ class Visualizer(QtGui.QMainWindow):
 		if self.Day5Check.isChecked():
 			index = self.timestamps.index(day)
 			for i in range(4):
-				if (index+i+1)<len(self.timestamps):
-					self.PlotPoints(self.timestamps[index+i+1])
+				if (index-i-1)>=0:
+					self.PlotPoints(self.timestamps[index-i-1])
 
 		self.ax.set_xlim(self.XLow, self.XHigh)
 		self.ax.set_ylim(self.YLow, self.YHigh)
