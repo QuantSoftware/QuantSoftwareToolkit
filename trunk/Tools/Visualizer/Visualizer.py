@@ -2,6 +2,8 @@ import sys
 import numpy as np
 import math 
 import os
+import dircache
+
 import AccessData as AD
 import pickle
 from PyQt4 import QtGui, QtCore, Qt
@@ -211,10 +213,16 @@ class Visualizer(QtGui.QMainWindow):
 
 		# Declaring the matplotlib canvas for plotting graphs
 		self.dpi=100
-		self.fig = Figure((5.0, 4.5), dpi=self.dpi)
+		self.fig = Figure((6.0, 5.5), dpi=self.dpi)
 		self.canvas = FigureCanvas(self.fig)
 		self.canvas.setParent(self.main_frame)
 		self.ax = self.fig.gca(projection='3d')
+
+		self.fig2 = Figure((6.0, 6.0), dpi=self.dpi*2)
+		self.canvas2 = FigureCanvas(self.fig2)
+		self.ax2 = self.fig2.gca(projection='3d')
+		self.datetext2 = self.ax2.text2D(0, 1, 'Date : ', transform=self.ax2.transAxes)
+
 		self.datetext = self.ax.text2D(0, 1, 'Date : ', transform=self.ax.transAxes)
 		
 		# Declaring the Texts in the GUI, fonts and Spacers to control the size of sliders	
@@ -224,9 +232,10 @@ class Visualizer(QtGui.QMainWindow):
 		self.font2 = QtGui.QFont("Times", 14, QtGui.QFont.Bold, True)
 		self.font3 = QtGui.QFont("Times", 20, QtGui.QFont.Bold, True)
 		self.VisLable = QtGui.QLabel('QuantViz', self)
-		self.SpacerItem1 = Qt.QSpacerItem(420,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)		
+		self.SpacerItem1 = Qt.QSpacerItem(450,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)		
 		self.SpacerItem2 = Qt.QSpacerItem(300,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)	
 		self.SpacerItem3 = Qt.QSpacerItem(300,0,Qt.QSizePolicy.Fixed,Qt.QSizePolicy.Expanding)	
+		self.SpacerItem4 = Qt.QSpacerItem(1,500,Qt.QSizePolicy.Fixed)	
 		self.VisLable.setFont(self.font3)
 		self.FactorLable.setFont(self.font)
 
@@ -721,13 +730,13 @@ class Visualizer(QtGui.QMainWindow):
 		self.UpdateButton.resize(self.UpdateButton.sizeHint())
 		self.UpdateButton.clicked.connect(self.PlotCanvas)
 
-		self.SaveButton =QtGui.QPushButton('Save',self)
+		self.SaveButton =QtGui.QPushButton('Save Plot',self)
 		self.SaveButton.setToolTip('Save the plot')
 		self.SaveButton.resize(self.SaveButton.sizeHint())
 		self.SaveButton.clicked.connect(self.save_plot)
 
 		self.MovieButton =QtGui.QPushButton('Movie',self)
-		self.MovieButton.setToolTip('Save the plot')
+		self.MovieButton.setToolTip('Make a movie over time')
 		self.MovieButton.resize(self.MovieButton.sizeHint())
 		self.MovieButton.clicked.connect(self.make_movie)
 
@@ -818,10 +827,12 @@ class Visualizer(QtGui.QMainWindow):
 		Vbox4.addStretch(1)
 		Vbox4.addWidget(self.FactorLable)
 		Vbox4.addLayout(HBox1)
+		Vbox4.addStretch(1)
 
 		HBox2= QtGui.QHBoxLayout()
 		HBox2.addLayout(Vbox1)
 		HBox2.addLayout(Vbox4)
+		HBox2.addItem(self.SpacerItem4)
 		HBox2.addStretch(1)
 
 		FinalBox = QtGui.QVBoxLayout()
@@ -851,6 +862,8 @@ class Visualizer(QtGui.QMainWindow):
 	def Reset(self):
 		self.scatterpts=[]
 		self.textpts=[]
+		self.scatterpts2=[]
+		self.textpts2=[]
 		self.Xfeature=self.featureslist[0]
 		self.Yfeature=self.featureslist[0]
 		self.Zfeature=self.featureslist[0]
@@ -1507,7 +1520,7 @@ class Visualizer(QtGui.QMainWindow):
 		else: color1 = [self.inrangeC(c, self.CLow, self.CLowSlice, self.CHigh, self.CHighSlice, self.CMin, self.CMax) for c in color]
 
 		# Scatter Plot
-		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=1, c=color1, s=size1)
+		pt=self.ax.scatter(xs1,ys1,zs1,marker='o', alpha=1, c=color1, s=size1, edgecolor='none')
 		self.scatterpts.append(pt)
 		
 		# Check if labels need to be put in
@@ -1558,6 +1571,81 @@ class Visualizer(QtGui.QMainWindow):
 		self.canvas.draw()
 		self.statusBar().showMessage('Update the Plot')
 
+############### Functions to plot on the canvas2 - High resolution images for saved image and movie #############33
+
+	#Remove points from the plot - Clear the plot - No actual clear function yet in matplotlib
+	def clean2(self):
+		if self.scatterpts2:
+			for pt in self.scatterpts2 :
+				pt.remove()
+		self.scatterpts2 = []
+		if self.textpts2:
+			for pt in self.textpts2 :
+				pt.remove()
+		self.textpts2 = []
+
+	# Plotting Points - Just draws points - has a lot of work around techniques for bugs in matplotlib
+	def PlotPoints2(self, day):
+		index = self.timestamps.index(day)
+		# Check whether smoothning is required or not
+		if self.MovieCheck.isChecked() and index<(len(self.timestamps)-2) and index>=2:
+			(x1,y1,z1,s1,c1)= self.readdata(self.timestamps[index-2])
+			(x2,y2,z2,s2,c2)= self.readdata(self.timestamps[index-1])
+			(x3,y3,z3,s3,c3)= self.readdata(self.timestamps[index])
+			(x4,y4,z4,s4,c4)= self.readdata(self.timestamps[index+1])
+			(x5,y5,z5,s5,c5)= self.readdata(self.timestamps[index+2])
+						
+			xs= [ self.avg(a1,a2,a3,a4,a5) for a1,a2,a3,a4,a5 in zip(x1,x2,x3,x4,x5)]
+			ys= [ self.avg(a1,a2,a3,a4,a5) for a1,a2,a3,a4,a5 in zip(y1,y2,y3,y4,y5)]
+			zs= [ self.avg(a1,a2,a3,a4,a5) for a1,a2,a3,a4,a5 in zip(z1,z2,z3,z4,z5)]
+			size= [ self.avg(a1,a2,a3,a4,a5) for a1,a2,a3,a4,a5 in zip(s1,s2,s3,s4,s5)]
+			color= [ self.avg(a1,a2,a3,a4,a5) for a1,a2,a3,a4,a5 in zip(c1,c2,c3,c4,c5)]	
+
+		else:
+			(xs,ys,zs,size,color) = self.readdata(day)
+		
+		# Whether the points lie between size and scale values
+		xs1 = [self.inrange(x, max(self.XLow, self.XLowSlice), min(self.XHigh, self.XHighSlice)) for x in xs]
+		ys1 = [self.inrange(y, max(self.YLow, self.YLowSlice), min(self.YHigh, self.YHighSlice)) for y in ys]
+		zs1 = [self.inrange(z, max(self.ZLow, self.ZLowSlice), min(self.ZHigh, self.ZHighSlice)) for z in zs]
+
+		# Check if size is fixed or not
+		if self.SizeCheck.isChecked():
+			size1 =20
+		else: size1 = [self.inrangeS(s, self.SLow, self.SLowSlice, self.SHigh, self.SHighSlice, self.SMin, self.SMax) for s in size]
+
+		# Check if color is fixed or not
+		if self.ColorCheck.isChecked():
+			color1 = 'g'
+		else: color1 = [self.inrangeC(c, self.CLow, self.CLowSlice, self.CHigh, self.CHighSlice, self.CMin, self.CMax) for c in color]
+
+		# Scatter Plot
+		pt=self.ax2.scatter(xs1,ys1,zs1,marker='o', alpha=1, c=color1, s=size1, edgecolor='none')
+		self.scatterpts2.append(pt)
+		
+		# Check if labels need to be put in
+		if self.TextCheck.isChecked():
+			for x,y,z,l in zip(xs1,ys1,zs1,self.symbols):
+				pt=self.ax2.text(x,y,z,l)
+				self.textpts2.append(pt)
+		self.datetext2.set_text('Date : ' + day.date().isoformat())
+
+	#Function to plot the figure, use the above and set limits and lables. To avoid redoing everything in the 5 day case
+	def PlotFigure2(self, day):
+		self.PlotPoints2(day)
+		if self.Day5Check.isChecked():
+			index = self.timestamps.index(day)
+			for i in range(4):
+				if (index-i-1)>=0:
+					self.PlotPoints2(self.timestamps[index-i-1])
+
+		self.ax2.set_xlim(self.XLow, self.XHigh)
+		self.ax2.set_ylim(self.YLow, self.YHigh)
+		self.ax2.set_zlim(self.ZLow, self.ZHigh)		
+		self.ax2.set_xlabel(self.Xfeature)
+		self.ax2.set_ylabel(self.Yfeature)
+		self.ax2.set_zlabel(self.Zfeature)
+
 ############### Function to save the current plot ####################
 
 	# Redraw of the Image is to account for the bug in matplotlib which loses the color -> If you have made the bug fix, No need to redraw
@@ -1566,9 +1654,9 @@ class Visualizer(QtGui.QMainWindow):
 		fname = str(QtGui.QFileDialog.getSaveFileName(self, 'Save file', os.environ['QS']+'/Tools/Visualizer/untitled.png', 'Images (*.png *.xpm *.jpg)', options=QtGui.QFileDialog.DontUseNativeDialog))
 		if fname=='':
 			return
-		self.clean()
-		self.PlotFigure(self.dayofplot)
-		self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
+		self.clean2()
+		self.PlotFigure2(self.dayofplot)
+		self.canvas2.print_png(fname, dpi=self.dpi*2, facecolor='gray', edgecolor='gray')
 		self.statusBar().showMessage('Saved the File')
 
 ############### Function to create the movie over time with current settings ####################
@@ -1588,12 +1676,17 @@ class Visualizer(QtGui.QMainWindow):
 		
 		folderpath=folderpath + '/'
 
+		files_at_this_path = dircache.listdir(folderpath)
+		for _file in files_at_this_path:
+			if (os.path.isfile(folderpath + _file)):
+				os.remove(folderpath + _file)
+
 		for i in range(0, len(self.timestamps)):
-			self.clean()
-			self.PlotFigure(self.timestamps[i])
+			self.clean2()
+			self.PlotFigure2(self.timestamps[i])
 			fname=folderpath + str(i) +'.png'
-			self.canvas.print_png(fname, dpi=self.dpi, facecolor='gray', edgecolor='gray')
-			self.statusBar().showMessage('Movie Complete')
+			self.canvas2.print_png(fname, dpi=self.dpi*2, facecolor='gray', edgecolor='gray')
+		self.statusBar().showMessage('Movie Complete')
 	
 ############### Function which is called when about is pressed ####################
 
