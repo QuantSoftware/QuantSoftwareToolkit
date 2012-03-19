@@ -64,7 +64,7 @@ def genData(startday, endday, datadirectory, symbols):
 		file.write(str(sym)+'\n')
 	file.close()
 
-	#Creating a txt file of timestamps
+	#Creating a txt file of Features
 	file = open(directorylocation +'Features.txt', 'w')
 	for f in lsNames:
 		file.write(f+'\n')
