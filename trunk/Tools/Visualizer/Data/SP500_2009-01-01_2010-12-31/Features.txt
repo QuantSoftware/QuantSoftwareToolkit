@@ -11,5 +11,5 @@ Beta
 Bollinger
 Correlation
 Price
-Volume
 FutureReturn
+FutureReturn-MR
