@@ -332,8 +332,8 @@ def getFeatureFuncs():
 	@return: Tuple containing (list of functions, list of arguments, list of names)
 	'''
 	
-	lfcFeatures = [ featMA, featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, featAroon, featAroon, featStochastic , featBeta, featBollinger, featCorrelation, featPrice, featVolume]
-	lsNames = ['MovingAverage', 'RelativeMovingAverage', 'RSI', 'DrawDown', 'RunUp', 'VolumeDelta', 'AroonUp', 'AroonLow', 'Stochastic', 'Beta', 'Bollinger', 'Correlation', 'Price' , 'Volume']
+	lfcFeatures = [ featMA, featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, featAroon, featAroon, featStochastic , featBeta, featBollinger, featCorrelation, featPrice, classFutRet]
+	lsNames = ['MovingAverage', 'RelativeMovingAverage', 'RSI', 'DrawDown', 'RunUp', 'VolumeDelta', 'AroonUp', 'AroonLow', 'Stochastic', 'Beta', 'Bollinger', 'Correlation', 'Price', 'FutureReturn']
 	  
 	''' Custom Arguments '''
 	ldArgs = [ {'lLookback':30, 'bRel':False},\
@@ -349,7 +349,7 @@ def getFeatureFuncs():
 			   {'lLookback':20},\
 			   {'lLookback':20, 'sRel':'SPY'},\
 			   {},\
-			   {}]   
+			   {'lLookforward':5, 'sRel':None, 'bUseOpen':False}]
 	
 	return lfcFeatures, ldArgs, lsNames
 	  
