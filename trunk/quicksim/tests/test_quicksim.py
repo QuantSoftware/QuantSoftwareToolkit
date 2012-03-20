@@ -1,7 +1,14 @@
 '''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
 Created on Mar 20, 2012
 
 @author: John Cornwell
+@contact: JWCornV@gmail.com
+@summary: Test cases for quicksim package
 '''
 
 # Python imports
