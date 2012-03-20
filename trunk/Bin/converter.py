@@ -26,6 +26,7 @@ def fundsToPNG(funds,output_file):
 		plt.plot(funds.index,funds.values)
 	plt.ylabel('Fund Value')
 	plt.xlabel('Date')
+	plt.gcf().autofmt_xdate(rotation=45)
 	plt.draw()
 	savefig(output_file, format='png')
 
