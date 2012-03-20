@@ -1635,7 +1635,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.PlotPoints2(day)
 		if self.Day5Check.isChecked():
 			index = self.timestamps.index(day)
-			for i in range(4):
+			for i in range(19):
 				if (index-i-1)>=0:
 					self.PlotPoints2(self.timestamps[index-i-1])
 
