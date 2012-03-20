@@ -12,4 +12,17 @@ Bollinger
 Correlation
 Price
 FutureReturn
+MovingAverage-MR
+RelativeMovingAverage-MR
+RSI-MR
+DrawDown-MR
+RunUp-MR
+VolumeDelta-MR
+AroonUp-MR
+AroonLow-MR
+Stochastic-MR
+Beta-MR
+Bollinger-MR
+Correlation-MR
+Price-MR
 FutureReturn-MR

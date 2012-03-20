@@ -56,7 +56,16 @@ def genData(startday, endday, datadirectory, symbols):
 	# Creating the 3D Matrix
 
 	(lfcFeatures, ldArgs, lsNames)= feat.getFeatureFuncs()	
+	
+	lsNames2 = []
+	for name in lsNames:
+		lsNames2.append(name + '-MR')
+
+	for name in lsNames2:
+		lsNames.append(name)
+
 	FinalData = feat.applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None)
+	FinalData2 = feat.applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel='SPY')
 	
 	#Creating a txt file of symbols
 	file = open(directorylocation +'Symbols.txt', 'w')
@@ -72,6 +81,9 @@ def genData(startday, endday, datadirectory, symbols):
 	
 	Numpyarray=[]
 	for IndicatorData in FinalData:
+		Numpyarray.append(IndicatorData.values)
+
+	for IndicatorData in FinalData2:
 		Numpyarray.append(IndicatorData.values)
 
 	pickle.dump(Numpyarray,open(directorylocation +'ALLDATA.pkl', 'wb' ),-1)
