@@ -28,7 +28,7 @@ from qstkutil import dateutil as du
 from qstkutil import tsutil as tsu
 
 from qstkfeat.features import *
-from qstkfeat.classes import classFutRet
+from qstkfeat.classes import class_fut_ret
 
 
 
@@ -332,7 +332,7 @@ def getFeatureFuncs():
 	@return: Tuple containing (list of functions, list of arguments, list of names)
 	'''
 	
-	lfcFeatures = [ featMA, featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, featAroon, featAroon, featStochastic , featBeta, featBollinger, featCorrelation, featPrice, classFutRet]
+	lfcFeatures = [ featMA, featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, featAroon, featAroon, featStochastic , featBeta, featBollinger, featCorrelation, featPrice, class_fut_ret]
 	lsNames = ['MovingAverage', 'RelativeMovingAverage', 'RSI', 'DrawDown', 'RunUp', 'VolumeDelta', 'AroonUp', 'AroonLow', 'Stochastic', 'Beta', 'Bollinger', 'Correlation', 'Price', 'FutureReturn']
 	  
 	''' Custom Arguments '''
