@@ -19,7 +19,7 @@ from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 
 from qstkfeat.features import featMA, featRSI
-from qstkfeat.classes import classFutRet
+from qstkfeat.classes import class_fut_ret
 import qstkfeat.featutil as ftu
 
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     dData = dict(zip(lsKeys, ldfData))
     
     ''' Imported functions from qstkfeat.features, NOTE: last function is classification '''
-    lfcFeatures = [ featMA, featRSI, classFutRet ]
+    lfcFeatures = [ featMA, featRSI, class_fut_ret ]
 
     ''' Default Arguments '''
     #ldArgs = [{}] * len(lfcFeatures) 

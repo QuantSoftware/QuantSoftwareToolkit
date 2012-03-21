@@ -7,78 +7,85 @@ Created on Nov 7, 2011
 
 '''
 
-''' 3rd Party Imports '''
+# 3rd Party Imports 
 import pandas as pand
 import numpy as np
 
-def classFutRet( dData, lLookforward=21, sRel=None, bUseOpen=False ):
-	'''
-	@summary: Calculate classification, uses future returns 
-	@param dData: Dictionary of data to use
-	@param lLookforward: Number of days to look in the future
-	@param sRel: Stock symbol that this should be relative to, ususally $SPX.
-	@param bUseOpen: If True, stock will be purchased at T+1 open, sold at T+lLookforawrd close
-	@return: DataFrame containing values
-	'''
-	
-	dfClose = dData['close']
-	
-	''' Class DataFrame will be 1:1, we can use the price as a template, need to copy values '''
-	dfRet = pand.DataFrame( index=dfClose.index, columns=dfClose.columns, data=np.copy(dfClose.values) ) 
-	
-	''' If we want market relative, calculate those values now '''
-	if not sRel == None:
-		
-		#assert False, 'Use generic MR param instead recognized by applyfeatures'
-		
-		lLen = len(dfClose[sRel].index)
-		''' Loop over time '''
-		for i in range(lLen):
-			
-			if i + lLookforward >= lLen:
-				dfRet[sRel][i] = float('nan')
-				continue
-			
-			''' We either buy on todays close or tomorrows open '''
-			if bUseOpen:
-				dfOpen = dData['open']
-				fBuy = dfOpen[sRel][i+1]
-			else:
-				fBuy = dfRet[sRel][i]
-				
-				
-			dfRet[sRel][i] = (dfRet[sRel][i+lLookforward] - fBuy) / fBuy
-	
-	''' Loop through stocks '''
-	for sStock in dfClose.columns:
-		
-		''' We have already done this stock '''
-		if sStock == sRel:
-			continue
-		
-		lLen = len(dfClose[sStock].index)
-		''' Loop over time '''
-		for i in range(lLen):
-			
-			if i + lLookforward >= lLen:
-				dfRet[sStock][i] = float('nan')
-				continue
-			
-			''' We either buy on todays close or tomorrows open '''
-			if bUseOpen:
-				dfOpen = dData['open']
-				fBuy = dfOpen[sStock][i+1]
-			else:
-				fBuy = dfRet[sStock][i]
-			
-			dfRet[sStock][i] = (dfRet[sStock][i+lLookforward] - fBuy) / fBuy
-			
-			''' Make market relative '''
-			if not sRel == None:
-				dfRet[sStock][i] -= dfRet[sRel][i]
-			
-	return dfRet
-		
+def class_fut_ret( d_data, i_lookforward=21, s_rel=None, b_use_open=False ):
+    '''
+    @summary: Calculate classification, uses future returns 
+    @param d_data: Dictionary of data to use
+    @param i_lookforward: Number of days to look in the future
+    @param s_rel: Stock symbol that this should be relative to, ususally $SPX.
+    @param b_use_open: If True, stock will be purchased at T+1 open, sold at 
+        T+i_lookforward close
+    @return: DataFrame containing values
+    '''
+    
+    df_close = d_data['close']
+    
+    # Class DataFrame will be 1:1, we can use the price as a template, 
+    # need to copy values 
+    df_ret = pand.DataFrame( index=df_close.index, columns=df_close.columns,
+                            data=np.copy(df_close.values) ) 
+    
+    # If we want market relative, calculate those values now
+    if not s_rel == None:
+        
+        #assert False, 'Use generic MR param instead,
+        # recognized by applyfeatures'
+        
+        i_len = len(df_close[s_rel].index)
+        
+        # Loop over time
+        for i in range(i_len):
+            
+            if i + i_lookforward >= i_len:
+                df_ret[s_rel][i] = float('nan')
+                continue
+            
+            # We either buy on todays close or tomorrows open
+            if b_use_open:
+                df_open = d_data['open']
+                f_buy = df_open[s_rel][i+1]
+            else:
+                f_buy = df_ret[s_rel][i]
+                
+                
+            df_ret[s_rel][i] = (df_ret[s_rel][i + i_lookforward]
+                                - f_buy) / f_buy
+    
+    # Loop through stocks
+    for s_stock in df_close.columns:
+        
+        # We have already done this stock
+        if s_stock == s_rel:
+            continue
+        
+        i_len = len(df_close[s_stock].index)
+        # Loop over time
+        for i in range(i_len):
+            
+            if i + i_lookforward >= i_len:
+                df_ret[s_stock][i] = float('nan')
+                continue
+            
+            # We either buy on todays close or tomorrows open
+            if b_use_open:
+                df_open = d_data['open']
+                f_buy = df_open[s_stock][i+1]
+            else:
+                f_buy = df_ret[s_stock][i]
+            
+            df_ret[s_stock][i] = (df_ret[s_stock][i+i_lookforward] 
+                                  - f_buy) / f_buy
+            
+            # Make market relative 
+            if not s_rel == None:
+                df_ret[s_stock][i] -= df_ret[s_rel][i]
+            
+    return df_ret
+        class_fut_ret
 
 if __name__ == '__main__':
-	pass
+    pass

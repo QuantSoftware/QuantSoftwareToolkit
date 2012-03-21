@@ -64,7 +64,7 @@ class Test(unittest.TestCase):
                                          columns=['A','B','C'] )
         
         # Create first allocation
-        na_alloc = np.array( [[1, 0, 0], [0, 1, 0], [0, 0, 1], [.5, .5, 0], [0, 0, 0]] )
+        na_alloc = np.array( [[1, 0, 0], [0, 1, 0], [0, 0, 1], [.5, .5, 0], [.5, ,5, 0]] )
         
         ldt_timestamps = [dt.datetime( 2012, 3, 4 )]
         ldt_timestamps.append( dt.datetime( 2012, 3, 6 )  )
