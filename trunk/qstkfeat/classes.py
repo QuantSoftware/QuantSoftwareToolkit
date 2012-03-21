@@ -85,7 +85,7 @@ def class_fut_ret( d_data, i_lookforward=21, s_rel=None, b_use_open=False ):
                 df_ret[s_stock][i] -= df_ret[s_rel][i]
             
     return df_ret
-        class_fut_ret
+
 
 if __name__ == '__main__':
     pass
