@@ -1,9 +1,16 @@
-# 
-# quickSim.py 
-# 
-# A module that contains simulators that quickly produce a fund history.
-# 
-#
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on Mar 15, 2012
+
+@author: Drew Bratcher, John Cornwell
+@contact: JWCornV@gmail.com
+@summary: Simulator which quickly produces a fund history.
+'''
+
 
 # Python imports
 import os
@@ -37,7 +44,7 @@ def quickSim( alloc, historic, start_cash, historicClose=None ):
     #not designed to handle shorts
     
     #check each row in alloc
-    for row in range(0, len(alloc.values[:,0])):
+    for row in range(0, len(alloc.values[:, 0])):
         if(abs(alloc.values[row, :].sum()-1)>.0001):
             #print alloc.values[row, :]
             #print alloc.values[row, :].sum()
@@ -45,7 +52,7 @@ def quickSim( alloc, historic, start_cash, historicClose=None ):
             "does not sum to one, rebalancing"
             #if no allocation, all in cash
             if(alloc.values[row, :].sum()==0):
-                alloc.values[row, -1]=1
+                alloc.values[row, -1] = 1
             else:
                 alloc.values[row, :] = alloc.values[row, :]  \
                 / alloc.values[row, :].sum()
@@ -95,38 +102,39 @@ def quickSim( alloc, historic, start_cash, historicClose=None ):
     return fund_ts
 
 def _compute_short(arr):
-    tally=0
-    for i in range(0, len(arr)-1):
-        if arr[i]<0:
-            tally=tally+arr[i]
+    ''' Computes total value of negative positions '''
+    tally = 0
+    for i in range(0, len(arr) - 1):
+        if arr[i] < 0:
+            tally = tally+arr[i]
     return abs(tally)
 
 def _compute_long(arr):
-    tally=0
-    for i in range(0, len(arr)-1):
-        if arr[i]>0:
-            tally=tally+arr[i]
+    ''' Computes total value of positive positions '''
+    tally = 0
+    for i in range(0, len(arr) - 1):
+        if arr[i] > 0:
+            tally = tally+arr[i]
     return tally
     
 def _compute_leverage(arr, fundval):
-    if fundval==0:
+    ''' Computes percent leverage '''
+    if fundval == 0:
         return 0
     return (_compute_long(arr) - _compute_short(arr))/fundval
     
 def shortingQuickSim(alloc, historic, start_cash, leverage):
-    #shortingQuickSim
-    #
-    #designed to handle shorts
-    #keeps track of leverage keeping it within paramaterized value
-    #
-    #ignore alloc cash column
+    ''' shortingQuickSim
+        designed to handle shorts, keeps track of leverage keeping it within
+        paramaterized value, ignore alloc cash column '''
+
     del alloc['_CASH']
     #fix invalid days
     historic = historic.fillna(method='backfill') 
     
     #compute first trade
-    closest = historic[historic.index<=alloc.index[0]]
-    fund_ts = pand.Series( [start_cash], index=[closest.index[-1]] )
+    closest = historic[historic.index <= alloc.index[0]]
+    fund_ts = pand.Series( [start_cash], index = [closest.index[-1]] )
     shares = alloc.values[0, :] * fund_ts.values[-1] / closest.values[-1, :]
     cash_values = pand.DataMatrix( [shares * closest.values[-1, :]], 
                                    index=[closest.index[-1]] )
@@ -134,12 +142,13 @@ def shortingQuickSim(alloc, historic, start_cash, leverage):
     #compute all trades
     for i in range(1, len(alloc.values[:, 0])):
         #check leverage
-        this_leverage = _compute_leverage(alloc.values[0, :])
-        if this_leverage>leverage:
-            print 'Warning, leverage of ',this_leverage,\
+        #TODO Find out what to use for fundvall below...
+        this_leverage = _compute_leverage( alloc.values[0, :], start_cash )
+        if this_leverage > leverage:
+            print 'Warning, leverage of ', this_leverage, \
                   ' reached, exceeds leverage limit of ', leverage, '\n'
         #get closest date(previous date)
-        closest=historic[ historic.index <= alloc.index[i] ]
+        closest = historic[ historic.index <= alloc.index[i] ]
         #for loop to calculate fund daily (without rebalancing)
         for date in closest[ closest.index > fund_ts.index[-1] ].index:
             #compute and record total fund value (Sum(closest close * stocks))
@@ -178,7 +187,7 @@ def alloc_backtest(alloc, start):
     """
     
     #read in alloc table from command line arguements
-    alloc_input_file=open(alloc, "r")
+    alloc_input_file = open(alloc, "r")
     alloc = cPickle.load(alloc_input_file)
     
     # Get the data from the data store
@@ -243,12 +252,15 @@ def strat_backtest2(strat, start, end, diff, dur, startval):
         funds = alloc_backtest('temp_alloc.pkl', startval)
         fundsmatrix.append(funds)
     return fundsmatrix
+
+def run_main():
+    ''' Main program '''
     
-if __name__ == "__main__":
     #
     # CmdlnQuickSim
     #
-    # A function which runs a quick sim on an allocation provided via command line,
+    # A function which runs a quick sim on an allocation provided via 
+    # command line,
     # along with a starting cash value
     # 
     # Allocation Backtest:
@@ -257,16 +269,19 @@ if __name__ == "__main__":
     #
     # Strategy backtest:
     # python quickSim.py -s strategy start end start_value output_file
-    # python quickSim.py -s 'strategy.py' '2/2/2007' '2/2/2009' 1000 'fund_output.pkl' 
+    # python quickSim.py -s 'strategy.py' '2/2/2007' '2/2/2009' 1000 
+    # 'fund_output.pkl' 
     #
     # Robust backtest:
-    # python quickSim.py -r strategy start end days_between duration start_value output
-    # python quickSim.py -r 'strategy.py' '1-1-2004' '1-1-2007' 7 28 10000 'out.pkl'
+    # python quickSim.py -r strategy start end days_between duration
+    # start_value output
+    # python quickSim.py -r 'strategy.py' '1-1-2004' '1-1-2007' 7 28 10000
+    # 'out.pkl'
     # Drew Bratcher
     #
 
     if(sys.argv[1] == '-a'):
-        funds=alloc_backtest(sys.argv[2], sys.argv[3])
+        funds = alloc_backtest(sys.argv[2], sys.argv[3])
         output = open(sys.argv[4], "w")
         cPickle.dump(funds, output)
     elif(sys.argv[1] == '-s'):
@@ -274,7 +289,7 @@ if __name__ == "__main__":
         startday = dt.datetime(t[2], t[0], t[1])
         t = map(int,  sys.argv[4].split('-'))
         endday = dt.datetime(t[2], t[0], t[1])  
-        fundsmatrix=strat_backtest1(sys.argv[2], startday, endday, 1, 0, 
+        fundsmatrix = strat_backtest1(sys.argv[2], startday, endday, 1, 0, 
                                     int(sys.argv[5]))
         output = open(sys.argv[6], "w")
         cPickle.dump(fundsmatrix, output) 
@@ -283,7 +298,7 @@ if __name__ == "__main__":
         startday = dt.datetime(t[2], t[0], t[1])
         t = map(int, sys.argv[4].split('-'))
         endday = dt.datetime(t[2], t[0], t[1])
-        fundsmatrix=strat_backtest2(sys.argv[2], startday, endday,
+        fundsmatrix = strat_backtest2(sys.argv[2], startday, endday,
                                     int(sys.argv[5]), int(sys.argv[6]),
                                     int(sys.argv[7]))
         output = open(sys.argv[8], "w")
@@ -295,3 +310,6 @@ if __name__ == "__main__":
               'start_value output_pkl'
         print 'or python quickSim.py -r strategy start_date end_date' + \
               ' test_offset_in_days duration start_value output_pkl'
+
+if __name__ == "__main__":
+    run_main()
