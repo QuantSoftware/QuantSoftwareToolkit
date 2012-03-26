@@ -16,6 +16,7 @@ import pandas
 from qstkutil import DataAccess as da
 import numpy as np
 import math
+import copy
 import qstkutil.dateutil as du
 import datetime as dt
 import qstkutil.DataAccess as da
@@ -57,7 +58,7 @@ def findEvents(symbols, startday,endday, marketSymbol,verbose=False):
 	close = dataobj.get_data(timestamps, symbols, closefield)
 	
 	# Completing the Data - Removing the NaN values from the Matrix
-	close = (close.fillna()).fillna(method='backfill')
+	close = (close.fillna(method='ffill')).fillna(method='backfill')
 
 	
 	# Calculating Daily Returns for the Market
@@ -66,26 +67,27 @@ def findEvents(symbols, startday,endday, marketSymbol,verbose=False):
 
 	# Calculating the Returns of the Stock Relative to the Market 
 	# So if a Stock went up 5% and the Market rised 3%. The the return relative to market is 2% 
-	mktneutDM = close - close[marketSymbol] 
+	mktneutDM = close - close[marketSymbol]
+	np_eventmat = copy.deepcopy(mktneutDM)
+	for sym in symbols:
+		for time in timestamps:
+			np_eventmat[sym][time]=np.NAN
 
 	if verbose:
             print __name__ + " finding events"
 
 	# Generating the Event Matrix
-	# Event described is : Market falls more than 3% plus the stock falls 3% more than the Market
+	# Event described is : Market falls more than 3% plus the stock falls 5% more than the Market
 	# Suppose : The market fell 3%, then the stock should fall more than 8% to mark the event.
 	# And if the market falls 5%, then the stock should fall more than 10% to mark the event.
 
 	for symbol in symbols:
-		# If the Symbol did not fall more than 5% compared to the Market.
-	    mktneutDM[symbol][mktneutDM[symbol]> -0.05] = np.NAN
 		
 	    for i in range(1,len(mktneutDM[symbol])):
 	        if SPYValues[i]<-0.03 and mktneutDM[symbol][i] < -0.05 : # When market fall is more than 3% and also the stock compared to market is also fell by more than 5%.
-             		mktneutDM[symbol][i] = 1.0  #overwriting the price by the bit
+             		np_eventmat[symbol][i] = 1.0  #overwriting by the bit, marking the event
 			
-	    mktneutDM[symbol][mktneutDM[symbol]< 1.0] = np.NAN  #Filling rest of the places as NaN
-	return mktneutDM
+	return np_eventmat
 
 
 #################################################
