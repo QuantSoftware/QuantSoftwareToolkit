@@ -58,7 +58,7 @@ def findEvents(symbols, startday,endday, marketSymbol,verbose=False):
 	
 	# Completing the Data - Removing the NaN values from the Matrix
 	close = (close.fillna()).fillna(method='backfill')
-	close = (close.fillna()).fillna(method='ffill')
+
 	
 	# Calculating Daily Returns for the Market
 	tsu.returnize0(close.values)
