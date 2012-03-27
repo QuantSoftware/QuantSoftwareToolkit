@@ -25,7 +25,8 @@ import pandas as pand
 from qstkutil import dateutil as du
 from qstkutil import DataAccess as da
 
-def quickSim( alloc, historic, start_cash, historicClose=None ):
+
+def quickSim( alloc, historic, start_cash ):
     """
     @summary Quickly back tests an allocation for certain historical data, 
              using a starting fund value
@@ -34,8 +35,6 @@ def quickSim( alloc, historic, start_cash, historicClose=None ):
                  column
     @param historic: Historic dataframe of equity prices
     @param start_cash: integer specifing initial fund value
-    @param historicClose: Optional, if provided we will buy using the closing 
-                          prices of the next day
     @return funds: TimeSeries with fund values for each day in the back test
     @rtype TimeSeries
     """
@@ -44,10 +43,8 @@ def quickSim( alloc, historic, start_cash, historicClose=None ):
     #not designed to handle shorts
     
     #check each row in alloc
-    for row in range(0, len(alloc.values[:, 0])):
-        if(abs(alloc.values[row, :].sum()-1)>.0001):
-            #print alloc.values[row, :]
-            #print alloc.values[row, :].sum()
+    for row in range( 0, len(alloc.values[:, 0]) ):
+        if( abs(alloc.values[row, :].sum() - 1) > .0001 ):
             print "warning, alloc row " + str(row) + \
             "does not sum to one, rebalancing"
             #if no allocation, all in cash
@@ -57,48 +54,36 @@ def quickSim( alloc, historic, start_cash, historicClose=None ):
                 alloc.values[row, :] = alloc.values[row, :]  \
                 / alloc.values[row, :].sum()
     
-    #fix invalid days
-    historic = historic.fillna(method='backfill')
-    
-    #add cash column
-    #print historic.columns
+    # add cash column
     historic['_CASH'] = 1
 
-    #print historic.columns
+    closest = historic[historic.index < alloc.index[0]].ix[-1:]
     
-    closest = historic[historic.index <= alloc.index[0]]
-    fund_ts = pand.Series( [start_cash], index = [closest.index[-1]] )
-    shares = alloc.values[0, :] * fund_ts.values[-1] / closest.values[-1, :]
-    cash_values = pand.DataMatrix( [shares*closest.values[-1, :]], 
-                              index=[closest.index[-1]] )
+    # start shares/fund out as 100% cash
+    fund_ts = pand.Series( [start_cash], index = [closest.index[0]] )
     
-    #compute all trade
-    for i in range(1, len(alloc.values[:, 0])):
+    shares = (alloc.ix[0:1] * 0.0)
+    shares['_CASH'] = start_cash
+    
+    #compute all trades in the allocation frame
+    for row_index, row in alloc.iterrows():
         
-        #get closest date(previous date)
-        closest = historic[ historic.index <= alloc.index[i] ]
+        trade_price = historic.ix[row_index:].ix[0:1]
+        trade_date = trade_price.index[0]
         
-        #for loop to calculate fund daily (without rebalancing)
-        for date in closest[ closest.index > fund_ts.index[-1] ].index:
-            #compute and record total fund value (Sum(closest close * stocks))
-            fund_ts = fund_ts.append( pand.Series( 
-                        [ (closest.xs(date) * shares).sum() ], index=[date] ) )
+        # get stock prices on all the days up until this trade
+        to_calculate = historic[ (historic.index <= trade_date) &
+                                 (historic.index > fund_ts.index[-1]) ]
+        
+        # multiply prices by our current shares
+        values_by_stock = to_calculate * shares.ix[-1:].values
+        
+        # calculate total value and append to our fund history
+        fund_ts = fund_ts.append( values_by_stock.sum(axis=1) )
 
-            cash_values = cash_values.append(
-                pand.DataMatrix( [shares * closest.xs(date)], index=[date] ) )
-        
-        #distribute fund in accordance with alloc
-        shares = alloc.values[i, :] * \
-                 fund_ts.values[-1] / closest.xs( closest.index[-1] )
-    
-    #compute fund value for rest of historic data with final share distribution
-    for date in historic[ historic.index > alloc.index[-1] ].index:
-        if date in closest.index:
-            fund_ts = fund_ts.append( 
-                      pand.Series( [ (closest.xs(date) * shares).sum() ],
-                                   index=[date] ) )
-    
-    #return fund record
+        # Get new shares values
+        shares = (row * fund_ts.ix[-1]) / trade_price
+
     return fund_ts
 
 def _compute_short(arr):
