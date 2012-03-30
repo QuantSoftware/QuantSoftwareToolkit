@@ -334,7 +334,6 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
 	@param naUpper: List of floats which corresponds to upper portfolio% for each stock 
 	@return tuple: (weights of portfolio, min possible return, max possible return)
 	"""
-	
 	''' Attempt to import library '''
 	try:
 		pass
@@ -366,12 +365,16 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
 		return (naAvgRets, np.std(naData, axis=0))
 	
 	# Upper bound of the Weights of a equity, If not specified, assumed to be 1.
-	if(naUpper==None):
+	if(naUpper is None):
 		naUpper= np.ones(length)
 	
 	# Lower bound of the Weights of a equity, If not specified assumed to be 0 (No shorting case)
-	if(naLower==None):
+	if(naLower is None):
 		naLower= np.zeros(length)
+
+	temp = naLower.copy()
+	for i,val in enumerate(temp):
+		naLower[i]=-1*val
 	
 	# Double the covariance of the diagonal elements for calculating risk.
 	for i in range(length):
