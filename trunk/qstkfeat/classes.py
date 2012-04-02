@@ -47,13 +47,13 @@ def class_fut_ret( d_data, i_lookforward=21, s_rel=None, b_use_open=False ):
             # We either buy on todays close or tomorrows open
             if b_use_open:
                 df_open = d_data['open']
-                f_buy = df_open[s_rel][i+1]
+                f_buy = df_open[s_rel][i + 1]
+                f_sell = df_open[s_rel][i + 1 + i_lookforward]
             else:
-                f_buy = df_ret[s_rel][i]
+                f_buy = df_close[s_rel][i]
+                f_sell = df_close[s_rel][i + i_lookforward]
                 
-                
-            df_ret[s_rel][i] = (df_ret[s_rel][i + i_lookforward]
-                                - f_buy) / f_buy
+            df_ret[s_rel][i] = (f_sell - f_buy) / f_buy
     
     # Loop through stocks
     for s_stock in df_close.columns:
@@ -73,12 +73,13 @@ def class_fut_ret( d_data, i_lookforward=21, s_rel=None, b_use_open=False ):
             # We either buy on todays close or tomorrows open
             if b_use_open:
                 df_open = d_data['open']
-                f_buy = df_open[s_stock][i+1]
+                f_buy = df_open[s_stock][i + 1]
+                f_sell = df_open[s_stock][i + 1 + i_lookforward]
             else:
-                f_buy = df_ret[s_stock][i]
-            
-            df_ret[s_stock][i] = (df_ret[s_stock][i+i_lookforward] 
-                                  - f_buy) / f_buy
+                f_buy = df_close[s_stock][i]
+                f_sell = df_close[s_stock][i + i_lookforward]
+                
+            df_ret[s_stock][i] = (f_sell - f_buy) / f_buy
             
             # Make market relative 
             if not s_rel == None:
