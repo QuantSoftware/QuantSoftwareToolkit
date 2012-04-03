@@ -45,3 +45,5 @@ output.close()
 
 #graph tests using report
 os.system('python '+os.environ['QS']+'/Bin/report.py '+os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl')
+
+print "Report printed at report.html."
