@@ -50,6 +50,8 @@ output=open("allocations.pkl","wb")
 cPickle.dump(alloc, output)
 
 #test allocation with quicksim
+print alloc
+print historic
 funds=qs.quickSim(alloc,historic,1000)
 
 #output to pickle file

@@ -1,16 +1,12 @@
-'''
-(c) 2011, 2012 Georgia Tech Research Corporation
-This source code is released under the New BSD license.  Please see
-http://wiki.quantsoftware.org/index.php?title=QSTK_License
-for license details.
-
-Created on September, 12, 2011
-
-@author: Drew Bratcher
-@contact: dbratcher@gatech.edu
-@summary: Uses the quicksim backtester and OneStock strategy to create
-and back test an allocation. Displays the result using the report module.
-'''
+#
+# tutorial5.py
+#
+# @summary: Uses the quicksim backtester and OneStock strategy to create
+# and back test an allocation. Displays the result using the report module.
+#
+# @author: Drew Bratcher
+#
+#
 
 #python imports
 import os
@@ -44,6 +40,4 @@ cPickle.dump(fundsmatrix,output)
 output.close()
 
 #graph tests using report
-os.system('python '+os.environ['QS']+'/Bin/report.py '+os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl')
-
-print "Report printed at report.html."
+os.system('python '+os.environ['QS']+'/Bin/report.py '+os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl '+os.environ['QS']+'/Examples/Basic/funds2.pkl')
