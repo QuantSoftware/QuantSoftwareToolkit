@@ -1,16 +1,3 @@
-'''
-(c) 2011, 2012 Georgia Tech Research Corporation
-This source code is released under the New BSD license.  Please see
-http://wiki.quantsoftware.org/index.php?title=QSTK_License
-for license details.
-
-Created on September, 12, 2011
-
-@author: Who?
-@contact: 
-@summary: Time Series utilities.
-'''
-
 import cPickle
 import math
 import datetime as dt
@@ -27,26 +14,20 @@ from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 
 def daily(funds):
-	"""
-	@summary Computes daily returns of funds.
-	@param funds: DataFrame of funds
-	@return Copy of funds but in return format
-	"""	
 	nd=deepcopy(funds)
 	nd[0]=0
-	# dude, use this instead: nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
 	for i in range(1,len(funds)):
 		nd[i]=funds[i]/funds[i-1]-1
 	return(nd)
 
+def daily1(funds):
+	nd=deepcopy(funds)
+	nd[0]=0
+	for i in range(1,len(funds)):
+		nd[i]=funds[i]/funds[i-1]
+	return(nd)
 
 def monthly(funds):
-	"""
-	@summary Computes month returns for an array of funds
-	@param funds: DataFrame of funds
-	@return New array representing total returns on the beginning of each month
-	"""	
-	
 	funds2=[]
 	years=dateutil.getYears(funds)
 	for year in years:
@@ -55,14 +36,7 @@ def monthly(funds):
 			funds2.append(funds[dateutil.getFirstDay(funds,year,month)])
 	return(daily(funds2))
 
-
 def averageMonthly(funds):
-	"""
-	@summary Computes monthly returns and then takes averages
-	@param funds: DataFrame of funds
-	@return Average monthly returns
-	"""
-	
 	rets=daily(funds)
 	x=0
 	years=dateutil.getYears(funds)
@@ -80,7 +54,6 @@ def averageMonthly(funds):
 			averages.append(float(avg)/count)
 	return(averages)	
 
-
 def fillforward(nd):
 	"""
 	@summary Removes NaNs from a 2D array by scanning forward in the 
@@ -88,11 +61,10 @@ def fillforward(nd):
 	@param nd: the array to fill forward
 	@return the array is revised in place
 	"""
-	for col in range(0,nd.shape[1]):
-		for row in range(0,nd.shape[0]):
+	for col in range(nd.shape[1]):
+		for row in range(1,nd.shape[0]):
 			if math.isnan(nd[row,col]):
 				nd[row,col] = nd[row-1,col]
-
 
 def fillbackward(nd):
 	"""
@@ -106,7 +78,6 @@ def fillbackward(nd):
 			if math.isnan(nd[row,col]):
 				nd[row,col] = nd[row+1,col]
 
-
 def returnize0(nd):
 	"""
 	@summary Computes stepwise (usually daily) returns relative to 0, where
@@ -115,7 +86,6 @@ def returnize0(nd):
 	"""
 	nd[1:,:] = (nd[1:,:]/nd[0:-1]) - 1
 	nd[0,:] = np.zeros(nd.shape[1])
-
 
 def returnize1(nd):
 	"""
@@ -126,8 +96,7 @@ def returnize1(nd):
 	"""
 	nd[1:,:] = (nd[1:,:]/nd[0:-1])
 	nd[0,:] = np.ones(nd.shape[1])
-
-
+	
 def priceize1(nd):
 	"""
 	@summary Computes stepwise (usually daily) returns relative to 1, where
@@ -139,27 +108,35 @@ def priceize1(nd):
 	nd[0,:] = 100 
 	for i in range(1,nd.shape[0]):
 		nd[i,:] = nd[i-1,:] * nd[i,:]
-
-
+	
+	
 def logreturnize(nd):
 	"""
 	@summary Computes stepwise (usually daily) logarithmic returns.
 	@param nd: the array to fill backward
 	@return the array is revised in place
 	"""
-	
 	returnize1(nd)
 	nd = np.log(nd)
 	return nd
 
+def getWinning(funds):
+	d=daily1(funds)
+	w=0
+	for i in d:
+		if(i>1):
+			w+=1
+	return w
+
+def getDrawDown(funds):
+	d=daily(funds)
+	min=d[1]
+	for i in d[1:-1]:
+		if(i<min):
+			min=i
+	return min
 
 def getRatio(funds):
-	"""
-	@summary Calculate sharpe ratio on an array of funds
-	@param funds: DataFrame of funds
-	@return sharpe ratio of the daily returns
-	"""
-	
 	d=daily(funds)
 	avg=float(sum(d))/len(d)
 	std=0
@@ -168,14 +145,12 @@ def getRatio(funds):
 	std=sqrt(float(std)/(len(d)-1))
 	return(avg/std)
 
-
 def getYearRatio(funds,year):
 	funds2=[]
 	for date in funds.index:
 		if(date.year==year):
 			funds2.append(funds[date])
 	return(getRatio(funds2))
-
 
 def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 	"""
@@ -195,7 +170,6 @@ def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 
 	return fSharpe
 
-
 def getRorAnnual( naRets ):
 	"""
 	@summary Returns the rate of return annualized.  Assumes len(naRets) is number of days.
@@ -210,17 +184,16 @@ def getRorAnnual( naRets ):
 	
 	fRorYtd = fInv - 1.0	
 	
-	print ' RorYTD =', fInv, 'Over days:', len(naRets)
+	#print ' RorYTD =', fInv, 'Over days:', len(naRets)
 	
 	return ( (1.0 + fRorYtd)**( 1.0/(len(naRets)/365.0) ) ) - 1.0
-
 
 def getPeriodicRets( dmPrice, sOffset ):
 	"""
 	@summary Reindexes a DataMatrix price array and returns the new periodic returns.
 	@param dmPrice: DataMatrix of stock prices
 	@param sOffset: Offset string to use, choose from _offsetMap in pandas/core/datetools.py
-					e.g. 'EOM', 'WEEKDAY', 'W@FRI', 'A@JAN'.  Or use a pandas DateOffset.
+	                e.g. 'EOM', 'WEEKDAY', 'W@FRI', 'A@JAN'.  Or use a pandas DateOffset.
 	"""	
 	
 	''' Could possibly use DataMatrix.asfreq here '''
@@ -234,15 +207,14 @@ def getPeriodicRets( dmPrice, sOffset ):
 	''' Do not leave return of 1.0 for first time period: not accurate '''
 	return dmPrice[1:]
 
-
 def getReindexedRets( naRets, lPeriod ):
 	"""
 	@summary Reindexes returns using the cumulative product. E.g. if returns are 1.5 and 1.5, a period of 2 will
-			 produce a 2-day return of 2.25.  Note, these must be returns centered around 1.
+	         produce a 2-day return of 2.25.  Note, these must be returns centered around 1.
 	@param naRets: Daily returns of the various stocks (using returnize1)
 	@param lPeriod: New target period.
 	@note: Note that this function does not track actual weeks or months, it only approximates with trading days.
-		   You can use 5 for week, or 21 for month, etc.
+	       You can use 5 for week, or 21 for month, etc.
 	"""	
 	naCumData = np.cumprod(naRets, axis=0)
 
@@ -256,8 +228,7 @@ def getReindexedRets( naRets, lPeriod ):
 	
 	return naCumData[-lNewRows:, ]
 
-
-
+		
 def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebug=0 ):
 	"""
 	@summary Returns the Markowitz optimum portfolio for a specific return.
@@ -324,106 +295,16 @@ def getOptPort( naRets, fTarget, lPeriod=1, naLower=None, naUpper=None, lNagDebu
 	''' Return weights and stdDev of portfolio.  note again the last value of naReturn is NAG's reported variance '''
 	return (naReturn[0,0:-1], fPortDev)
 
-def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=None ):
-	"""
-	@summary Returns the Markowitz optimum portfolio for a specific return.
-	@param naData: Daily returns of the various stocks (using returnize1)
-	@param fTarget: Target return, i.e. 0.04 = 4% per period
-	@param lPeriod: Period to compress the returns to, e.g. 7 = weekly
-	@param naLower: List of floats which corresponds to lower portfolio% for each stock
-	@param naUpper: List of floats which corresponds to upper portfolio% for each stock 
-	@return tuple: (weights of portfolio, min possible return, max possible return)
-	"""
-	''' Attempt to import library '''
-	try:
-		pass
-		from cvxopt import matrix
-		from cvxopt.blas import dot
-		from cvxopt.solvers import qp, options
-
-	except ImportError:
-		print 'Could not import CVX library'
-		return ([],0)
-	
-	''' Get number of stocks '''
-	length = naData.shape[1]
-	
-	# Reindexing the Portfolio	
-	if( lPeriod != 1 ):
-		naData = getReindexedRets( naData, lPeriod)
-	
-	# Assuming AvgReturns as the expected returns if parameter is not specified
-	if (naExpected==None):
-		naAvgRets = np.average( naData, axis=0 )
-	else: naAvgRets=naExpected
-
-	# Covariance matrix of the Data Set
-	naCov=np.cov(naData, rowvar=False)
-	
-	''' Special case for None == fTarget, simply return average returns and cov '''
-	if( fTarget is None ):
-		return (naAvgRets, np.std(naData, axis=0))
-	
-	# Upper bound of the Weights of a equity, If not specified, assumed to be 1.
-	if(naUpper is None):
-		naUpper= np.ones(length)
-	
-	# Lower bound of the Weights of a equity, If not specified assumed to be 0 (No shorting case)
-	if(naLower is None):
-		naLower= np.zeros(length)
-
-	temp = naLower.copy()
-	for i,val in enumerate(temp):
-		naLower[i]=-1*val
-	
-	# Double the covariance of the diagonal elements for calculating risk.
-	for i in range(length):
-		naCov[i][i]=2*naCov[i][i]
-
-	# Setting up the parameters for the CVXOPT Library, it takes inputs in Matrix format.
-	'''
-	The Risk minimization problem is a standard Quadratic Programming problem according to the Markowitz Theory.
-	'''
-	S=matrix(naCov)
-	pbar=matrix(naAvgRets)
-	naLower.shape=(length,1)
-	naUpper.shape=(length,1)
-	zeo=matrix(0.0,(length,1))
-	I = np.eye(length)
-	minusI=-1*I
-	G=matrix(np.vstack((I, minusI)))
-	h=matrix(np.vstack((naUpper, naLower)))
-	ones=matrix(1.0,(1,length)) 
-	A=matrix(np.vstack((naAvgRets, ones)))
-	b=matrix([0.0,1.0])
-	
-	# Optional Settings for CVXOPT
-	options['show_progress'] = False
-	options['abstol']=1e-5
-	options['reltol']=1e-4
-	options['feastol']=1e-5
-	
-
-	# Optimization Calls
-	# Optimal Portfolio
-	lnaPortfolios = qp(S, -zeo, G, h, A, b+matrix([fTarget,0.0]))['x']
-	
-	# Expected Return of the Portfolio
-#	lfReturn = dot(pbar, lnaPortfolios)
-	
-	# Risk of the portfolio
-	fPortDev = np.std(np.dot(naData, lnaPortfolios))
-	return (lnaPortfolios, fPortDev)
 
 
 def getRetRange( naRets, naLower, naUpper ):
 	"""
-	@summary Returns the range of possible returns with upper and lower bounds on the portfolio participation
-	@param naRets: Expected returns
-	@param naLower: List of lower percentages by stock
-	@param naUpper: List of upper percentages by stock
-	@return tuple containing (fMin, fMax)
-	"""	
+    @summary Returns the range of possible returns with upper and lower bounds on the portfolio participation
+    @param naRets: Expected returns
+    @param naLower: List of lower percentages by stock
+    @param naUpper: List of upper percentages by stock
+    @return tuple containing (fMin, fMax)
+    """    
 	
 	''' Calculate theoretical minimum and maximum theoretical returns '''
 	fMin = 0
@@ -476,10 +357,10 @@ def getFrontier( naRets, lRes=100, fUpper=0.2, fLower=0.00):
 	@param fUpper: Upper bound on portfolio percentage
 	@param fLower: Lower bound on portfolio percentage
 	@return tuple containing (lfReturn, lfStd, lnaPortfolios)
-			lfReturn: List of returns provided by each point
-			lfStd: list of standard deviations provided by each point
-			lnaPortfolios: list of numpy arrays containing weights for each portfolio
-	"""	
+	        lfReturn: List of returns provided by each point
+	        lfStd: list of standard deviations provided by each point
+	        lnaPortfolios: list of numpy arrays containing weights for each portfolio
+    """    
 	
 	''' Limit/enforce percent participation '''
 	naUpper = np.ones(naRets.shape[1]) * fUpper
@@ -561,7 +442,7 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dm
 	@param fNonNan: Optional non-nan percent for filter, default is .95
 	@param fPriceVolume: Optional price*volume for filter, default is 100,000
 	@warning: Does not work for all sets of optional inputs, e.g. if you don't include dtStart, dtEnd, you need 
-			  to include dmPrice/dmVolume
+	          to include dmPrice/dmVolume
 	@return list of stocks which meet the criteria
 	"""
 	
@@ -636,6 +517,7 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None, dmPrice=None, dm
 
 	
 	
+
 
 
 
