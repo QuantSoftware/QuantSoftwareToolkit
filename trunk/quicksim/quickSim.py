@@ -76,7 +76,7 @@ def quickSim( alloc, historic, start_cash ):
                                  (historic.index > fund_ts.index[-1]) ]
         
         # multiply prices by our current shares
-        values_by_stock = to_calculate * shares.ix[-1:].values
+        values_by_stock = to_calculate * shares.ix[-1]
         
         # calculate total value and append to our fund history
         fund_ts = fund_ts.append( values_by_stock.sum(axis=1) )

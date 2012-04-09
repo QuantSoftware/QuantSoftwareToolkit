@@ -24,6 +24,9 @@ def class_fut_ret( d_data, i_lookforward=21, s_rel=None, b_use_open=False ):
     
     df_close = d_data['close']
     
+    if b_use_open:
+        df_open = d_data['open']
+    
     # Class DataFrame will be 1:1, we can use the price as a template, 
     # need to copy values 
     df_ret = pand.DataFrame( index=df_close.index, columns=df_close.columns,
@@ -40,16 +43,19 @@ def class_fut_ret( d_data, i_lookforward=21, s_rel=None, b_use_open=False ):
         # Loop over time
         for i in range(i_len):
             
-            if i + i_lookforward >= i_len:
-                df_ret[s_rel][i] = float('nan')
-                continue
-            
             # We either buy on todays close or tomorrows open
             if b_use_open:
-                df_open = d_data['open']
+                if i + 1 + i_lookforward >= i_len:
+                    df_ret[s_rel][i] = float('nan')
+                    continue
+                
                 f_buy = df_open[s_rel][i + 1]
                 f_sell = df_open[s_rel][i + 1 + i_lookforward]
             else:
+                if i + i_lookforward >= i_len:
+                    df_ret[s_rel][i] = float('nan')
+                    continue
+                
                 f_buy = df_close[s_rel][i]
                 f_sell = df_close[s_rel][i + i_lookforward]
                 
@@ -66,19 +72,22 @@ def class_fut_ret( d_data, i_lookforward=21, s_rel=None, b_use_open=False ):
         # Loop over time
         for i in range(i_len):
             
-            if i + i_lookforward >= i_len:
-                df_ret[s_stock][i] = float('nan')
-                continue
-            
             # We either buy on todays close or tomorrows open
             if b_use_open:
-                df_open = d_data['open']
+                if i + 1 + i_lookforward >= i_len:
+                    df_ret[s_stock][i] = float('nan')
+                    continue
+                
                 f_buy = df_open[s_stock][i + 1]
                 f_sell = df_open[s_stock][i + 1 + i_lookforward]
             else:
+                if i + i_lookforward >= i_len:
+                    df_ret[s_stock][i] = float('nan')
+                    continue
+                
                 f_buy = df_close[s_stock][i]
                 f_sell = df_close[s_stock][i + i_lookforward]
-                
+            
             df_ret[s_stock][i] = (f_sell - f_buy) / f_buy
             
             # Make market relative 
