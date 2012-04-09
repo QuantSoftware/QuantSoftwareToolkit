@@ -44,7 +44,8 @@ load-plugins=
 
 # Please list all codes you add to disable here for quick reference
 # W0141 - Used builtin function map
-disable= W0141
+# W0631 - Possibly undefined loop variable
+disable= W0141, W0631
 
 
 [REPORTS]
