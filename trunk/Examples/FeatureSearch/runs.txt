@@ -1,0 +1,23 @@
+(time python code.py sequentialForwardSelection) 1> sequentialForwardSelection.out 2>&1 &
+(time python code.py sequentialBackwardSelection) 1> sequentialBackwardSelection.out 2>&1 &
+
+(time python code.py sequentialFloatingForwardSelection) 1> sequentialFloatingForwardSelection.out 2>&1 &
+(time python code.py sequentialFloatingBackwardSelection) 1> sequentialFloatingBackwardSelection.out 2>&1 &
+
+(time python code.py sequentialFloatingForwardSelectionNew) 1> sequentialFloatingForwardSelectionNew.out 2>&1 &
+(time python code.py sequentialFloatingBackwardSelectionNew) 1> sequentialFloatingBackwardSelectionNew.out 2>&1 &
+
+(time python code.py sequentialFloatingForwardSelectionNew_Max) 1> sequentialFloatingForwardSelectionNew_Max.out 2>&1 &
+(time python code.py sequentialFloatingBackwardSelectionNew_Max) 1> sequentialFloatingBackwardSelectionNew_Max.out 2>&1 &
+
+
+(time python codeTesting.py sequentialFloatingForwardSelection) 1> asdf1.out 2>&1 &
+(time python codeTesting.py sequentialFloatingBackwardSelection) 1> asdf2.out 2>&1 &
+(time python codeTesting.py sequentialFloatingForwardSelectionNew) 1> asdf3.out 2>&1 &
+(time python codeTesting.py sequentialFloatingBackwardSelectionNew) 1> asdf4.out 2>&1 &
+(time python codeTesting.py sequentialFloatingForwardSelectionNew_Max) 1> asdf5.out 2>&1 &
+(time python codeTesting.py sequentialFloatingBackwardSelectionNew_Max) 1> asdf6.out 2>&1 &
+
+
+
+Dow 30 List: http://www.dogsofthedow.com/dogs2008p.htm
