@@ -152,19 +152,49 @@ def getYearRatio(funds,year):
 			funds2.append(funds[date])
 	return(getRatio(funds2))
 
+def getWinningDays( naRets):
+	"""
+	@summary Returns the percentage of winning days of the returns.
+	@param naRets: 1d numpy array or fund list of daily returns (centered on 0)
+	@return Percentage of winning days
+	"""
+	negativeRets=naRets[(naRets<0)]
+	return (float(len(negativeRets))/float(len(naRets)))
+
+def getMaxDrawDown(naRets):
+	"""
+	@summary Returns the max draw down of the returns.
+	@param naRets: 1d numpy array or fund list of daily returns (centered on 0)
+	@return Max draw down
+	"""
+	return np.min(naRets)
+
+def getSortinoRatio( naRets, fFreeReturn=0.00 ):
+	"""
+	@summary Returns the daily Sortino ratio of the returns.
+	@param naRets: 1d numpy array or fund list of daily returns (centered on 0)
+	@param fFreeReturn: risk free return, default is 0%
+	@return Sortino Ratio, computed off daily returns
+	"""
+	fMean = np.mean( naRets, axis=0 )
+	negativeRets=naRets[(naRets<0)]
+	fDev = np.std( negativeRets, axis=0 )
+	fSortino=fMean/fDev
+	return fSortino
+
 def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 	"""
 	@summary Returns the daily Sharpe ratio of the returns.
-	@param naRets: 1d numpy array or list of daily returns
-	@param fFreeReturn: risk free returns, default is 3%
+	@param naRets: 1d numpy array or fund list of daily returns (centered on 0)
+	@param fFreeReturn: risk free returns, default is 0%
 	@return Annualized rate of return, not converted to percent
 	"""
 	
-	fDev = np.std( naRets - 1, axis=0 )
-	fMean = np.mean( naRets - 1, axis=0 )
+	fDev = np.std( naRets, axis=0 )
+	fMean = np.mean( naRets, axis=0 )
 	
 	''' Convert to yearly standard deviation '''
-	fSharpe = (fMean * 252 - fFreeReturn) / ( fDev * sqrt(252) )
+	fSharpe = (fMean - fFreeReturn) / ( fDev )
 	
 	#print fDev, fMean, fSharpe
 

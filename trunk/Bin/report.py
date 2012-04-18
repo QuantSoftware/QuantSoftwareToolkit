@@ -33,19 +33,19 @@ def print_footer(html_file):
 	html_file.write("</CENTER></BODY>\n\n")
 	html_file.write("</HTML>")
 
-def print_stats(funds, name, html_file):
+def print_stats(funds, benchmark, name):
 	start_date=funds.index[0].strftime("%m/%d/%Y")
 	end_date=funds.index[-1].strftime("%m/%d/%Y")
-	html_file.write("</CENTER><PRE>\n")
-	html_file.write("Performance Summary for "+str(path.basename(name))+" Backtest (Long Only)\n")
-	html_file.write("For the dates "+str(start_date)+" to "+str(end_date)+"\n\n")
-	html_file.write("Yearly Performance Metrics \n")
+	sys.stdout.write("</CENTER><PRE>\n")
+	sys.stdout.write("Performance Summary for "+str(path.basename(name))+" Backtest (Long Only)\n")
+	sys.stdout.write("For the dates "+str(start_date)+" to "+str(end_date)+"\n\n")
+	sys.stdout.write("Yearly Performance Metrics \n")
 	years=du.getYears(funds)
-	html_file.write("\n\t\t\t\t")
+	sys.stdout.write("\n\t\t\t\t")
 	for year in years:
-		html_file.write("\t"+str(year))
-	html_file.write("\n")
-	html_file.write("Fund Annualized Return:\t\t")
+		sys.stdout.write("\t"+str(year))
+	sys.stdout.write("\n")
+	sys.stdout.write("Fund Annualized Return:\t\t")
 	for year in years:
 		year_vals=[]
 		for date in funds.index:
@@ -54,10 +54,14 @@ def print_stats(funds, name, html_file):
 		day_rets=tsu.daily1(year_vals)
 		ret=tsu.getRorAnnual(day_rets[1:-1])
 		x="\t%2.2f%%" % (ret*100)
-		html_file.write(x)
+		sys.stdout.write(x)
 
-	html_file.write("\n$SPX Annualized Return:\t\t")
+	sys.stdout.write("\n$SPX Annualized Return:\t\t")
+	timeofday=dt.timedelta(hours=16)
+	timestamps=du.getNYSEdays(funds.index[0], funds.index[-1], timeofday)
+	dataobj=da.DataAccess('Norgate')
 	global SPX_CLOSE
+	SPX_CLOSE=dataobj.get_data(timestamps,benchmark, "close", verbose=False)
 	for year in years:
 		year_vals=[]
 		for date in SPX_CLOSE.index:
@@ -66,84 +70,84 @@ def print_stats(funds, name, html_file):
 		day_rets=tsu.daily1(year_vals)
 		ret=tsu.getRorAnnual(day_rets[1:-1])
 		x="\t%2.2f%%" % (ret*100)
-		html_file.write(x)
+		sys.stdout.write(x)
 
-	html_file.write("\nFund Winning Days:\t\t")                
+	sys.stdout.write("\n\nFund Winning Days:\t\t")                
 	for year in years:
 		year_vals=[]
 		for date in funds.index:
 			if(date.year==year):
 				year_vals.append(funds[date])
-		ret=tsu.getWinning(year_vals)
-		x="\t%d" % ret
-		html_file.write(x)
+		ret=float(tsu.getWinning(year_vals))/float(len(year_vals))
+		x="\t%+2.1f%%" % ret
+		sys.stdout.write(x)
 
-	html_file.write("\n$SPX Winning Days:\t\t")                
+	sys.stdout.write("\n$SPX Winning Days:\t\t")                
 	for year in years:
 		year_vals=[]
 		for date in SPX_CLOSE.index:
 			if(date.year==year):
 				year_vals.append(SPX_CLOSE.xs(date))
-		ret=tsu.getWinning(year_vals)
-		x="\t%d" % ret
-		html_file.write(x)
+		ret=float(tsu.getWinning(year_vals))/float(len(year_vals))
+		x="\t%+2.1f%%" % ret
+		sys.stdout.write(x)
 
-	html_file.write("\nFund Max Draw Down:\t\t")
+	sys.stdout.write("\n\nFund Max Draw Down:\t\t")
 	for year in years:
 		year_vals=[]
 		for date in funds.index:
 			if(date.year==year):
 				year_vals.append(funds[date])
 		ret=tsu.getDrawDown(year_vals)
-		x="\t%2.2f%%" % (ret*100)
-		html_file.write(x)
+		x="\t%+2.1f%%" % (ret*100)
+		sys.stdout.write(x)
 
-	html_file.write("\n$SPX Max Draw Down:\t\t")
+	sys.stdout.write("\n$SPX Max Draw Down:\t\t")
 	for year in years:
 		year_vals=[]
 		for date in SPX_CLOSE.index:
 			if(date.year==year):
 				year_vals.append(SPX_CLOSE.xs(date))
 		ret=tsu.getDrawDown(year_vals)
-		x="\t%2.2f%%" % (ret*100)
-		html_file.write(x)
+		x="\t%+2.1f%%" % (ret*100)
+		sys.stdout.write(x)
 
-	html_file.write("\nFund Daily Sharpe Ratio (for year):")
+	sys.stdout.write("\n\nFund Daily Sharpe Ratio (for year):")
 	for year in years:
 		year_vals=[]
 		for date in funds.index:
 			if(date.year==year):
 				year_vals.append(funds[date])
 		ret=tsu.getRatio(year_vals)
-		x="\t%2.2f" % ret
-		html_file.write(x)
+		x="\t%+2.1f" % ret
+		sys.stdout.write(x)
 
-	html_file.write("\n$SPX Daily Sharpe Ratio(for year):")         
+	sys.stdout.write("\n$SPX Daily Sharpe Ratio(for year):")         
 	for year in years:
 		year_vals=[]
 		for date in SPX_CLOSE.index:
 			if(date.year==year):
 				year_vals.append(SPX_CLOSE.xs(date))
 		ret=tsu.getRatio(year_vals)
-		x="\t%2.2f" % ret
-		html_file.write(x)
+		x="\t%+2.1f" % ret
+		sys.stdout.write(x)
 	
-	html_file.write("\n\nMonthly Returns %\n\t")
+	sys.stdout.write("\n\nMonthly Returns %\n\t")
 	month_names=du.getMonthNames()
 	for name in month_names:
-		html_file.write("\t"+str(name))
-	html_file.write("\n")
+		sys.stdout.write("\t"+str(name))
+	sys.stdout.write("\n")
 	years=du.getYears(funds)
 	i=0
 	mrets=tsu.monthly(funds)
 	for year in years:
-		html_file.write(str(year)+"\t")
+		sys.stdout.write(str(year)+"\t")
 		months=du.getMonths(funds,year)
 		for month in months:
-			x="\t%2.2f" % (mrets[i]*100)
-			html_file.write(x)
+			x="\t%+2.1f" % (mrets[i]*100)
+			sys.stdout.write(x)
 			i+=1
-		html_file.write("\n")
+		sys.stdout.write("\n")
 
 
 def print_old_stats(funds, name, html_file):
@@ -191,10 +195,9 @@ def print_old_stats(funds, name, html_file):
 	
 
 def generate_report(funds_list, graph_names, out_file):
-	html_file = open(filename,"w")
+	html_file = open("report.html","w")
 	print_header(html_file, out_file)
-	html_file.write("<H2>QSTK Generated Report:"+filename+"</H2>\n")
-	html_file.write("<IMG SRC=\'./funds.png\'/>\n")
+	html_file.write("<IMG SRC=\'./funds.png\' width=400/>\n")
 	html_file.write("<BR/>\n\n")
 	i=0
 	plt.clf()
@@ -202,34 +205,36 @@ def generate_report(funds_list, graph_names, out_file):
 	symbol=["$SPX"]
 	start_date=0
 	end_date=0
-	#plot spx
 	for fund in funds_list:
 		if(type(fund)!=type(list())):
 			if(start_date==0 or start_date>fund.index[0]):
 				start_date=fund.index[0]	
 			if(end_date==0 or end_date<fund.index[-1]):
 				end_date=fund.index[-1]	
-			plt.plot(fund.index, fund.values,label=path.basename(graph_names[i]))
+			mult=10000/fund.values[0]
+			plt.plot(fund.index, fund.values*mult,label=path.basename(graph_names[i]))
 		else:	
 			if(start_date==0 or start_date>fund[0].index[0]):
 				start_date=fund[0].index[0]	
 			if(end_date==0 or end_date<fund[0].index[-1]):
 				end_date=fund[0].index[-1]	
-			plt.plot(fund[0].index, fund[0].values, label=path.basename(graph_names[i]))	
+			mult=10000/fund[0].values[0]
+			plt.plot(fund[0].index, fund[0].values*mult, label=path.basename(graph_names[i]))	
 		i+=1
 	timeofday=dt.timedelta(hours=16)
 	timestamps=du.getNYSEdays(start_date, end_date, timeofday)
 	dataobj=da.DataAccess('Norgate')
 	global SPX_CLOSE
 	SPX_CLOSE=dataobj.get_data(timestamps,symbol, "close", verbose=False)
+	mult=10000/SPX_CLOSE.values[0]
 	i=0
 	for fund in funds_list:
 		if(type(fund)!=type(list())):
-			print_stats(fund, graph_names[i], html_file)
+			print_stats(fund, ["$SPX"], graph_names[i])
 		else:	
-			print_stats(fund[0], graph_names[i], html_file)
+			print_stats(fund[0], ["$SPX"], graph_names[i])
 		i+=1
-	plt.plot(SPX_CLOSE.index,SPX_CLOSE.values,label="SSPX")
+	plt.plot(SPX_CLOSE.index,SPX_CLOSE.values*mult,label="SSPX")
 	plt.ylabel('Fund Value')
 	plt.xlabel('Date')
 	plt.legend()

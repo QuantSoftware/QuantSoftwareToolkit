@@ -57,8 +57,13 @@ def quickSim( alloc, historic, start_cash ):
     # add cash column
     historic['_CASH'] = 1
 
-    closest = historic[historic.index < alloc.index[0]].ix[-1:]
-    
+
+    print historic
+
+    closest = historic[historic.index <= alloc.index[0]].ix[:]
+
+    print closest
+
     # start shares/fund out as 100% cash
     fund_ts = pand.Series( [start_cash], index = [closest.index[0]] )
     
