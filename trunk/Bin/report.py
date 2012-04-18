@@ -131,6 +131,27 @@ def print_stats(funds, benchmark, name):
 		ret=tsu.getRatio(year_vals)
 		x="\t%+2.1f" % ret
 		sys.stdout.write(x)
+
+	sys.stdout.write("\n\nFund Daily Sortino Ratio (for year):")
+	for year in years:
+		year_vals=[]
+		for date in funds.index:
+			if(date.year==year):
+				year_vals.append(funds[date])
+		ret=tsu.getSortinoRatio(tsu.daily(year_vals))
+		x="\t%+2.1f" % ret
+		sys.stdout.write(x)
+
+	sys.stdout.write("\n$SPX Daily Sortino Ratio(for year):")         
+	for year in years:
+		year_vals=[]
+		for date in SPX_CLOSE.index:
+			if(date.year==year):
+				year_vals.append(SPX_CLOSE.xs(date))
+		ret=tsu.getSortinoRatio(tsu.daily(year_vals))
+		x="\t%+2.1f" % ret
+		sys.stdout.write(x)
+
 	
 	sys.stdout.write("\n\nMonthly Returns %\n\t")
 	month_names=du.getMonthNames()

@@ -176,10 +176,11 @@ def getSortinoRatio( naRets, fFreeReturn=0.00 ):
 	@param fFreeReturn: risk free return, default is 0%
 	@return Sortino Ratio, computed off daily returns
 	"""
+	naRets=np.asarray(naRets)
 	fMean = np.mean( naRets, axis=0 )
-	negativeRets=naRets[(naRets<0)]
+	negativeRets=naRets[naRets<0]
 	fDev = np.std( negativeRets, axis=0 )
-	fSortino=fMean/fDev
+	fSortino=(fMean - fFreeReturn)/fDev
 	return fSortino
 
 def getSharpeRatio( naRets, fFreeReturn=0.00 ):
