@@ -21,8 +21,8 @@ from quicksim import quickSim as qs
 strat = os.environ['QS']+"/quicksim/strategies/OneStock.py"
 
 #start and end dates to start from
-start = dt.datetime(2004,1,1)
-end = dt.datetime(2009,1,1)
+start = dt.datetime(2009,4,1)
+end = dt.datetime(2012,3,31)
 
 #number of tests to do and the number of days offset
 num = 10
@@ -40,4 +40,4 @@ cPickle.dump(fundsmatrix,output)
 output.close()
 
 #graph tests using report
-os.system('python '+os.environ['QS']+'/Bin/report.py '+os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl '+os.environ['QS']+'/Examples/Basic/funds2.pkl')
+os.system('python '+os.environ['QS']+'/Bin/report.py '+os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl '+os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl')
