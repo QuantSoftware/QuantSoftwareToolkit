@@ -158,8 +158,11 @@ def getWinningDays( naRets):
 	@param naRets: 1d numpy array or fund list of daily returns (centered on 0)
 	@return Percentage of winning days
 	"""
-	negativeRets=naRets[(naRets<0)]
-	return (float(len(negativeRets))/float(len(naRets)))
+	negativeRets=[]
+	for i in naRets:
+		if(i<0):
+			negativeRets.append(i)
+	return 100*(float(len(negativeRets))/float(len(naRets)))
 
 def getMaxDrawDown(naRets):
 	"""
@@ -180,7 +183,7 @@ def getSortinoRatio( naRets, fFreeReturn=0.00 ):
 	fMean = np.mean( naRets, axis=0 )
 	negativeRets=naRets[naRets<0]
 	fDev = np.std( negativeRets, axis=0 )
-	fSortino=(fMean - fFreeReturn)/fDev
+	fSortino=(fMean*252 - fFreeReturn)/ (fDev * np.sqrt(252))
 	return fSortino
 
 def getSharpeRatio( naRets, fFreeReturn=0.00 ):
@@ -190,15 +193,12 @@ def getSharpeRatio( naRets, fFreeReturn=0.00 ):
 	@param fFreeReturn: risk free returns, default is 0%
 	@return Annualized rate of return, not converted to percent
 	"""
-	
 	fDev = np.std( naRets, axis=0 )
 	fMean = np.mean( naRets, axis=0 )
 	
 	''' Convert to yearly standard deviation '''
-	fSharpe = (fMean - fFreeReturn) / ( fDev )
+	fSharpe = (fMean *252 - fFreeReturn) / ( fDev * np.sqrt(252) )
 	
-	#print fDev, fMean, fSharpe
-
 	return fSharpe
 
 def getRorAnnual( naRets ):
