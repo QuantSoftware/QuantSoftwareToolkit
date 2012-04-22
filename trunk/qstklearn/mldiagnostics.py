@@ -1,5 +1,14 @@
-#Author : Vishal Shekhar
-#Email : mailvishalshekhar@gmail.com
+# (c) 2011, 2012 Georgia Tech Research Corporation
+# This source code is released under the New BSD license.  Please see
+# http://wiki.quantsoftware.org/index.php?title=QSTK_License
+# for license details.
+#
+# Created on Month day, Year
+#
+# @author: Vishal Shekhar
+# @contact: mailvishalshekhar@gmail.com
+# @summary: ML Algo Diagnostic Utility (plots performance of the Algo on Train Vs CV sets)
+#
 
 import copy
 import numpy as np
