@@ -1,11 +1,15 @@
-"""
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
 Created on March 22, 2011
 
 @author: Drew Bratcher & Tucker Balch
-@contact: tucker@cc.gatech.edu
-
-utilities for date and time manipulation
-"""
+@contact: dbratcher@gatech.edu
+@summary: Contains utility functions for dates
+'''
 
 __version__ = "$Revision: 295 $"
 

@@ -1,11 +1,14 @@
 '''
-(c) 2012 Lucena Research, LLC.  All rights reserved.
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
 
-Created on 4/18/2012
+Created on 1/1/2011
 
 @author: Drew Bratcher
 @contact: dbratcher@gatech.edu
-@summary: Contains utility functions to create statistics for fund time series.
+@summary: Contains utility functions for fund time series
 '''
 
 import qstkutil.tsutil as tsu
