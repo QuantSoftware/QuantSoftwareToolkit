@@ -1,9 +1,16 @@
 '''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
 Created on Apr 22, 2011
 
 @author: shreyas
+@contact: dbratcher@gatech.edu
 @summary: This is intended to be a collection of helper routines used by different QSTK modules
 '''
+
 
 import dircache
 import os

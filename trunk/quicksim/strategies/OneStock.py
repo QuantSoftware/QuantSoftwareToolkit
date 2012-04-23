@@ -1,4 +1,15 @@
-#
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on 1/1/2011
+
+@author: Drew Bratcher
+@contact: dbratcher@gatech.edu
+@summary: Creates an allocation table for one stock
+'''#
 # OneStock.py
 #
 # Usage: python OneStock.py '1-1-2004' '1-1-2009' 'alloc.pkl'
