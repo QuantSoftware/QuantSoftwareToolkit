@@ -1,12 +1,23 @@
-#created by Sourabh Bajaj
-#email: sourabhbajaj90@gmail.com
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on April, 20, 2012
+
+@author: Sourabh Bajaj
+@contact: sourabhbajaj90@gmail.com
+@summary: Visualizer - Generating Data from QSTK
+
+'''
 
 #import libraries
 import numpy as np
 import qstkutil.dateutil as du
 import qstkutil.tsutil as tsu
 import qstkutil.DataAccess as da
-import qstkfeat.featutil as feat
+import qstkfeat.sb_featutil as feat
 import datetime as dt
 import pickle
 import os
@@ -55,17 +66,9 @@ def genData(startday, endday, datadirectory, symbols):
 	
 	# Creating the 3D Matrix
 
-	(lfcFeatures, ldArgs, lsNames)= feat.getFeatureFuncs()	
-	
-	lsNames2 = []
-	for name in lsNames:
-		lsNames2.append(name + '-MR')
+	(lfcFeatures, ldArgs, lsNames)= feat.getFeatureFuncs22()	
 
-	for name in lsNames2:
-		lsNames.append(name)
-
-	FinalData = feat.applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None)
-	FinalData2 = feat.applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel='SPY')
+	FinalData = feat.applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel='SPY')
 	
 	#Creating a txt file of symbols
 	file = open(directorylocation +'Symbols.txt', 'w')
@@ -83,18 +86,15 @@ def genData(startday, endday, datadirectory, symbols):
 	for IndicatorData in FinalData:
 		Numpyarray.append(IndicatorData.values)
 
-	for IndicatorData in FinalData2:
-		Numpyarray.append(IndicatorData.values)
-
 	pickle.dump(Numpyarray,open(directorylocation +'ALLDATA.pkl', 'wb' ),-1)
 	
 def main():
 	startday=dt.datetime(2009,1,1)
 	endday=dt.datetime(2010,12,31)
-#	datadirectory = 'Dow'
-	datadirectory = 'SP500'
-	symbols=np.loadtxt('Symbols.csv',dtype='S5',comments='#',skiprows=1,)
-#	symbols=['SPY','MMM','AA','AXP','T','BAC','BA','CAT','CVX','CSCO','KO','DD','XOM','GE','HPQ','HD','INTC','IBM','JNJ','JPM','KFT', 'MCD','MRK','MSFT','PFE','PG','TRV','UTX','VZ','WMT','DIS']
+	datadirectory = 'Dow'
+#	datadirectory = 'SP500'
+#	symbols=np.loadtxt('Symbols.csv',dtype='S5',comments='#',skiprows=1,)
+	symbols=['SPY','MMM','AA','AXP','T','BAC','BA','CAT','CVX','CSCO','KO','DD','XOM','GE','HPQ','HD','INTC','IBM','JNJ','JPM','KFT', 'MCD','MRK','MSFT','PFE','PG','TRV','UTX','VZ','WMT','DIS']
 	genData(startday,endday, datadirectory, symbols)
 
 if __name__ == '__main__':
