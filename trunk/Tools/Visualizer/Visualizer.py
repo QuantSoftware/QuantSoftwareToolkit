@@ -1,3 +1,16 @@
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on April, 20, 2012
+
+@author: Sourabh Bajaj
+@contact: sourabhbajaj90@gmail.com
+@summary: Visualizer Main Code
+
+'''
 import sys
 import numpy as np
 import math 
@@ -15,6 +28,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 
 # SLIDER range variable for all the range slider. Increasing this will increase precision
 SLIDER_RANGE=100
+LOOKBACK_DAYS=20
 
 
 # Range Slider Class, to implement the custom range slider.
@@ -711,7 +725,7 @@ class Visualizer(QtGui.QMainWindow):
 ############# Region for declaring all the Checkboxes for GUI ###################
 
 		self.TextCheck = QtGui.QCheckBox('Show Label', self)
-		self.Day5Check = QtGui.QCheckBox('20 Days', self)
+		self.Day5Check = QtGui.QCheckBox(str(LOOKBACK_DAYS)+' Days', self)
 		self.SizeCheck = QtGui.QCheckBox('Fix Size', self)
 		self.ColorCheck = QtGui.QCheckBox('Fix Color', self)
 		self.MovieCheck = QtGui.QCheckBox('Smooth for Movie', self)
@@ -1535,7 +1549,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.PlotPoints(day)
 		if self.Day5Check.isChecked():
 			index = self.timestamps.index(day)
-			for i in range(19):
+			for i in range(LOOKBACK_DAYS-1):
 				if (index-i-1)>=0:
 					self.PlotPoints(self.timestamps[index-i-1])
 
@@ -1635,7 +1649,7 @@ class Visualizer(QtGui.QMainWindow):
 		self.PlotPoints2(day)
 		if self.Day5Check.isChecked():
 			index = self.timestamps.index(day)
-			for i in range(19):
+			for i in range(LOOKBACK_DAYS-1):
 				if (index-i-1)>=0:
 					self.PlotPoints2(self.timestamps[index-i-1])
 

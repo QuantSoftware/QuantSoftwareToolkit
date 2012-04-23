@@ -1,5 +1,16 @@
-#created by Sourabh Bajaj
-#email: sourabhbajaj90@gmail.com
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on April, 20, 2012
+
+@author: Sourabh Bajaj
+@contact: sourabhbajaj90@gmail.com
+@summary: Visualizer - Data reading from a CSV
+
+'''
 
 #import libraries
 import numpy as np
