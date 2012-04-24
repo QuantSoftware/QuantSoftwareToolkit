@@ -1,4 +1,9 @@
 '''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
 Created on Feb 1, 2011
 @author: Shreyas Joshi
 @organization: Georgia Institute of Technology
