@@ -1,15 +1,14 @@
 '''
-(c) 2011, 2012 Georgia Tech Research Corporation
-This source code is released under the New BSD license.  Please see
-http://wiki.quantsoftware.org/index.php?title=QSTK_License
-for license details.
+(c) 2011, 2012 Lucena Research, LLC. All rights reserved.
 
-Created on 1/1/2011
+Created on Jan 1, 2011
 
-@author: Drew Bratcher
+@author:Drew Bratcher
 @contact: dbratcher@gatech.edu
-@summary: Uses backetester and strategy with the report utility
+@summary: Contains tutorial for backtester and report.
+
 '''
+
 #
 # tutorial5.py
 #
@@ -29,12 +28,12 @@ import datetime as dt
 #qstk imports
 from quicksim import quickSim as qs
 
-#strategy to use
-strat = os.environ['QS']+"/quicksim/strategies/OneStock.py"
+#STRATegy to use
+STRAT = os.environ['QS']+"/quicksim/STRATegies/OneStock.py"
 
 #start and end dates to start from
-start = dt.datetime(2008,4,1)
-end = dt.datetime(2012,4,1)
+start = dt.datetime(2008,  4, 1)
+end = dt.datetime(2012,  4, 1)
 
 #number of tests to do and the number of days offset
 num = 10
@@ -44,11 +43,11 @@ offset = 1
 startval=10000
 
 #perform tests
-fundsmatrix = qs.strat_backtest1(strat,start,end,1,offset,startval)
+fundsmatrix = qs.strat_backtest1(STRAT,  start, end, 1, offset, startval)
 
 #output fundsmatrix to pickle file
-output=open(os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl',"w")
-cPickle.dump(fundsmatrix,output)
+output=open(os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl',  "w")
+cPickle.dump(fundsmatrix,  output)
 output.close()
 
 #graph tests using report
