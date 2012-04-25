@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 import cPickle
 import datetime as dt
 
-BENCHMARK_CLOSE = 0
 
 def print_header(html_file, name):
     """
@@ -41,6 +40,16 @@ def print_footer(html_file):
     """
     html_file.write("</BODY>\n\n")
     html_file.write("</HTML>")
+
+def print_annual_return(fund_ts, years, outstream):
+    for year in years:
+        year_vals = []
+        for date in fund_ts.index:
+            if(date.year ==year):
+                year_vals.append(fund_ts.ix[date])
+        day_rets = tsu.daily1(year_vals)
+        ret = tsu.get_ror_annual(day_rets[1:-1])
+        outstream.write("\t\t% + 6.2f%%" % (ret*100))
 
 def print_stats(fund_ts, benchmark, name, outstream = sys.stdout):
     """
@@ -62,32 +71,20 @@ def print_stats(fund_ts, benchmark, name, outstream = sys.stdout):
     for year in years:
         outstream.write("\t\t" + str(year))
     outstream.write("\n")
+    
+    
     outstream.write("Fund Annualized Return:\t\t")
-    for year in years:
-        year_vals = []
-        for date in fund_ts.index:
-            if(date.year ==year):
-                year_vals.append(fund_ts[date])
-        day_rets = tsu.daily1(year_vals)
-        ret = tsu.get_ror_annual(day_rets[1:-1])
-        outstream.write("\t\t% + 6.2f%%" % (ret*100))
-
+    
+    print_annual_return(fund_ts, years, outstream)
+    
     outstream.write("\n" + str(benchmark[0]) + " Annualized Return:\t\t")
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
     dataobj = da.DataAccess('Norgate')
-    global BENCHMARK_CLOSE
-    BENCHMARK_CLOSE = dataobj.get_data(timestamps, benchmark, "close", \
+    benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                                      verbose = False)
-    for year in years:
-        year_vals = []
-        for date in BENCHMARK_CLOSE.index:
-            if(date.year ==year):
-                year_vals.append(BENCHMARK_CLOSE.xs(date))
-        day_rets = tsu.daily1(year_vals)
-        ret = tsu.get_ror_annual(day_rets[1:-1])
-        outstream.write("\t\t% + 6.2f%%" % (ret*100))
-
+    print_annual_return(benchmark_close, years, outstream)
+    
     outstream.write("\n\nFund Winning Days:\t\t")                
     for year in years:
         year_vals = []
@@ -101,9 +98,9 @@ def print_stats(fund_ts, benchmark, name, outstream = sys.stdout):
                        " Winning Days:\t\t")                
     for year in years:
         year_vals = []
-        for date in BENCHMARK_CLOSE.index:
+        for date in benchmark_close.index:
             if(date.year==year):
-                year_vals.append(BENCHMARK_CLOSE.xs(date))
+                year_vals.append(benchmark_close.xs(date))
         ret = fu.get_winning_days(year_vals)
         outstream.write("\t\t% + 6.2f%%" % ret)
 
@@ -119,9 +116,9 @@ def print_stats(fund_ts, benchmark, name, outstream = sys.stdout):
     outstream.write("\n" + str(benchmark[0]) + " Max Draw Down:\t\t")
     for year in years:
         year_vals = []
-        for date in BENCHMARK_CLOSE.index:
+        for date in benchmark_close.index:
             if(date.year==year):
-                year_vals.append(BENCHMARK_CLOSE.xs(date))
+                year_vals.append(benchmark_close.xs(date))
         ret = fu.get_max_draw_down(year_vals)
         outstream.write("\t\t% + 6.2f%%" % (ret*100))
 
@@ -138,9 +135,9 @@ def print_stats(fund_ts, benchmark, name, outstream = sys.stdout):
             " Daily Sharpe Ratio(for year):")       
     for year in years:
         year_vals = []
-        for date in BENCHMARK_CLOSE.index:
+        for date in benchmark_close.index:
             if(date.year==year):
-                year_vals.append(BENCHMARK_CLOSE.xs(date))
+                year_vals.append(benchmark_close.xs(date))
         ret = fu.get_sharpe_ratio(year_vals)
         outstream.write("\t\t% + 6.2f" % ret)
 
@@ -157,9 +154,9 @@ def print_stats(fund_ts, benchmark, name, outstream = sys.stdout):
                 " Daily Sortino Ratio(for year):")         
     for year in years:
         year_vals = []
-        for date in BENCHMARK_CLOSE.index:
+        for date in benchmark_close.index:
             if(date.year==year):
-                year_vals.append(BENCHMARK_CLOSE.xs(date))
+                year_vals.append(benchmark_close.xs(date))
         ret = fu.get_sortino_ratio(year_vals)
         outstream.write("\t\t% + 6.2f" % ret)
 
@@ -219,10 +216,9 @@ def generate_report(funds_list, graph_names, out_file):
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
     dataobj = da.DataAccess('Norgate')
-    global BENCHMARK_CLOSE
-    BENCHMARK_CLOSE = dataobj.get_data(timestamps, symbol, "close", \
+    benchmark_close = dataobj.get_data(timestamps, symbol, "close", \
                                             verbose = False)
-    mult = 10000/BENCHMARK_CLOSE.values[0]
+    mult = 10000/benchmark_close.values[0]
     i = 0
     for fund in funds_list:
         if(type(fund)!= type(list())):
@@ -230,7 +226,7 @@ def generate_report(funds_list, graph_names, out_file):
         else:    
             print_stats( fund[0], ["$SPX"], graph_names[i])
         i += 1
-    plt.plot(BENCHMARK_CLOSE.index, BENCHMARK_CLOSE.values*mult, label = "SSPX")
+    plt.plot(benchmark_close.index, benchmark_close.values*mult, label = "SSPX")
     plt.ylabel('Fund Value')
     plt.xlabel('Date')
     plt.legend()
