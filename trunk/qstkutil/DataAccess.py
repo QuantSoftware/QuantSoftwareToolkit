@@ -1,14 +1,12 @@
 '''
-(c) 2011, 2012 Georgia Tech Research Corporation
-This source code is released under the New BSD license. Please see
-http://wiki.quantsoftware.org/index.php?title=QSTK_License
-for license details.
+(c) 2011, 2012 Lucena Research, LLC. All rights reserved.
 
-Created on Feb 26, 2011
+Created on Jan 1, 2011
 
 @author: Shreyas Joshi
 @contact: shreyasj@gatech.edu
-@summary: Contains utility functions to control large dogs.
+@summary: Contains tutorial for backtester and report.
+
 '''
 
 import numpy as np

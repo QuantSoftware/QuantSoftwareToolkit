@@ -1,14 +1,12 @@
 '''
-(c) 2011, 2012 Georgia Tech Research Corporation
-This source code is released under the New BSD license.  Please see
-http://wiki.quantsoftware.org/index.php?title=QSTK_License
-for license details.
+(c) 2011, 2012 Lucena Research, LLC. All rights reserved.
 
-Created on 1/1/2011
+Created on Jan 1, 2011
 
-@author: Drew Bratcher
+@author:Drew Bratcher
 @contact: dbratcher@gatech.edu
-@summary: Utility functions for a bollinger strategy
+@summary: Contains tutorial for backtester and report.
+
 '''
 
 # python imports

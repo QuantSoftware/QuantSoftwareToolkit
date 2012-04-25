@@ -1,17 +1,12 @@
 '''
-(c) 2011, 2012 Georgia Tech Research Corporation
-This source code is released under the New BSD license.  Please see
-http://wiki.quantsoftware.org/index.php?title=QSTK_License
-for license details.
+(c) 2011, 2012 Lucena Research, LLC. All rights reserved.
 
-Created on September, 12, 2011
+Created on Jan 1, 2011
 
-@author: Drew Bratcher
+@author:Drew Bratcher
 @contact: dbratcher@gatech.edu
-@summary: An example which creates a monthly allocation table
-from 2004 to 2009 using a random allocation and the first 20 stocks of S&P500.
-It then dumps the allocation table to a pickle
-file named allocations.pkl
+@summary: Contains tutorial for backtester and report.
+
 '''
 
 #python imports
