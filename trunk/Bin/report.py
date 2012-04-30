@@ -41,7 +41,13 @@ def print_footer(html_file):
     html_file.write("</BODY>\n\n")
     html_file.write("</HTML>")
 
-def print_annual_return(fund_ts, years, outstream):
+def print_annual_return(fund_ts, years, ostream):
+    """
+    @summary prints annual return for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
     for year in years:
         year_vals = []
         for date in fund_ts.index:
@@ -49,137 +55,164 @@ def print_annual_return(fund_ts, years, outstream):
                 year_vals.append(fund_ts.ix[date])
         day_rets = tsu.daily1(year_vals)
         ret = tsu.get_ror_annual(day_rets[1:-1])
-        outstream.write("\t\t% + 6.2f%%" % (ret*100))
+        ostream.write("        % + 6.2f%%" % (ret*100))
 
-def print_stats(fund_ts, benchmark, name, outstream = sys.stdout):
+def print_winning_days(fund_ts, years, ostream):
+    """
+    @summary prints winning days for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    for year in years:
+        year_vals = []
+        for date in fund_ts.index:
+            if(date.year==year):
+                year_vals.append(fund_ts.ix[date])
+        ret = fu.get_winning_days(year_vals)
+        ostream.write("        % + 6.2f%%" % ret)
+
+def print_max_draw_down(fund_ts, years, ostream):
+    """
+    @summary prints max draw down for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    for year in years:
+        year_vals = []
+        for date in fund_ts.index:
+            if(date.year==year):
+                year_vals.append(fund_ts.ix[date])
+        ret = fu.get_max_draw_down(year_vals)
+        ostream.write("        % + 6.2f%%" % (ret*100))
+
+def print_daily_sharpe(fund_ts, years, ostream):
+    """
+    @summary prints sharpe ratio for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    for year in years:
+        year_vals = []
+        for date in fund_ts.index:
+            if(date.year==year):
+                year_vals.append(fund_ts.ix[date])
+        ret = fu.get_sharpe_ratio(year_vals)
+        ostream.write("        % + 6.2f " % ret)
+
+def print_daily_sortino(fund_ts, years, ostream):
+    """
+    @summary prints sortino ratio for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    for year in years:
+        year_vals = []
+        for date in fund_ts.index:
+            if(date.year==year):
+                year_vals.append(fund_ts.ix[date])
+        ret = fu.get_sortino_ratio(year_vals)
+        ostream.write("        % + 6.2f " % ret)
+
+def print_monthly_returns(fund_ts, years, ostream):
+    """
+    @summary prints monthly returns for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    month_names = du.getMonthNames()
+    for name in month_names:
+        ostream.write("\t  " + str(name))
+    ostream.write("\n")
+    i = 0
+    mrets = tsu.monthly(fund_ts)
+    for year in years:
+        ostream.write(str(year) + "\t")
+        months = du.getMonths(fund_ts, year)
+        if(i==0):
+            if(len(months)<12):
+                for k in range(0, 12-len(months)):
+                    ostream.write("\t")
+        for month in months:
+            ostream.write("\t% + 6.2f" % (mrets[i]*100))
+            i += 1
+        ostream.write("\n")
+
+def print_stats(fund_ts, benchmark, name, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
     @param benchmark: benchmark symbol to compare fund to
     @param name: name to associate with the fund in the report
-    @param outstream: stream to print stats to, defaults to stdout
+    @param ostream: stream to print stats to, defaults to stdout
     """
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
-    outstream.write("Performance Summary for "\
+    ostream.write("Performance Summary for "\
 	 + str(path.basename(name)) + " Backtest (Long Only)\n")
-    outstream.write("For the dates " + str(start_date) + " to "\
+    ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
-    outstream.write("Yearly Performance Metrics \n")
+    ostream.write("Yearly Performance Metrics \n")
     years = du.getYears(fund_ts)
-    outstream.write("\n\t\t\t\t")
+    ostream.write("\n\t\t\t\t  ")
     for year in years:
-        outstream.write("\t\t" + str(year))
-    outstream.write("\n")
+        ostream.write("           " + str(year))
+    ostream.write("\n")
     
     
-    outstream.write("Fund Annualized Return:\t\t")
+    ostream.write("Fund Annualized Return:            ")
     
-    print_annual_return(fund_ts, years, outstream)
+    print_annual_return(fund_ts, years, ostream)
     
-    outstream.write("\n" + str(benchmark[0]) + " Annualized Return:\t\t")
+    ostream.write("\n" + str(benchmark[0]) + " Annualized Return:            ")
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
     dataobj = da.DataAccess('Norgate')
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                                      verbose = False)
-    print_annual_return(benchmark_close, years, outstream)
+    print_annual_return(benchmark_close, years, ostream)
     
-    outstream.write("\n\nFund Winning Days:\t\t")                
-    for year in years:
-        year_vals = []
-        for date in fund_ts.index:
-            if(date.year==year):
-                year_vals.append(fund_ts[date])
-        ret = fu.get_winning_days(year_vals)
-        outstream.write("\t\t% + 6.2f%%" % ret)
+    ostream.write("\n\nFund Winning Days:                 ")                
+    
+    print_winning_days(fund_ts, years, ostream)
 
-    outstream.write("\n" + str(benchmark[0]) + \
-                       " Winning Days:\t\t")                
-    for year in years:
-        year_vals = []
-        for date in benchmark_close.index:
-            if(date.year==year):
-                year_vals.append(benchmark_close.xs(date))
-        ret = fu.get_winning_days(year_vals)
-        outstream.write("\t\t% + 6.2f%%" % ret)
+    ostream.write("\n" + str(benchmark[0]) + \
+                       " Winning Days:                 ")                
+    print_winning_days(benchmark_close, years, ostream)
 
-    outstream.write("\n\nFund Max Draw Down:\t\t")
-    for year in years:
-        year_vals = []
-        for date in fund_ts.index:
-            if(date.year==year):
-                year_vals.append(fund_ts[date])
-        ret = fu.get_max_draw_down(year_vals)
-        outstream.write("\t\t% + 6.2f%%" % (ret*100))
+    ostream.write("\n\nFund Max Draw Down:                ")
+    
+    print_max_draw_down(fund_ts, years, ostream)
 
-    outstream.write("\n" + str(benchmark[0]) + " Max Draw Down:\t\t")
-    for year in years:
-        year_vals = []
-        for date in benchmark_close.index:
-            if(date.year==year):
-                year_vals.append(benchmark_close.xs(date))
-        ret = fu.get_max_draw_down(year_vals)
-        outstream.write("\t\t% + 6.2f%%" % (ret*100))
+    ostream.write("\n" + str(benchmark[0]) + " Max Draw Down:                ")
 
-    outstream.write("\n\nFund Daily Sharpe Ratio(for year):")
-    for year in years:
-        year_vals = []
-        for date in fund_ts.index:
-            if(date.year==year):
-                year_vals.append(fund_ts[date])
-        ret = fu.get_sharpe_ratio(year_vals)
-        outstream.write("\t\t% + 6.2f" % ret)
+    print_max_draw_down(benchmark_close, years, ostream)
 
-    outstream.write("\n" + str(benchmark[0]) + \
-            " Daily Sharpe Ratio(for year):")       
-    for year in years:
-        year_vals = []
-        for date in benchmark_close.index:
-            if(date.year==year):
-                year_vals.append(benchmark_close.xs(date))
-        ret = fu.get_sharpe_ratio(year_vals)
-        outstream.write("\t\t% + 6.2f" % ret)
+    ostream.write("\n\nFund Daily Sharpe Ratio(for year): ")
 
-    outstream.write("\n\nFund Daily Sortino Ratio(for year):")
-    for year in years:
-        year_vals = []
-        for date in fund_ts.index:
-            if(date.year==year):
-                year_vals.append(fund_ts[date])
-        ret = fu.get_sortino_ratio(year_vals)
-        outstream.write("\t\t% + 6.2f" % ret)
+    print_daily_sharpe(fund_ts, years, ostream)
 
-    outstream.write("\n" + str(benchmark[0]) + \
+    ostream.write("\n" + str(benchmark[0]) + \
+            " Daily Sharpe Ratio(for year): ")       
+
+    print_daily_sharpe(benchmark_close, years, ostream)
+
+    ostream.write("\n\nFund Daily Sortino Ratio(for year):")
+
+    print_daily_sortino(fund_ts, years, ostream)
+
+    ostream.write("\n" + str(benchmark[0]) + \
                 " Daily Sortino Ratio(for year):")         
-    for year in years:
-        year_vals = []
-        for date in benchmark_close.index:
-            if(date.year==year):
-                year_vals.append(benchmark_close.xs(date))
-        ret = fu.get_sortino_ratio(year_vals)
-        outstream.write("\t\t% + 6.2f" % ret)
 
+    print_daily_sortino(benchmark_close, years, ostream)
     
-    outstream.write("\n\nMonthly Returns %\n\t")
-    month_names = du.getMonthNames()
-    for name in month_names:
-        outstream.write("\t  " + str(name))
-    outstream.write("\n")
-    years = du.getYears(fund_ts)
-    i = 0
-    mrets = tsu.monthly(fund_ts)
-    for year in years:
-        outstream.write(str(year) + "\t")
-        months = du.getMonths(fund_ts, year)
-        if(i==0):
-            if(len(months)<12):
-                for k in range(0, 12-len(months)):
-                    outstream.write("\t")
-        for month in months:
-            outstream.write("\t% + 6.2f" % (mrets[i]*100))
-            i += 1
-        outstream.write("\n")
+    ostream.write("\n\nMonthly Returns %\n\t")
+    
+    print_monthly_returns(fund_ts, years, ostream)            
 
 def generate_report(funds_list, graph_names, out_file):
     """
