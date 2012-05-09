@@ -32,39 +32,48 @@ def featMA( dData, lLookback=30, bRel=True ):
     
     dfPrice = dData['close']
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) ) 
+    dfRet = pand.rolling_mean(dfPrice, lLookback, lLookback)
     
-    ''' Loop through stocks '''
-    for sStock in dfPrice.columns:
-        
-        tsPrice = dfPrice[sStock]
-        tsRet = dfRet[sStock]
-        lSum = 0
-        
-        ''' Loop over time '''
-        for i in range(len(tsPrice.index)):
-            
-            if pand.isnull(tsPrice[i]):
-                continue
-                
-            
-            if pand.notnull( tsPrice[i] ):
-                lSum += tsPrice[i]
-            
-            if i < lLookback - 1:
-                tsRet[i] = float('nan')
-                continue
-            
-            ''' If we have the bare min, take the avg, else remove the last and take the avg '''
-            tsRet[i] = np.sum( tsPrice[i-(lLookback-1):i+1]) / lLookback
-            
-            ''' See if we should make this relative moving average '''
-            if bRel:
-                tsRet[i] /= tsPrice[i]
+    if bRel:
+        dfRet = dfRet / dfPrice;
             
     return dfRet
 
+
+def featEMA( dData, lLookback=20, bRel=True ):
+    '''
+    @summary: Calculate exponential moving average
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to look in the past
+    @return: DataFrame array containing values
+    '''
+    
+    dfPrice = dData['close']
+    
+    dfRet = pand.ewma(dfPrice, span=lLookback, min_periods=lLookback)
+    
+    if bRel:
+        dfRet = dfRet / dfPrice;
+            
+    return dfRet
+
+def featSTD( dData, lLookback=20, bRel=True ):
+    '''
+    @summary: Calculate standard deviation
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to look in the past
+    @return: DataFrame array containing values
+    '''
+    
+    dfPrice = dData['close']
+    
+    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    dfRet = pand.rolling_std(dfPrice, lLookback, lLookback)
+    
+    if bRel:
+        dfRet = dfRet / dfPrice;
+            
+    return dfRet
 
 def featRSI( dData, lLookback=14 ):
     '''
