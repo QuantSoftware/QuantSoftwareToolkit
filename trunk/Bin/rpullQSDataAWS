@@ -1,0 +1,11 @@
+#/bin/sh
+source ../local.sh
+rsync --verbose \
+      --progress \
+      --stats \
+      --compress \
+      --update \
+      --times \
+      --recursive --times --perms --links \
+      --exclude "*bak" --exclude "*~" --exclude "*Newscred*" \
+      ubuntu@www-dev.lucenaresearch.com:/home/ubuntu/QSData/ ~/QSData
