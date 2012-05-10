@@ -65,9 +65,9 @@ def featSTD( dData, lLookback=20, bRel=True ):
     @return: DataFrame array containing values
     '''
     
-    dfPrice = dData['close']
+    dfPrice = dData['close'].copy()
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    tsu.returnize1(dfPrice.values)
     dfRet = pand.rolling_std(dfPrice, lLookback, lLookback)
     
     if bRel:
