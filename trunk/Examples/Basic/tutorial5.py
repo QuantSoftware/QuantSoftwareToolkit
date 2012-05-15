@@ -30,6 +30,7 @@ import datetime as dt
 
 #qstk imports
 from quicksim import quickSim as qs
+from Bin import report
 
 #STRATegy to use
 STRAT = os.environ['QS']+"/quicksim/STRATegies/OneStock.py"
@@ -48,10 +49,4 @@ startval=10000
 #perform tests
 fundsmatrix = qs.strat_backtest1(STRAT,  start, end, 1, offset, startval)
 
-#output fundsmatrix to pickle file
-output=open(os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl',  "w")
-cPickle.dump(fundsmatrix,  output)
-output.close()
-
-#graph tests using report
-os.system('python '+os.environ['QS']+'/Bin/report.py '+os.environ['QS']+'/Examples/Basic/temp_fundsmatrix.pkl')
+report.print_stats(fundsmatrix[0], ["$SPX"], "FUND TITLE")
