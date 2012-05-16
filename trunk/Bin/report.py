@@ -156,7 +156,7 @@ def print_stats(fund_ts, benchmark, name, ostream = sys.stdout):
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
     ostream.write("Performance Summary for "\
-	 + str(path.basename(name)) + " Backtest (Long Only)\n")
+	 + str(path.basename(name)) + " Backtest\n")
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
     ostream.write("Yearly Performance Metrics \n")
