@@ -58,13 +58,17 @@ def monthly(funds):
     @return an array of monthly returns
     """
     funds2 = []
+    last_last_month = -1
     years = dateutil.getYears(funds)
     for year in years:
         months = dateutil.getMonths(funds, year)
         for month in months:
-            first_day = dateutil.getFirstDay(funds, year, month)
-            funds2.append(funds[first_day])
-    return(daily(funds2))
+            last_this_month = dateutil.getLastDay(funds, year, month)
+            if last_last_month == -1 :
+                last_last_month=last_this_month
+            funds2.append(funds[last_this_month]/funds[last_last_month]-1)
+            last_last_month = last_this_month
+    return(funds2)
 
 def average_monthly(funds):
     """
