@@ -217,6 +217,41 @@ def print_stats(fund_ts, benchmark, name, ostream = sys.stdout):
     
     print_monthly_returns(fund_ts, years, ostream)            
 
+def print_plot(fund, benchmark, graph_name, filename):
+    plt.clf()
+    start_date = 0
+    end_date = 0
+    if(type(fund)!= type(list())):
+        if(start_date == 0 or start_date>fund.index[0]):
+            start_date = fund.index[0]    
+        if(end_date == 0 or end_date<fund.index[-1]):
+            end_date = fund.index[-1]    
+        mult = 10000/fund.values[0]
+        plt.plot(fund.index, fund.values * mult, label = \
+                                 path.basename(graph_name))
+    else:    
+        if(start_date == 0 or start_date>fund[0].index[0]):
+            start_date = fund[0].index[0]    
+        if(end_date == 0 or end_date<fund[0].index[-1]):
+            end_date = fund[0].index[-1]    
+        mult = 10000/fund[0].values[0]
+        plt.plot(fund[0].index, fund[0].values * mult, label = \
+                                  path.basename(graph_name))
+    timeofday = dt.timedelta(hours = 16)
+    timestamps = du.getNYSEdays(start_date, end_date, timeofday)
+    dataobj = da.DataAccess('Norgate')
+    benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
+                                            verbose = False)
+    mult = 10000/benchmark_close.values[0]
+    i = 0
+    plt.plot(benchmark_close.index, benchmark_close.values*mult, label = "SSPX")
+    plt.ylabel('Fund Value')
+    plt.xlabel('Date')
+    plt.legend()
+    plt.draw()
+    savefig(filename, format = 'png')
+     
+
 def generate_report(funds_list, graph_names, out_file):
     """
     @summary generates a report given a list of fund time series

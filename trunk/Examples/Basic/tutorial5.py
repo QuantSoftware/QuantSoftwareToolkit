@@ -50,3 +50,4 @@ startval=10000
 fundsmatrix = qs.strat_backtest1(STRAT,  start, end, 1, offset, startval)
 
 report.print_stats(fundsmatrix[0], ["$SPX"], "FUND TITLE")
+report.print_plot(fundsmatrix, ["$SPX"],"FUND TITLE", "FundFile.png")
