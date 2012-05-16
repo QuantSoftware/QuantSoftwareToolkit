@@ -19,6 +19,7 @@ from datetime import timedelta
 import time as t
 import numpy as np
 import os
+import calendar
 
 def getMonthNames():
 	return(['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'])
@@ -55,6 +56,13 @@ def getFirstDay(funds,year,month):
 		if((date.year==year) and (date.month==month)):
 			return(date)
 	return('ERROR') 
+
+def getLastDay(funds,year,month):
+        return_date = 'ERROR'
+	for date in funds.index:
+		if((date.year==year) and (date.month==month)):
+			return_date = date
+	return(return_date) 
 
 def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31),
 	timeofday = dt.timedelta(0)):
