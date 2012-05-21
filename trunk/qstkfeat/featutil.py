@@ -374,12 +374,14 @@ def testFeature( fcFeature, dArgs ):
     lsSym = ['GOOG']
     lsSym.append('WMT')
     lsSym.append('$SPX')
+    lsSym.append('$VIX')
     lsSym.sort()
     
     lsKeys = ['open', 'high', 'low', 'close', 'volume']
     ldfData = norObj.get_data( ldtTimestamps, lsSym, lsKeys )
     dData = dict(zip(lsKeys, ldfData))
     dfPrice = dData['close']
+
 
     #print dfPrice.values
     
@@ -402,7 +404,7 @@ def testFeature( fcFeature, dArgs ):
         plt.title(sSym)
         plt.subplot( 212 )
         plt.plot( ldfFeatures[0].index[-60:], ldfFeatures[0][sSym].values[-60:] )
-        plt.title( fcFeature.__name__)
+        plt.title( '%s-%s'%(fcFeature.__name__, str(dArgs)) )
         plt.show()
 
 if __name__ == '__main__':
