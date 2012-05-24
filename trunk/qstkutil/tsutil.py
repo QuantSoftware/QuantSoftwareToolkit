@@ -172,7 +172,7 @@ def get_winning_days( rets):
     for i in rets:
         if(i<0):
             negative_rets.append(i)
-    return 100 * (float(len(negative_rets)) / float(len(rets)))
+    return 100 * (1 - float(len(negative_rets)) / float(len(rets)))
 
 def get_max_draw_down(rets):
     """
