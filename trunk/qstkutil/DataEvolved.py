@@ -57,12 +57,12 @@ class _SQLite(DriverInterface):
 
     def __init__(self):
 
-        #try:
-        #    self.sqldbfile = os.environ['QSDB']
-        #except KeyError:
-        #    raise RuntimeError("Database environment variable not set.")
+        try:
+            self.sqldbfile = os.environ['QSDB']
+        except KeyError:
+            raise RuntimeError("Database environment variable not set.")
 
-        self.sqldbfile = "/Users/Jeffrey/Downloads/QSDB"
+        #self.sqldbfile = "/Users/Jeffrey/Downloads/QSDB"
 
         self._connect()
         if not self.is_database_setup():
@@ -110,14 +110,16 @@ class _SQLite(DriverInterface):
 
         # Create Pandas DataFrame in Expected Format
         currentDict = {}
+        symbol_ranges = self._find_ranges_of_symbols(results)
         for currentColumn in range(len(data_item)):
-            for symbol in symbol_list:
-                current_symbol_data = self._slice_results_by_symbol(symbol, results)
+            for symbol, ranges in symbol_ranges.items():
+                current_symbol_data = results[ranges[0]:ranges[1]]
                 currentDict[symbol] = pandas.Series(
                                         map(itemgetter(currentColumn + 2), current_symbol_data),
                                         index=map(itemgetter(1), current_symbol_data))
             # Make DataFrame
             columns.append(pandas.DataFrame(currentDict, columns=symbol_list))
+            currentDict = {}
 
         return columns
 
@@ -137,20 +139,24 @@ class _SQLite(DriverInterface):
         self.cursor.execute("SELECT ListName FROM tblListHeader")
         return self.cursor.fetchall()
 
-    def _slice_results_by_symbol(self, symbol, results):
-        found = False
+    def _find_ranges_of_symbols(self, results):
+        symbol_dict = {}
+        current_symbol = results[0][0]
+        start = 0
+        result_length = len(results) - 1
+
         for i, row in enumerate(results):
-            if row[0] == symbol and found is False:
-                first = i
-                found = True
-            if found is True:
-                if i == (len(results) - 1):  # Check if we are at the end of the list
-                    return results[first:i + 1]
-                elif row[0] == symbol:
-                    continue
+            if row[0] == current_symbol:
+                if result_length == i:
+                    symbol_dict[results[i - 1][0]] = (start, i,)
                 else:
-                    return results[first:i]
-        return None
+                    continue
+            else:
+                symbol_dict[results[i - 1][0]] = (start, i - 1,)
+                start = i
+                current_symbol = row[0]
+
+        return symbol_dict
 
 
 class _Norgate(DriverInterface):
@@ -194,15 +200,15 @@ class DataAccess(object):
                                       " not available or implmented.")
         return DataAccess.drivers[driver]()
 
+if __name__ == "__main__":
+    d = DataAccess('sqlite')
 
-d = DataAccess('sqlite')
+    date1 = datetime.datetime(2012, 2, 27, 16)
+    date2 = datetime.datetime(2012, 2, 29, 16)
 
-date1 = datetime.datetime(2012, 2, 27, 16)
-date2 = datetime.datetime(2012, 2, 29, 16)
+    #print d.get_all_lists()
+    #print d.get_all_symbols()
 
-#print d.get_all_lists()
-#print d.get_all_symbols()
+    #print d.get_list("S&P 1500 SubInd Industrial Machinery")
 
-print d.get_list("S&P 1500 SubInd Industrial Machinery")
-
-print d.get_data([date1, date2], ["AAPL", "IBM", "GOOG"], ["open", "close"])
+    print d.get_data([date1, date2], ["AAPL", "IBM", "GOOG"], ["open", "close"])
