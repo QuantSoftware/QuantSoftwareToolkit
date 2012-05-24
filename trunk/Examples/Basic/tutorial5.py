@@ -4,6 +4,7 @@ This source code is released under the New BSD license.  Please see
 http://wiki.quantsoftware.org/index.php?title=QSTK_License
 for license details.
 
+
 Created on September, 12, 2011
 
 @author:Drew Bratcher
@@ -11,6 +12,7 @@ Created on September, 12, 2011
 @summary: Contains tutorial for backtester and report.
 
 '''
+
 
 #
 # tutorial5.py
@@ -24,7 +26,6 @@ Created on September, 12, 2011
 
 #python imports
 import os
-import cPickle
 import datetime as dt
 
 
@@ -36,18 +37,19 @@ from Bin import report
 STRAT = os.environ['QS']+"/quicksim/STRATegies/OneStock.py"
 
 #start and end dates to start from
-start = dt.datetime(2008,  4, 1)
-end = dt.datetime(2012,  4, 1)
+START = dt.datetime(2009,  5, 1)
+END = dt.datetime(2009,  9, 1)
 
 #number of tests to do and the number of days offset
-num = 10
-offset = 1
+NUM = 10
+OFFSET = 1
 
 #starting fund value
-startval=10000
+STARTVAL = 10000
 
 #perform tests
-fundsmatrix = qs.strat_backtest1(STRAT,  start, end, 1, offset, startval)
 
-report.print_stats(fundsmatrix[0], ["$SPX"], "FUND TITLE")
-report.print_plot(fundsmatrix, ["$SPX"],"FUND TITLE", "FundFile.png")
+FUNDS = qs.strat_backtest1(STRAT, START, END, 1, OFFSET, STARTVAL)
+
+report.print_stats(FUNDS[0], ["$SPX"], "FUND TITLE")
+report.print_plot(FUNDS, ["$SPX"], "FUND TITLE", "FundFile.png")

@@ -136,10 +136,8 @@ def print_monthly_returns(fund_ts, years, ostream):
     for year in years:
         ostream.write(str(year) + "\t")
         months = du.getMonths(fund_ts, year)
-        if(i==0):
-            if(len(months)<12):
-                for k in range(0, 12-len(months)):
-                    ostream.write("\t")
+        for k in range(1, months[0]):
+            ostream.write("\t")
         for month in months:
             ostream.write("\t% + 6.2f" % (mrets[i]*100))
             i += 1
