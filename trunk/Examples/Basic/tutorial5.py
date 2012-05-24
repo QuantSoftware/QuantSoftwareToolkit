@@ -28,7 +28,6 @@ Created on September, 12, 2011
 import os
 import datetime as dt
 
-
 #qstk imports
 from quicksim import quickSim as qs
 from Bin import report
