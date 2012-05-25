@@ -101,8 +101,8 @@ class DataAccess(object):
                 
             #if DataSource.YAHOO ends
         elif (sourcein == DataSource.CUSTOM) :
-	    self.source = DataSource.CUSTOM
-	    self.folderList.append(self.rootdir+"/Processed/Custom/")	
+            self.source = DataSource.CUSTOM
+            self.folderList.append(self.rootdir+"/Processed/Custom/")	
         elif (sourcein == DataSource.COMPUSTAT):
             self.source= DataSource.COMPUSTAT
             self.midPath= "/Processed/Compustat"
@@ -150,12 +150,12 @@ class DataAccess(object):
         
         ''' For each item in the list, add to list_index (later used to delete non-used items) '''
         for sItem in data_item:
-	    if( self.source == DataSource.CUSTOM ) :
-		''' If custom just load what you can '''
-            	if (sItem == DataItem.CLOSE):
-			list_index.append(1)
-            	elif (sItem == DataItem.ACTUAL_CLOSE):
-			list_index.append(2)
+            if( self.source == DataSource.CUSTOM ) :
+                ''' If custom just load what you can '''
+                if (sItem == DataItem.CLOSE):
+                    list_index.append(1)
+                elif (sItem == DataItem.ACTUAL_CLOSE):
+                    list_index.append(2)
             if( self.source == DataSource.COMPUSTAT ):
                 ''' If compustat, look through list of features '''
                 for i, sLabel in enumerate(DataItem.COMPUSTAT):
@@ -166,23 +166,23 @@ class DataAccess(object):
                 else:
                     raise ValueError ("Incorrect value for data_item %s"%sItem)
             
-	    if( self.source == DataSource.NORGATE ):
-		if (sItem == DataItem.OPEN):
-			list_index.append(1)
-            	elif (sItem == DataItem.HIGH):
-            	    list_index.append (2)
-            	elif (sItem ==DataItem.LOW):
-            	    list_index.append(3)
-            	elif (sItem == DataItem.CLOSE):
-            	    list_index.append(4)
-            	elif(sItem == DataItem.VOL):
-              	  list_index.append(5)
-            	elif (sItem == DataItem.ACTUAL_CLOSE):
-            	    list_index.append(6)
-            	else:
-            	    #incorrect value
-            	    raise ValueError ("Incorrect value for data_item %s"%sItem)
-            	#end elif
+            if( self.source == DataSource.NORGATE ):
+                if (sItem == DataItem.OPEN):
+                    list_index.append(1)
+                elif (sItem == DataItem.HIGH):
+                    list_index.append (2)
+                elif (sItem ==DataItem.LOW):
+                    list_index.append(3)
+                elif (sItem == DataItem.CLOSE):
+                    list_index.append(4)
+                elif(sItem == DataItem.VOL):
+                    list_index.append(5)
+                elif (sItem == DataItem.ACTUAL_CLOSE):
+                    list_index.append(6)
+                else:
+                    #incorrect value
+                    raise ValueError ("Incorrect value for data_item %s"%sItem)
+                #end elif
         #end data_item loop
 
         #read in data for a stock
@@ -352,7 +352,7 @@ class DataAccess(object):
         hashts = 0
 
         # print "test point 1: " + str(len(ts_list))
-	spyfile=os.environ['QSDATA'] + '/Processed/Norgate/Stocks/US/NYSE Arca/SPY.pkl'
+        spyfile=os.environ['QSDATA'] + '/Processed/Norgate/Stocks/US/NYSE Arca/SPY.pkl'
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str (self.source)+'-' +str(abs(hashsyms)) + '-' + str(abs(hashts)) \
@@ -373,20 +373,18 @@ class DataAccess(object):
         # now eather read the pkl file, or do a hardread
         readfile = False # indicate that we have not yet read the file
 
-	#check if the cachestall variable is defined.
+        #check if the cachestall variable is defined.
+        try:
+            catchstall=dt.timedelta(hours=int(os.environ['CACHESTALLTIME']))
+        except:
+            catchstall=dt.timedelta(hours=1)
 
-#	catchstall=os.environ['CACHESTALLTIME']
-	try:
-	    catchstall=dt.timedelta(hours=int(os.environ['CACHESTALLTIME']))
-	except:
-	    catchstall=dt.timedelta(hours=1)
-
-	# Check if the file is older than the cachestalltime
+        # Check if the file is older than the cachestalltime
         if os.path.exists(cachefilename):
-	    if ((dt.datetime.now()-dt.datetime.fromtimestamp(os.path.getctime(cachefilename)))<catchstall):
-            	if verbose:
-            	    print "cache hit"
-            	try:
+            if ((dt.datetime.now()-dt.datetime.fromtimestamp(os.path.getmtime(cachefilename)))<catchstall):
+                if verbose:
+                    print "cache hit"
+                try:
                     cachefile = open(cachefilename, "rb")
                     start = time.time() # start timer
                     retval = pkl.load(cachefile)
@@ -397,10 +395,10 @@ class DataAccess(object):
                     if verbose:
                         print "error reading cache: " + cachefilename
                         print "recovering..."
-            	except EOFError:
+                except EOFError:
                     if verbose:
-                    	print "error reading cache: " + cachefilename
-                    	print "recovering..."
+                        print "error reading cache: " + cachefilename
+                        print "recovering..."
         if (readfile!=True):
             if verbose:
                 print "cache miss"
@@ -567,11 +565,11 @@ class DataAccess(object):
             retstr = retstr + "Valid subdirs include: \n"
             for i in self.folderSubList:
                 retstr = retstr + "\t" + i + "\n"
-	elif (self.source == DataSource.CUSTOM):
-	    retstr = "Custom:\n"
-	    retstr = retstr + "Attempts to load a custom data set, assuming each stock has\n"
-	    retstr = retstr + "a pkl file with the name and first column as the stock ticker, date in second column, and data in following columns.\n"
-	    retstr = retstr + "everything should be located in QSDATA/Processed/CUSTOM.\n"
+        elif (self.source == DataSource.CUSTOM):
+            retstr = "Custom:\n"
+            retstr = retstr + "Attempts to load a custom data set, assuming each stock has\n"
+            retstr = retstr + "a pkl file with the name and first column as the stock ticker, date in second column, and data in following columns.\n"
+            retstr = retstr + "everything should be located in QSDATA/Processed/CUSTOM.\n"
         else:
             retstr = "DataAccess internal error\n"
 
