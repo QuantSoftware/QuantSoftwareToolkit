@@ -246,6 +246,7 @@ class DataAccess(object):
             for lLabelNum, lLabelIndex in enumerate(list_index):
                 
                 ts_ctr = 0
+                b_skip = True
                 
                 ''' select timestamps and the data column we want '''
                 temp_np = naData[:,(0,lLabelIndex)]
@@ -261,8 +262,9 @@ class DataAccess(object):
                     ''' Quick hack to skip most of the data '''
                     if timeyear < ts_list[0].year:
                         continue
-                    elif ts_ctr == 0:
+                    elif b_skip == True:
                         ts_ctr = i
+                        b_skip = False
                     
                     
                     timemonth = int((timebase-timeyear*10000)/100)
