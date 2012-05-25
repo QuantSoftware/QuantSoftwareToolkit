@@ -12,22 +12,20 @@ Created on May 14, 2012
 '''
 
 import os
+import time
 import pandas
+import pickle
 import sqlite3
 import datetime
-import inspect
 from operator import itemgetter
 
 
-"""
-
-Driver classes must overload the used driver interfaces methods
-
-"""
-
-
 class DriverInterface(object):
-    def get_data(self, ts_list, symbol_list, data_item, verbose=False, bIncDelist=False):
+    '''
+    DriverInterface is the data access interface that all driver classes must adhear to.
+    '''
+    def get_data(self, ts_list, symbol_list, data_item, verbose=False,
+                    include_delisted=False):
         raise NotImplementedError("Selected Driver has not implmented get_data.")
 
     def get_all_symbols(self):
@@ -39,21 +37,11 @@ class DriverInterface(object):
     def get_all_lists(self):
         raise NotImplementedError("Selected Driver has not implmented get_all_lists.")
 
-"""
-
-SQLite driver >
-    Need interface from above
-    IsDataBaseSetup
-    setupDatabase
-
-"""
-
 
 class _SQLite(DriverInterface):
-
-    data_item_mapping = {'open': 'OpenPrice', 'high': 'AdjustedHiPrice',
-                        'low': 'AdjustedLowPrice', 'close': 'AdjustedClosePrice',
-                        'volume': 'Volume', 'actual close': 'ActualClosePrice'}
+    """
+    Driver class for SQLite
+    """
 
     def __init__(self):
 
@@ -62,20 +50,32 @@ class _SQLite(DriverInterface):
         except KeyError:
             raise RuntimeError("Database environment variable not set.")
 
-        #self.sqldbfile = "/Users/Jeffrey/Downloads/QSDB"
-
         self._connect()
-        if not self.is_database_setup():
-            self.init_database()
 
     def _connect(self):
-        self.connection = sqlite3.connect(self.sqldbfile, detect_types=sqlite3.PARSE_DECLTYPES)
+        self.connection = sqlite3.connect(self.sqldbfile,
+                            detect_types=sqlite3.PARSE_DECLTYPES)
         self.cursor = self.connection.cursor()
 
-    def is_database_setup(self):
-        return True
+    def get_data(self, ts_list, symbol_list, data_item,
+                    verbose=False, include_delisted=False):
+        if _ScratchCache.try_cache:
+            return _ScratchCache.try_cache(ts_list, symbol_list, data_item,
+                        verbose, include_delisted, self.get_data_hard_read, "SQLite")
+        else:
+            return self.get_data_hard_read(ts_list, symbol_list, data_item,
+                        verbose, include_delisted)
 
-    def get_data(self, ts_list, symbol_list, data_item, verbose=False, bIncDelist=False):
+    def get_data_hard_read(self, ts_list, symbol_list, data_item, verbose=False, include_delisted=False):
+        """
+        Read data into a DataFrame from SQLite
+        @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
+        @param symbol_list: The list of symbols for which the data values are needed
+        @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataFrame is returned.
+        @param include_delisted: If true, delisted securities will be included.
+        @note: If a symbol is not found all the values in the column for that stock will be NaN. Execution then
+        continues as usual. No errors are raised at the moment.
+        """
         columns = []
         results = []
 
@@ -88,16 +88,15 @@ class _SQLite(DriverInterface):
         symbol_query_list = ",".join(map(lambda x: "'" + x + "'", symbol_list))
 
         # Combine Data Fields for Query
-        data_item[:] = map(lambda x: _SQLite.data_item_mapping[x], data_item)
-        data_item[:] = map(lambda x: "B." + x, data_item)
+        data_item = map(lambda x: "B." + x, data_item)
         query_select_items = ",".join(data_item)
 
         # Build Query - Inherently Unsafe!
         self.cursor.execute("""
-                SELECT A.Symbol,B.TradingDateTime,""" + query_select_items + """
+                SELECT A.symbol,B.timestamp,""" + query_select_items + """
                 FROM tblEquity A JOIN tblPriceVolumeHistory B ON A.ID = B.tblEquity_ID
-                WHERE B.TradingDateTime >= (?) AND B.TradingDateTime <= (?) AND A.Symbol IN (%s)
-                ORDER BY A.Symbol ASC
+                WHERE B.timestamp >= (?) AND B.timestamp <= (?) AND A.symbol IN (%s)
+                ORDER BY A.symbol ASC
             """ % symbol_query_list, (ts_list[0], ts_list[-1],))
 
         # Retrieve Results
@@ -109,26 +108,26 @@ class _SQLite(DriverInterface):
                 del results[i]
 
         # Create Pandas DataFrame in Expected Format
-        currentDict = {}
+        current_dict = {}
         symbol_ranges = self._find_ranges_of_symbols(results)
-        for currentColumn in range(len(data_item)):
+        for current_column in range(len(data_item)):
             for symbol, ranges in symbol_ranges.items():
                 current_symbol_data = results[ranges[0]:ranges[1]]
-                currentDict[symbol] = pandas.Series(
-                                        map(itemgetter(currentColumn + 2), current_symbol_data),
+                current_dict[symbol] = pandas.Series(
+                                        map(itemgetter(current_column + 2), current_symbol_data),
                                         index=map(itemgetter(1), current_symbol_data))
             # Make DataFrame
-            columns.append(pandas.DataFrame(currentDict, columns=symbol_list))
-            currentDict = {}
+            columns.append(pandas.DataFrame(current_dict, columns=symbol_list))
+            current_dict = {}
 
         return columns
 
-    def get_list(self, name):
+    def get_list(self, list_name):
         self.cursor.execute("""SELECT A.Symbol
                     FROM tblEquity A JOIN tblListDetail C ON A.ID = C.tblEquity_ID
                     JOIN tblListHeader B ON B.ID = C.tblListHeader_ID
                     WHERE B.ListName = ?
-        """, (name,))
+        """, (list_name,))
         return self.cursor.fetchall()
 
     def get_all_symbols(self):
@@ -159,38 +158,113 @@ class _SQLite(DriverInterface):
         return symbol_dict
 
 
-class _Norgate(DriverInterface):
+class _ScratchCache(object):
+    @staticmethod
+    def try_cache(ts_list, symbol_list, data_item, verbose=False,
+                include_delisted=False, cache_miss_function=None, source=None):
+        '''
+        Read data into a DataFrame, but check to see if it is in a cache first.
+        @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
+        @param symbol_list: The list of symbols for which the data values are needed
+        @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataFrame is returned.
+        @param include_delisted: If true, delisted securities will be included.
+        @note: If a symbol is not found then a message is printed. All the values in the column for that stock will be NaN. Execution then
+        continues as usual. No errors are raised at the moment.
+        '''
 
-    def __init__(self):
+        # Construct hash -- filename where data may be already
+        #
+        # The idea here is to create a filename from the arguments provided.
+        # We then check to see if the filename exists already, meaning that
+        # the data has already been created and we can just read that file.
+
+        # Create the hash for the symbols
+        hashsyms = 0
+        for i in symbol_list:
+            hashsyms = (hashsyms + hash(i)) % 10000000
+
+        # Create the hash for the timestamps
+        hashts = 0
+
+        # print "test point 1: " + str(len(ts_list))
+        spyfile = os.environ['QSDATA'] + '/Processed/Norgate/Stocks/US/NYSE Arca/SPY.pkl'
+        for i in ts_list:
+            hashts = (hashts + hash(i)) % 10000000
+        hashstr = 'qstk-' + str(source) + '-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
+            + '-' + str(hash(str(data_item))) + '-' + str(hash(str(os.path.getctime(spyfile))))
+
+        # get the directory for scratch files from environment
         try:
-            self.rootdir = os.environ['QSDATA']
+            scratchdir = os.environ['QSSCRATCH']
         except KeyError:
-            raise KeyError("Please be sure to set the value for QSDATA in config.sh or local.sh")
+            #self.rootdir = "/hzr71/research/QSData"
+            raise KeyError("Please be sure to set the value for QSSCRATCH in config.sh or local.sh")
 
-        self.folderList = list()
-        self.folderSubList = list()
-        self.fileExtensionToRemove = ".pkl"
+        # final complete filename
+        cachefilename = scratchdir + '/' + hashstr + '.pkl'
+        if verbose:
+            print "cachefilename is:" + cachefilename
 
-        self.midPath = "/Processed/Norgate/Stocks/"
-        self.folderSubList.append("/US/AMEX/")
-        self.folderSubList.append("/US/NASDAQ/")
-        self.folderSubList.append("/US/NYSE/")
-        self.folderSubList.append("/US/NYSE Arca/")
-        self.folderSubList.append("/US/OTC/")
-        self.folderSubList.append("/US/Delisted Securities/")
-        self.folderSubList.append("/US/Indices/")
+        # now eather read the pkl file, or do a hardread
+        readfile = False  # indicate that we have not yet read the file
 
-        for i in self.folderSubList:
-            self.folderList.append(self.rootdir + self.midPath + i)
+        #check if the cachestall variable is defined.
 
+    #   catchstall=os.environ['CACHESTALLTIME']
+        try:
+            catchstall = datetime.timedelta(hours=int(os.environ['CACHESTALLTIME']))
+        except:
+            catchstall = datetime.timedelta(hours=1)
 
-class _Compustat(DriverInterface):
-
-    def __init__(self):
-        pass
+        # Check if the file is older than the cachestalltime
+        if os.path.exists(cachefilename):
+            if((datetime.datetime.now() - datetime.datetime.fromtimestamp(os.path.getctime(cachefilename))) < catchstall):
+                if verbose:
+                    print "cache hit"
+                try:
+                    cachefile = open(cachefilename, "rb")
+                    start = time.time()  # start timer
+                    retval = pickle.load(cachefile)
+                    elapsed = time.time() - start  # end timer
+                    readfile = True  # remember success
+                    cachefile.close()
+                except IOError:
+                    if verbose:
+                        print "error reading cache: " + cachefilename
+                        print "recovering..."
+                except EOFError:
+                    if verbose:
+                        print "error reading cache: " + cachefilename
+                        print "recovering..."
+        if (readfile != True):
+            if verbose:
+                print "cache miss"
+                print "beginning hardread"
+                start = time.time()  # start timer
+                print "data_item(s): " + str(data_item)
+                print "symbols to read: " + str(symbol_list)
+            retval = cache_miss_function(ts_list,
+                symbol_list, data_item, verbose, include_delisted)
+            if verbose:
+                elapsed = time.time() - start  # end timer
+                print "end hardread"
+                print "saving to cache"
+            try:
+                cachefile = open(cachefilename, "wb")
+                pickle.dump(retval, cachefile, -1)
+                os.chmod(cachefilename, 0666)
+            except IOError:
+                print "error writing cache: " + cachefilename
+            if verbose:
+                print "end saving to cache"
+                print "reading took " + str(elapsed) + " seconds"
+        return retval
 
 
 class DataAccess(object):
+    """
+    Factory class that returns the requested data source driver
+    """
     drivers = {'sqlite': _SQLite}
 
     def __new__(self, driver):
@@ -200,8 +274,9 @@ class DataAccess(object):
                                       " not available or implmented.")
         return DataAccess.drivers[driver]()
 
+
 if __name__ == "__main__":
-    d = DataAccess('sqlite')
+    db = DataAccess('sqlite')
 
     date1 = datetime.datetime(2012, 2, 27, 16)
     date2 = datetime.datetime(2012, 2, 29, 16)
@@ -211,4 +286,4 @@ if __name__ == "__main__":
 
     #print d.get_list("S&P 1500 SubInd Industrial Machinery")
 
-    print d.get_data([date1, date2], ["AAPL", "IBM", "GOOG"], ["open", "close"])
+    print db.get_data([date1, date2], ["AAPL", "IBM", "GOOG", "A"], ["open", "close"])
