@@ -191,7 +191,7 @@ class _ScratchCache(object):
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str(source) + '-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
-            + '-' + str(hash(str(data_item))) + '-' + str(hash(str(os.path.getctime(spyfile))))
+            + '-' + str(hash(str(data_item))) + '-' + str(hash(str(os.path.getmtime(spyfile))))
 
         # get the directory for scratch files from environment
         try:
@@ -218,7 +218,7 @@ class _ScratchCache(object):
 
         # Check if the file is older than the cachestalltime
         if os.path.exists(cachefilename):
-            if((datetime.datetime.now() - datetime.datetime.fromtimestamp(os.path.getctime(cachefilename))) < catchstall):
+            if((datetime.datetime.now() - datetime.datetime.fromtimestamp(os.path.getmtime(cachefilename))) < catchstall):
                 if verbose:
                     print "cache hit"
                 try:
