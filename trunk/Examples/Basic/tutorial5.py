@@ -37,7 +37,7 @@ STRAT = os.environ['QS']+"/quicksim/STRATegies/OneStock.py"
 
 #start and end dates to start from
 START = dt.datetime(2009,  5, 1)
-END = dt.datetime(2009,  9, 1)
+END = dt.datetime(2012,  9, 1)
 
 #number of tests to do and the number of days offset
 NUM = 10

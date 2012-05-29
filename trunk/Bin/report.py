@@ -14,15 +14,13 @@ Created on Jan 1, 2011
 
 from os import path
 from os import sys
-from pylab import *
 from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 from qstkutil import tsutil as tsu
 from qstkutil import fundutil as fu
 import converter
-
-from pandas import *
-import matplotlib.pyplot as plt
+from pylab import savefig
+from matplotlib import pyplot
 import cPickle
 import datetime as dt
 
@@ -216,7 +214,14 @@ def print_stats(fund_ts, benchmark, name, ostream = sys.stdout):
     print_monthly_returns(fund_ts, years, ostream)            
 
 def print_plot(fund, benchmark, graph_name, filename):
-    plt.clf()
+    """
+    @summary prints a plot of a provided fund and benchmark
+    @param fund: fund value in pandas timeseries
+    @param benchmark: benchmark symbol to compare fund to
+    @param graph_name: name to associate with the fund in the report
+    @param filename: file location to store plot1
+    """
+    pyplot.clf()
     start_date = 0
     end_date = 0
     if(type(fund)!= type(list())):
@@ -225,7 +230,7 @@ def print_plot(fund, benchmark, graph_name, filename):
         if(end_date == 0 or end_date<fund.index[-1]):
             end_date = fund.index[-1]    
         mult = 10000/fund.values[0]
-        plt.plot(fund.index, fund.values * mult, label = \
+        pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_name))
     else:    
         if(start_date == 0 or start_date>fund[0].index[0]):
@@ -233,20 +238,20 @@ def print_plot(fund, benchmark, graph_name, filename):
         if(end_date == 0 or end_date<fund[0].index[-1]):
             end_date = fund[0].index[-1]    
         mult = 10000/fund[0].values[0]
-        plt.plot(fund[0].index, fund[0].values * mult, label = \
+        pyplot.plot(fund[0].index, fund[0].values * mult, label = \
                                   path.basename(graph_name))
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
     dataobj = da.DataAccess('Norgate')
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                             verbose = False)
-    mult = 10000/benchmark_close.values[0]
-    i = 0
-    plt.plot(benchmark_close.index, benchmark_close.values*mult, label = "SSPX")
-    plt.ylabel('Fund Value')
-    plt.xlabel('Date')
-    plt.legend()
-    plt.draw()
+    mult = 10000 / benchmark_close.values[0]
+    pyplot.plot(benchmark_close.index, \
+                benchmark_close.values*mult, label = "SSPX")
+    pyplot.ylabel('Fund Value')
+    pyplot.xlabel('Date')
+    pyplot.legend()
+    pyplot.draw()
     savefig(filename, format = 'png')
      
 
@@ -259,7 +264,7 @@ def generate_report(funds_list, graph_names, out_file):
     html_file.write("<IMG SRC = \'./funds.png\' width = 400/>\n")
     html_file.write("<BR/>\n\n")
     i = 0
-    plt.clf()
+    pyplot.clf()
     #load spx for time frame
     symbol = ["$SPX"]
     start_date = 0
@@ -271,7 +276,7 @@ def generate_report(funds_list, graph_names, out_file):
             if(end_date == 0 or end_date<fund.index[-1]):
                 end_date = fund.index[-1]    
             mult = 10000/fund.values[0]
-            plt.plot(fund.index, fund.values * mult, label = \
+            pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_names[i]))
         else:    
             if(start_date == 0 or start_date>fund[0].index[0]):
@@ -279,7 +284,7 @@ def generate_report(funds_list, graph_names, out_file):
             if(end_date == 0 or end_date<fund[0].index[-1]):
                 end_date = fund[0].index[-1]    
             mult = 10000/fund[0].values[0]
-            plt.plot(fund[0].index, fund[0].values * mult, label = \
+            pyplot.plot(fund[0].index, fund[0].values * mult, label = \
                                       path.basename(graph_names[i]))    
         i += 1
     timeofday = dt.timedelta(hours = 16)
@@ -295,11 +300,12 @@ def generate_report(funds_list, graph_names, out_file):
         else:    
             print_stats( fund[0], ["$SPX"], graph_names[i])
         i += 1
-    plt.plot(benchmark_close.index, benchmark_close.values*mult, label = "SSPX")
-    plt.ylabel('Fund Value')
-    plt.xlabel('Date')
-    plt.legend()
-    plt.draw()
+    pyplot.plot(benchmark_close.index, \
+                 benchmark_close.values*mult, label = "SSPX")
+    pyplot.ylabel('Fund Value')
+    pyplot.xlabel('Date')
+    pyplot.legend()
+    pyplot.draw()
     savefig('funds.png', format = 'png')
     print_footer(html_file)
 
