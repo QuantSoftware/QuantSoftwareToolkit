@@ -494,8 +494,6 @@ def featBollinger( dData, lLookback=20, b_human=False ):
     '''
     if b_human:
         dfPrice = dData['close']
-        avgsRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
-        #average plus standard deviation
         nstdsRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
         #average minus standard deviation
         pstdsRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )      
@@ -503,21 +501,18 @@ def featBollinger( dData, lLookback=20, b_human=False ):
         for sym in dfPrice.columns:
             if sym != '$SPX' and sym != '$VIX':
                 tsPrice = dfPrice[sym]
-                avgRet = avgsRet[sym]
                 nstdRet = nstdsRet[sym]
                 pstdRet = pstdsRet[sym]
                 for i in range(len(tsPrice.index)):
                     if i < lLookback - 1:
-                        avgRet[i] = float('nan')
                         nstdRet[i] = float('nan')
                         pstdRet[i] = float('nan')
                         continue    
                     fAvg = np.average( tsPrice[ i-(lLookback-1):i+1 ] )
                     fStd = np.std( tsPrice[ i-(lLookback-1):i+1 ] )
-                    avgRet[i] = fAvg
                     pstdRet[i] = fAvg+fStd
                     nstdRet[i] = fAvg-fStd  
-                data3[sym + " Average"] = avgsRet[sym]
+                data3[sym] = dfPrice[sym]
                 data3[sym + " -Std Dev"] = nstdsRet[sym]
                 data3[sym + " +Std Dev"] = pstdsRet[sym]
         del data3['Raw']
