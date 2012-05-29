@@ -22,11 +22,12 @@ import numpy as np
 import qstkutil.tsutil as tsu
 
 
-def featMA( dData, lLookback=30, bRel=True ):
+def featMA( dData, lLookback=30, bRel=True, b_human=False ):
     '''
     @summary: Calculate moving average
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
     
@@ -36,15 +37,24 @@ def featMA( dData, lLookback=30, bRel=True ):
     
     if bRel:
         dfRet = dfRet / dfPrice;
-            
+    if b_human:  
+        data2 = dfRet*dData['close']
+        data3 = pand.DataFrame({"Raw":data2[data2.columns[0]]})
+        for sym in dfRet.columns:
+            if sym != '$SPX' and sym != '$VIX':
+                data3[sym + " Moving Average"] = data2[sym]
+                data3[sym] = dData['close'][sym]
+        del data3['Raw']
+        return data3
     return dfRet
 
 
-def featEMA( dData, lLookback=20, bRel=True ):
+def featEMA( dData, lLookback=20, bRel=True,  b_human=False ):
     '''
     @summary: Calculate exponential moving average
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
     
@@ -54,14 +64,23 @@ def featEMA( dData, lLookback=20, bRel=True ):
     
     if bRel:
         dfRet = dfRet / dfPrice;
-            
+    if b_human:  
+        data2 = dfRet*dData['close']
+        data3 = pand.DataFrame({"Raw":data2[data2.columns[0]]})
+        for sym in dfRet.columns:
+            if sym != '$SPX' and sym != '$VIX':
+                data3[sym + " Moving Average"] = data2[sym]
+                data3[sym] = dData['close'][sym]
+        del data3['Raw']
+        return data3          
     return dfRet
 
-def featSTD( dData, lLookback=20, bRel=True ):
+def featSTD( dData, lLookback=20, bRel=True,  b_human=False ):
     '''
     @summary: Calculate standard deviation
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
     
@@ -72,14 +91,19 @@ def featSTD( dData, lLookback=20, bRel=True ):
     
     if bRel:
         dfRet = dfRet / dfPrice;
-            
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
-def featRSI( dData, lLookback=14 ):
+def featRSI( dData, lLookback=14,  b_human=False):
     '''
     @summary: Calculate RSI
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to look in the past, 14 is standard
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
     
@@ -129,16 +153,22 @@ def featRSI( dData, lLookback=14 ):
                     fRS = fGain / fLoss
                     tsRet[i] = 100 - 100 / (1-fRS)
             
-            
+    
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
 
-def featDrawDown( dData, lLookback=30 ):
+def featDrawDown( dData, lLookback=30,  b_human=False):
     '''
     @summary: Calculate Drawdown for the stock
     @param dData: Dictionary of data to use
     @param lLookback: Days to look back
     @return: DataFrame array containing values
+    @param b_human: if true return dataframe to plot
     @warning: Drawdown and RunUp can depend heavily on sample period
     '''
     
@@ -167,15 +197,20 @@ def featDrawDown( dData, lLookback=30 ):
             fPeak = np.max( tsPrice.values[ lStart:lStop ] )    
             
             tsRet[i] = tsPrice[i] / fPeak
-
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
-def featRunUp( dData, lLookback=30 ):
+def featRunUp( dData, lLookback=30, b_human=False ):
     '''
     @summary: CalculateRunup for the stock
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to calculate min over 
     @return: DataFrame array containing feature values
+    @param b_human: if true return dataframe to plot
     @warning: Drawdown and RunUp can depend heavily on when the sample starts
     '''
     
@@ -208,15 +243,21 @@ def featRunUp( dData, lLookback=30 ):
                 fTrough = tsPrice[i]
             
             tsRet[i] = tsPrice[i] / fTrough
-
+            
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
 
-def featVolumeDelta( dData, lLookback=30 ):
+def featVolumeDelta( dData, lLookback=30, b_human=False ):
     '''
     @summary: Calculate moving average
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to use for MA
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
     
@@ -247,15 +288,21 @@ def featVolumeDelta( dData, lLookback=30 ):
             
             ''' Make this relative to the MA of volume '''
             tsRet[i] /= tsVol[i]
-            
+        
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']    
     return dfRet
 
-def featAroon( dData, bDown=False, lLookback=25 ):
+def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
     '''
     @summary: Calculate Aroon - indicator indicating days since a 25-day high/low, weighted between 0 and 100
     @param dData: Dictionary of data to use
     @param bDown: If false, calculates aroonUp (high), else aroonDown (lows)
     @param lLookback: Days to lookback to calculate high/low from
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing feature values
     '''
     
@@ -307,14 +354,20 @@ def featAroon( dData, bDown=False, lLookback=25 ):
             random.seed(i)
             tsRet[i] += random.uniform( -0.0001, 0.0001 )
 
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
 
-def featStochastic( dData, lLookback=14, bFast=True, lMA=3 ):
+def featStochastic( dData, lLookback=14, bFast=True, lMA=3, b_human=False ):
     '''
     @summary: Calculate stochastic oscillator - indicates what range of recent low-high spread we are in.
     @param dData: Dictionary of data to use
     @param bFast: If false, do slow stochastics, 3 day MA, if not use fast, no MA
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing feature values
     '''
 
@@ -373,13 +426,19 @@ def featStochastic( dData, lLookback=14, bFast=True, lMA=3 ):
                  
                 
 
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
-def featBeta( dData, lLookback=14, sMarket='$SPX' ):
+def featBeta( dData, lLookback=14, sMarket='$SPX', b_human=False ):
     '''
     @summary: Calculate beta relative to a given stock/index.
     @param dData: Dictionary of data to use
     @param sStock: Stock to calculate beta relative to
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing feature values
     '''
 
@@ -418,47 +477,83 @@ def featBeta( dData, lLookback=14, sMarket='$SPX' ):
                 'Numpy Error featBeta'
                 tsRet[i] = float('NaN')
 
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
-def featBollinger( dData, lLookback=20 ):
+def featBollinger( dData, lLookback=20, b_human=False ):
     '''
     @summary: Calculate bollinger position as a function of std deviations.
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to calculate moving average over
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing feature values
     '''
-
-    dfPrice = dData['close']
+    if b_human:
+        dfPrice = dData['close']
+        avgsRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+        #average plus standard deviation
+        nstdsRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+        #average minus standard deviation
+        pstdsRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )      
+        data3 = pand.DataFrame({"Raw":dfPrice[dfPrice.columns[0]]})
+        for sym in dfPrice.columns:
+            if sym != '$SPX' and sym != '$VIX':
+                tsPrice = dfPrice[sym]
+                avgRet = avgsRet[sym]
+                nstdRet = nstdsRet[sym]
+                pstdRet = pstdsRet[sym]
+                for i in range(len(tsPrice.index)):
+                    if i < lLookback - 1:
+                        avgRet[i] = float('nan')
+                        nstdRet[i] = float('nan')
+                        pstdRet[i] = float('nan')
+                        continue    
+                    fAvg = np.average( tsPrice[ i-(lLookback-1):i+1 ] )
+                    fStd = np.std( tsPrice[ i-(lLookback-1):i+1 ] )
+                    avgRet[i] = fAvg
+                    pstdRet[i] = fAvg+fStd
+                    nstdRet[i] = fAvg-fStd  
+                data3[sym + " Average"] = avgsRet[sym]
+                data3[sym + " -Std Dev"] = nstdsRet[sym]
+                data3[sym + " +Std Dev"] = pstdsRet[sym]
+        del data3['Raw']
+        return data3
+    else:
+        dfPrice = dData['close']
+        #''' Feature DataFrame will be 1:1, we can use the price as a template '''
+        dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+        
+        #''' Loop through stocks '''
+        for sStock in dfPrice.columns:   
+            tsPrice = dfPrice[sStock]
+            tsRet = dfRet[sStock]
+               
+            #''' Loop over time '''
+            for i in range(len(tsPrice.index)):
+                
+                #''' NaN if not enough data to do lookback '''
+                if i < lLookback - 1:
+                    tsRet[i] = float('nan')
+                    continue    
+                
+                fAvg = np.average( tsPrice[ i-(lLookback-1):i+1 ] )
+                fStd = np.std( tsPrice[ i-(lLookback-1):i+1 ] )
+                
+                tsRet[i] = (tsPrice[i] - fAvg) / fStd
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
-    
-    ''' Loop through stocks '''
-    for sStock in dfPrice.columns:   
-        tsPrice = dfPrice[sStock]
-        tsRet = dfRet[sStock]
-           
-        ''' Loop over time '''
-        for i in range(len(tsPrice.index)):
-            
-            ''' NaN if not enough data to do lookback '''
-            if i < lLookback - 1:
-                tsRet[i] = float('nan')
-                continue    
-            
-            fAvg = np.average( tsPrice[ i-(lLookback-1):i+1 ] )
-            fStd = np.std( tsPrice[ i-(lLookback-1):i+1 ] )
-            
-            tsRet[i] = (tsPrice[i] - fAvg) / fStd
-
-    return dfRet
+        return dfRet
 
 
-def featCorrelation( dData, lLookback=20, sRel='$SPX' ):
+def featCorrelation( dData, lLookback=20, sRel='$SPX', b_human=False ):
     '''
     @summary: Calculate correlation of two stocks.
     @param dData: Dictionary of data to use
     @param lLookback: Number of days to calculate moving average over
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing feature values
     '''
 
@@ -493,19 +588,48 @@ def featCorrelation( dData, lLookback=20, sRel='$SPX' ):
             
             tsRet[i] = naCorr[0,1]
 
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
-def featPrice(dData):
+def featPrice(dData, b_human=False):
+    '''
+    @summary: Price feature
+    @param dData: Dictionary of data to use
+    @param b_human: if true return dataframe to plot
+    @return: DataFrame array containing values
+    '''
+    
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dData['close']
 
-def featVolume(dData):
+def featVolume(dData, b_human=False):
+    '''
+    @summary: Volume feature
+    @param dData: Dictionary of data to use
+    @param b_human: if true return dataframe to plot
+    @return: DataFrame array containing values
+    '''
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dData['volume']
 
 
-def featRand( dData ):
+def featRand( dData, b_human=False ):
     '''
     @summary: Random feature - used for robustness testing
     @param dData: Dictionary of data to use
+    @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
     
@@ -515,6 +639,11 @@ def featRand( dData ):
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, 
                             data=np.random.randn(*dfPrice.shape) )
     
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     return dfRet
 
 
