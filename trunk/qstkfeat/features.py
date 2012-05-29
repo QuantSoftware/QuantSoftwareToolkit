@@ -513,8 +513,8 @@ def featBollinger( dData, lLookback=20, b_human=False ):
                     pstdRet[i] = fAvg+fStd
                     nstdRet[i] = fAvg-fStd  
                 data3[sym] = dfPrice[sym]
-                data3[sym + " -Std Dev"] = nstdsRet[sym]
-                data3[sym + " +Std Dev"] = pstdsRet[sym]
+                data3[sym + " Lower"] = nstdsRet[sym]
+                data3[sym + " Upper"] = pstdsRet[sym]
         del data3['Raw']
         return data3
     else:
