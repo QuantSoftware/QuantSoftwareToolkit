@@ -20,6 +20,7 @@ import sys
 import datetime as dt
 
 # 3rd Party Imports
+import numpy.core.multiarray
 import pandas as pand
 
 # QSTK imports

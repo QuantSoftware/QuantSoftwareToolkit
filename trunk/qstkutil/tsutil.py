@@ -16,8 +16,6 @@ Created on Jan 1, 2011
 import math
 import datetime as dt
 import numpy as np
-from pylab import *
-from pandas import *
 from qstkutil import dateutil
 from math import sqrt
 from copy import deepcopy
