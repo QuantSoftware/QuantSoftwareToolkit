@@ -1,0 +1,217 @@
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+Created on May 14, 2012
+
+@author: Sourabh Bajaj
+@contact: sourabhbajaj90@gmail.com
+@summary: Backtester
+
+'''
+
+
+# Python imports
+#import datetime as dt
+
+# 3rd Party Imports
+import pandas as pand
+import numpy as np
+from copy import deepcopy
+
+# QSTK imports
+#from qstkutil import dateutil as du
+#from qstkutil import DataAccess as da
+#from qstkutil import tsutil as tsu
+
+
+def _calculate_leverage(values_by_stock, ts_leverage):
+    """
+    @summary calculates leverage based on the dataframe values_by_stock
+             and returns the updated timeseries of leverage  
+    @param values_by_stock: Dataframe containing the values held in 
+             in each stock in the portfolio
+    @param ts_leverage: time series of leverage values
+    @return ts_leverage : updated time series of leverage values
+    """
+
+    for r_index, r_val in values_by_stock.iterrows():
+        f_long = 0
+        f_short = 0
+        for val in r_val.values[:-1]:
+            if val >= 0:
+                f_long = f_long + val
+            else: 
+                f_short = f_short + val
+        f_lev = (f_long + abs(f_short)) \
+                /(f_long + r_val.values[-1] + f_short)
+
+        ts_leverage = ts_leverage.append(pand.Series(f_lev, index = [r_index] ))
+
+    return ts_leverage
+
+def _normalize(row):
+    
+    """
+    @summary Normalize an allocation row based on sum(abs(alloc))
+    @param row: single row of the allocation dataframe 
+    @param proportion: normalized proportion of the row
+    """
+    total = row.abs().sum()
+    proportion = row/total 
+    return proportion
+
+def _nearest_interger(f_x):
+    
+    """
+    @summary Return the nearest integer to the float number
+    @param x: single float number
+    @return: nearest integer to x
+    """
+    if f_x >= 0:
+        return np.floor(f_x)
+    else : 
+        return np.ceil(f_x)
+
+def tradesim( alloc, historic, start_cash, i_leastcount = 1, \
+            b_followleastcount = False, f_slippage= 0.0, \
+            f_minimumcommision = 0.0, f_commision_share = 0.0, i_target_leverage = 1):
+    
+    """
+    @summary Quickly back tests an allocation for certain historical data, 
+             using a starting fund value
+    @param alloc: DataMatrix containing timestamps to test as indices and 
+                 Symbols to test as columns, with _CASH symbol as the last 
+                 column
+    @param historic: Historic dataframe of equity prices
+    @param start_cash: integer specifing initial fund value
+    @param i_leastcount: Minimum no. of shares per transaction, ie: 1, 10, 20
+    @param f_slippage: slippage per share (0.02)
+    @param f_minimumcommision: Minimum commision cost per transaction
+    @param f_commision_share: Commision per share
+    @param b_followleastcount: False will allow fractional shares
+    @return funds: TimeSeries with fund values for each day in the back test
+    @return leverage: TimeSeries with Leverage values for each day in the back test
+    @return Commision costs : Total commision costs in the whole backtester    
+    @return Slippage costs : Total slippage costs in the whole backtester    
+    @rtype TimeSeries
+    """
+
+    historic['_CASH'] = 1.0
+ 
+    # Shares -> Variable holds the shares to be traded on the next timestamp
+    # prediction_shares -> Variable holds the shares that were calculated 
+                            #for trading based on previous timestamp
+    shares = (alloc.ix[0:1] * 0.0)
+    shares['_CASH'] = start_cash
+    prediction_shares = deepcopy(shares)
+
+    # Total commision and Slippage costs 
+    f_total_commision = 0
+    f_total_slippage = 0
+	
+    b_first_iter = True
+
+    for row_index, row in alloc.iterrows():
+
+        # Trade Date and Price (Next timestamp)
+        # Prediction Date and Price (Previous timestamp)
+
+        trade_price = historic.ix[row_index:].ix[0:1]
+        trade_index = historic.index.searchsorted(trade_price.index[0])
+        pred_index = trade_index - 1
+        prediction_price = historic.ix[historic.index[pred_index]:].ix[0:1]
+        
+        prediction_date = prediction_price.index[0]
+        #trade_date is unused right now, but holds the next timestamp
+        #trade_date = trade_price.index[0]
+
+        if b_first_iter == True:
+
+            # Fund Value on start
+            ts_fund = pand.Series( start_cash, index = [prediction_date] )
+
+            # Leverage at the start
+            ts_leverage = pand.Series( 0, index = [prediction_date] )
+
+            # Flag for first iteration is False now
+            b_first_iter = False
+
+        else :
+            # get stock prices on all the days up until this trade
+            to_calculate = historic[ (historic.index <= prediction_date) \
+                        & (historic.index > ts_fund.index[-1]) ]
+
+            # multiply prices by our current shares
+            values_by_stock = to_calculate * shares.ix[-1]
+        
+            # calculate total value and append to our fund history
+            ts_fund = ts_fund.append( values_by_stock.sum(axis=1) )    
+
+            #Leverage
+            ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
+
+        #Normalizing the allocations
+        proportion = _normalize(row) 
+       
+        # Allocation to be scaled upto the allowed Leverage
+        proportion = proportion*i_target_leverage
+        
+        #Amount allotted to each equity
+        value_allotted = proportion*ts_fund.ix[-1]
+        value_before_trade = ts_fund.ix[-1]
+
+        # Get shares to be purchased
+        prediction_shares = value_allotted/ prediction_price
+
+        #Adjusting the amount of shares to be purchased based on the leastcount
+        # default is 1 : whole number of shares
+
+        if b_followleastcount == True:
+            prediction_shares /= i_leastcount
+            prediction_shares = prediction_shares.apply(_nearest_interger)
+            prediction_shares *= i_leastcount
+
+
+        #Order to be executed
+        order = pand.Series(((prediction_shares.values \
+                - shares.values)[0])[:-1], index = row.index[:-1])
+        
+        # Transaction costs
+        f_transaction_cost = 0
+        for index in order.index:
+            val = abs(order[index])
+            if (val != 0):
+                t_cost = max(f_minimumcommision, f_commision_share*val)
+                f_transaction_cost = f_transaction_cost + t_cost
+
+        f_total_commision = f_total_commision + f_transaction_cost
+
+        # Shares that were actually purchased
+        shares = prediction_shares
+
+        # Value after the purchase (change in price at execution)
+        value_after_trade = (((trade_price + f_slippage*trade_price) \
+                            *shares.ix[-1]).sum(axis = 1)).ix[-1]
+
+        #Slippage Cost
+        f_slippage_cost = value_after_trade - \
+                            ((trade_price*shares.ix[-1]).sum(axis=1)).ix[-1]
+        f_total_slippage = f_total_slippage + f_slippage_cost
+
+        # Rebalancing the cash left
+        cashleft = value_before_trade - value_after_trade - f_transaction_cost
+        shares['_CASH'] = shares['_CASH'] + cashleft
+
+        # End of Loop
+
+    #print ts_fund
+    #print ts_leverage
+    #print f_total_commision
+    #print f_total_slippage
+    return (ts_fund, ts_leverage, f_total_commision, f_total_slippage)
+
+if __name__ == '__main__':
+    print "Done"
