@@ -14,7 +14,7 @@ Created on May 14, 2012
 
 
 # Python imports
-#import datetime as dt
+from datetime import timedelta
 
 # 3rd Party Imports
 import pandas as pand
@@ -22,9 +22,7 @@ import numpy as np
 from copy import deepcopy
 
 # QSTK imports
-#from qstkutil import dateutil as du
-#from qstkutil import DataAccess as da
-#from qstkutil import tsutil as tsu
+
 
 
 def _calculate_leverage(values_by_stock, ts_leverage):
@@ -75,18 +73,19 @@ def _nearest_interger(f_x):
     else : 
         return np.ceil(f_x)
 
-def tradesim( alloc, historic, start_cash, i_leastcount = 1, \
-            b_followleastcount = False, f_slippage= 0.0, \
-            f_minimumcommision = 0.0, f_commision_share = 0.0, i_target_leverage = 1):
+def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1, 
+            b_followleastcount=False, f_slippage=0.0, 
+            f_minimumcommision=0.0, f_commision_share=0.0, 
+            i_target_leverage=1):
     
     """
-    @summary Quickly back tests an allocation for certain historical data, 
+    @summary Quickly back tests an allocation for certain df_historical data, 
              using a starting fund value
     @param alloc: DataMatrix containing timestamps to test as indices and 
                  Symbols to test as columns, with _CASH symbol as the last 
                  column
-    @param historic: Historic dataframe of equity prices
-    @param start_cash: integer specifing initial fund value
+    @param df_historic: df_historic dataframe of equity prices
+    @param f_start_cash: integer specifing initial fund value
     @param i_leastcount: Minimum no. of shares per transaction, ie: 1, 10, 20
     @param f_slippage: slippage per share (0.02)
     @param f_minimumcommision: Minimum commision cost per transaction
@@ -99,19 +98,19 @@ def tradesim( alloc, historic, start_cash, i_leastcount = 1, \
     @rtype TimeSeries
     """
 
-    historic['_CASH'] = 1.0
+    df_historic['_CASH'] = 1.0
  
     # Shares -> Variable holds the shares to be traded on the next timestamp
     # prediction_shares -> Variable holds the shares that were calculated 
                             #for trading based on previous timestamp
     shares = (alloc.ix[0:1] * 0.0)
-    shares['_CASH'] = start_cash
+    shares['_CASH'] = f_start_cash
     prediction_shares = deepcopy(shares)
 
     # Total commision and Slippage costs 
     f_total_commision = 0
     f_total_slippage = 0
-	
+
     b_first_iter = True
 
     for row_index, row in alloc.iterrows():
@@ -119,10 +118,11 @@ def tradesim( alloc, historic, start_cash, i_leastcount = 1, \
         # Trade Date and Price (Next timestamp)
         # Prediction Date and Price (Previous timestamp)
 
-        trade_price = historic.ix[row_index:].ix[0:1]
-        trade_index = historic.index.searchsorted(trade_price.index[0])
+        trade_price = df_historic.ix[row_index:].ix[0:1]
+        trade_index = df_historic.index.searchsorted(trade_price.index[0])
         pred_index = trade_index - 1
-        prediction_price = historic.ix[historic.index[pred_index]:].ix[0:1]
+        prediction_price = \
+                  df_historic.ix[df_historic.index[pred_index]:].ix[0:1]
         
         prediction_date = prediction_price.index[0]
         #trade_date is unused right now, but holds the next timestamp
@@ -131,7 +131,7 @@ def tradesim( alloc, historic, start_cash, i_leastcount = 1, \
         if b_first_iter == True:
 
             # Fund Value on start
-            ts_fund = pand.Series( start_cash, index = [prediction_date] )
+            ts_fund = pand.Series( f_start_cash, index = [prediction_date] )
 
             # Leverage at the start
             ts_leverage = pand.Series( 0, index = [prediction_date] )
@@ -141,8 +141,8 @@ def tradesim( alloc, historic, start_cash, i_leastcount = 1, \
 
         else :
             # get stock prices on all the days up until this trade
-            to_calculate = historic[ (historic.index <= prediction_date) \
-                        & (historic.index > ts_fund.index[-1]) ]
+            to_calculate = df_historic[ (df_historic.index <= prediction_date) \
+                        & (df_historic.index > ts_fund.index[-1]) ]
 
             # multiply prices by our current shares
             values_by_stock = to_calculate * shares.ix[-1]
@@ -212,6 +212,43 @@ def tradesim( alloc, historic, start_cash, i_leastcount = 1, \
     #print f_total_commision
     #print f_total_slippage
     return (ts_fund, ts_leverage, f_total_commision, f_total_slippage)
+
+
+def tradesim_comb( df_alloc, df_open, df_close, f_start_cash, i_leastcount=1, 
+                   b_followleastcount=False, f_slippage=0.0, 
+                   f_minimumcommision=0.0, f_commision_share=0.0, 
+                   i_target_leverage=1):
+    
+    """
+    @summary Same as tradesim, but combines open and close data into one.
+    @param alloc: DataMatrix containing timestamps to test as indices and 
+                 Symbols to test as columns, with _CASH symbol as the last 
+                 column
+    @param df_historic: df_historic dataframe of equity prices
+    @param f_start_cash: integer specifing initial fund value
+    @param i_leastcount: Minimum no. of shares per transaction, ie: 1, 10, 20
+    @param f_slippage: slippage per share (0.02)
+    @param f_minimumcommision: Minimum commision cost per transaction
+    @param f_commision_share: Commision per share
+    @param b_followleastcount: False will allow fractional shares
+    @return funds: TimeSeries with fund values for each day in the back test
+    @return leverage: TimeSeries with Leverage values for each day in the back test
+    @return Commision costs : Total commision costs in the whole backtester    
+    @return Slippage costs : Total slippage costs in the whole backtester    
+    @rtype TimeSeries
+    """
+    
+    f_shift_close = 16. - df_close.index[0].hour
+    f_shift_open = 9.5 - df_open.index[0].hour
+
+    df_new_close = df_close.shift( 1, timedelta(hours=f_shift_close) )
+    df_new_open = df_open.shift( 1, timedelta(hours=f_shift_open) )
+    
+    df_combined = df_new_close.append( df_new_open ).sort()
+    
+    return tradesim( df_alloc, df_combined, f_start_cash, i_leastcount, 
+                   b_followleastcount, f_slippage, f_minimumcommision, 
+                   f_commision_share, i_target_leverage)
 
 if __name__ == '__main__':
     print "Done"
