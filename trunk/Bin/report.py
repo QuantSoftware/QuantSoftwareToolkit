@@ -21,6 +21,7 @@ from qstkutil import fundutil as fu
 import converter
 from pylab import savefig
 from matplotlib import pyplot
+import matplotlib.dates as mdates
 import cPickle
 import datetime as dt
 
@@ -56,7 +57,7 @@ def print_annual_return(fund_ts, years, ostream):
                 year_vals.append(fund_ts.ix[date])
         day_rets = tsu.daily1(year_vals)
         ret = tsu.get_ror_annual(day_rets[1:-1])
-        ostream.write("        % + 6.2f%%" % (ret*100))
+        ostream.write("   % + 6.2f%%" % (ret*100))
 
 def print_winning_days(fund_ts, years, ostream):
     """
@@ -71,7 +72,7 @@ def print_winning_days(fund_ts, years, ostream):
             if(date.year==year):
                 year_vals.append(fund_ts.ix[date])
         ret = fu.get_winning_days(year_vals)
-        ostream.write("        % + 6.2f%%" % ret)
+        ostream.write("   % + 6.2f%%" % ret)
 
 def print_max_draw_down(fund_ts, years, ostream):
     """
@@ -86,7 +87,7 @@ def print_max_draw_down(fund_ts, years, ostream):
             if(date.year==year):
                 year_vals.append(fund_ts.ix[date])
         ret = fu.get_max_draw_down(year_vals)
-        ostream.write("        % + 6.2f%%" % (ret*100))
+        ostream.write("   % + 6.2f%%" % (ret*100))
 
 def print_daily_sharpe(fund_ts, years, ostream):
     """
@@ -101,7 +102,7 @@ def print_daily_sharpe(fund_ts, years, ostream):
             if(date.year==year):
                 year_vals.append(fund_ts.ix[date])
         ret = fu.get_sharpe_ratio(year_vals)
-        ostream.write("        % + 6.2f " % ret)
+        ostream.write("   % + 6.2f " % ret)
 
 def print_daily_sortino(fund_ts, years, ostream):
     """
@@ -116,7 +117,7 @@ def print_daily_sortino(fund_ts, years, ostream):
             if(date.year==year):
                 year_vals.append(fund_ts.ix[date])
         ret = fu.get_sortino_ratio(year_vals)
-        ostream.write("        % + 6.2f " % ret)
+        ostream.write("   % + 6.2f " % ret)
 
 def print_monthly_returns(fund_ts, years, ostream):
     """
@@ -125,30 +126,37 @@ def print_monthly_returns(fund_ts, years, ostream):
     @param years: list of years to print out
     @param ostream: stream to print to
     """
+    ostream.write("   ")
     month_names = du.getMonthNames()
     for name in month_names:
-        ostream.write("\t  " + str(name))
+        ostream.write("    " + str(name))
     ostream.write("\n")
     i = 0
     mrets = tsu.monthly(fund_ts)
     for year in years:
-        ostream.write(str(year) + "\t")
+        ostream.write(str(year))
         months = du.getMonths(fund_ts, year)
         for k in range(1, months[0]):
-            ostream.write("\t")
+            ostream.write("       ")
         for month in months:
-            ostream.write("\t% + 6.2f" % (mrets[i]*100))
+            ostream.write(" % + 6.2f" % (mrets[i]*100))
             i += 1
         ostream.write("\n")
 
-def print_stats(fund_ts, benchmark, name, ostream = sys.stdout):
+def print_stats(fund_ts, benchmark, name, directory = False, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
     @param benchmark: benchmark symbol to compare fund to
     @param name: name to associate with the fund in the report
+    @param directory: parameter to specify printing to a directory
     @param ostream: stream to print stats to, defaults to stdout
     """
+    if directory != False :
+        ostream = open(directory + "report.html", "wb")
+        print "writing to " + directory + "report.html"
+        print_plot(fund_ts, benchmark, name, directory+"plot.png")
+        ostream.write("<img src="+directory+"plot.png align=right width=600 height=400><pre>")  
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
     ostream.write("Performance Summary for "\
@@ -157,9 +165,9 @@ def print_stats(fund_ts, benchmark, name, ostream = sys.stdout):
                                        + str(end_date) + "\n\n")
     ostream.write("Yearly Performance Metrics \n")
     years = du.getYears(fund_ts)
-    ostream.write("\n\t\t\t\t  ")
+    ostream.write("\n                                 ")
     for year in years:
-        ostream.write("           " + str(year))
+        ostream.write("      " + str(year))
     ostream.write("\n")
     
     
@@ -209,9 +217,11 @@ def print_stats(fund_ts, benchmark, name, ostream = sys.stdout):
 
     print_daily_sortino(benchmark_close, years, ostream)
     
-    ostream.write("\n\nMonthly Returns %\n\t")
+    ostream.write("\n\nMonthly Returns %\n")
     
-    print_monthly_returns(fund_ts, years, ostream)            
+    print_monthly_returns(fund_ts, years, ostream) 
+    if directory != False:
+        ostream.write("</pre>")           
 
 def print_plot(fund, benchmark, graph_name, filename):
     """
@@ -248,6 +258,9 @@ def print_plot(fund, benchmark, graph_name, filename):
     mult = 10000 / benchmark_close.values[0]
     pyplot.plot(benchmark_close.index, \
                 benchmark_close.values*mult, label = "SSPX")
+    pyplot.gcf().autofmt_xdate()
+    pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
+    pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
     pyplot.ylabel('Fund Value')
     pyplot.xlabel('Date')
     pyplot.legend()

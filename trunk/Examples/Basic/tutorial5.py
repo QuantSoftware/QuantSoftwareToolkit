@@ -50,5 +50,5 @@ STARTVAL = 10000
 
 FUNDS = qs.strat_backtest1(STRAT, START, END, 1, OFFSET, STARTVAL)
 
-report.print_stats(FUNDS[0], ["$SPX"], "FUND TITLE")
+report.print_stats(FUNDS[0], ["$SPX"], "FUND TITLE", directory="/Users/drewbratcher/QSTK/Examples/Basic/")
 report.print_plot(FUNDS, ["$SPX"], "FUND TITLE", "FundFile.png")
