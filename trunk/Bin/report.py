@@ -126,7 +126,7 @@ def print_monthly_returns(fund_ts, years, ostream):
     @param years: list of years to print out
     @param ostream: stream to print to
     """
-    ostream.write("   ")
+    ostream.write("    ")
     month_names = du.getMonthNames()
     for name in month_names:
         ostream.write("    " + str(name))
@@ -154,9 +154,9 @@ def print_stats(fund_ts, benchmark, name, directory = False, ostream = sys.stdou
     """
     if directory != False :
         ostream = open(directory + "report.html", "wb")
+        ostream.write("<pre>")
         print "writing to " + directory + "report.html"
-        print_plot(fund_ts, benchmark, name, directory+"plot.png")
-        ostream.write("<img src="+directory+"plot.png align=right width=600 height=400><pre>")  
+        print_plot(fund_ts, benchmark, name, directory+"plot.png") 
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
     ostream.write("Performance Summary for "\
@@ -164,8 +164,10 @@ def print_stats(fund_ts, benchmark, name, directory = False, ostream = sys.stdou
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
     ostream.write("Yearly Performance Metrics \n")
+    if directory != False :
+        ostream.write("<img src="+directory+"plot.png width=600 height=400>") 
     years = du.getYears(fund_ts)
-    ostream.write("\n                                 ")
+    ostream.write("\n                                  ")
     for year in years:
         ostream.write("      " + str(year))
     ostream.write("\n")
@@ -257,7 +259,7 @@ def print_plot(fund, benchmark, graph_name, filename):
                                             verbose = False)
     mult = 10000 / benchmark_close.values[0]
     pyplot.plot(benchmark_close.index, \
-                benchmark_close.values*mult, label = "SSPX")
+                benchmark_close.values*mult, label = benchmark[0])
     pyplot.gcf().autofmt_xdate()
     pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
     pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
