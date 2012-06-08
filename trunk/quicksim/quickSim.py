@@ -43,9 +43,9 @@ def quickSim( alloc, historic, start_cash ):
     
     from inspect import currentframe, getframeinfo
     frameinfo = getframeinfo(currentframe())
-    #raise DeprecationWarning('Please use qstksim.tradesim instead, or' +
-    #                          ' comment me out in %s, line %i'%(frameinfo.filename, 
-    #                                                          frameinfo.lineno))
+    raise DeprecationWarning('Please use qstksim.tradesim instead, or' +
+                              ' comment me out in %s, line %i'%(frameinfo.filename, 
+                                                              frameinfo.lineno))
     
     #original quick simulator
     #not designed to handle shorts
