@@ -18,6 +18,7 @@ from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
 from qstkutil import tsutil as tsu
 from qstkutil import fundutil as fu
+from math import log10
 import converter
 from pylab import savefig
 from matplotlib import pyplot
@@ -287,6 +288,14 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
         pyplot.gcf().autofmt_xdate()
         pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
         pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
+        labels=[]
+        max_label=max(leverage.values)
+        min_label=min(leverage.values)
+        rounder= -1*(round(log10(max_label))-1)
+        labels.append(round(min_label*0.9, int(rounder)))
+        labels.append(round((max_label+min_label)/2, int(rounder)))
+        labels.append(round(max_label*1.1, int(rounder)))
+        pyplot.yticks(labels)
         pyplot.legend(loc = "best")
         pyplot.title(graph_name + " Leverage")
         pyplot.xlabel('Date')
