@@ -29,6 +29,11 @@ def featMomentum(dData, lLookback=20, b_human=False ):
     @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
     dfPrice = dData['close']
     
     #Calculate Returns
@@ -37,11 +42,7 @@ def featMomentum(dData, lLookback=20, b_human=False ):
     #Calculate rolling sum
     dfRet = pand.rolling_sum(dfPrice, lLookback, lLookback)
     
-    if b_human:
-        for sym in dData['close']:
-            x=1000/dData['close'][sym][0]
-            dData['close'][sym]=dData['close'][sym]*x
-        return dData['close']
+    
     return dfRet
 
 def featMA( dData, lLookback=30, bRel=True, b_human=False ):
