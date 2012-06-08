@@ -21,6 +21,7 @@ from qstkutil import fundutil as fu
 import converter
 from pylab import savefig
 from matplotlib import pyplot
+from matplotlib import gridspec
 import matplotlib.dates as mdates
 import cPickle
 import datetime as dt
@@ -143,20 +144,27 @@ def print_monthly_returns(fund_ts, years, ostream):
             i += 1
         ostream.write("\n")
 
-def print_stats(fund_ts, benchmark, name, directory = False, ostream = sys.stdout):
+def print_stats(fund_ts, benchmark, name, directory = False, leverage = False, \
+commissions = 0, slippage = 0, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
     @param benchmark: benchmark symbol to compare fund to
     @param name: name to associate with the fund in the report
     @param directory: parameter to specify printing to a directory
+    @param leverage: time series to plot with report
+    @param commissions: value to print with report
+    @param slippage: value to print with report
     @param ostream: stream to print stats to, defaults to stdout
     """
     if directory != False :
         ostream = open(directory + "report.html", "wb")
         ostream.write("<pre>")
         print "writing to " + directory + "report.html"
-        print_plot(fund_ts, benchmark, name, directory+"plot.png") 
+        if type(leverage)!=type(False):
+            print_plot(fund_ts, benchmark, name, directory+"plot.png", leverage=leverage)
+        else:
+            print_plot(fund_ts, benchmark, name, directory+"plot.png") 
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
     ostream.write("Performance Summary for "\
@@ -165,7 +173,11 @@ def print_stats(fund_ts, benchmark, name, directory = False, ostream = sys.stdou
                                        + str(end_date) + "\n\n")
     ostream.write("Yearly Performance Metrics \n")
     if directory != False :
-        ostream.write("<img src="+directory+"plot.png width=600 height=400>") 
+        ostream.write("<img src="+directory+"plot.png width=600 height=400>\n")
+    if commissions > 0:
+        ostream.write("Total Comissions: $"+str(commissions)+"\n")
+    if slippage > 0:
+        ostream.write("Total Slippage: $"+str(slippage)+"\n")
     years = du.getYears(fund_ts)
     ostream.write("\n                                  ")
     for year in years:
@@ -225,7 +237,7 @@ def print_stats(fund_ts, benchmark, name, directory = False, ostream = sys.stdou
     if directory != False:
         ostream.write("</pre>")           
 
-def print_plot(fund, benchmark, graph_name, filename):
+def print_plot(fund, benchmark, graph_name, filename, leverage=False):
     """
     @summary prints a plot of a provided fund and benchmark
     @param fund: fund value in pandas timeseries
@@ -233,7 +245,9 @@ def print_plot(fund, benchmark, graph_name, filename):
     @param graph_name: name to associate with the fund in the report
     @param filename: file location to store plot1
     """
-    pyplot.clf()
+    if type(leverage)!=type(False): 
+        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+        pyplot.subplot(gs[0])
     start_date = 0
     end_date = 0
     if(type(fund)!= type(list())):
@@ -241,7 +255,7 @@ def print_plot(fund, benchmark, graph_name, filename):
             start_date = fund.index[0]    
         if(end_date == 0 or end_date<fund.index[-1]):
             end_date = fund.index[-1]    
-        mult = 10000/fund.values[0]
+        mult = 1000000/fund.values[0]
         pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_name))
     else:    
@@ -249,7 +263,7 @@ def print_plot(fund, benchmark, graph_name, filename):
             start_date = fund[0].index[0]    
         if(end_date == 0 or end_date<fund[0].index[-1]):
             end_date = fund[0].index[-1]    
-        mult = 10000/fund[0].values[0]
+        mult = 1000000/fund[0].values[0]
         pyplot.plot(fund[0].index, fund[0].values * mult, label = \
                                   path.basename(graph_name))
     timeofday = dt.timedelta(hours = 16)
@@ -257,15 +271,26 @@ def print_plot(fund, benchmark, graph_name, filename):
     dataobj = da.DataAccess('Norgate')
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                             verbose = False)
-    mult = 10000 / benchmark_close.values[0]
+    mult = 1000000 / benchmark_close.values[0]
     pyplot.plot(benchmark_close.index, \
                 benchmark_close.values*mult, label = benchmark[0])
     pyplot.gcf().autofmt_xdate()
     pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
     pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
-    pyplot.ylabel('Fund Value')
     pyplot.xlabel('Date')
+    pyplot.ylabel('Fund Value')
     pyplot.legend()
+    if type(leverage)!=type(False):
+        pyplot.subplot(gs[1])
+        mult = 1000000 / leverage.values[0]
+        pyplot.plot(leverage.index, leverage.values*mult, label="Leverage")
+        pyplot.gcf().autofmt_xdate()
+        pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
+        pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
+        pyplot.legend(loc = "best")
+        pyplot.title(graph_name + " Leverage")
+        pyplot.xlabel('Date')
+        pyplot.legend()
     pyplot.draw()
     savefig(filename, format = 'png')
      
