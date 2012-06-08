@@ -21,6 +21,28 @@ import numpy as np
 ''' QSTK Imports '''
 import qstkutil.tsutil as tsu
 
+def featMomentum(dData, lLookback=20, b_human=False ):
+    '''
+    @summary: N day cumulative return (based on 1) indicator
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
+    @return: DataFrame array containing values
+    '''
+    dfPrice = dData['close']
+    
+    #Calculate Returns
+    tsu.returnize1(dfPrice.values)
+    
+    #Calculate rolling sum
+    dfRet = pand.rolling_sum(dfPrice, lLookback, lLookback)
+    
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
+    return dfRet
 
 def featMA( dData, lLookback=30, bRel=True, b_human=False ):
     '''
