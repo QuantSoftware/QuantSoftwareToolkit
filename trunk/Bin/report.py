@@ -171,13 +171,14 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
 	 + str(path.basename(name)) + " Backtest\n")
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
-    ostream.write("Yearly Performance Metrics \n")
     if directory != False :
-        ostream.write("<img src="+directory+"plot.png width=600 height=400>\n")
+        ostream.write("<img src="+"./plot.png width=600 height=400>\n")
     if commissions > 0:
+        ostream.write("Transaction Costs\n\n")
         ostream.write("Total Comissions: $"+str(commissions)+"\n")
     if slippage > 0:
-        ostream.write("Total Slippage: $"+str(slippage)+"\n")
+        ostream.write("Total Slippage: $"+str(slippage)+"\n\n")
+    ostream.write("Yearly Performance Metrics \n")
     years = du.getYears(fund_ts)
     ostream.write("\n                                  ")
     for year in years:
@@ -282,8 +283,7 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
     pyplot.legend()
     if type(leverage)!=type(False):
         pyplot.subplot(gs[1])
-        mult = 1000000 / leverage.values[0]
-        pyplot.plot(leverage.index, leverage.values*mult, label="Leverage")
+        pyplot.plot(leverage.index, leverage.values, label="Leverage")
         pyplot.gcf().autofmt_xdate()
         pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
         pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
