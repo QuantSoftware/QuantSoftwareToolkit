@@ -214,7 +214,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     return (ts_fund, ts_leverage, f_total_commision, f_total_slippage)
 
 
-def tradesim_comb( df_alloc, d_data, f_start_cash, i_leastcount=1, 
+def tradesim_comb( df_alloc, df_open, df_close, f_start_cash, i_leastcount=1, 
                    b_followleastcount=False, f_slippage=0.0, 
                    f_minimumcommision=0.0, f_commision_share=0.0, 
                    i_target_leverage=1):
@@ -224,8 +224,7 @@ def tradesim_comb( df_alloc, d_data, f_start_cash, i_leastcount=1,
     @param alloc: DataMatrix containing timestamps to test as indices and 
                  Symbols to test as columns, with _CASH symbol as the last 
                  column
-    @param d_data: Historic dictionary of dataframes containing 'open' and 
-                   'close'
+    @param df_historic: df_historic dataframe of equity prices
     @param f_start_cash: integer specifing initial fund value
     @param i_leastcount: Minimum no. of shares per transaction, ie: 1, 10, 20
     @param f_slippage: slippage per share (0.02)
@@ -238,9 +237,6 @@ def tradesim_comb( df_alloc, d_data, f_start_cash, i_leastcount=1,
     @return Slippage costs : Total slippage costs in the whole backtester    
     @rtype TimeSeries
     """
-    
-    df_close = d_data['close']
-    df_open = d_data['open']
     
     f_shift_close = 16. - df_close.index[0].hour
     f_shift_open = 9.5 - df_open.index[0].hour
