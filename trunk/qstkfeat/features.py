@@ -11,15 +11,15 @@ Created on Nov 7, 2011
 
 '''
 
-''' Python imports '''
+#''' Python imports '''
 import random
 
-''' 3rd Party Imports '''
+#''' 3rd Party Imports '''
 import pandas as pand
 import numpy as np
 import datetime as dt
 
-''' QSTK Imports '''
+#''' QSTK Imports '''
 import qstkutil.tsutil as tsu
 import qstkutil.dateutil as du
 
@@ -128,7 +128,7 @@ def featSector(dData, sector, lLookback=20, b_human=False ):
     return dfPrice
     
 
-def featOption(dData, lLookback=20, b_human=False ):
+def featOption(dData, b_human=False ):
     '''
     @summary: Returns 1 if option close is today, -1 if it was yesterday
     @param dData: Dictionary of data to use
@@ -153,10 +153,10 @@ def featOption(dData, lLookback=20, b_human=False ):
             today = tsPrice.index[i]
             
             #get last option close
-            last_close = du.getLastOptionClose(today)
+            last_close = du.getLastOptionClose(today, tsPrice.index)
             
             #get next option close
-            next_close = du.getNextOptionClose(today)
+            next_close = du.getNextOptionClose(today, tsPrice.index)
             
             #get days between
             days_between = next_close - last_close
@@ -237,7 +237,7 @@ def featSTD( dData, lLookback=20, bRel=True,  b_human=False ):
     dfRet = pand.rolling_std(dfPrice, lLookback, lLookback)
     
     if bRel:
-        dfRet = dfRet / dfPrice;
+        dfRet = dfRet / dfPrice
     if b_human:
         for sym in dData['close']:
             x=1000/dData['close'][sym][0]
@@ -256,11 +256,11 @@ def featRSI( dData, lLookback=14,  b_human=False):
     
     dfPrice = dData['close']
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     fLookback = float(lLookback)
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfPrice.columns:
         tsPrice = dfPrice[sStock]
         tsRet = dfRet[sStock]
@@ -269,7 +269,7 @@ def featRSI( dData, lLookback=14,  b_human=False):
         fLoss = 0.0
         
         lNonNull=0
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsPrice.index)):
             
             if pand.isnull( tsPrice[i] ):
@@ -277,12 +277,12 @@ def featRSI( dData, lLookback=14,  b_human=False):
             else:
                 lNonNull += 1
                  
-            ''' Once we have the proper number of periods we smooth the totals '''
+            #''' Once we have the proper number of periods we smooth the totals '''
             if lNonNull > fLookback:
                 fGain *= (fLookback - 1) / fLookback
                 fLoss *= (fLookback - 1) / fLookback
                 
-            ''' Calculate gain or loss and add to total '''
+            #''' Calculate gain or loss and add to total '''
             if lNonNull > 1:
                 fDelta = tsPrice[i] - tsPrice[i-1]
                 if fDelta > 0.0:
@@ -290,7 +290,7 @@ def featRSI( dData, lLookback=14,  b_human=False):
                 else:
                     fLoss += fDelta / fLookback
             
-            ''' Calculate RS and then RSI '''
+            #''' Calculate RS and then RSI '''
             if i > fLookback - 1:
                 if fLoss == 0.0:
                     tsRet[i] = 100.0
@@ -321,18 +321,18 @@ def featDrawDown( dData, lLookback=30,  b_human=False):
     
     dfPrice = dData['close']
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfPrice.columns:
         tsPrice = dfPrice[sStock]
         tsRet = dfRet[sStock]
            
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsPrice.index)):
             
-            ''' Get starting and stopping indexes '''
+            #''' Get starting and stopping indexes '''
             if i != len(tsPrice.index):
                 lStop = i + 1
             else:
@@ -340,7 +340,7 @@ def featDrawDown( dData, lLookback=30,  b_human=False):
                 
             lStart = max( 0,  i - (lLookback - 1) )
  
-            ''' Calculate peak value, and subsequent drawdown '''
+            #''' Calculate peak value, and subsequent drawdown '''
             fPeak = np.max( tsPrice.values[ lStart:lStop ] )    
             
             tsRet[i] = tsPrice[i] / fPeak
@@ -363,18 +363,18 @@ def featRunUp( dData, lLookback=30, b_human=False ):
     
     dfPrice = dData['open']
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfPrice.columns:
         tsPrice = dfPrice[sStock]
         tsRet = dfRet[sStock]
            
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsPrice.index)):
                       
-            ''' Get starting and stopping indexes '''
+            #''' Get starting and stopping indexes '''
             if i != len(tsPrice.index):
                 lStop = i + 1
             else:
@@ -382,7 +382,7 @@ def featRunUp( dData, lLookback=30, b_human=False ):
                 
             lStart = max( 0,  i - (lLookback - 1) )
  
-            ''' Calculate trough value, and subsequent drawdown '''
+            #''' Calculate trough value, and subsequent drawdown '''
             fTrough = np.min( tsPrice.values[ lStart:lStop ] )    
             
             tsRet[i] = tsPrice[i] / fTrough
@@ -410,30 +410,30 @@ def featVolumeDelta( dData, lLookback=30, b_human=False ):
     
     dfVolume = dData['volume']
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfVolume.index, columns=dfVolume.columns, data=np.zeros(dfVolume.shape) )
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfVolume.columns:
         
         tsVol = dfVolume[sStock]
         tsRet = dfRet[sStock]
-        lSum = 0
+        #lSum = 0
         
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsVol.index)):
             
-            if pand.notnull( tsVol[i] ):
-                lSum += tsVol[i]
+            #if pand.notnull( tsVol[i] ):
+            #    lSum += tsVol[i]
             
             if i < lLookback - 1:
                 tsRet[i] = float('nan')
                 continue
             
-            ''' If we have the bare min, take the avg, else remove the last and take the avg '''
+            #''' If we have the bare min, take the avg, else remove the last and take the avg '''
             tsRet[i] = np.sum( tsVol[i-(lLookback-1):i+1]) / lLookback
             
-            ''' Make this relative to the MA of volume '''
+            #''' Make this relative to the MA of volume '''
             tsRet[i] /= tsVol[i]
         
     if b_human:
@@ -455,36 +455,36 @@ def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
     
     dfPrice = dData['close']
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfPrice.columns:
         tsPrice = dfPrice[sStock]
         tsRet = dfRet[sStock]
            
-        ''' Peaks will be a sorted, descending list of highs and indexes '''
+        #''' Peaks will be a sorted, descending list of highs and indexes '''
         lfPeaks = []
         
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsPrice.index)):
             j = 0
             while j < (len(lfPeaks)):
                 if bDown:
-                    ''' If down, use troughts '''
+                    #''' If down, use troughts '''
                     if tsPrice[i] < lfPeaks[j][0]:
                         break
                 else:
-                    ''' If up, use peaks '''
+                    #''' If up, use peaks '''
                     if tsPrice[i] > lfPeaks[j][0]:
                         break
                 j+=1
                 
-            ''' Insert into sorted list, remove all lesser, older peaks '''
+            #''' Insert into sorted list, remove all lesser, older peaks '''
             lfPeaks.insert( j, (tsPrice[i], i) )
             lfPeaks = lfPeaks[:j+1]
             
-            ''' Remove all outdated peaks '''
+            #''' Remove all outdated peaks '''
             j = 0
             while j < (len(lfPeaks)):
                 if i - lfPeaks[j][1] > lLookback:
@@ -497,7 +497,7 @@ def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
             
             tsRet[i] = ((lLookback - (i - lfPeaks[0][1])) / float(lLookback)) * 100.0
             
-            ''' perturb value '''
+            #''' perturb value '''
             random.seed(i)
             tsRet[i] += random.uniform( -0.0001, 0.0001 )
 
@@ -523,30 +523,30 @@ def featStochastic( dData, lLookback=14, bFast=True, lMA=3, b_human=False ):
     dfPrice = dData['close']
 
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfPrice.columns:
         tsPrice = dfPrice[sStock]
         tsHigh = dfHigh[sStock]
         tsLow = dfLow[sStock]
         tsRet = dfRet[sStock]
            
-        ''' For slow stochastic oscillator we need to remember 3 past values '''
+        #''' For slow stochastic oscillator we need to remember 3 past values '''
         lfPastStoch = []
         
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsPrice.index)):
             
-            ''' NaN if not enough data to do lookback '''
+            #''' NaN if not enough data to do lookback '''
             if i < lLookback - 1:
                 tsRet[i] = float('nan')
                 continue    
             
             fLow = 1E300
             fHigh = -1E300
-            ''' Find highest high and lowest low '''
+            #''' Find highest high and lowest low '''
             for j in range(lLookback):
                 
                 lInd = i-j
@@ -558,7 +558,7 @@ def featStochastic( dData, lLookback=14, bFast=True, lMA=3, b_human=False ):
              
             fStoch = (tsPrice[i] - fLow) / (fHigh - fLow)
             
-            ''' For fast we just take the stochastic value, slow we need 3 day MA '''
+            #''' For fast we just take the stochastic value, slow we need 3 day MA '''
             if bFast:
                 tsRet[i] = fStoch   
             else:
@@ -591,24 +591,24 @@ def featBeta( dData, lLookback=14, sMarket='$SPX', b_human=False ):
 
     dfPrice = dData['close']
 
-    ''' Calculate returns '''
+    #''' Calculate returns '''
     naRets = dfPrice.values.copy()
     tsu.returnize1(naRets)
     dfHistReturns = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=naRets )
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfHistReturns.columns:   
         tsHistReturns = dfHistReturns[sStock]
         tsMarket = dfHistReturns[sMarket]
         tsRet = dfRet[sStock]
            
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsRet.index)):
             
-            ''' NaN if not enough data to do lookback '''
+            #''' NaN if not enough data to do lookback '''
             if i < lLookback - 1:
                 tsRet[i] = float('nan')
                 continue    
@@ -616,12 +616,12 @@ def featBeta( dData, lLookback=14, sMarket='$SPX', b_human=False ):
             naStock = tsHistReturns[ i - (lLookback - 1): i+1 ]
             naMarket = tsMarket[ i - (lLookback - 1): i+1 ]
             
-            ''' Beta is the slope the line, with market returns on X, stock returns on Y '''
+            #''' Beta is the slope the line, with market returns on X, stock returns on Y '''
             try:
                 fBeta, unused = np.polyfit( naMarket, naStock, 1)
                 tsRet[i] = fBeta
             except:
-                'Numpy Error featBeta'
+                #'Numpy Error featBeta'
                 tsRet[i] = float('NaN')
 
     if b_human:
@@ -704,24 +704,24 @@ def featCorrelation( dData, lLookback=20, sRel='$SPX', b_human=False ):
     if sRel not in dfPrice.columns:
         raise KeyError( "%s not found in data provided to featCorrelation"%sRel )
        
-    ''' Calculate returns '''
+    #''' Calculate returns '''
     naRets = dfPrice.values.copy()
     tsu.returnize1(naRets)
     dfHistReturns = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=naRets )
 
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
-    ''' Loop through stocks '''
+    #''' Loop through stocks '''
     for sStock in dfHistReturns.columns:   
         tsHistReturns = dfHistReturns[sStock]
         tsRelativeReturns = dfHistReturns[sRel]
         tsRet = dfRet[sStock]
         
-        ''' Loop over time '''
+        #''' Loop over time '''
         for i in range(len(tsHistReturns.index)):
             
-            ''' NaN if not enough data to do lookback '''
+            #''' NaN if not enough data to do lookback '''
             if i < lLookback - 1:
                 tsRet[i] = float('nan')
                 continue    
@@ -777,7 +777,7 @@ def featRand( dData, b_human=False ):
     
     dfPrice = dData['close']
     
-    ''' Feature DataFrame will be 1:1, we can use the price as a template '''
+    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, 
                             data=np.random.randn(*dfPrice.shape) )
     
