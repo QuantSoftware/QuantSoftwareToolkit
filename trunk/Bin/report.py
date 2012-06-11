@@ -12,7 +12,7 @@ Created on Jan 1, 2011
 
 '''
 
-from os import path
+from os import path, makedirs
 from os import sys
 from qstkutil import DataAccess as da
 from qstkutil import dateutil as du
@@ -159,13 +159,20 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     @param ostream: stream to print stats to, defaults to stdout
     """
     if directory != False :
-        ostream = open(directory + "report.html", "wb")
+        if not path.exists(directory):
+            makedirs(directory)
+        
+        sfile = path.join(directory, "report-%s.html" % name )
+        splot = "plot-%s.png" % name
+        splot_dir =  path.join(directory, splot)
+        ostream = open(sfile, "wb")
         ostream.write("<pre>")
-        print "writing to " + directory + "report.html"
+        print "writing to ", sfile
         if type(leverage)!=type(False):
-            print_plot(fund_ts, benchmark, name, directory+"plot.png", leverage=leverage)
+            print_plot(fund_ts, benchmark, name, splot_dir, 
+                       leverage=leverage)
         else:
-            print_plot(fund_ts, benchmark, name, directory+"plot.png") 
+            print_plot(fund_ts, benchmark, name, splot_dir) 
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
     ostream.write("Performance Summary for "\
@@ -173,7 +180,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
     if directory != False :
-        ostream.write("<img src="+"./plot.png width=600 height=400>\n")
+        ostream.write("<img src="+splot+" width=600 height=400>\n")
     if commissions > 0:
         ostream.write("Transaction Costs\n\n")
         ostream.write("Total Comissions: $"+str(commissions)+"\n")
@@ -244,6 +251,7 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
     @param graph_name: name to associate with the fund in the report
     @param filename: file location to store plot1
     """
+    pyplot.clf()
     if type(leverage)!=type(False): 
         gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
         pyplot.subplot(gs[0])

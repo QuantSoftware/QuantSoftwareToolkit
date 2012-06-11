@@ -223,7 +223,7 @@ def get_ror_annual( rets ):
     
     #print ' RorYTD =', f_inv, 'Over days:', len(rets)
     
-    return ( (1.0 + f_ror_ytd)**( 1.0/(len(rets)/365.0) ) ) - 1.0
+    return ( (1.0 + f_ror_ytd)**( 1.0/(len(rets)/252.0) ) ) - 1.0
 
 def getPeriodicRets( dmPrice, sOffset ):
     """
