@@ -37,13 +37,64 @@ def featMomentum(dData, lLookback=20, b_human=False ):
     dfPrice = dData['close']
     
     #Calculate Returns
-    tsu.returnize1(dfPrice.values)
+    tsu.returnize0(dfPrice.values)
     
     #Calculate rolling sum
-    dfRet = pand.rolling_sum(dfPrice, lLookback, lLookback)
+    dfRet = pand.rolling_sum(dfPrice, lLookback, 1)
     
     
     return dfRet
+
+def featHiLow(dData, lLookback=20, b_human=False ):
+    '''
+    @summary: 1 represents a high for the lookback -1 represents a low
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
+    @return: DataFrame array containing values
+    '''
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
+    dfPrice = dData['close']
+    
+    #Find Max for each price for lookback
+    maxes = pand.rolling_max(dfPrice, lLookback, 1)
+    
+    #Find Min
+    mins = pand.rolling_min(dfPrice, lLookback, 1)
+    
+    #Find Range
+    ranges = maxes - mins
+    
+    #Calculate (price - min) * 2 / range -1
+    dfRet = (((dfPrice-mins)*2)/ranges)-1
+    
+    return dfRet
+
+def featSector(dData, sector, lLookback=20, b_human=False ):
+    '''
+    @summary: Returns how well the data correlates to a given sector
+    @param dData: Dictionary of data to use
+    @param sector: indicates indices sector to use
+    @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
+    @return: DataFrame array containing values
+    '''
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
+    dfPrice = dData['close']
+    
+    #get sectore
+    
+    #Calculate price/sector
+    
+    return dfPrice
 
 def featMA( dData, lLookback=30, bRel=True, b_human=False ):
     '''
@@ -56,7 +107,7 @@ def featMA( dData, lLookback=30, bRel=True, b_human=False ):
     
     dfPrice = dData['close']
     
-    dfRet = pand.rolling_mean(dfPrice, lLookback, lLookback)
+    dfRet = pand.rolling_mean(dfPrice, lLookback, 1)
     
     if bRel:
         dfRet = dfRet / dfPrice;
@@ -83,7 +134,7 @@ def featEMA( dData, lLookback=20, bRel=True,  b_human=False ):
     
     dfPrice = dData['close']
     
-    dfRet = pand.ewma(dfPrice, span=lLookback, min_periods=lLookback)
+    dfRet = pand.ewma(dfPrice, span=lLookback, min_periods=1)
     
     if bRel:
         dfRet = dfRet / dfPrice;
