@@ -17,6 +17,7 @@ import random
 ''' 3rd Party Imports '''
 import pandas as pand
 import numpy as np
+import datetime as dt
 
 ''' QSTK Imports '''
 import qstkutil.tsutil as tsu
@@ -72,6 +73,39 @@ def featHiLow(dData, lLookback=20, b_human=False ):
     #Calculate (price - min) * 2 / range -1
     dfRet = (((dfPrice-mins)*2)/ranges)-1
     
+    return dfRet
+
+def featDate(dData, b_human=False ):
+    '''
+    @summary: Returns -1 for jan 1st 1 for dec 31st
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
+    @return: DataFrame array containing values
+    '''
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
+    
+    dfPrice = dData['close']
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+    
+    for sStock in dfPrice.columns:
+        tsPrice = dfPrice[sStock]
+        tsRet = dfRet[sStock]
+        #'' Loop over time '''
+        for i in range(len(tsPrice.index)):
+            #get current date
+            today = tsPrice.index[i]
+            
+            #get days since January 1st
+            days = today - dt.datetime(today.year, 1, 1)
+            
+            # multiply by 2, divide by 365, subtract 1
+            tsRet[i] = float(days.days * 2) / 365 - 1
+            
     return dfRet
 
 def featSector(dData, sector, lLookback=20, b_human=False ):
