@@ -21,6 +21,7 @@ import datetime as dt
 
 ''' QSTK Imports '''
 import qstkutil.tsutil as tsu
+import qstkutil.dateutil as du
 
 def featMomentum(dData, lLookback=20, b_human=False ):
     '''
@@ -124,11 +125,49 @@ def featSector(dData, sector, lLookback=20, b_human=False ):
         return dData['close']
     dfPrice = dData['close']
     
-    #get sectore
-    
-    #Calculate price/sector
-    
     return dfPrice
+    
+
+def featOption(dData, lLookback=20, b_human=False ):
+    '''
+    @summary: Returns 1 if option close is today, -1 if it was yesterday
+    @param dData: Dictionary of data to use
+    @param lLookback: Number of days to look in the past
+    @param b_human: if true return dataframe to plot
+    @return: DataFrame array containing values
+    '''
+    if b_human:
+        for sym in dData['close']:
+            x=1000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
+    dfPrice = dData['close']
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+    
+    for sStock in dfPrice.columns:
+        tsPrice = dfPrice[sStock]
+        tsRet = dfRet[sStock]
+        #'' Loop over time '''
+        for i in range(len(tsPrice.index)):
+            #get current date
+            today = tsPrice.index[i]
+            
+            #get last option close
+            last_close = du.getLastOptionClose(today)
+            
+            #get next option close
+            next_close = du.getNextOptionClose(today)
+            
+            #get days between
+            days_between = next_close - last_close
+            
+            #get days since last close
+            days = today - last_close
+            
+            # multiply by 2, divide by 365, subtract 1
+            tsRet[i] = float(days.days * 2) / days_between.days - 1
+            
+    return dfRet
 
 def featMA( dData, lLookback=30, bRel=True, b_human=False ):
     '''
@@ -144,9 +183,9 @@ def featMA( dData, lLookback=30, bRel=True, b_human=False ):
     dfRet = pand.rolling_mean(dfPrice, lLookback, 1)
     
     if bRel:
-        dfRet = dfRet / dfPrice;
+        dfRet = dfRet / dfPrice
     if b_human:  
-        data2 = dfRet*dData['close']
+        data2 = dfRet * dData['close']
         data3 = pand.DataFrame({"Raw":data2[data2.columns[0]]})
         for sym in dfRet.columns:
             if sym != '$SPX' and sym != '$VIX':

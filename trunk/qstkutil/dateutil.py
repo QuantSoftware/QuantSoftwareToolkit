@@ -58,11 +58,43 @@ def getFirstDay(funds,year,month):
 	return('ERROR') 
 
 def getLastDay(funds,year,month):
-        return_date = 'ERROR'
+	return_date = 'ERROR'
 	for date in funds.index:
 		if((date.year==year) and (date.month==month)):
 			return_date = date
 	return(return_date) 
+
+def getNextOptionClose(day, offset=0):
+	#get third friday in month of day
+	#get first of month
+	year_off=0
+	if day.month+offset > 12:
+		year_off = 1
+		offset = offset - 12
+	first = dt.datetime(day.year+year_off, day.month+offset, 1, hour=16)
+	#get weekday
+	day_num = first.weekday()
+	#get first friday (friday - weekday) add 7 if less than 1
+	dif = 5 - day_num
+	if dif < 1:
+		dif = dif+7
+	#move to third friday
+	dif = dif + 14
+	
+	
+	month_close = first + dt.timedelta(days=dif)
+	#if day is past the day after that
+	if month_close < day:
+		return_date = getNextOptionClose(day, 1)
+	else:
+		return_date = month_close
+	return(return_date)
+
+def getLastOptionClose(day):
+	start = day
+	while getNextOptionClose(day)>=start:
+		day= day - dt.timedelta(days=1)
+	return(getNextOptionClose(day))
 
 def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31),
 	timeofday = dt.timedelta(0)):
