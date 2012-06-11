@@ -191,7 +191,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     
     print_annual_return(fund_ts, years, ostream)
     
-    ostream.write("\n" + str(benchmark[0]) + " Annualized Return:            ")
+    ostream.write("\n%-4s Annualized Return:            " % str(benchmark[0]))
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
     dataobj = da.DataAccess('Norgate')
@@ -203,15 +203,14 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     
     print_winning_days(fund_ts, years, ostream)
 
-    ostream.write("\n" + str(benchmark[0]) + \
-                       " Winning Days:                 ")                
+    ostream.write("\n%-4s Winning Days:                 " % str(benchmark[0]))                
     print_winning_days(benchmark_close, years, ostream)
 
     ostream.write("\n\nFund Max Draw Down:                ")
     
     print_max_draw_down(fund_ts, years, ostream)
 
-    ostream.write("\n" + str(benchmark[0]) + " Max Draw Down:                ")
+    ostream.write("\n%-4s Max Draw Down:                " % str(benchmark[0]))
 
     print_max_draw_down(benchmark_close, years, ostream)
 
@@ -219,8 +218,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
 
     print_daily_sharpe(fund_ts, years, ostream)
 
-    ostream.write("\n" + str(benchmark[0]) + \
-            " Daily Sharpe Ratio(for year): ")       
+    ostream.write("\n%-4s Daily Sharpe Ratio(for year): " % str(benchmark[0]))       
 
     print_daily_sharpe(benchmark_close, years, ostream)
 
@@ -228,8 +226,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
 
     print_daily_sortino(fund_ts, years, ostream)
 
-    ostream.write("\n" + str(benchmark[0]) + \
-                " Daily Sortino Ratio(for year):")         
+    ostream.write("\n%-4s Daily Sortino Ratio(for year):" % str(benchmark[0]))         
 
     print_daily_sortino(benchmark_close, years, ostream)
     
