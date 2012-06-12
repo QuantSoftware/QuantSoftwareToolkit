@@ -21,6 +21,7 @@ import datetime as dt
 
 #''' QSTK Imports '''
 import qstkutil.tsutil as tsu
+from qstkutil import DataAccess as da
 import qstkutil.dateutil as du
 
 def featMomentum(dData, lLookback=20, b_human=False ):
@@ -109,7 +110,7 @@ def featDate(dData, b_human=False ):
             
     return dfRet
 
-def featSector(dData, sector, lLookback=20, b_human=False ):
+def featSector(dData, s_sector_sym, lLookback=20, b_human=False ):
     '''
     @summary: Returns how well the data correlates to a given sector
     @param dData: Dictionary of data to use
@@ -118,14 +119,18 @@ def featSector(dData, sector, lLookback=20, b_human=False ):
     @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
-    if b_human:
-        for sym in dData['close']:
-            x=1000/dData['close'][sym][0]
-            dData['close'][sym]=dData['close'][sym]*x
-        return dData['close']
     dfPrice = dData['close']
     
-    return dfPrice
+    norObj = da.DataAccess('Norgate')
+    ldtTimestamps = du.getNYSEdays( dfPrice.index[0], dfPrice.index[-1], dt.timedelta(hours=16) )
+    ldfData = norObj.get_data( ldtTimestamps, [s_sector_sym], ['close'] )
+    dData["close"][s_sector_sym]= ldfData[0][s_sector_sym]
+    if b_human:
+        for sym in dData['close']:
+            x=1000000/dData['close'][sym][0]
+            dData['close'][sym]=dData['close'][sym]*x
+        return dData['close']
+    return featCorrelation(dData, lLookback, s_sector_sym, b_human)
     
 
 def featOption(dData, b_human=False ):
