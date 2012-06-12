@@ -180,7 +180,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
     if directory != False :
-        ostream.write("<img src="+splot+" width=600 height=400>\n\n")
+        ostream.write("<img src="+splot+" width=600>\n\n")
         
     mult = 1000000/fund_ts.values[0]
     ostream.write("Initial Fund Value: %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
