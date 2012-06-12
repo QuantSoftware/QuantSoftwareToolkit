@@ -172,13 +172,23 @@ def get_winning_days( rets):
             negative_rets.append(i)
     return 100 * (1 - float(len(negative_rets)) / float(len(rets)))
 
-def get_max_draw_down(rets):
+def get_max_draw_down(ts_vals):
     """
     @summary Returns the max draw down of the returns.
-    @param rets: 1d numpy array or fund list of daily returns (centered on 0)
+    @param ts_vals: 1d numpy array or fund list
     @return Max draw down
     """
-    return np.min(rets)
+    MDD = 0
+    DD = 0
+    peak = -99999
+    for value in ts_vals:
+        if (value > peak):
+            peak = value
+        else:
+            DD = (peak - value) / peak
+        if (DD > MDD):
+            MDD = DD
+    return -1*MDD
 
 def get_sortino_ratio( rets, risk_free=0.00 ):
     """
