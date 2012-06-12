@@ -180,12 +180,16 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
     if directory != False :
-        ostream.write("<img src="+splot+" width=600 height=400>\n")
+        ostream.write("<img src="+splot+" width=600 height=400>\n\n")
+        
+    mult = 1000000/fund_ts.values[0]
+    ostream.write("Initial Fund Value: $%-10.2f\n" % float(fund_ts.values[0]*mult))
+    ostream.write("Ending Fund Value:  $%-10.2f\n\n" % float(fund_ts.values[-1]*mult))
     if commissions > 0:
         ostream.write("Transaction Costs\n\n")
-        ostream.write("Total Comissions: $"+str(commissions)+"\n")
+        ostream.write("Total Comissions: $%-10.2f\n" % float(commissions))
     if slippage > 0:
-        ostream.write("Total Slippage: $"+str(slippage)+"\n\n")
+        ostream.write("Total Slippage:   $%-10.2f\n\n" % float(slippage))
     ostream.write("Yearly Performance Metrics \n")
     years = du.getYears(fund_ts)
     ostream.write("\n                                  ")
