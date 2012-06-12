@@ -290,7 +290,7 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
     pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
     pyplot.xlabel('Date')
     pyplot.ylabel('Fund Value')
-    pyplot.legend()
+    pyplot.legend(loc = "best")
     if type(leverage)!=type(False):
         pyplot.subplot(gs[1])
         pyplot.plot(leverage.index, leverage.values, label="Leverage")
