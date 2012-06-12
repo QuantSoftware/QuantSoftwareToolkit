@@ -63,7 +63,7 @@ def monthly(funds):
         for month in months:
             last_this_month = dateutil.getLastDay(funds, year, month)
             if last_last_month == -1 :
-                last_last_month=last_this_month
+                last_last_month=dateutil.getFirstDay(funds, year, month)
             if type(funds).__name__=='TimeSeries':
                 funds2.append(funds[last_this_month]/funds[last_last_month]-1)
             else:
