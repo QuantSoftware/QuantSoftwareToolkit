@@ -17,6 +17,7 @@ import pandas
 import pickle
 import sqlite3
 import datetime
+import MySQLdb
 from operator import itemgetter
 
 
@@ -158,6 +159,121 @@ class _SQLite(DriverInterface):
         return symbol_dict
 
 
+class _MySQL(DriverInterface):
+    """
+    Driver class for SQLite
+    """
+
+    def __init__(self):
+        self._connect()
+
+    def _connect(self):
+        self.db = MySQLdb.connect("localhost", "root", "sevilla?4dvent", "HistoricalEquityDataLoader")
+        self.cursor = self.db.cursor()
+
+    def get_data(self, ts_list, symbol_list, data_item,
+                    verbose=False, include_delisted=False):
+        if _ScratchCache.try_cache:
+            return _ScratchCache.try_cache(ts_list, symbol_list, data_item,
+                        verbose, include_delisted, self.get_data_hard_read, "MySQL")
+        else:
+            return self.get_data_hard_read(ts_list, symbol_list, data_item,
+                        verbose, include_delisted)
+
+    def get_data_hard_read(self, ts_list, symbol_list, data_item, verbose=False, include_delisted=False):
+        """
+        Read data into a DataFrame from SQLite
+        @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
+        @param symbol_list: The list of symbols for which the data values are needed
+        @param data_item: The data_item needed. Like open, close, volume etc.  May be a list, in which case a list of DataFrame is returned.
+        @param include_delisted: If true, delisted securities will be included.
+        @note: If a symbol is not found all the values in the column for that stock will be NaN. Execution then
+        continues as usual. No errors are raised at the moment.
+        """
+        columns = []
+        results = []
+
+        # Check input data
+        assert isinstance(ts_list, list)
+        assert isinstance(symbol_list, list)
+        assert isinstance(data_item, list)
+
+        # Combine Symbols List for Query
+        symbol_query_list = ",".join(map(lambda x: "'" + x + "'", symbol_list))
+
+        # Combine Data Fields for Query
+        data_item = map(lambda x: "B." + x, data_item)
+        query_select_items = ",".join(data_item)
+
+        # Build Query - Inherently Unsafe!
+        self.cursor.execute("""
+                SELECT A.symbol,B.timestamp,""" + query_select_items + """
+                FROM tblEquity A JOIN tblPriceVolumeHistory B ON A.ID = B.tblEquity_ID
+                WHERE B.timestamp >= %s AND B.timestamp <= %s AND A.symbol IN (""" + symbol_query_list + """)
+                ORDER BY A.symbol ASC
+            """, (ts_list[0], ts_list[-1],))
+
+        # Retrieve Results
+        results = self.cursor.fetchall()
+
+        # Remove all rows that were not asked for
+        results = list(results)
+
+        for i, row in enumerate(results):
+            if row[1] not in ts_list:
+                del results[i]
+
+        # Create Pandas DataFrame in Expected Format
+        current_dict = {}
+        symbol_ranges = self._find_ranges_of_symbols(results)
+        for current_column in range(len(data_item)):
+            for symbol, ranges in symbol_ranges.items():
+                current_symbol_data = results[ranges[0]:ranges[1]]
+                current_dict[symbol] = pandas.Series(
+                                        map(itemgetter(current_column + 2), current_symbol_data),
+                                        index=map(itemgetter(1), current_symbol_data))
+            # Make DataFrame
+            columns.append(pandas.DataFrame(current_dict, columns=symbol_list))
+            current_dict = {}
+
+        return columns
+
+    def get_list(self, list_name):
+        self.cursor.execute("""SELECT A.Symbol
+                    FROM tblEquity A JOIN tblListDetail C ON A.ID = C.tblEquity_ID
+                    JOIN tblListHeader B ON B.ID = C.tblListHeader_ID
+                    WHERE B.list_name = %s
+        """, (list_name,))
+        return self.cursor.fetchall()
+
+    def get_all_symbols(self):
+        self.cursor.execute("SELECT DISTINCT symbol FROM tblEquity")
+        return self.cursor.fetchall()
+
+    def get_all_lists(self):
+        self.cursor.execute("SELECT list_name FROM tblListHeader")
+        return self.cursor.fetchall()
+
+    def _find_ranges_of_symbols(self, results):
+        symbol_dict = {}
+        current_symbol = results[0][0]
+        start = 0
+        result_length = len(results) - 1
+
+        for i, row in enumerate(results):
+            if row[0] == current_symbol:
+                if result_length == i:
+                    symbol_dict[results[i - 1][0]] = (start, i,)
+                else:
+                    continue
+            else:
+                symbol_dict[results[i - 1][0]] = (start, i - 1,)
+                start = i
+                current_symbol = row[0]
+
+        return symbol_dict
+
+
 class _ScratchCache(object):
     @staticmethod
     def try_cache(ts_list, symbol_list, data_item, verbose=False,
@@ -265,7 +381,7 @@ class DataAccess(object):
     """
     Factory class that returns the requested data source driver
     """
-    drivers = {'sqlite': _SQLite}
+    drivers = {'sqlite': _SQLite, 'mysql': _MySQL}
 
     def __new__(self, driver):
         print "Creating new DataAccess Module."
@@ -276,14 +392,14 @@ class DataAccess(object):
 
 
 if __name__ == "__main__":
-    db = DataAccess('sqlite')
+    db = DataAccess('mysql')
 
     date1 = datetime.datetime(2012, 2, 27, 16)
     date2 = datetime.datetime(2012, 2, 29, 16)
 
-    #print d.get_all_lists()
-    #print d.get_all_symbols()
+    print db.get_all_lists()
+    print db.get_all_symbols()
 
-    #print d.get_list("S&P 1500 SubInd Industrial Machinery")
+    print db.get_list("S&P 1500 SubInd Industrial Machinery")
 
     print db.get_data([date1, date2], ["AAPL", "IBM", "GOOG", "A"], ["open", "close"])
