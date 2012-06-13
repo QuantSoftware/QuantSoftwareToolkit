@@ -185,11 +185,9 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     mult = 1000000/fund_ts.values[0]
     ostream.write("Initial Fund Value: %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
     ostream.write("Ending Fund Value:  %10s\n\n" % ("$"+str(int(round(fund_ts.values[-1]*mult)))))
-    if commissions > 0:
-        ostream.write("Transaction Costs\n\n")
-        ostream.write("Total Comissions:   %10s\n" % ("$"+str(int(round(commissions)))))
-    if slippage > 0:
-        ostream.write("Total Slippage:     %10s\n\n" % ("$"+str(int(round(slippage)))))
+    ostream.write("Transaction Costs\n\n")
+    ostream.write("Total Comissions:   %10s\n" % ("$"+str(int(round(commissions)))))
+    ostream.write("Total Slippage:     %10s\n\n" % ("$"+str(int(round(slippage)))))
     ostream.write("Yearly Performance Metrics \n")
     years = du.getYears(fund_ts)
     ostream.write("\n                            ")
