@@ -11,7 +11,7 @@ Created on June 1, 2011
 @summary: Demonstrates the retrieval and use of Compustat data from the DataAccess object.
 '''
 
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import qstkutil.tsutil as tsu
 import qstkutil.DataAccess as da
 import datetime as dt

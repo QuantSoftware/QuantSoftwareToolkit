@@ -14,7 +14,7 @@ Created on April, 20, 2012
 
 #import libraries
 import numpy as np
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import qstkutil.tsutil as tsu
 import qstkutil.DataAccess as da
 import qstkfeat.sb_featutil as feat

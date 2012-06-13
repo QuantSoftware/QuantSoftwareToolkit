@@ -22,7 +22,7 @@ import numpy as np
 # QSTK imports
 import qstksim
 import qstkutil.DataAccess as da
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 
 
 class Test(unittest.TestCase):

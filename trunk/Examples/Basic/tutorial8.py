@@ -11,7 +11,7 @@ Created on April 20, 2012
 @summary: Demonstrates the use of the CVXOPT portfolio optimization call.
 '''
 
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import qstkutil.tsutil as tsu
 import qstkutil.DataAccess as da
 import datetime as dt

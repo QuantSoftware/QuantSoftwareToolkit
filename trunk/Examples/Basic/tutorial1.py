@@ -11,7 +11,7 @@ Created on September, 12, 2011
 @summary: Example tutorial code.
 '''
 
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import qstkutil.tsutil as tsu
 import qstkutil.DataAccess as da
 import datetime as dt

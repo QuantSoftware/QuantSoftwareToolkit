@@ -1,4 +1,4 @@
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import qstkutil.tsutil as tsu
 import qstkutil.DataAccess as da
 import datetime as dt
