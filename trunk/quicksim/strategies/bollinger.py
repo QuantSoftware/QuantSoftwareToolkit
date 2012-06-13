@@ -30,7 +30,7 @@ import os
 
 #qstk imports
 from qstkutil import DataAccess as da
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import qstkutil.bollinger as boil
 
 #simple versions

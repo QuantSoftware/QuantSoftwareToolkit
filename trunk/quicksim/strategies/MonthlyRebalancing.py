@@ -34,7 +34,7 @@ import os
 
 #qstk imports
 import qstkutil.DataAccess as da
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 
 if __name__ == "__main__":
 	print "Running Monthly Rebalancing strategy starting "+sys.argv[1]+" and ending "+sys.argv[2]+"."

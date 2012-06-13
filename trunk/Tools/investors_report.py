@@ -10,7 +10,7 @@
 from pylab import *
 import numpy
 from qstkutil import DataAccess as da
-from qstkutil import dateutil as du
+from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 from quicksim import quickSim as qs
 import converter

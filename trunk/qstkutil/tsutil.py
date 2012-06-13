@@ -16,14 +16,14 @@ Created on Jan 1, 2011
 import math
 import datetime as dt
 import numpy as np
-from qstkutil import dateutil
+from qstkutil import qsdateutil
 from math import sqrt
 from copy import deepcopy
 
 import random as rand
 
 from qstkutil import DataAccess as da
-from qstkutil import dateutil as du
+from qstkutil import qsdateutil as du
 
 def daily(funds):
     """
@@ -57,13 +57,13 @@ def monthly(funds):
     """
     funds2 = []
     last_last_month = -1
-    years = dateutil.getYears(funds)
+    years = qsdateutil.getYears(funds)
     for year in years:
-        months = dateutil.getMonths(funds, year)
+        months = qsdateutil.getMonths(funds, year)
         for month in months:
-            last_this_month = dateutil.getLastDay(funds, year, month)
+            last_this_month = qsdateutil.getLastDay(funds, year, month)
             if last_last_month == -1 :
-                last_last_month=dateutil.getFirstDay(funds, year, month)
+                last_last_month=qsdateutil.getFirstDay(funds, year, month)
             if type(funds).__name__=='TimeSeries':
                 funds2.append(funds[last_this_month]/funds[last_last_month]-1)
             else:
@@ -79,14 +79,14 @@ def average_monthly(funds):
     """
     rets = daily(funds)
     ret_i = 0
-    years = dateutil.getYears(funds)
+    years = qsdateutil.getYears(funds)
     averages = []
     for year in years:
-        months = dateutil.getMonths(funds, year)
+        months = qsdateutil.getMonths(funds, year)
         for month in months:
             avg = 0
             count = 0
-            days = dateutil.getDays(funds, year, month)
+            days = qsdateutil.getDays(funds, year, month)
             for day in days:
                 avg += rets[ret_i]
                 ret_i += 1

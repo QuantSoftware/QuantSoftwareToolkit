@@ -24,7 +24,7 @@ import numpy.core.multiarray
 import pandas as pand
 
 # QSTK imports
-from qstkutil import dateutil as du
+from qstkutil import qsdateutil as du
 from qstkutil import DataAccess as da
 
 

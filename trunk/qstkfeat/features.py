@@ -22,7 +22,7 @@ import datetime as dt
 #''' QSTK Imports '''
 import qstkutil.tsutil as tsu
 from qstkutil import DataAccess as da
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 
 def featMomentum(dData, lLookback=20, b_human=False ):
     '''

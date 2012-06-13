@@ -10,7 +10,7 @@
 # @summary: Utiltiy script to create list of symbols for study.
 
 import qstkutil.DataAccess as da
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import datetime as dt
 
 dataobj = da.DataAccess('Norgate')

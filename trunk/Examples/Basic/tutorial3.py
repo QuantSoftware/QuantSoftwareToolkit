@@ -14,7 +14,7 @@ Created on September, 12, 2011
 import matplotlib.pyplot as plt
 from pylab import *
 from qstkutil import DataAccess as da
-from qstkutil import dateutil as du
+from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 import datetime as dt
 

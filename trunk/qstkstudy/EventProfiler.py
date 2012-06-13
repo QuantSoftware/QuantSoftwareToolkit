@@ -14,7 +14,7 @@ import numpy as np
 import Events as ev
 import matplotlib.pyplot as plt
 from pylab import *
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import qstkutil.tsutil as tsu
 import datetime as dt
 import qstkutil.DataAccess as da

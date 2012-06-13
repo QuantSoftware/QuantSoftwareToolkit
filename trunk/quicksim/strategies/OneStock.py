@@ -32,7 +32,7 @@ import random
 
 # qstk imports
 import qstkutil.DataAccess as da
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 
 if __name__ == "__main__":
     print "Running One Stock strategy from "+sys.argv[1] +" to "+sys.argv[2]

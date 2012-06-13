@@ -17,7 +17,7 @@ from qstkutil import DataAccess as da
 import numpy as np
 import math
 import copy
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 import datetime as dt
 import qstkutil.DataAccess as da
 import qstkutil.tsutil as tsu

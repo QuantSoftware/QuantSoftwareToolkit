@@ -20,7 +20,7 @@ import datetime as dt
 
 #qstk imports
 import qstkutil.DataAccess as da
-import qstkutil.dateutil as du
+import qstkutil.qsdateutil as du
 
 def calcavg(period):
 	sum = zeros(len(period.columns))

@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 ''' QSTK imports '''
 from qstkutil import DataAccess as da
-from qstkutil import dateutil as du
+from qstkutil import qsdateutil as du
 
 from qstkfeat.features import featMA, featRSI
 from qstkfeat.classes import class_fut_ret
