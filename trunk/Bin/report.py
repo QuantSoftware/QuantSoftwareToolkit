@@ -18,6 +18,7 @@ from qstkutil import DataAccess as da
 from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 from qstkutil import fundutil as fu
+import numpy as np
 from math import log10
 import converter
 from pylab import savefig
@@ -56,7 +57,7 @@ def print_annual_return(fund_ts, years, ostream):
         year_vals = []
         for date in fund_ts.index:
             if(date.year ==year):
-                year_vals.append(fund_ts.ix[date])
+                year_vals.append([fund_ts.ix[date]])
         day_rets = tsu.daily1(year_vals)
         ret = tsu.get_ror_annual(day_rets[1:-1])
         ostream.write("   % + 6.2f%%" % (ret*100))
@@ -72,7 +73,7 @@ def print_winning_days(fund_ts, years, ostream):
         year_vals = []
         for date in fund_ts.index:
             if(date.year==year):
-                year_vals.append(fund_ts.ix[date])
+                year_vals.append([fund_ts.ix[date]])
         ret = fu.get_winning_days(year_vals)
         ostream.write("   % + 6.2f%%" % ret)
 
@@ -102,7 +103,7 @@ def print_daily_sharpe(fund_ts, years, ostream):
         year_vals = []
         for date in fund_ts.index:
             if(date.year==year):
-                year_vals.append(fund_ts.ix[date])
+                year_vals.append([fund_ts.ix[date]])
         ret = fu.get_sharpe_ratio(year_vals)
         ostream.write("   % + 6.2f " % ret)
 
@@ -117,9 +118,59 @@ def print_daily_sortino(fund_ts, years, ostream):
         year_vals = []
         for date in fund_ts.index:
             if(date.year==year):
-                year_vals.append(fund_ts.ix[date])
+                year_vals.append([fund_ts.ix[date]])
         ret = fu.get_sortino_ratio(year_vals)
         ostream.write("   % + 6.2f " % ret)
+        
+def print_std_dev(fund_ts, ostream):
+    """
+    @summary prints standard deviation of returns for a fund
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    ret=np.std(tsu.daily(fund_ts.values))*10000
+    ostream.write("  % + 6.2f bps " % ret)
+
+def print_industry_coer(fund_ts, ostream):
+    """
+    @summary prints standard deviation of returns for a fund
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    industries = [['$DJUSBM', 'Materials'],
+    ['$DJUSNC', 'Goods'],
+    ['$DJUSCY', 'Services'],
+    ['$DJUSFN', 'Financials'],
+    ['$DJUSHC', 'Health'],
+    ['$DJUSIN', 'Industrial'],
+    ['$DJUSEN', 'Oil & Gas'],
+    ['$DJUSTC', 'Technology'],
+    ['$DJUSTL', 'TeleComm'],
+    ['$DJUSUT', 'Utilities']]
+    for i in range(0, len(industries) ):
+        if(i%3==0):
+            ostream.write("\n")
+        #load data
+        norObj = da.DataAccess('Norgate')
+        ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
+        ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
+        #get corelation
+        a=np.corrcoef(ldfData[0][industries[i][0]],fund_ts.values)
+        ostream.write("%10s(%s):%+6.2f   " % (industries[i][1], industries[i][0], a[0,1]))
+
+def print_benchmark_coer(fund_ts, benchmark_close, sym,  ostream):
+    """
+    @summary prints standard deviation of returns for a fund
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    faCorr=np.corrcoef(fund_ts.values,np.ravel(benchmark_close));
+    fBeta, unused = np.polyfit(np.ravel(benchmark_close), fund_ts, 1);
+    ostream.write("\n\n%4s Correlation:   %+6.2f" % (sym, faCorr[0,1]))
+    ostream.write("\n%4s Beta:          %+6.2f\n" % (sym, fBeta))
 
 def print_monthly_returns(fund_ts, years, ostream):
     """
@@ -180,7 +231,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "\n\n")
     if directory != False :
-        ostream.write("<img src="+splot+" width=600>\n\n")
+        ostream.write("<img src="+splot+" width=450>\n\n")
         
     mult = 1000000/fund_ts.values[0]
     ostream.write("Initial Fund Value: %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
@@ -238,6 +289,20 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     ostream.write("\n%-4s Daily Sortino Ratio:    " % str(benchmark[0]))         
 
     print_daily_sortino(benchmark_close, years, ostream)
+    
+    ostream.write("\n\nFund Std Dev of Returns:     ")
+    
+    print_std_dev(fund_ts, ostream)
+    
+    ostream.write("\n%-4s Std Dev of Returns:     " % str(benchmark[0]))    
+    
+    print_std_dev(benchmark_close, ostream)
+    
+    ostream.write("\n\nCorrelation and Beta with Dow Jones Industries")
+    
+    print_industry_coer(fund_ts,ostream)
+    
+    print_benchmark_coer(fund_ts, benchmark_close, str(benchmark[0]), ostream)
     
     ostream.write("\n\nMonthly Returns %\n")
     
