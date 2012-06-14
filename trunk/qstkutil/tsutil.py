@@ -20,33 +20,37 @@ from qstkutil import qsdateutil
 from math import sqrt
 from copy import deepcopy
 
+
 import random as rand
 
 from qstkutil import DataAccess as da
 from qstkutil import qsdateutil as du
+import numpy as np
 
-def daily(funds):
+def daily(lfFunds):
     """
     @summary Computes daily returns centered around 0
     @param funds: A time series containing daily fund values
     @return an array of daily returns
     """
-    nds = deepcopy(funds)
-    nds[ 0 ] = 0
-    for i in range( 1, len(funds) ):
-        nds[ i ] = funds[ i ] / funds[ i-1 ] - 1
+    nds = np.asarray(deepcopy(lfFunds))
+    s= np.shape(nds)
+    if len(s)==1:
+        nds=np.expand_dims(nds,1)
+    returnize0(nds)
     return(nds)
 
-def daily1(funds):
+def daily1(lfFunds):
     """
     @summary Computes daily returns centered around 1
     @param funds: A time series containing daily fund values
     @return an array of daily returns
     """
-    nds = deepcopy(funds)
-    nds[0] = 0
-    for i in range(1, len(funds)):
-        nds[i] = funds[i] / funds[i-1]
+    nds = np.asarray(deepcopy(lfFunds))
+    s= np.shape(nds)
+    if len(s)==1:
+        nds=np.expand_dims(nds,1)
+    returnize1(nds)
     return(nds)
 
 def monthly(funds):
