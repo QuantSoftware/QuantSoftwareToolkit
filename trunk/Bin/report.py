@@ -172,7 +172,9 @@ def print_benchmark_coer(fund_ts, benchmark_close, sym,  ostream):
     fund_ts=fund_ts.fillna(method='pad')
     benchmark_close=benchmark_close.fillna(method='pad')
     faCorr=np.corrcoef(fund_ts.values,np.ravel(benchmark_close));
-    fBeta, unused = np.polyfit(np.ravel(benchmark_close), fund_ts, 1);
+    b=np.ravel(tsu.daily(benchmark_close))
+    f=np.ravel(tsu.daily(fund_ts))
+    fBeta, unused = np.polyfit(b,f, 1);
     ostream.write("\n\n%4s Correlation:   %+6.2f" % (sym, faCorr[0,1]))
     ostream.write("\n%4s Beta:          %+6.2f\n" % (sym, fBeta))
 
