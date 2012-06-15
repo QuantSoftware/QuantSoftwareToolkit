@@ -670,15 +670,3 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None,\
                 lsRetStocks.append( sAdd )
 
     return sorted(lsRetStocks)
-        
-
-
-        
-        
-
-    
-    
-
-
-
-
