@@ -128,6 +128,9 @@ def returnize0(nds):
     0 implies no change in value.
     @return the array is revised in place
     """
+    s= np.shape(nds)
+    if len(s)==1:
+        nds=np.expand_dims(nds,1)
     nds[1:, :] = (nds[1:, :] / nds[0:-1]) - 1
     nds[0, :] = np.zeros(nds.shape[1])
 
@@ -138,6 +141,9 @@ def returnize1(nds):
     @param nds: the array to fill backward
     @return the array is revised in place
     """
+    s= np.shape(nds)
+    if len(s)==1:
+        nds=np.expand_dims(nds,1)
     nds[1:, :] = (nds[1:, :]/nds[0:-1])
     nds[0, :] = np.ones(nds.shape[1])
     
