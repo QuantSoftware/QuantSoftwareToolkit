@@ -129,6 +129,7 @@ def print_std_dev(fund_ts, ostream):
     @param years: list of years to print out
     @param ostream: stream to print to
     """
+    fund_ts=fund_ts.fillna(method='pad')
     ret=np.std(tsu.daily(fund_ts.values))*10000
     ostream.write("  % + 6.2f bps " % ret)
 
@@ -157,6 +158,7 @@ def print_industry_coer(fund_ts, ostream):
         ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
+        ldfData[0]=ldfData[0].fillna(method='pad')
         a=np.corrcoef(ldfData[0][industries[i][0]],fund_ts.values)
         ostream.write("%10s(%s):%+6.2f   " % (industries[i][1], industries[i][0], a[0,1]))
 
@@ -167,6 +169,8 @@ def print_benchmark_coer(fund_ts, benchmark_close, sym,  ostream):
     @param years: list of years to print out
     @param ostream: stream to print to
     """
+    fund_ts=fund_ts.fillna(method='pad')
+    benchmark_close=benchmark_close.fillna(method='pad')
     faCorr=np.corrcoef(fund_ts.values,np.ravel(benchmark_close));
     fBeta, unused = np.polyfit(np.ravel(benchmark_close), fund_ts, 1);
     ostream.write("\n\n%4s Correlation:   %+6.2f" % (sym, faCorr[0,1]))
@@ -209,6 +213,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     @param slippage: value to print with report
     @param ostream: stream to print stats to, defaults to stdout
     """
+    fund_ts=fund_ts.fillna(method='pad')
     if directory != False :
         if not path.exists(directory):
             makedirs(directory)
@@ -257,6 +262,8 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     dataobj = da.DataAccess('Norgate')
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                                      verbose = False)
+    
+    benchmark_close=benchmark_close.fillna(method='pad')
     print_annual_return(benchmark_close, years, ostream)
     
     ostream.write("\n\nFund Winning Days:           ")                
@@ -345,6 +352,7 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
     dataobj = da.DataAccess('Norgate')
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                             verbose = False)
+    benchmark_close = benchmark_close.fillna(method='pad')
     mult = 1000000 / benchmark_close.values[0]
     pyplot.plot(benchmark_close.index, \
                 benchmark_close.values*mult, label = benchmark[0])
