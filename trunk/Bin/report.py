@@ -151,7 +151,7 @@ def print_industry_coer(fund_ts, ostream):
     ['$DJUSTL', 'TeleComm'],
     ['$DJUSUT', 'Utilities']]
     for i in range(0, len(industries) ):
-        if(i%3==0):
+        if(i%2==0):
             ostream.write("\n")
         #load data
         norObj = da.DataAccess('Norgate')
@@ -160,7 +160,10 @@ def print_industry_coer(fund_ts, ostream):
         #get corelation
         ldfData[0]=ldfData[0].fillna(method='pad')
         a=np.corrcoef(ldfData[0][industries[i][0]],fund_ts.values)
-        ostream.write("%10s(%s):%+6.2f   " % (industries[i][1], industries[i][0], a[0,1]))
+        b=np.ravel(tsu.daily(ldfData[0][industries[i][0]]))
+        f=np.ravel(tsu.daily(fund_ts))
+        fBeta, unused = np.polyfit(b,f,1)
+        ostream.write("%10s(%s):%+6.2f,   %+6.2f   " % (industries[i][1], industries[i][0], a[0,1], fBeta))
 
 def print_benchmark_coer(fund_ts, benchmark_close, sym,  ostream):
     """
@@ -307,7 +310,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     
     print_std_dev(benchmark_close, ostream)
     
-    ostream.write("\n\nCorrelation and Beta with Dow Jones Industries")
+    ostream.write("\n\nDow Jones Industries: Correlation, Beta")
     
     print_industry_coer(fund_ts,ostream)
     
