@@ -37,7 +37,7 @@ def featMomentum(dData, lLookback=20, b_human=False ):
             x=1000/dData['close'][sym][0]
             dData['close'][sym]=dData['close'][sym]*x
         return dData['close']
-    dfPrice = dData['close']
+    dfPrice = dData['close'].copy()
     
     #Calculate Returns
     tsu.returnize0(dfPrice.values)
@@ -110,28 +110,6 @@ def featDate(dData, b_human=False ):
             
     return dfRet
 
-def featSector(dData, s_sector_sym, lLookback=20, b_human=False ):
-    '''
-    @summary: Returns how well the data correlates to a given sector
-    @param dData: Dictionary of data to use
-    @param sector: indicates indices sector to use
-    @param lLookback: Number of days to look in the past
-    @param b_human: if true return dataframe to plot
-    @return: DataFrame array containing values
-    '''
-    dfPrice = dData['close']
-    
-    norObj = da.DataAccess('Norgate')
-    ldtTimestamps = du.getNYSEdays( dfPrice.index[0], dfPrice.index[-1], dt.timedelta(hours=16) )
-    ldfData = norObj.get_data( ldtTimestamps, [s_sector_sym], ['close'] )
-    dData["close"][s_sector_sym]= ldfData[0][s_sector_sym]
-    if b_human:
-        for sym in dData['close']:
-            x=1000000/dData['close'][sym][0]
-            dData['close'][sym]=dData['close'][sym]*x
-        return dData['close']
-    return featCorrelation(dData, lLookback, s_sector_sym, b_human)
-    
 
 def featOption(dData, b_human=False ):
     '''
@@ -304,7 +282,7 @@ def featRSI( dData, lLookback=14,  b_human=False):
                 else:
                     fRS = fGain / fLoss
                     tsRet[i] = 100 - 100 / (1-fRS)
-            
+    
     
     if b_human:
         for sym in dData['close']:
@@ -366,7 +344,7 @@ def featRunUp( dData, lLookback=30, b_human=False ):
     @warning: Drawdown and RunUp can depend heavily on when the sample starts
     '''
     
-    dfPrice = dData['open']
+    dfPrice = dData['close']
     
     #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
