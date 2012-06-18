@@ -24,6 +24,7 @@ import numpy.core.multiarray
 import pandas as pand
 
 # QSTK imports
+import qstksim as qs
 from qstkutil import qsdateutil as du
 from qstkutil import DataAccess as da
 
@@ -188,13 +189,18 @@ def alloc_backtest(alloc, start):
     
     # Get the data from the data store
     dataobj = da.DataAccess('Norgate')
-    historic = dataobj.get_data( list(alloc.index), list(alloc.columns[0:-1]),
+    startday=alloc.index[0]-dt.timedelta(days=10)
+    endday = alloc.index[-1]
+
+    # Get desired timestamps
+    timeofday=dt.timedelta(hours=16)
+    timestamps = du.getNYSEdays(startday,endday,timeofday)
+    historic = dataobj.get_data( timestamps, list(alloc.columns[0:-1]),
                                  "close" )
-    
-    #backtest
-    funds = quickSim(alloc, historic, int(start))
-    
-    return funds
+    #backtestx
+    [fund, leverage, commissions, slippage]= qs.tradesim(alloc, historic, int(start), 1, True, 0.02, 5, 0.02 )
+
+    return [fund, leverage, commissions, slippage]
 
 def strat_backtest1(strat, start, end, num, diff, startval):
     """
@@ -218,8 +224,7 @@ def strat_backtest1(strat, start, end, num, diff, startval):
                     + ' ' + enddates[i].strftime("%m-%d-%Y") + \
                     ' temp_alloc.pkl')
         
-        funds = alloc_backtest('temp_alloc.pkl', startval)
-        fundsmatrix.append(funds)
+        return alloc_backtest('temp_alloc.pkl', startval)
     return fundsmatrix
     
 def strat_backtest2(strat, start, end, diff, dur, startval):

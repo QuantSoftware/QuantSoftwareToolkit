@@ -159,7 +159,7 @@ def print_industry_coer(fund_ts, ostream):
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
         ldfData[0]=ldfData[0].fillna(method='pad')
-        a=np.corrcoef(ldfData[0][industries[i][0]],fund_ts.values)
+        a=np.corrcoef(np.ravel(ldfData[0][industries[i][0]]),np.ravel(fund_ts.values))
         b=np.ravel(tsu.daily(ldfData[0][industries[i][0]]))
         f=np.ravel(tsu.daily(fund_ts))
         fBeta, unused = np.polyfit(b,f,1)
@@ -174,7 +174,7 @@ def print_benchmark_coer(fund_ts, benchmark_close, sym,  ostream):
     """
     fund_ts=fund_ts.fillna(method='pad')
     benchmark_close=benchmark_close.fillna(method='pad')
-    faCorr=np.corrcoef(fund_ts.values,np.ravel(benchmark_close));
+    faCorr=np.corrcoef(np.ravel(fund_ts.values),np.ravel(benchmark_close));
     b=np.ravel(tsu.daily(benchmark_close))
     f=np.ravel(tsu.daily(fund_ts))
     fBeta, unused = np.polyfit(b,f, 1);
