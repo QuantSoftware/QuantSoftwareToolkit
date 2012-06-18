@@ -239,17 +239,37 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     ostream.write("Performance Summary for "\
 	 + str(path.basename(name)) + " Backtest\n")
     ostream.write("For the dates " + str(start_date) + " to "\
-                                       + str(end_date) + "\n\n")
+                                       + str(end_date) + "")
     if directory != False :
-        ostream.write("<img src="+splot+" width=450>\n\n")
+        ostream.write("<img src="+splot+" width=350 align=right>\n\n")
         
     mult = 1000000/fund_ts.values[0]
+    
+    
+    timeofday = dt.timedelta(hours = 16)
+    timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
+    dataobj = da.DataAccess('Norgate')
+    benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
+                                                     verbose = False)
+    
+    ostream.write("Benchmark: "+str(benchmark[0])+"\n");
     ostream.write("Initial Fund Value: %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
     ostream.write("Ending Fund Value:  %10s\n\n" % ("$"+str(int(round(fund_ts.values[-1]*mult)))))
     ostream.write("Transaction Costs\n\n")
     ostream.write("Total Comissions:   %10s\n" % ("$"+str(int(round(commissions)))))
     ostream.write("Total Slippage:     %10s\n\n" % ("$"+str(int(round(slippage)))))
-    ostream.write("Yearly Performance Metrics \n")
+    
+    ostream.write("Fund Std Dev of Returns:  ")
+    
+    print_std_dev(fund_ts, ostream)
+    
+    ostream.write("\nBench Std Dev of Returns: ")    
+    
+    print_std_dev(benchmark_close, ostream)
+    
+    print_benchmark_coer(fund_ts, benchmark_close, str(benchmark[0]), ostream)
+    
+    ostream.write("\n\nYearly Performance Metrics")
     years = du.getYears(fund_ts)
     ostream.write("\n                            ")
     for year in years:
@@ -261,12 +281,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     
     print_annual_return(fund_ts, years, ostream)
     
-    ostream.write("\n%-4s Annualized Return:      " % str(benchmark[0]))
-    timeofday = dt.timedelta(hours = 16)
-    timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
-    dataobj = da.DataAccess('Norgate')
-    benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
-                                                     verbose = False)
+    ostream.write("\nBench Annualized Return:     ")
     
     benchmark_close=benchmark_close.fillna(method='pad')
     print_annual_return(benchmark_close, years, ostream)
@@ -275,14 +290,14 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     
     print_winning_days(fund_ts, years, ostream)
 
-    ostream.write("\n%-4s Winning Days:           " % str(benchmark[0]))                
+    ostream.write("\nBench Winning Days:          ")                
     print_winning_days(benchmark_close, years, ostream)
 
     ostream.write("\n\nFund Max Draw Down:          ")
     
     print_max_draw_down(fund_ts, years, ostream)
 
-    ostream.write("\n%-4s Max Draw Down:          " % str(benchmark[0]))
+    ostream.write("\nBench Max Draw Down:         ")
 
     print_max_draw_down(benchmark_close, years, ostream)
 
@@ -290,7 +305,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
 
     print_daily_sharpe(fund_ts, years, ostream)
 
-    ostream.write("\n%-4s Daily Sharpe Ratio:     " % str(benchmark[0]))       
+    ostream.write("\nBench Daily Sharpe Ratio:    ")       
 
     print_daily_sharpe(benchmark_close, years, ostream)
 
@@ -298,23 +313,14 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
 
     print_daily_sortino(fund_ts, years, ostream)
 
-    ostream.write("\n%-4s Daily Sortino Ratio:    " % str(benchmark[0]))         
+    ostream.write("\nBench Daily Sortino Ratio:   ")         
 
     print_daily_sortino(benchmark_close, years, ostream)
     
-    ostream.write("\n\nFund Std Dev of Returns:     ")
-    
-    print_std_dev(fund_ts, ostream)
-    
-    ostream.write("\n%-4s Std Dev of Returns:     " % str(benchmark[0]))    
-    
-    print_std_dev(benchmark_close, ostream)
     
     ostream.write("\n\nDow Jones Industries: Correlation, Beta")
     
     print_industry_coer(fund_ts,ostream)
-    
-    print_benchmark_coer(fund_ts, benchmark_close, str(benchmark[0]), ostream)
     
     ostream.write("\n\nMonthly Returns %\n")
     
