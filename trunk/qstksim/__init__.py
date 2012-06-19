@@ -11,4 +11,4 @@ Created on June 6, 2012
 @summary: Init for simulator code
 
 '''
-from tradesim import tradesim, tradesim_comb
+from tradesim import _calculate_leverage, tradesim, tradesim_comb

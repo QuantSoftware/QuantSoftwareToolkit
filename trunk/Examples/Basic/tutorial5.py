@@ -28,6 +28,7 @@ Created on September, 12, 2011
 import os
 import pandas as pand
 import datetime as dt
+import random as rgen
 
 #qstk imports
 import qstksim
@@ -46,20 +47,20 @@ ldt_timestamps = du.getNYSEdays(startday, endday, timeofday)
 
 dataobj = da.DataAccess('Norgate')
 df_close = dataobj.get_data( \
-                ldt_timestamps, l_symbols, "close", verbose=True)
+                ldt_timestamps, l_symbols, "close", verbose=False)
 
-df_alloc = pand.DataFrame(index=[dt.datetime(2009, 2, 1)], data=[1], columns=l_symbols)
+df_alloc = pand.DataFrame(index=[dt.datetime(2009, 2, 1)], data=[rgen.random()], columns=l_symbols)
 
 for i in range(11):
     df_alloc = df_alloc.append( \
              pand.DataFrame(index=[dt.datetime(2009, i+2, 3)], \
-                              data=[1], columns=l_symbols))
+                              data=[rgen.random()], columns=l_symbols))
 
-df_alloc['_CASH'] = 0.0
+df_alloc['_CASH'] = 1-df_alloc[l_symbols[0]]
 
 ''' Tests tradesim buy-on-open functionality '''
-(df_funds, ts_leverage, f_commision, f_slippage) = qstksim.tradesim( df_alloc, df_close, 10000, 1, True, 0.02, 5, 0.02)
+(df_funds, ts_leverage, f_commision, f_slippage) = qstksim.tradesim( df_alloc, df_close, 10000, 1, True, 0.02, 5, 0.02, log="transactions.csv")
 
 df_goog = pand.DataFrame(index=df_funds.index, data=df_funds.values, columns=l_symbols)
-print df_goog
 report.print_stats(df_goog, ["$SPX"], "AAPL", leverage=ts_leverage, commissions=f_commision, slippage=f_slippage, directory="./AAPL/")
+print "Done"
