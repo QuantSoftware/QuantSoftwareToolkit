@@ -43,7 +43,7 @@ def featMomentum(dData, lLookback=20, b_human=False ):
     tsu.returnize0(dfPrice.values)
     
     #Calculate rolling sum
-    dfRet = pand.rolling_sum(dfPrice, lLookback, 1)
+    dfRet = pand.rolling_sum(dfPrice, lLookback)
     
     
     return dfRet
@@ -163,7 +163,7 @@ def featMA( dData, lLookback=30, bRel=True, b_human=False ):
     
     dfPrice = dData['close']
     
-    dfRet = pand.rolling_mean(dfPrice, lLookback, 1)
+    dfRet = pand.rolling_mean(dfPrice, lLookback)
     
     if bRel:
         dfRet = dfRet / dfPrice
@@ -190,7 +190,7 @@ def featEMA( dData, lLookback=20, bRel=True,  b_human=False ):
     
     dfPrice = dData['close']
     
-    dfRet = pand.ewma(dfPrice, span=lLookback, min_periods=1)
+    dfRet = pand.ewma(dfPrice, span=lLookback)
     
     if bRel:
         dfRet = dfRet / dfPrice;
@@ -217,7 +217,7 @@ def featSTD( dData, lLookback=20, bRel=True,  b_human=False ):
     dfPrice = dData['close'].copy()
     
     tsu.returnize1(dfPrice.values)
-    dfRet = pand.rolling_std(dfPrice, lLookback, lLookback)
+    dfRet = pand.rolling_std(dfPrice, lLookback)
     
     if bRel:
         dfRet = dfRet / dfPrice
