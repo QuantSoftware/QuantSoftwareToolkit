@@ -76,7 +76,7 @@ def _nearest_interger(f_x):
 def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1, 
             b_followleastcount=False, f_slippage=0.0, 
             f_minimumcommision=0.0, f_commision_share=0.0, 
-            i_target_leverage=1):
+            i_target_leverage=1, log="false"):
     
     """
     @summary Quickly back tests an allocation for certain df_historical data, 
@@ -91,13 +91,24 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     @param f_minimumcommision: Minimum commision cost per transaction
     @param f_commision_share: Commision per share
     @param b_followleastcount: False will allow fractional shares
+    @param log: CSV file to log transactions to
     @return funds: TimeSeries with fund values for each day in the back test
     @return leverage: TimeSeries with Leverage values for each day in the back test
     @return Commision costs : Total commision costs in the whole backtester    
     @return Slippage costs : Total slippage costs in the whole backtester    
     @rtype TimeSeries
     """
-
+    
+    #open log file 
+    if log!="false":
+        log_file=open(log,"w")
+    
+    #write column headings
+    if log!="false":
+        print "writing transaction log to "+log
+        log_file.write("Name,Symbol,Last price,Change,Shares,Date,Type,Commission,\n")
+    
+    #a dollar is always worth a dollar
     df_historic['_CASH'] = 1.0
  
     # Shares -> Variable holds the shares to be traded on the next timestamp
@@ -110,7 +121,13 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     # Total commision and Slippage costs 
     f_total_commision = 0
     f_total_slippage = 0
-
+    
+    #remember last change in cash due to transaction costs and slippage
+    cash_delta = 0
+    
+    #value of fund ignoring cash_delta
+    no_trans_fund = 0
+    
     b_first_iter = True
 
     for row_index, row in alloc.iterrows():
@@ -127,11 +144,13 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
         prediction_date = prediction_price.index[0]
         #trade_date is unused right now, but holds the next timestamp
         #trade_date = trade_price.index[0]
-
         if b_first_iter == True:
 
             # Fund Value on start
             ts_fund = pand.Series( f_start_cash, index = [prediction_date] )
+            
+            # Ignoring cash delta fund value on start
+            no_trans_fund=pand.Series( f_start_cash, index = [prediction_date])
 
             # Leverage at the start
             ts_leverage = pand.Series( 0, index = [prediction_date] )
@@ -149,64 +168,117 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
         
             # calculate total value and append to our fund history
             ts_fund = ts_fund.append( values_by_stock.sum(axis=1) )    
-
+            # remember what value would be without cash delta as well
+            no_trans_fund = no_trans_fund.append(values_by_stock.sum(axis=1) - cash_delta)
             #Leverage
             ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
 
         #Normalizing the allocations
-        proportion = _normalize(row) 
-       
+        proportion = _normalize(row)
+        
         # Allocation to be scaled upto the allowed Leverage
         proportion = proportion*i_target_leverage
         
         #Amount allotted to each equity
         value_allotted = proportion*ts_fund.ix[-1]
+
         value_before_trade = ts_fund.ix[-1]
 
         # Get shares to be purchased
         prediction_shares = value_allotted/ prediction_price
+        
+        #ignoring cash delta calculate value allotted per share and cacluclate number of shares for each
+        ntva=proportion*no_trans_fund.ix[-1]
+        no_trans_shares = ntva/prediction_price
 
+        
         #Adjusting the amount of shares to be purchased based on the leastcount
         # default is 1 : whole number of shares
 
         if b_followleastcount == True:
             prediction_shares /= i_leastcount
             prediction_shares = prediction_shares.apply(_nearest_interger)
-            prediction_shares *= i_leastcount
-
-
-        #Order to be executed
-        order = pand.Series(((prediction_shares.values \
-                - shares.values)[0])[:-1], index = row.index[:-1])
+            prediction_shares *= i_leastcount  
+            #handle shares ignoring last cash delta similarly
+            no_trans_shares /= i_leastcount
+            no_trans_shares = no_trans_shares.apply(_nearest_interger)
+            no_trans_shares *= i_leastcount   
+            
+        #remove cash delta from current holding
+        cash_delta_less_shares=deepcopy(shares)
+        cash_delta_less_shares["_CASH"]=cash_delta_less_shares["_CASH"]-cash_delta
         
-        # Transaction costs
-        f_transaction_cost = 0
-        for index in order.index:
-            val = abs(order[index])
-            if (val != 0):
-                t_cost = max(f_minimumcommision, f_commision_share*val)
-                f_transaction_cost = f_transaction_cost + t_cost
-
-        f_total_commision = f_total_commision + f_transaction_cost
-
-        # Shares that were actually purchased
-        shares = prediction_shares
-
-        # Value after the purchase (change in price at execution)
-        value_after_trade = (((trade_price + f_slippage*trade_price) \
-                            *shares.ix[-1]).sum(axis = 1)).ix[-1]
-
-        #Slippage Cost
-        f_slippage_cost = value_after_trade - \
-                            ((trade_price*shares.ix[-1]).sum(axis=1)).ix[-1]
-        f_total_slippage = f_total_slippage + f_slippage_cost
-
-        # Rebalancing the cash left
-        cashleft = value_before_trade - value_after_trade - f_transaction_cost
-        shares['_CASH'] = shares['_CASH'] + cashleft
+        #compare current holding to future holding (both ignoring the last round of transmission cost and slippage)
+        same=1
+        for sym in shares:
+            if str(cash_delta_less_shares[sym].values[0])!=str(no_trans_shares[sym].values[0]):
+                same=0
+                
+        #if same:
+        #perform a transaction
+        if same==0:
+            #print "transaction"
+            #print tampered_shares
+            #print no_trans_shares
+            #Order to be executed
+            order = pand.Series(((prediction_shares.values \
+                    - shares.values)[0])[:-1], index = row.index[:-1])
+            
+            
+            # Transaction costs
+            f_transaction_cost = 0
+            for index in order.index:
+                val = abs(order[index])
+                if (val != 0):
+                    t_cost = max(f_minimumcommision, f_commision_share*val)
+                    f_transaction_cost = f_transaction_cost + t_cost
+            
+            #for all symbols, print required transaction to log
+            for sym in shares:
+                if sym != "_CASH":
+                    commissions=max(f_minimumcommision, f_commision_share*abs(order[sym]))
+                    order_type="Buy"
+                    if(order[sym]<0):
+                        if(shares[sym]<0):
+                            order_type="Sell Short"
+                        else:
+                            order_type="Sell"
+                    elif shares[sym]<0:
+                        order_type="Buy to Cover"
+                    
+                    
+                    if log!="false":
+                        log_file.write(str(sym) + ","+str(sym)+","+str(trade_price[sym].values[0])+","+str(f_slippage*trade_price[sym].values[0])+","+str(abs(int(order[sym])))+","+str(prediction_date)+","+order_type+","+str(commissions))
+            
+    
+            f_total_commision = f_total_commision + f_transaction_cost
+    
+            # Shares that were actually purchased
+            shares = prediction_shares
+    
+            # Value after the purchase (change in price at execution)
+            value_after_trade = (((trade_price + f_slippage*trade_price) \
+                                *shares.ix[-1]).sum(axis = 1)).ix[-1]
+    
+            #Slippage Cost
+            f_slippage_cost = value_after_trade - \
+                                ((trade_price*shares.ix[-1]).sum(axis=1)).ix[-1]
+            f_total_slippage = f_total_slippage + f_slippage_cost
+    
+            # Rebalancing the cash left
+            cashleft = value_before_trade - value_after_trade - f_transaction_cost
+            #reset the most recent change in cash
+            cash_delta = 0
+            cash_delta = cash_delta + cashleft
+            shares['_CASH'] = shares['_CASH'] + cashleft
+            
+            if log!="false":
+                log_file.write("\n")
 
         # End of Loop
-
+    #close log 
+    if log!="false":
+        log_file.close()
     #print ts_fund
     #print ts_leverage
     #print f_total_commision
