@@ -1,3 +1,18 @@
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
+
+
+Created on June, 20, 2012
+
+@author:Drew Bratcher
+@contact: dbratcher@gatech.edu
+@summary: Contains converter for csv files to fund values. Also may plot.
+
+'''
+
 import sys
 import pandas
 import csv
@@ -11,6 +26,15 @@ from qstkutil import qsdateutil as du
 from qstkutil import DataAccess as da
 
 def csv2fund(filename, start_val):
+    """
+    @summary converts a csv file to a fund with the given starting value 
+    @param filename: csv file to open and convert
+    @param start_val: starting value for the portfolio
+    @return fund : time series containing fund value over time
+    @return leverage : time series containing fund value over time
+    @return slippage : value of slippage over the csv time
+    @return commissions : value of slippage over the csv time
+    """
     reader=csv.reader(open(filename,'r'), delimiter=',')
     format="GOOG"
     x=reader.next()
@@ -68,6 +92,15 @@ def csv2fund(filename, start_val):
     return [fund, leverage, slippage, commissions]
     
 def ofx2fund(filename, start_val):
+    """
+    @summary converts a ofx file to a fund with the given starting value 
+    @param filename: ofx file to open and convert
+    @param start_val: starting value for the portfolio
+    @return fund : time series containing fund value over time
+    @return leverage : time series containing fund value over time
+    @return slippage : value of slippage over the ofx time
+    @return commissions : value of slippage over the ofx time
+    """
     try:
         from ofxparse import OfxParser
     except:
@@ -99,6 +132,12 @@ def ofx2fund(filename, start_val):
     return [fund, leverage, slippage, commissions]
     
 def share_table2fund(share_table):
+    """
+    @summary converts data frame of shares into fund values
+    @param share_table: data frame containing shares on days transactions occured
+    @return fund : time series containing fund value over time
+    @return leverage : time series containing fund value over time
+    """
     # Get the data from the data store
     dataobj = da.DataAccess('Norgate')
     startday=share_table.index[0]-dt.timedelta(days=10)
