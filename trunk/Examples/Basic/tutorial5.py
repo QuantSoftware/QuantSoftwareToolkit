@@ -49,12 +49,12 @@ dataobj = da.DataAccess('Norgate')
 df_close = dataobj.get_data( \
                 ldt_timestamps, l_symbols, "close", verbose=False)
 
-df_alloc = pand.DataFrame(index=[dt.datetime(2009, 2, 1)], data=[rgen.random()], columns=l_symbols)
+df_alloc = pand.DataFrame(index=[dt.datetime(2009, 2, 1)], data=[1], columns=l_symbols)
 
 for i in range(11):
     df_alloc = df_alloc.append( \
              pand.DataFrame(index=[dt.datetime(2009, i+2, 3)], \
-                              data=[rgen.random()], columns=l_symbols))
+                              data=[1], columns=l_symbols))
 
 df_alloc['_CASH'] = 1-df_alloc[l_symbols[0]]
 
