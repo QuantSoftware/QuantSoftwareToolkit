@@ -36,57 +36,55 @@ def csv2fund(filename, start_val):
     @return commissions : value of slippage over the csv time
     """
     reader=csv.reader(open(filename,'r'), delimiter=',')
-    format="GOOG"
-    x=reader.next()
-    if x[5]=="Date":
-        format="QSTK"
+    reader.next()
     symbols=[]
     dates=[]
-    if(format=="GOOG"):
-        for row in reader:
-            if not(row[0] in symbols):
+    for row in reader:
+        if not(row[0] in symbols):
+            if not(row[0]=="cash"):
                 symbols.append(row[0])
-            if not(dp.parse(row[3]) in symbols):
-                dates.append(dp.parse(row[3]))
-    else:
-        for row in reader:
-            if not(row[0] in symbols):
-                symbols.append(row[0])
-            if not(dp.parse(row[5]) in symbols):
-                dates.append(dp.parse(row[5]))
-        
+        if not(dp.parse(row[3]) in dates):
+            dates.append(dp.parse(row[3]))
     reader=csv.reader(open(filename,'r'), delimiter=',')
     reader.next()
     vals=numpy.zeros([len(dates),len(symbols)+1])
     symbols.append("_CASH")
     share_table=pandas.DataFrame(index=dates, columns=symbols, data=vals)
     share_table["_CASH"]=0
-    share_table.ix[0]["_CASH"]=start_val
+    share_table["_CASH"].ix[0]=start_val
     commissions=0
     slippage=0
+    row_num=0
     for row in reader:
-        if(format=="GOOG"):
-            sym=row[0]
-            price = float(row[5])
-            shares=float(row[4])
+        row_num+=1
+        sym=row[0]
+        if row_num == 1 and (sym == "_CASH" or sym=="cash"):
+            cash=float(row[6])
             date=dp.parse(row[3])
+            share_table["_CASH"].ix[date]=cash
+            continue
+        elif (sym == "_CASH" or sym=="cash"):
             order_type=row[2]
-            commission=float(row[7])
-        else:
-            sym=row[0]
-            price = float(row[2])
-            shares=float(row[4])
-            date=dp.parse(row[5])
-            order_type=row[6]
-            commission=float(row[7])
+            cash=float(row[6])
+            date=dp.parse(row[3])
+            if order_type=="Cash Deposit":
+                share_table["_CASH"].ix[date]+=cash
+            else:
+                share_table["_CASH"].ix[date]-=cash
+            continue
+        price = float(row[5])
+        shares=float(row[4])
+        date=dp.parse(row[3])
+        order_type=row[2]
+        commission=float(row[7])
         if order_type=="Buy":
             share_table.ix[date][sym]=shares
             commissions=commissions+float(commission)
-            share_table.ix[date]["_CASH"]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
         if order_type=="Sell":
-            share_table.ix[date][sym]=-1*shares
+            share_table[sym].ix[date]=-1*shares
             commissions=commissions+float(commission)
-            share_table.ix[date]["_CASH"]=share_table.ix[date]["_CASH"]+float(price)*float(shares)+float(commission)
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)+float(commission)
     share_table=share_table.cumsum()
     [fund, leverage]=share_table2fund(share_table)
     return [fund, leverage, slippage, commissions]
@@ -140,7 +138,7 @@ def share_table2fund(share_table):
     """
     # Get the data from the data store
     dataobj = da.DataAccess('Norgate')
-    startday=share_table.index[0]-dt.timedelta(days=10)
+    startday=share_table.index[0]
     endday = share_table.index[-1]
 
     # Get desired timestamps
@@ -154,7 +152,7 @@ def share_table2fund(share_table):
     # start shares/fund out as 100% cash
     first_val=closest.ix[-1] * share_table.ix[0]
     fund_ts = pandas.Series( [first_val.sum(axis=1)], index = [closest.index[0]])
-    
+    prev_row=share_table.ix[0]
     for row_index, row in share_table.iterrows():
         
         trade_price = historic.ix[row_index:].ix[0:1]
@@ -164,11 +162,11 @@ def share_table2fund(share_table):
         to_calculate = historic[ (historic.index <= trade_date) &(historic.index > fund_ts.index[-1]) ]
 
         # multiply prices by our current shares
-        values_by_stock = to_calculate * row
-        
+        values_by_stock = to_calculate * prev_row
+        prev_row=row
         #update leverage
         ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
-
+        
         # calculate total value and append to our fund history
         fund_ts = fund_ts.append( [values_by_stock.sum(axis=1)])
         
@@ -179,7 +177,7 @@ if __name__ == "__main__":
         print "Usage: python csv2fund input.csv name"
         exit()
     filename=sys.argv[1]
-    ext=filename.split(".")[1]
+    ext=filename.split(".")[-1]
     plot_name=sys.argv[2]
     if ext=="csv":
         [fund, leverage, slippage, commissions]=csv2fund(filename,10000)

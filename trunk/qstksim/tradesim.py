@@ -106,7 +106,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #write column headings
     if log!="false":
         print "writing transaction log to "+log
-        log_file.write("Name,Symbol,Last price,Change,Shares,Date,Type,Commission,\n")
+        log_file.write("Name,Symbol,Type,Date,Shares,Price,Cash value,Commission,Notes\n")
     
     #a dollar is always worth a dollar
     df_historic['_CASH'] = 1.0
@@ -145,6 +145,10 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
         #trade_date is unused right now, but holds the next timestamp
         #trade_date = trade_price.index[0]
         if b_first_iter == True:
+            #log initial cash value
+            if log!="false":
+                log_file.write("_CASH,_CASH,Cash Deposit,"+str(prediction_date)+",,,"+str(f_start_cash)+",,\n")
+            
 
             # Fund Value on start
             ts_fund = pand.Series( f_start_cash, index = [prediction_date] )
@@ -232,24 +236,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                 if (val != 0):
                     t_cost = max(f_minimumcommision, f_commision_share*val)
                     f_transaction_cost = f_transaction_cost + t_cost
-            
-            #for all symbols, print required transaction to log
-            for sym in shares:
-                if sym != "_CASH":
-                    commissions=max(f_minimumcommision, f_commision_share*abs(order[sym]))
-                    order_type="Buy"
-                    if(order[sym]<0):
-                        if(shares[sym]<0):
-                            order_type="Sell Short"
-                        else:
-                            order_type="Sell"
-                    elif shares[sym]<0:
-                        order_type="Buy to Cover"
-                    
-                    
-                    if log!="false":
-                        log_file.write(str(sym) + ","+str(sym)+","+str(trade_price[sym].values[0])+","+str(f_slippage*trade_price[sym].values[0])+","+str(abs(int(order[sym])))+","+str(prediction_date)+","+order_type+","+str(commissions))
-            
+                                       
     
             f_total_commision = f_total_commision + f_transaction_cost
     
@@ -268,16 +255,38 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             # Rebalancing the cash left
             cashleft = value_before_trade - value_after_trade - f_transaction_cost
             #reset the most recent change in cash
-            cash_delta = 0
-            cash_delta = cash_delta + cashleft
+            cash_delta = cashleft
+            
+            #for all symbols, print required transaction to log
+            for sym in shares:
+                if sym != "_CASH":
+                    commissions=max(f_minimumcommision, f_commision_share*abs(order[sym]))
+                    order_type="Buy"
+                    if(order[sym]<0):
+                        if(shares[sym]<0):
+                            order_type="Sell Short"
+                        else:
+                            order_type="Sell"
+                    elif shares[sym]<0:
+                        order_type="Buy to Cover"
+                    
+                    
+                    if log!="false":
+                        log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(prediction_date)+\
+                                       ","+str(abs(order[sym]))+","+str(trade_price[sym].values[0])+","+str(trade_price[sym].values[0]*order[sym])+","\
+                                       +str(commissions)+","+str(f_slippage*trade_price[sym].values[0]))
+            
             shares['_CASH'] = shares['_CASH'] + cashleft
             
             if log!="false":
                 log_file.write("\n")
 
         # End of Loop
+    
     #close log 
     if log!="false":
+        #deposit nothing at end so that if we reload the transaction history the whole period gets shown
+        log_file.write("_CASH,_CASH,Cash Deposit,"+str(prediction_date)+",,,"+str(0)+",,")
         log_file.close()
     #print ts_fund
     #print ts_leverage
