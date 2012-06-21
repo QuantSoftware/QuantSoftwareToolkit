@@ -252,12 +252,15 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                                      verbose = False)
     
+    mult2 = 1000000 / benchmark_close.values[0]
     ostream.write("Benchmark: "+str(benchmark[0])+"\n");
-    ostream.write("Initial Fund Value: %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
-    ostream.write("Ending Fund Value:  %10s\n\n" % ("$"+str(int(round(fund_ts.values[-1]*mult)))))
+    ostream.write("Initial Fund Value:      %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
+    ostream.write("Ending Fund Value:       %10s\n\n" % ("$"+str(int(round(fund_ts.values[-1]*mult)))))
+    ostream.write("Initial Benchmark Value: %10s\n" % ("$"+str(int(round(benchmark_close.values[0]*mult2)))))
+    ostream.write("Ending Benchmark Value:  %10s\n\n" % ("$"+str(int(round(benchmark_close.values[-1]*mult2)))))
     ostream.write("Transaction Costs\n\n")
-    ostream.write("Total Comissions:   %10s\n" % ("$"+str(int(round(commissions)))))
-    ostream.write("Total Slippage:     %10s\n\n" % ("$"+str(int(round(slippage)))))
+    ostream.write("Total Comissions:        %10s\n" % ("$"+str(int(round(commissions)))))
+    ostream.write("Total Slippage:          %10s\n\n" % ("$"+str(int(round(slippage)))))
     
     ostream.write("Fund Std Dev of Returns:  ")
     
