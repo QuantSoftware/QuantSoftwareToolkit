@@ -123,9 +123,9 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     f_total_slippage = 0
     
     #remember last change in cash due to transaction costs and slippage
-    cash_delta = 0
+    cashleft = 0
     
-    #value of fund ignoring cash_delta
+    #value of fund ignoring cashleft
     no_trans_fund = 0
     
     b_first_iter = True
@@ -173,7 +173,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             # calculate total value and append to our fund history
             ts_fund = ts_fund.append( values_by_stock.sum(axis=1) )    
             # remember what value would be without cash delta as well
-            no_trans_fund = no_trans_fund.append(values_by_stock.sum(axis=1) - cash_delta)
+            no_trans_fund = no_trans_fund.append(values_by_stock.sum(axis=1) - cashleft)
             #Leverage
             ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
 
@@ -208,9 +208,9 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             no_trans_shares = no_trans_shares.apply(_nearest_interger)
             no_trans_shares *= i_leastcount   
             
-        #remove cash delta from current holding
+        #remove cashleft from current holding
         cash_delta_less_shares=deepcopy(shares)
-        cash_delta_less_shares["_CASH"]=cash_delta_less_shares["_CASH"]-cash_delta
+        cash_delta_less_shares["_CASH"]=cash_delta_less_shares["_CASH"]-cashleft
         
         #compare current holding to future holding (both ignoring the last round of transmission cost and slippage)
         same=1
@@ -252,13 +252,11 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     
             # Rebalancing the cash left
             cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_slippage_cost
-            #reset the most recent change in cash
-            cash_delta = cashleft
             
             #for all symbols, print required transaction to log
             for sym in shares:
                 if sym != "_CASH":
-                    commissions=max(f_minimumcommision, f_commision_share*abs(order[sym]))
+                    f_stock_commission=max(f_minimumcommision, f_commision_share*abs(order[sym]))
                     order_type="Buy"
                     if(order[sym]<0):
                         if(shares[sym]<0):
@@ -272,7 +270,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                     if log!="false":
                         log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(prediction_date)+\
                                        ","+str(abs(order[sym]))+","+str(trade_price[sym].values[0])+","+str(trade_price[sym].values[0]*order[sym])+","\
-                                       +str(commissions)+","+str(f_slippage*trade_price[sym].values[0]))
+                                       +str(f_stock_commission)+","+str(f_slippage*trade_price[sym].values[0]))
             
             shares['_CASH'] = shares['_CASH'] + cashleft
             
@@ -289,7 +287,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #print ts_fund
     #print ts_leverage
     #print f_total_commision
-    print f_total_slippage
+    #print f_total_slippage
     return (ts_fund, ts_leverage, f_total_commision, f_total_slippage)
 
 
