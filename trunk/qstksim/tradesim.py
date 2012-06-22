@@ -244,16 +244,14 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             shares = prediction_shares
     
             # Value after the purchase (change in price at execution)
-            value_after_trade = (((trade_price + f_slippage*trade_price) \
-                                *shares.ix[-1]).sum(axis = 1)).ix[-1]
+            value_after_trade = ((trade_price*shares.ix[-1]).sum(axis = 1)).ix[-1]
     
             #Slippage Cost
-            f_slippage_cost = value_after_trade - \
-                                ((trade_price*shares.ix[-1]).sum(axis=1)).ix[-1]
+            f_slippage_cost = abs(((f_slippage*trade_price*shares.ix[-1]).sum(axis=1)).ix[-1])
             f_total_slippage = f_total_slippage + f_slippage_cost
     
             # Rebalancing the cash left
-            cashleft = value_before_trade - value_after_trade - f_transaction_cost
+            cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_slippage_cost
             #reset the most recent change in cash
             cash_delta = cashleft
             
@@ -291,7 +289,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #print ts_fund
     #print ts_leverage
     #print f_total_commision
-    #print f_total_slippage
+    print f_total_slippage
     return (ts_fund, ts_leverage, f_total_commision, f_total_slippage)
 
 
