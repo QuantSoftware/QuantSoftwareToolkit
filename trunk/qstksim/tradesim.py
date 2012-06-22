@@ -247,7 +247,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             value_after_trade = ((trade_price*shares.ix[-1]).sum(axis = 1)).ix[-1]
     
             #Slippage Cost
-            f_slippage_cost = abs(((f_slippage*trade_price*shares.ix[-1]).sum(axis=1)).ix[-1])
+            f_slippage_cost = abs(((f_slippage*trade_price*order.ix[-1]).sum(axis=1)).ix[-1])
             f_total_slippage = f_total_slippage + f_slippage_cost
     
             # Rebalancing the cash left
