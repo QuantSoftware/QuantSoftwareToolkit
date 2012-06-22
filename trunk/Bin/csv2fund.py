@@ -25,6 +25,78 @@ from qstksim import _calculate_leverage
 from qstkutil import qsdateutil as du
 from qstkutil import DataAccess as da
 
+def print_transactions(filename, outfile="stdout"):
+    reader=csv.reader(open(filename,'r'), delimiter=',')
+    for row in reader:
+        for var in row:
+            if var == "Cash Deposit":
+                var="Deposit"
+            elif var == "Cash Withdraw":
+                var="Withdraw"
+            var=var.split(" ")[0]
+            outfile.write("%10s" % str(var))
+            outfile.write("  |  ")
+        outfile.write("\n")
+
+def analyze_transactions(filename, plot_name):
+    ext=filename.split(".")[-1]
+    if ext=="csv":
+        [share_table, slippage, commissions]=csv2fund(filename,10000)
+    else:
+        [share_table, slippage, commissions]=ofx2fund(filename,10000)
+    [fund, leverage]=share_table2fund(share_table)
+    report.print_stats(fund, ["$SPX"], plot_name, leverage=leverage, commissions=commissions, slippage=slippage, directory="./"+plot_name+"/") 
+    html_file  =  open("./"+plot_name+"/report-"+plot_name+".html","a")
+    html_file.write("<pre>\n\nTransaction Statistics\n")
+    #calc stats
+    
+    #first pass
+    reader=csv.reader(open(filename,'r'), delimiter=',')
+    reader.next()
+    prev=0
+    first=1
+    diffs=[]
+    volume=0
+    start=0
+    end=0
+    efficiencies=[]
+    for row in reader:
+        volume+=abs(float(row[6]))
+        if first:
+            #add na for first trade efficiency
+            
+            start=dp.parse(row[3])
+            first=0
+            prev=dp.parse(row[3])
+        else:
+            #try and match trade (grab first date of stocks
+            diffs.append(dp.parse(row[3])-prev)
+            prev=dp.parse(row[3])
+            end=prev
+            
+    avg_period=sum(diffs, dt.timedelta(0))/len(diffs)
+    avg_hold=1
+    t=volume/sum(fund)
+    turnover=t/(end-start).days
+    efficiency=1
+    avg_com=1
+    avg_slip=1
+    avg_ret=1
+    
+    #print stats
+    html_file.write("\nNumber of trades:         %10d" % len(share_table["_CASH"].values))
+    html_file.write("\nAverage Trading Period:   %10s" % str(avg_period).split(",")[0])
+    html_file.write("\nAverage Position Hold:    %10d" % avg_hold)
+    html_file.write("\nAverage Daily Turnover:   %%%9.4f" % (turnover*100))
+    html_file.write("\nAverage Trade Efficiency: %10d" % efficiency)
+    html_file.write("\nAverage Commissions:      %10d" % avg_com)
+    html_file.write("\nAverage Slippage:         %10d" % avg_slip)
+    html_file.write("\nAverage Return:           %10d\n\n" % avg_ret)
+    
+    print_transactions(filename, html_file)
+    
+    html_file.close()
+
 def csv2fund(filename, start_val):
     """
     @summary converts a csv file to a fund with the given starting value 
@@ -86,8 +158,7 @@ def csv2fund(filename, start_val):
             commissions=commissions+float(commission)
             share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)+float(commission)
     share_table=share_table.cumsum()
-    [fund, leverage]=share_table2fund(share_table)
-    return [fund, leverage, slippage, commissions]
+    return [share_table, slippage, commissions]
     
 def ofx2fund(filename, start_val):
     """
@@ -124,10 +195,9 @@ def ofx2fund(filename, start_val):
         share_table.ix[order.tradeDate][sym]=order.units
         share_table.ix[order.tradeDate]["_CASH"]=share_table.ix[order.tradeDate]["_CASH"]-float(order.unit_price)*float(order.units)
     share_table=share_table.cumsum()
-    [fund, leverage]=share_table2fund(share_table)
     slippage=0
     commissions=0
-    return [fund, leverage, slippage, commissions]
+    return [share_table, slippage, commissions]
     
 def share_table2fund(share_table):
     """
@@ -177,11 +247,6 @@ if __name__ == "__main__":
         print "Usage: python csv2fund input.csv name"
         exit()
     filename=sys.argv[1]
-    ext=filename.split(".")[-1]
     plot_name=sys.argv[2]
-    if ext=="csv":
-        [fund, leverage, slippage, commissions]=csv2fund(filename,10000)
-    else:
-        [fund, leverage, slippage, commissions]=ofx2fund(filename,10000)
-    report.print_stats(fund, ["$SPX"], plot_name, leverage=leverage, commissions=commissions, slippage=slippage, directory="./"+plot_name+"/")
+    analyze_transactions(filename,plot_name)
     
