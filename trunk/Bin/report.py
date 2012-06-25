@@ -252,11 +252,11 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     if d_trading_params!="":
         ostream.write("\n\nTrading Paramaters:\n")
         for var in d_trading_params:
-            ostream.write("%20s: %10s\n" % (var, d_trading_params[var]))
+            ostream.write("%20s: %20s\n" % (var, d_trading_params[var]))
     if d_hedge_params!="":
         ostream.write("\nHedge Paramaters:\n")
         for var in d_hedge_params:
-            ostream.write("%20s: %10s\n" % (var, d_hedge_params[var]))
+            ostream.write("%20s: %20s\n" % (var, d_hedge_params[var]))
         
     #comment section
     if s_comments!="":
