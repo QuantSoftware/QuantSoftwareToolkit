@@ -205,7 +205,7 @@ def print_monthly_returns(fund_ts, years, ostream):
             i += 1
         ostream.write("\n")
 
-def print_stats(fund_ts, benchmark, name, d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, \
+def print_stats(fund_ts, benchmark, name, original="", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, \
 commissions = 0, slippage = 0, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
@@ -229,11 +229,18 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
         ostream = open(sfile, "wb")
         ostream.write("<pre>")
         print "writing to ", sfile
-        if type(leverage)!=type(False):
-            print_plot(fund_ts, benchmark, name, splot_dir, 
-                       leverage=leverage)
+        
+        if type(original)==type("str"):
+            if type(leverage)!=type(False):
+                print_plot(fund_ts, benchmark, name, splot_dir, leverage=leverage)
+            else:
+                print_plot(fund_ts, benchmark, name, splot_dir) 
         else:
-            print_plot(fund_ts, benchmark, name, splot_dir) 
+            if type(leverage)!=type(False):
+                print_plot([original, fund_ts], benchmark, name, splot_dir, leverage=leverage)
+            else:
+                print_plot([original, fund_ts], benchmark, name, splot_dir) 
+            
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
     ostream.write("Performance Summary for "\
@@ -286,6 +293,10 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     
     print_std_dev(benchmark_close, ostream)
     
+    if type(original)!=type("str"):
+        ostream.write("\nOrig Std Dev of Returns:  ")    
+        print_std_dev(original, ostream)
+    
     print_benchmark_coer(fund_ts, benchmark_close, str(benchmark[0]), ostream)
     
     ostream.write("\n\nYearly Performance Metrics")
@@ -305,28 +316,39 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     benchmark_close=benchmark_close.fillna(method='pad')
     print_annual_return(benchmark_close, years, ostream)
     
-    ostream.write("\n\nFund Winning Days:           ")                
+    if type(original)!=type("str"):
+        ostream.write("\nOrig Annualized Return:      ")
+        print_annual_return(original, years, ostream)
     
+    ostream.write("\n\nFund Winning Days:           ")                
     print_winning_days(fund_ts, years, ostream)
 
     ostream.write("\nBench Winning Days:          ")                
     print_winning_days(benchmark_close, years, ostream)
+    
+    if type(original)!=type("str"):
+        ostream.write("\nOrig Winning Days:           ")                
+        print_winning_days(original, years, ostream)
 
     ostream.write("\n\nFund Max Draw Down:          ")
-    
     print_max_draw_down(fund_ts, years, ostream)
 
     ostream.write("\nBench Max Draw Down:         ")
-
     print_max_draw_down(benchmark_close, years, ostream)
+    
+    if type(original)!=type("str"):
+        ostream.write("\nOrig Max Draw Down:          ")
+        print_max_draw_down(original, years, ostream)
 
     ostream.write("\n\nFund Daily Sharpe Ratio:     ")
-
     print_daily_sharpe(fund_ts, years, ostream)
 
     ostream.write("\nBench Daily Sharpe Ratio:    ")       
-
     print_daily_sharpe(benchmark_close, years, ostream)
+    
+    if type(original)!=type("str"):
+        ostream.write("\nOrig Daily Sharpe Ratio:     ")       
+        print_daily_sharpe(original, years, ostream)
 
     ostream.write("\n\nFund Daily Sortino Ratio:    ")
 
@@ -336,6 +358,9 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
 
     print_daily_sortino(benchmark_close, years, ostream)
     
+    if type(original)!=type("str"):
+        ostream.write("\nOrig Daily Sortino Ratio:    ")         
+        print_daily_sortino(original, years, ostream)
     
     ostream.write("\n\nDow Jones Industries: Correlation, Beta")
     
@@ -370,13 +395,16 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
         pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_name))
     else:    
-        if(start_date == 0 or start_date>fund[0].index[0]):
-            start_date = fund[0].index[0]    
-        if(end_date == 0 or end_date<fund[0].index[-1]):
-            end_date = fund[0].index[-1]    
-        mult = 1000000/fund[0].values[0]
-        pyplot.plot(fund[0].index, fund[0].values * mult, label = \
-                                  path.basename(graph_name))
+        i=0
+        for entity in fund:
+            if(start_date == 0 or start_date>entity.index[0]):
+                start_date = entity.index[0]    
+            if(end_date == 0 or end_date<entity.index[-1]):
+                end_date = entity.index[-1]    
+            mult = 1000000/entity.values[0]
+            pyplot.plot(entity.index, entity.values * mult, label = \
+                                  path.basename(graph_name)+str(i))
+            i=i+1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
     dataobj = da.DataAccess('Norgate')
