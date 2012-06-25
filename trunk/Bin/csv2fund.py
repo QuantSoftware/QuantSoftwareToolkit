@@ -39,7 +39,16 @@ def calculate_efficiency(start_date, end_date, stock):
     low=numpy.min(historic.values)
     entry=historic.values[0]
     exit_price=historic.values[-1]
-    return ((exit_price-entry)/(hi-low))[0]
+    return (((exit_price-entry)/(hi-low))[0])
+
+def _ignore_zeros_average(array):
+    i_num=0
+    f_sum=0
+    for var in array:
+        if var!=0:
+            i_num=i_num+1
+            f_sum=f_sum+var
+    return f_sum/i_num
 
 def analyze_transactions(filename, plot_name):
     html_file  =  open("./"+plot_name+"/report-"+plot_name+".html","a")
@@ -54,23 +63,35 @@ def analyze_transactions(filename, plot_name):
     diffs=[]
     volume=0
     start=0
+    sold=0
+    bought=0
     end=0
+    rets=[]
     efficiencies=[]
+    holds=[]
+    commissions=[]
+    slippage=[]
     buy_dates=[] #matrix of when stocks were bought (used for matches)
     for row in reader:
+        weighted_ret=0
         weighted_e=0
+        weighted_hold=0
         num_stocks=0
-        volume+=abs(float(row[6]))
+        volume+=1
+        if(row[5]!=""):
+            commissions.append(float(row[7]))
+            slippage.append(float(row[8]))
         if first:
             #add na for first trade efficiency
-            efficiencies.append("nan")
             start=dp.parse(row[3])
             first=0
             prev=dp.parse(row[3])
         else:
             if row[2] == "Buy":
-                buy_dates.append({"date":dp.parse(row[3]),"stock":row[1],"amount":row[4]})
+                bought=bought+float(row[5])
+                buy_dates.append({"date":dp.parse(row[3]),"stock":row[1],"amount":row[4],"price":float(row[5])})
             elif row[2] == "Sell":
+                sold=sold+float(row[5])
                 #try and match trade (grab first date of stocks)
                 for date in buy_dates:
                     #matched a date
@@ -79,6 +100,8 @@ def analyze_transactions(filename, plot_name):
                         leftover=float(date["amount"])-float(row[4])
                         #compute efficiency
                         temp_e=calculate_efficiency(date["date"], dp.parse(row[3]), row[1])
+                        weighted_ret=weighted_ret*num_stocks+(float(row[5])/date["price"])*float(row[4])/(num_stocks+float(row[4]))
+                        weighted_hold=weighted_hold*num_stocks+(dp.parse(row[3])-date["date"]).days*float(row[4])/(num_stocks+float(row[4]))
                         weighted_e=weighted_e*num_stocks+temp_e*float(row[4])/(num_stocks+float(row[4]))
                         num_stocks=num_stocks+float(row[4])
                         while(leftover<0):
@@ -94,46 +117,63 @@ def analyze_transactions(filename, plot_name):
                             buy_dates.remove(date)
                         else:
                             date["amount"]=leftover
+                        break
             diffs.append(dp.parse(row[3])-prev)
             prev=dp.parse(row[3])
             end=prev
+        holds.append(weighted_hold)
         efficiencies.append(weighted_e)
+        rets.append(weighted_ret*100)
             
     avg_period=sum(diffs, dt.timedelta(0))/len(diffs)
-    avg_hold=1
-    t=volume/sum(fund)
+    avg_hold=_ignore_zeros_average(holds)
+    t=sold/(bought+sold)
     turnover=t/(end-start).days
-    efficiency=1
-    avg_com=1
-    avg_slip=1
-    avg_ret=1
+    efficiency=_ignore_zeros_average(efficiencies)
+    avg_com=_ignore_zeros_average(commissions)
+    avg_slip=_ignore_zeros_average(slippage)
+    avg_ret=_ignore_zeros_average(rets)
     
     #print stats
-    html_file.write("\nNumber of trades:         %10d" % len(share_table["_CASH"].values))
+    html_file.write("\nNumber of trades:         %10d" % volume)
     html_file.write("\nAverage Trading Period:   %10s" % str(avg_period).split(",")[0])
-    html_file.write("\nAverage Position Hold:    %10d" % avg_hold)
+    html_file.write("\nAverage Position Hold:    %5d days" % avg_hold)
     html_file.write("\nAverage Daily Turnover:   %%%9.4f" % (turnover*100))
     html_file.write("\nAverage Trade Efficiency: %%%9.4f" % (efficiency*100))
     html_file.write("\nAverage Commissions:      %10d" % avg_com)
     html_file.write("\nAverage Slippage:         %10d" % avg_slip)
-    html_file.write("\nAverage Return:           %10d\n\n" % avg_ret)
+    html_file.write("\nAverage Return:           %%%9.4f\n\n" % avg_ret)
     
     reader=csv.reader(open(filename,'r'), delimiter=',')
     a=0
     for row in reader:
-        for var in row:
+        if a==0:
+            html_file.write("   Date    | ")
+            html_file.write("   Name    | ")
+            html_file.write("   Type    | ")
+            html_file.write("  Price    | ")
+            html_file.write("  Shares   | ")
+            html_file.write("Commission | ")
+            html_file.write(" Slippage  | ")
+            html_file.write("Efficiency  | ")
+            html_file.write(" Returns    ")
+            a=1
+        else:
+            var=row[2]
             if var == "Cash Deposit":
                 var="Deposit"
             elif var == "Cash Withdraw":
                 var="Withdraw"
             var=var.split(" ")[0]
-            html_file.write("%10s" % str(var))
-            html_file.write("  |  ")
-        if a==0:
-            html_file.write(" Efficiency ")
-            a=1
-        else:
-            html_file.write(" %%%9.2f " % (efficiencies[a]*100))
+            html_file.write("%10s | " % str(row[3].split()[0]))
+            html_file.write("%10s | " % str(row[0]))
+            html_file.write("%10s | " % str(var))
+            html_file.write("%10s | " % str(row[5]))
+            html_file.write("%10s | " % str(row[4]))
+            html_file.write("%10s | " % str(row[7]))
+            html_file.write("%10s | " % str(row[8]))
+            html_file.write(" %%%9.2f | " % (efficiencies[a-1]*100))
+            html_file.write(" %%%9.2f " % (rets[a-1]))
             a=a+1
         html_file.write(" | ")
         html_file.write("\n")
@@ -291,13 +331,6 @@ def share_table2fund(share_table):
 
 if __name__ == "__main__":
     filename="../Examples/Basic/transactions.csv"
-    plot_name="CSV"
-    ext=filename.split(".")[-1]
-    if ext=="csv":
-        [share_table, slippage, commissions]=csv2fund(filename,10000)
-    else:
-        [share_table, slippage, commissions]=ofx2fund(filename,10000)
-    [fund, leverage]=share_table2fund(share_table)
-    report.print_stats(fund, ["$SPX"], plot_name, leverage=leverage, commissions=commissions, slippage=slippage, directory="./"+plot_name+"/")
+    plot_name="AAPL"
     analyze_transactions(filename,plot_name)
     
