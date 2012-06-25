@@ -205,7 +205,7 @@ def print_monthly_returns(fund_ts, years, ostream):
             i += 1
         ostream.write("\n")
 
-def print_stats(fund_ts, benchmark, name, directory = False, leverage = False, \
+def print_stats(fund_ts, benchmark, name, d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, \
 commissions = 0, slippage = 0, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
@@ -240,6 +240,22 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
 	 + str(path.basename(name)) + " Backtest\n")
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "")
+    
+    #paramater section
+    if d_trading_params!="":
+        ostream.write("\n\nTrading Paramaters:\n")
+        for var in d_trading_params:
+            ostream.write("%20s: %10s\n" % (var, d_trading_params[var]))
+    if d_hedge_params!="":
+        ostream.write("\nHedge Paramaters:\n")
+        for var in d_hedge_params:
+            ostream.write("%20s: %10s\n" % (var, d_hedge_params[var]))
+        
+    #comment section
+    if s_comments!="":
+        ostream.write("\nComments:\n%s" % s_comments)
+    
+    
     if directory != False :
         ostream.write("<img src="+splot+" width=350 align=right>\n\n")
         
@@ -394,7 +410,6 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
         pyplot.title(graph_name + " Leverage")
         pyplot.xlabel('Date')
         pyplot.legend()
-    pyplot.draw()
     savefig(filename, format = 'png')
      
 
@@ -448,7 +463,6 @@ def generate_report(funds_list, graph_names, out_file):
     pyplot.ylabel('Fund Value')
     pyplot.xlabel('Date')
     pyplot.legend()
-    pyplot.draw()
     savefig('funds.png', format = 'png')
     print_footer(html_file)
 
