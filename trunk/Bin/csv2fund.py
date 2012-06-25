@@ -42,13 +42,6 @@ def calculate_efficiency(start_date, end_date, stock):
     return ((exit_price-entry)/(hi-low))[0]
 
 def analyze_transactions(filename, plot_name):
-    ext=filename.split(".")[-1]
-    if ext=="csv":
-        [share_table, slippage, commissions]=csv2fund(filename,10000)
-    else:
-        [share_table, slippage, commissions]=ofx2fund(filename,10000)
-    [fund, leverage]=share_table2fund(share_table)
-    report.print_stats(fund, ["$SPX"], plot_name, leverage=leverage, commissions=commissions, slippage=slippage, directory="./"+plot_name+"/") 
     html_file  =  open("./"+plot_name+"/report-"+plot_name+".html","a")
     html_file.write("<pre>\n\nTransaction Statistics\n")
     #calc stats
@@ -89,10 +82,13 @@ def analyze_transactions(filename, plot_name):
                         weighted_e=weighted_e*num_stocks+temp_e*float(row[4])/(num_stocks+float(row[4]))
                         num_stocks=num_stocks+float(row[4])
                         while(leftover<0):
-                            buy_dates.remove(date)
+                            if(date in buy_dates):
+                                buy_dates.remove(date)
+                            else:
+                                break
                             for date in buy_dates:
                                 if date["stock"] == row[1]:
-                                    leftover= date["amount"]-leftover
+                                    leftover= float(date["amount"])-leftover
                                     break
                         if(leftover==0):
                             buy_dates.remove(date)
@@ -166,14 +162,16 @@ def csv2fund(filename, start_val):
             dates.append(dp.parse(row[3]))
     reader=csv.reader(open(filename,'r'), delimiter=',')
     reader.next()
-    vals=numpy.zeros([len(dates),len(symbols)+1])
-    symbols.append("_CASH")
+    if not("_CASH" in symbols):
+        symbols.append("_CASH")
+    vals=numpy.zeros([len(dates),len(symbols)])
     share_table=pandas.DataFrame(index=dates, columns=symbols, data=vals)
     share_table["_CASH"]=0
     share_table["_CASH"].ix[0]=start_val
     commissions=0
     slippage=0
     row_num=0
+    f_total_slippage=0
     for row in reader:
         row_num+=1
         sym=row[0]
@@ -196,16 +194,18 @@ def csv2fund(filename, start_val):
         date=dp.parse(row[3])
         order_type=row[2]
         commission=float(row[7])
+        slippage=float(row[8])
+        f_total_slippage=f_total_slippage+slippage
         if order_type=="Buy":
             share_table.ix[date][sym]=shares
             commissions=commissions+float(commission)
-            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)-slippage
         if order_type=="Sell":
             share_table[sym].ix[date]=-1*shares
             commissions=commissions+float(commission)
-            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)+float(commission)
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)-float(commission)-slippage
     share_table=share_table.cumsum()
-    return [share_table, slippage, commissions]
+    return [share_table, f_total_slippage, commissions]
     
 def ofx2fund(filename, start_val):
     """
@@ -290,10 +290,14 @@ def share_table2fund(share_table):
     return [fund_ts, ts_leverage]
 
 if __name__ == "__main__":
-    if len(sys.argv)!=3:
-        print "Usage: python csv2fund input.csv name"
-        exit()
-    filename=sys.argv[1]
-    plot_name=sys.argv[2]
+    filename="../Examples/Basic/transactions.csv"
+    plot_name="CSV"
+    ext=filename.split(".")[-1]
+    if ext=="csv":
+        [share_table, slippage, commissions]=csv2fund(filename,10000)
+    else:
+        [share_table, slippage, commissions]=ofx2fund(filename,10000)
+    [fund, leverage]=share_table2fund(share_table)
+    report.print_stats(fund, ["$SPX"], plot_name, leverage=leverage, commissions=commissions, slippage=slippage, directory="./"+plot_name+"/")
     analyze_transactions(filename,plot_name)
     
