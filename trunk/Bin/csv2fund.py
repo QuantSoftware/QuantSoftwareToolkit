@@ -24,19 +24,22 @@ from Bin import report
 from qstksim import _calculate_leverage
 from qstkutil import qsdateutil as du
 from qstkutil import DataAccess as da
+        
+def calculate_efficiency(start_date, end_date, stock):
+    # Get the data from the data store
+    dataobj = da.DataAccess('Norgate')
+    startday=start_date
+    endday = end_date
 
-def print_transactions(filename, outfile="stdout"):
-    reader=csv.reader(open(filename,'r'), delimiter=',')
-    for row in reader:
-        for var in row:
-            if var == "Cash Deposit":
-                var="Deposit"
-            elif var == "Cash Withdraw":
-                var="Withdraw"
-            var=var.split(" ")[0]
-            outfile.write("%10s" % str(var))
-            outfile.write("  |  ")
-        outfile.write("\n")
+    # Get desired timestamps
+    timeofday=dt.timedelta(hours=16)
+    timestamps = du.getNYSEdays(startday,endday+dt.timedelta(days=1),timeofday)
+    historic = dataobj.get_data( timestamps, [stock] ,"close" )
+    hi=numpy.max(historic.values)
+    low=numpy.min(historic.values)
+    entry=historic.values[0]
+    exit_price=historic.values[-1]
+    return ((exit_price-entry)/(hi-low))[0]
 
 def analyze_transactions(filename, plot_name):
     ext=filename.split(".")[-1]
@@ -60,19 +63,45 @@ def analyze_transactions(filename, plot_name):
     start=0
     end=0
     efficiencies=[]
+    buy_dates=[] #matrix of when stocks were bought (used for matches)
     for row in reader:
+        weighted_e=0
+        num_stocks=0
         volume+=abs(float(row[6]))
         if first:
             #add na for first trade efficiency
-            
+            efficiencies.append("nan")
             start=dp.parse(row[3])
             first=0
             prev=dp.parse(row[3])
         else:
-            #try and match trade (grab first date of stocks
+            if row[2] == "Buy":
+                buy_dates.append({"date":dp.parse(row[3]),"stock":row[1],"amount":row[4]})
+            elif row[2] == "Sell":
+                #try and match trade (grab first date of stocks)
+                for date in buy_dates:
+                    #matched a date
+                    if(date["stock"]==row[1]):
+                        #use as many stocks from date as necessary
+                        leftover=float(date["amount"])-float(row[4])
+                        #compute efficiency
+                        temp_e=calculate_efficiency(date["date"], dp.parse(row[3]), row[1])
+                        weighted_e=weighted_e*num_stocks+temp_e*float(row[4])/(num_stocks+float(row[4]))
+                        num_stocks=num_stocks+float(row[4])
+                        while(leftover<0):
+                            buy_dates.remove(date)
+                            for date in buy_dates:
+                                if date["stock"] == row[1]:
+                                    leftover= date["amount"]-leftover
+                                    break
+                        if(leftover==0):
+                            buy_dates.remove(date)
+                        else:
+                            date["amount"]=leftover
             diffs.append(dp.parse(row[3])-prev)
             prev=dp.parse(row[3])
             end=prev
+        efficiencies.append(weighted_e)
             
     avg_period=sum(diffs, dt.timedelta(0))/len(diffs)
     avg_hold=1
@@ -88,13 +117,31 @@ def analyze_transactions(filename, plot_name):
     html_file.write("\nAverage Trading Period:   %10s" % str(avg_period).split(",")[0])
     html_file.write("\nAverage Position Hold:    %10d" % avg_hold)
     html_file.write("\nAverage Daily Turnover:   %%%9.4f" % (turnover*100))
-    html_file.write("\nAverage Trade Efficiency: %10d" % efficiency)
+    html_file.write("\nAverage Trade Efficiency: %%%9.4f" % (efficiency*100))
     html_file.write("\nAverage Commissions:      %10d" % avg_com)
     html_file.write("\nAverage Slippage:         %10d" % avg_slip)
     html_file.write("\nAverage Return:           %10d\n\n" % avg_ret)
     
-    print_transactions(filename, html_file)
-    
+    reader=csv.reader(open(filename,'r'), delimiter=',')
+    a=0
+    for row in reader:
+        for var in row:
+            if var == "Cash Deposit":
+                var="Deposit"
+            elif var == "Cash Withdraw":
+                var="Withdraw"
+            var=var.split(" ")[0]
+            html_file.write("%10s" % str(var))
+            html_file.write("  |  ")
+        if a==0:
+            html_file.write(" Efficiency ")
+            a=1
+        else:
+            html_file.write(" %%%9.2f " % (efficiencies[a]*100))
+            a=a+1
+        html_file.write(" | ")
+        html_file.write("\n")
+                      
     html_file.close()
 
 def csv2fund(filename, start_val):
