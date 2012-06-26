@@ -9,7 +9,7 @@ Created on June, 20, 2012
 
 @author:Drew Bratcher
 @contact: dbratcher@gatech.edu
-@summary: Contains converter for csv files to fund values. Also may plot.
+@summary: Contains converter for csv files to fund values. Also analyzes transactions.
 
 '''
 
@@ -91,33 +91,41 @@ def analyze_transactions(filename, plot_name):
                 bought=bought+float(row[5])
                 buy_dates.append({"date":dp.parse(row[3]),"stock":row[1],"amount":row[4],"price":float(row[5])})
             elif row[2] == "Sell":
+                #sold at price
+                print "selling "+row[4]+" stocks at "+row[5]
                 sold=sold+float(row[5])
+                #get number of stocks for this sell
+                stocks=float(row[4])
                 #try and match trade (grab first date of stocks)
                 for date in buy_dates:
-                    #matched a date
-                    if(date["stock"]==row[1]):
-                        #use as many stocks from date as necessary
-                        leftover=float(date["amount"])-float(row[4])
-                        #compute efficiency
-                        temp_e=calculate_efficiency(date["date"], dp.parse(row[3]), row[1])
-                        weighted_ret=weighted_ret*num_stocks+(float(row[5])/date["price"])*float(row[4])/(num_stocks+float(row[4]))
-                        weighted_hold=weighted_hold*num_stocks+(dp.parse(row[3])-date["date"]).days*float(row[4])/(num_stocks+float(row[4]))
-                        weighted_e=weighted_e*num_stocks+temp_e*float(row[4])/(num_stocks+float(row[4]))
-                        num_stocks=num_stocks+float(row[4])
-                        while(leftover<0):
-                            if(date in buy_dates):
-                                buy_dates.remove(date)
-                            else:
+                    #while stocks are left
+                    if(stocks>0):
+                        #match a date
+                        if(date["stock"]==row[1]):
+                            stocks_sold=0
+                            #use as many stocks from date as necessary
+                            leftover=float(date["amount"])-stocks
+                            if(leftover>0):
+                                date["amount"]=leftover
+                                stocks_sold=stocks
+                                #compute stats
+                                temp_e=calculate_efficiency(date["date"], dp.parse(row[3]), row[1])
+                                weighted_ret=(weighted_ret*num_stocks+(float(row[5])/date["price"])*stocks_sold)/(num_stocks+stocks_sold)
+                                weighted_hold=(weighted_hold*num_stocks+(dp.parse(row[3])-date["date"]).days*stocks_sold)/(num_stocks+stocks_sold)
+                                weighted_e=(weighted_e*num_stocks+temp_e*stocks_sold)/(num_stocks+stocks_sold)
+                                num_stocks=num_stocks+stocks_sold
                                 break
-                            for date in buy_dates:
-                                if date["stock"] == row[1]:
-                                    leftover= float(date["amount"])-leftover
-                                    break
-                        if(leftover==0):
-                            buy_dates.remove(date)
-                        else:
-                            date["amount"]=leftover
-                        break
+                            else:
+                                stocks_sold=float(date["amount"])
+                                stocks=stocks-stocks_sold
+                                #compute stats
+                                temp_e=calculate_efficiency(date["date"], dp.parse(row[3]), row[1])
+                                weighted_ret=(weighted_ret*num_stocks+(float(row[5])/date["price"])*stocks_sold)/(num_stocks+stocks_sold)
+                                weighted_hold=(weighted_hold*num_stocks+(dp.parse(row[3])-date["date"]).days*stocks_sold)/(num_stocks+stocks_sold)
+                                weighted_e=(weighted_e*num_stocks+temp_e*stocks_sold)/(num_stocks+stocks_sold)
+                                num_stocks=num_stocks+stocks_sold
+                                date["stock"]="DONE"
+                                #buy_dates.remove(date)
             diffs.append(dp.parse(row[3])-prev)
             prev=dp.parse(row[3])
             end=prev
