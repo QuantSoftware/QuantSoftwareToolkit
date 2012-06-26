@@ -140,9 +140,14 @@ def analyze_transactions(filename, plot_name):
                                 num_stocks=num_stocks+stocks_sold
                                 date["stock"]="DONE"
                                 #buy_dates.remove(date)
-            diffs.append(dp.parse(row[3])-prev)
-            prev=dp.parse(row[3])
-            end=prev
+            #elif row[2] == "Sell Short":
+                #do nothing
+            #elif row[2] == "Buy to Cover":
+                #do nothing
+            if(prev!=dp.parse(row[3])):
+                diffs.append(dp.parse(row[3])-prev)
+                prev=dp.parse(row[3])
+                end=prev
         holds.append(weighted_hold)
         efficiencies.append(weighted_e)
         rets.append(weighted_ret*100)
@@ -168,6 +173,7 @@ def analyze_transactions(filename, plot_name):
     
     reader=csv.reader(open(filename,'r'), delimiter=',')
     a=0
+    cash=0
     for row in reader:
         if a==0:
             html_file.write("   Date    | ")
@@ -177,15 +183,20 @@ def analyze_transactions(filename, plot_name):
             html_file.write("  Shares   | ")
             html_file.write("Commission | ")
             html_file.write(" Slippage  | ")
+            html_file.write("OnHand Cash| ")
             html_file.write("Efficiency  | ")
             html_file.write(" Returns    ")
             a=1
         else:
             var=row[2]
             if var == "Cash Deposit":
+                cash=cash+float(row[6])
                 var="Deposit"
             elif var == "Cash Withdraw":
+                cash=cash-float(row[6])
                 var="Withdraw"
+            else:
+                cash=cash-float(row[6])
             var=var.split(" ")[0]
             html_file.write("%10s | " % str(row[3].split()[0]))
             html_file.write("%10s | " % str(row[0]))
@@ -194,6 +205,7 @@ def analyze_transactions(filename, plot_name):
             html_file.write("%10s | " % str(row[4]))
             html_file.write("%10s | " % str(row[7]))
             html_file.write("%10s | " % str(row[8]))
+            html_file.write("%10s | " % str(round(cash,2)))
             html_file.write(" %%%9.2f | " % (efficiencies[a-1]*100))
             html_file.write(" %%%9.2f " % (rets[a-1]))
             a=a+1
@@ -266,6 +278,14 @@ def csv2fund(filename, start_val):
             share_table[sym].ix[date]=-1*shares
             commissions=commissions+float(commission)
             share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)-float(commission)-slippage
+        if order_type=="Sell Short":
+            share_table[sym].ix[date]=-1*shares
+            commissions=commissions+float(commission)
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)-float(commission)-slippage
+        if order_type=="Buy to Cover":
+            share_table.ix[date][sym]=shares
+            commissions=commissions+float(commission)
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)-slippage
     share_table=share_table.cumsum()
     return [share_table, f_total_slippage, commissions]
     
@@ -355,4 +375,7 @@ if __name__ == "__main__":
     filename="../Examples/Basic/transactions.csv"
     plot_name="AAPL"
     analyze_transactions(filename,plot_name)
+    
+    #Generate new plot based off transactions alone
+    
     
