@@ -279,6 +279,9 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     ostream.write("Benchmark: "+str(benchmark[0])+"\n");
     ostream.write("Initial Fund Value:      %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
     ostream.write("Ending Fund Value:       %10s\n\n" % ("$"+str(int(round(fund_ts.values[-1]*mult)))))
+    if type(original)!=type("str"):
+        ostream.write("Initial Equity Value:      %10s\n" % ("$"+str(int(round(original.values[0]*mult)))))  
+        ostream.write("Ending Equity Value:       %10s\n\n" % ("$"+str(int(round(original.values[-1]*mult)))))
     ostream.write("Initial Benchmark Value: %10s\n" % ("$"+str(int(round(benchmark_close.values[0]*mult2)))))
     ostream.write("Ending Benchmark Value:  %10s\n\n" % ("$"+str(int(round(benchmark_close.values[-1]*mult2)))))
     ostream.write("Transaction Costs\n\n")
