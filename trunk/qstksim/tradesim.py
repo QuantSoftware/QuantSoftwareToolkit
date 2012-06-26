@@ -228,7 +228,6 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             order = pand.Series(((prediction_shares.values \
                     - shares.values)[0])[:-1], index = row.index[:-1])
             
-            
             # Transaction costs
             f_transaction_cost = 0
             for index in order.index:
@@ -237,7 +236,6 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                     t_cost = max(f_minimumcommision, f_commision_share*val)
                     f_transaction_cost = f_transaction_cost + t_cost
                                        
-    
             f_total_commision = f_total_commision + f_transaction_cost
     
             # Shares that were actually purchased
@@ -247,7 +245,10 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             value_after_trade = ((trade_price*shares.ix[-1]).sum(axis = 1)).ix[-1]
     
             #Slippage Cost
-            f_slippage_cost = abs(((f_slippage*trade_price*order.ix[-1]).sum(axis=1)).ix[-1])
+            f_slippage_cost = f_slippage*(trade_price.values[0][:-1])*order.values
+            f_slippage_cost = abs(f_slippage_cost)
+            f_slippage_cost = f_slippage_cost.sum()            
+
             f_total_slippage = f_total_slippage + f_slippage_cost
     
             # Rebalancing the cash left
@@ -275,7 +276,6 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                             log_file.write("\n")
             
             shares['_CASH'] = shares['_CASH'] + cashleft
-            
 
         # End of Loop
     
