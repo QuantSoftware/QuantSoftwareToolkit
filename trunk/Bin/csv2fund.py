@@ -25,16 +25,21 @@ from qstksim import _calculate_leverage
 from qstkutil import qsdateutil as du
 from qstkutil import DataAccess as da
         
-def calculate_efficiency(start_date, end_date, stock):
+def calculate_efficiency(dt_start_date, dt_end_date, s_stock):
+    """
+    @summary calculates the exit-entry/high-low trade efficiency of a stock from historical data
+    @param start_date: entry point for the trade
+    @param end_date: exit point for the trade
+    @param stock: stock to compute efficiency for
+    @return: float representing efficiency
+    """
     # Get the data from the data store
     dataobj = da.DataAccess('Norgate')
-    startday=start_date
-    endday = end_date
 
     # Get desired timestamps
     timeofday=dt.timedelta(hours=16)
-    timestamps = du.getNYSEdays(startday,endday+dt.timedelta(days=1),timeofday)
-    historic = dataobj.get_data( timestamps, [stock] ,"close" )
+    timestamps = du.getNYSEdays(dt_start_date,dt_end_date+dt.timedelta(days=1),timeofday)
+    historic = dataobj.get_data( timestamps, [s_stock] ,"close" )
     hi=numpy.max(historic.values)
     low=numpy.min(historic.values)
     entry=historic.values[0]
@@ -42,6 +47,11 @@ def calculate_efficiency(start_date, end_date, stock):
     return (((exit_price-entry)/(hi-low))[0])
 
 def _ignore_zeros_average(array):
+    """
+    @summary internal function computes average ignoring zero elements
+    @param array: array to compute average for
+    @return: float average
+    """
     i_num=0
     f_sum=0
     for var in array:
@@ -51,6 +61,11 @@ def _ignore_zeros_average(array):
     return f_sum/i_num
 
 def analyze_transactions(filename, plot_name):
+    """
+    @summary computes various statistics for given filename and appends to report assumed via plot_name
+    @param filename: file of past transactions
+    @param plot_name: name of report
+    """
     html_file  =  open("./"+plot_name+"/report-"+plot_name+".html","a")
     html_file.write("<pre>\n\nTransaction Statistics\n")
     #calc stats
@@ -92,7 +107,6 @@ def analyze_transactions(filename, plot_name):
                 buy_dates.append({"date":dp.parse(row[3]),"stock":row[1],"amount":row[4],"price":float(row[5])})
             elif row[2] == "Sell":
                 #sold at price
-                print "selling "+row[4]+" stocks at "+row[5]
                 sold=sold+float(row[5])
                 #get number of stocks for this sell
                 stocks=float(row[4])
