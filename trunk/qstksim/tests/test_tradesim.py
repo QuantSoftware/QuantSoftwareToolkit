@@ -69,7 +69,7 @@ class Test(unittest.TestCase):
         self.df_alloc['_CASH'] = 0.0
 
         #Based on hand calculation using the transaction costs and slippage.
-        self.i_open_result = 1.36362112
+        self.i_open_result = 1.35011891
 
     def setUp(self):
         ''' Unittest setup function '''
