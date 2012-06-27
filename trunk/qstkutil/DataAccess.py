@@ -259,8 +259,10 @@ class DataAccess(object):
                     timebase = temp_np[i][0]
                     timeyear = int(timebase/10000)
                     
-                    ''' Quick hack to skip most of the data '''
-                    if timeyear < ts_list[0].year:
+                    # Quick hack to skip most of the data
+                    # Note if we skip ALL the data, we still need to calculate
+                    # last time, so we know nothing is valid later in the code
+                    if timeyear < ts_list[0].year and i != num_rows - 1:
                         continue
                     elif b_skip == True:
                         ts_ctr = i
