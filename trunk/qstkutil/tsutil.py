@@ -426,7 +426,7 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
     The Risk minimization problem is a standard Quadratic Programming problem according to the Markowitz Theory.
     '''
     S=matrix(naCov)
-    pbar=matrix(naAvgRets)
+    #pbar=matrix(naAvgRets)
     naLower.shape=(length,1)
     naUpper.shape=(length,1)
     zeo=matrix(0.0,(length,1))
@@ -509,7 +509,55 @@ def getRetRange( rets, naLower, naUpper ):
 
     return (fMin, fMax)
 
+
+def _create_dict(df_rets, lnaPortfolios):
+
+    allocations = {}
+    for i, sym in enumerate(df_rets.columns):
+        allocations[sym] = lnaPortfolios[i]
+
+    return allocations
+
+def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_risk, direction="long"):
     
+    naLower = np.array(list_min)
+    naUpper = np.array(list_max)
+ 
+    naExpected = np.array(list_price_target)
+
+    (fMin, fMax) = getRetRange( df_rets, naLower, naUpper )
+
+    if target_risk == 1:
+        (naPortWeights, fPortDev) = OptPort( df_rets, fMax, 1, naLower, naUpper, naExpected)
+        allocations = _create_dict(df_rets, naPortWeights)
+        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fMax}
+
+    fStep = (fMax - fMin) / 50.0
+
+    lfReturn =  [fMin + x * fStep for x in range(51)]
+    lfStd = []
+    lnaPortfolios = []
+    
+    for fTarget in lfReturn: 
+        (naWeights, fStd) = OptPort( df_rets, fTarget, 1, naLower, naUpper, naExpected)
+        lfStd.append(fStd)
+        lnaPortfolios.append( naWeights )
+
+    f_return = lfReturn[lfStd.index(min(lfStd))]
+
+    if target_risk == 0:
+        naPortWeights=lnaPortfolios[lfStd.index(min(lfStd))]    
+        allocations = _create_dict(df_rets, naPortWeights)
+        return {'allocations': allocations, 'std_dev': min(lfStd), 'expected_return': f_return}
+
+    fTarget = (f_return + fMax)/2.0
+
+    if target_risk == 0.5:
+        (naPortWeights, fPortDev) = OptPort( df_rets, fTarget, 1, naLower, naUpper, naExpected)
+        allocations = _create_dict(df_rets, naPortWeights)
+        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fTarget}
+    
+
 def getFrontier( rets, lRes=100, fUpper=0.2, fLower=0.00):
     """
     @summary Generates an efficient frontier based on average returns.
