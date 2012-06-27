@@ -525,8 +525,25 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
     
     naLower = np.array(list_min)
     naUpper = np.array(list_max)
- 
     naExpected = np.array(list_price_target)
+
+    indices = np.where(naLower > 1.0)
+    naLower[indices] = 1.0
+    indices = np.where(naLower < -1.0)
+    naLower[indices] = -1.0
+
+    indices = np.where(naUpper > 1.0)
+    naUpper[indices] = 1.0
+    indices = np.where(naUpper < -1.0)
+    naUpper[indices] = -1.0
+
+    if direction == "long":
+        indices = np.where(naLower < 0.0)
+        naLower[indices] = 0.0
+
+    if direction == "short":
+        indices = np.where(naUpper > 0.0)
+        naLower[indices] = 0.0       
 
     (fMin, fMax) = getRetRange( df_rets, naLower, naUpper, naExpected )
 
