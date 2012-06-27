@@ -249,7 +249,8 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             f_slippage_cost = abs(f_slippage_cost)
             f_slippage_cost = f_slippage_cost.sum()            
 
-            f_total_slippage = f_total_slippage + f_slippage_cost
+            if np.isnan(f_slippage_cost) == False:
+                f_total_slippage = f_total_slippage + f_slippage_cost
     
             # Rebalancing the cash left
             cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_slippage_cost
