@@ -457,7 +457,7 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
     return (lnaPortfolios, fPortDev)
 
 
-def getRetRange( rets, naLower, naUpper ):
+def getRetRange( rets, naLower, naUpper, naExpected = "False"):
     """
     @summary Returns the range of possible returns with upper and lower bounds on the portfolio participation
     @param rets: Expected returns
@@ -470,7 +470,10 @@ def getRetRange( rets, naLower, naUpper ):
     fMin = 0
     fMax = 0
     
-    naAvgRets = np.average( rets, axis=0 )
+    if naExpected == "False":
+        naAvgRets = np.average( rets, axis=0 )
+    else:
+        naAvgRets = naExpected  
     naSortInd = naAvgRets.argsort()
     
     # First add the lower bounds on portfolio participation """ 
@@ -525,7 +528,7 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
  
     naExpected = np.array(list_price_target)
 
-    (fMin, fMax) = getRetRange( df_rets, naLower, naUpper )
+    (fMin, fMax) = getRetRange( df_rets, naLower, naUpper, naExpected )
 
     if target_risk == 1:
         (naPortWeights, fPortDev) = OptPort( df_rets, fMax, 1, naLower, naUpper, naExpected)
