@@ -243,7 +243,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     
             # Value after the purchase (change in price at execution)
             value_after_trade = ((trade_price*shares.ix[-1]).sum(axis = 1)).ix[-1]
-    
+
             #Slippage Cost
             f_slippage_cost = f_slippage*(trade_price.values[0][:-1])*order.values
             f_slippage_cost = abs(f_slippage_cost)
@@ -251,9 +251,11 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
 
             if np.isnan(f_slippage_cost) == False:
                 f_total_slippage = f_total_slippage + f_slippage_cost
-    
-            # Rebalancing the cash left
-            cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_slippage_cost
+                # Rebalancing the cash left
+                cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_slippage_cost    
+            else: 
+                cashleft = value_before_trade - value_after_trade - f_transaction_cost
+
             
             #for all symbols, print required transaction to log
             for sym in shares:
