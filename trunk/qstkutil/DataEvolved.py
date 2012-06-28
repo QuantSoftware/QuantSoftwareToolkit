@@ -102,6 +102,8 @@ class _SQLite(DriverInterface):
 
         # Retrieve Results
         results = self.cursor.fetchall()
+        if len(results) == 0:
+            return pandas.DataFrame(columns=symbol_list)
 
         # Remove all rows that were not asked for
         for i, row in enumerate(results):
@@ -113,7 +115,7 @@ class _SQLite(DriverInterface):
         symbol_ranges = self._find_ranges_of_symbols(results)
         for current_column in range(len(data_item)):
             for symbol, ranges in symbol_ranges.items():
-                current_symbol_data = results[ranges[0]:ranges[1]]
+                current_symbol_data = results[ranges[0]:ranges[1] + 1]
                 current_dict[symbol] = pandas.Series(
                                         map(itemgetter(current_column + 2), current_symbol_data),
                                         index=map(itemgetter(1), current_symbol_data))
@@ -216,6 +218,8 @@ class _MySQL(DriverInterface):
 
         # Remove all rows that were not asked for
         results = list(results)
+        if len(results) == 0:
+            return pandas.DataFrame(columns=symbol_list)
 
         for i, row in enumerate(results):
             if row[1] not in ts_list:
