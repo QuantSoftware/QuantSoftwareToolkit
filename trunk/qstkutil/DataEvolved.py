@@ -140,21 +140,19 @@ class _SQLite(DriverInterface):
         return self.cursor.fetchall()
 
     def _find_ranges_of_symbols(self, results):
+        ''' Finds range of current symbols in results list '''
         symbol_dict = {}
         current_symbol = results[0][0]
         start = 0
-        result_length = len(results) - 1
 
         for i, row in enumerate(results):
-            if row[0] == current_symbol:
-                if result_length == i:
-                    symbol_dict[results[i - 1][0]] = (start, i,)
-                else:
-                    continue
-            else:
-                symbol_dict[results[i - 1][0]] = (start, i - 1,)
+            if row[0] != current_symbol:
+                symbol_dict[current_symbol] = (start, i - 1)
                 start = i
                 current_symbol = row[0]
+        
+        #handle last symbol
+        symbol_dict[current_symbol] = (start, i)
 
         return symbol_dict
 
@@ -168,7 +166,7 @@ class _MySQL(DriverInterface):
         self._connect()
 
     def _connect(self):
-        self.db = MySQLdb.connect("localhost", "root", "sevilla?4dvent", "HistoricalEquityDataLoader")
+        self.db = MySQLdb.connect("localhost", "root", "sevilla?4dvent", "HistoricalEquityData")
         self.cursor = self.db.cursor()
 
     def get_data(self, ts_list, symbol_list, data_item,
@@ -228,7 +226,7 @@ class _MySQL(DriverInterface):
         symbol_ranges = self._find_ranges_of_symbols(results)
         for current_column in range(len(data_item)):
             for symbol, ranges in symbol_ranges.items():
-                current_symbol_data = results[ranges[0]:ranges[1]]
+                current_symbol_data = results[ranges[0]:ranges[1] + 1]
                 current_dict[symbol] = pandas.Series(
                                         map(itemgetter(current_column + 2), current_symbol_data),
                                         index=map(itemgetter(1), current_symbol_data))
@@ -255,21 +253,19 @@ class _MySQL(DriverInterface):
         return self.cursor.fetchall()
 
     def _find_ranges_of_symbols(self, results):
+        ''' Finds range of current symbols in results list '''
         symbol_dict = {}
         current_symbol = results[0][0]
         start = 0
-        result_length = len(results) - 1
 
         for i, row in enumerate(results):
-            if row[0] == current_symbol:
-                if result_length == i:
-                    symbol_dict[results[i - 1][0]] = (start, i,)
-                else:
-                    continue
-            else:
-                symbol_dict[results[i - 1][0]] = (start, i - 1,)
+            if row[0] != current_symbol:
+                symbol_dict[current_symbol] = (start, i - 1)
                 start = i
                 current_symbol = row[0]
+        
+        #handle last symbol
+        symbol_dict[current_symbol] = (start, i)
 
         return symbol_dict
 
