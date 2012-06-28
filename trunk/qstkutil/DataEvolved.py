@@ -103,7 +103,10 @@ class _SQLite(DriverInterface):
         # Retrieve Results
         results = self.cursor.fetchall()
         if len(results) == 0:
-            return pandas.DataFrame(columns=symbol_list)
+            for current_column in range(len(data_item)):
+                columns.append( pandas.DataFrame(columns=symbol_list) )
+                return columns
+
 
         # Remove all rows that were not asked for
         for i, row in enumerate(results):
@@ -219,7 +222,9 @@ class _MySQL(DriverInterface):
         # Remove all rows that were not asked for
         results = list(results)
         if len(results) == 0:
-            return pandas.DataFrame(columns=symbol_list)
+            for current_column in range(len(data_item)):
+                columns.append( pandas.DataFrame(columns=symbol_list) )
+                return columns
 
         for i, row in enumerate(results):
             if row[1] not in ts_list:
