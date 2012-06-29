@@ -22,8 +22,7 @@ import numpy as np
 from copy import deepcopy
 
 # QSTK imports
-
-
+from qstkutil import tsutil as tsu
 
 def _calculate_leverage(values_by_stock, ts_leverage):
     """
@@ -247,6 +246,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             #Slippage Cost
             f_slippage_cost = f_slippage*(trade_price.values[0][:-1])*order.values
             f_slippage_cost = abs(f_slippage_cost)
+            f_slippage_cost[np.isnan(f_slippage_cost)] = 0.0
             f_slippage_cost = f_slippage_cost.sum()            
 
             if np.isnan(f_slippage_cost) == False:
