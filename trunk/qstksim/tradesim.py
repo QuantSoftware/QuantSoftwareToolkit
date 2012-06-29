@@ -105,7 +105,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #write column headings
     if log!="false":
         print "writing transaction log to "+log
-        log_file.write("Symbol,Company Name,Txn Type,Date/Time,# Shares,Txn Price,Txn Cash Value,Result # Shares,Result Value,Commission,Slippage(10BPS),Comments\n")
+        log_file.write("Symbol,Company Name,Txn Type,Txn Date/Time,# Shares,Price,Txn Value,Portfolio # Shares,Portfolio Value,Commission,Slippage(10BPS),Comments\n")
     
     #a dollar is always worth a dollar
     df_historic['_CASH'] = 1.0
