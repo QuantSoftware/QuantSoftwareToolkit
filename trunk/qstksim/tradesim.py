@@ -105,7 +105,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #write column headings
     if log!="false":
         print "writing transaction log to "+log
-        log_file.write("Name,Symbol,Type,Date,Shares,Price,Cash value,Commission,Notes\n")
+        log_file.write("Name,Symbol,Type,Date,Shares,Price,Cash value,Share Total,Fund Total,Commission,Notes\n")
     
     #a dollar is always worth a dollar
     df_historic['_CASH'] = 1.0
@@ -275,7 +275,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                         if(abs(order[sym])!=0):
                             log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(prediction_date)+\
                                        ","+str(abs(order[sym]))+","+str(trade_price[sym].values[0])+","+str(trade_price[sym].values[0]*order[sym])+","\
-                                       +str(f_stock_commission)+","+str(round(f_slippage_cost,2)))
+                                       +str(shares[sym].ix[-1])+","+str(value_after_trade)+","+str(f_stock_commission)+","+str(round(f_slippage_cost,2)))
                             log_file.write("\n")
             
             shares['_CASH'] = shares['_CASH'] + cashleft

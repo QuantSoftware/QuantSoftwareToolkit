@@ -58,6 +58,8 @@ def _ignore_zeros_average(array):
         if var!=0:
             i_num=i_num+1
             f_sum=f_sum+var
+    if i_num==0:
+        i_num=1
     return f_sum/i_num
 
 def analyze_transactions(filename, plot_name):
@@ -372,10 +374,16 @@ def share_table2fund(share_table):
     return [fund_ts, ts_leverage]
 
 if __name__ == "__main__":
-    filename="../Examples/Basic/transactions.csv"
-    plot_name="AAPL"
-    analyze_transactions(filename,plot_name)
-    
+    filename="./log.csv"
+    plot_name="Log"
+    print "load csv"
+    [share_table, slippage, commissions] = csv2fund(filename, 1000000)
+    [fund_ts, ts_leverage] = share_table2fund(share_table)
+    print "print report"
+    report.print_stats(fund_ts, ["$SPX"], plot_name, directory = "./"+plot_name, commissions = commissions, slippage = slippage)
+    print "analyze transactions"
     #Generate new plot based off transactions alone
     
+    analyze_transactions(filename,plot_name)
+    print "done"
     
