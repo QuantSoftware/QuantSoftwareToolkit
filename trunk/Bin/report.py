@@ -407,8 +407,12 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
             if(end_date == 0 or end_date<entity.index[-1]):
                 end_date = entity.index[-1]    
             mult = 1000000/entity.values[0]
-            pyplot.plot(entity.index, entity.values * mult, label = \
-                                  path.basename(graph_name)+str(i))
+            if i == 0 and len(fund)!=1:
+                pyplot.plot(entity.index, entity.values * mult, label = \
+                                  'Original')
+            else:
+                pyplot.plot(entity.index, entity.values * mult, label = \
+                                  path.basename(graph_name)+'-'+str(i))
             i=i+1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
