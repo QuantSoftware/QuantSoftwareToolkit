@@ -40,7 +40,7 @@ from Bin import csv2fund
 startday = dt.datetime(2008, 1, 1)
 endday = dt.datetime(2012, 2, 1)
 
-l_symbols = ['AGNC', 'PTTRX','GLD','BAB']
+l_symbols = ['AAPL']
 
 #Get desired timestamps
 timeofday = dt.timedelta(hours = 16)
@@ -50,23 +50,23 @@ dataobj = da.DataAccess('Yahoo')
 df_close = dataobj.get_data( \
                 ldt_timestamps, l_symbols, "close", verbose=False)
 
-df_alloc = pand.DataFrame(index=[dt.datetime(2008, 2, 1)], data=[[0.1,0.5,0.1,0.3]], columns=l_symbols)
+df_alloc = pand.DataFrame(index=[dt.datetime(2008, 2, 1)], data=[[1]], columns=l_symbols)
 
 for i in range(11):
     df_alloc = df_alloc.append( \
              pand.DataFrame(index=[dt.datetime(2009, i+2, 3)], \
-                              data=[[0.1,0.5,0.1,0.3]], columns=l_symbols))
+                              data=[[1]], columns=l_symbols))
     
 
 for i in range(11):
     df_alloc = df_alloc.append( \
              pand.DataFrame(index=[dt.datetime(2010, i+2, 3)], \
-                              data=[[0.1,0.5,0.1,0.3]], columns=l_symbols))
+                              data=[[1]], columns=l_symbols))
     
 for i in range(11):
     df_alloc = df_alloc.append( \
              pand.DataFrame(index=[dt.datetime(2011, i+2, 3)], \
-                              data=[[0.1,0.5,0.1,0.3]], columns=l_symbols))
+                              data=[[1]], columns=l_symbols))
     
 
 df_alloc['_CASH'] = 1-df_alloc[l_symbols[0]]
