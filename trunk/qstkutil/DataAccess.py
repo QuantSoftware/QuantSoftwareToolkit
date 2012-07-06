@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pa
 import os
 import re
+import csv
 import pickle as pkl
 import time
 import datetime as dt
@@ -103,6 +104,7 @@ class DataAccess(object):
         elif (sourcein == DataSource.CUSTOM) :
             self.source = DataSource.CUSTOM
             self.folderList.append(self.rootdir+"/Processed/Custom/")	
+            
         elif (sourcein == DataSource.COMPUSTAT):
             self.source= DataSource.COMPUSTAT
             self.midPath= "/Processed/Compustat"
@@ -182,6 +184,23 @@ class DataAccess(object):
                 else:
                     #incorrect value
                     raise ValueError ("Incorrect value for data_item %s"%sItem)
+                
+            if( self.source == DataSource.YAHOO ):
+                if (sItem == DataItem.OPEN):
+                    list_index.append(1)
+                elif (sItem == DataItem.HIGH):
+                    list_index.append (2)
+                elif (sItem ==DataItem.LOW):
+                    list_index.append(3)
+                elif (sItem == DataItem.CLOSE):
+                    list_index.append(4)
+                elif(sItem == DataItem.VOL):
+                    list_index.append(5)
+                elif (sItem == DataItem.ACTUAL_CLOSE):
+                    list_index.append(6)
+                else:
+                    #incorrect value
+                    raise ValueError ("Incorrect value for data_item %s"%sItem)
                 #end elif
         #end data_item loop
 
@@ -192,7 +211,10 @@ class DataAccess(object):
             symbol_ctr = symbol_ctr + 1
             #print self.getPathOfFile(symbol)
             try:
-                file_path= self.getPathOfFile(symbol);
+                if self.source == DataSource.CUSTOM:
+                    file_path= self.getPathOfCSVFile(symbol);
+                else:
+                    file_path= self.getPathOfFile(symbol);
                 
                 ''' Get list of other files if we also want to include delisted '''
                 if bIncDelist:
@@ -215,23 +237,37 @@ class DataAccess(object):
             assert( not _file == None or bIncDelist == True )
             ''' Open the file only if we have a valid name, otherwise we need delisted data '''
             if _file != None:
-                naData = pkl.load (_file)
+                if self.source==DataSource.CUSTOM:
+                    creader = csv.reader(_file)
+                    row=creader.next()
+                    row=creader.next()
+                    row.pop(0)
+                    for i, item in enumerate(row):
+                        row[i]=float(item)
+                    naData=np.array(row)
+                    for row in creader:
+                        row.pop(0)
+                        for i, item in enumerate(row):
+                            row[i]=float(item)
+                        naData=np.vstack([naData,np.array(row)])
+                else:
+                    naData = pkl.load (_file)
                 _file.close()
             else:
                 naData = None
                 
             ''' If we have delisted data, prepend to the current data '''
-            if bIncDelist == True and len(lsDelPaths) > 0 and naData == None:
-                for sFile in lsDelPaths[-1:]:
-                    ''' Changed to only use NEWEST data since sometimes there is overlap (JAVA) '''
-                    inFile = open( sFile, "rb" )
-                    naPrepend = pkl.load( inFile )
-                    inFile.close()
-                    
-                    if naData == None:
-                        naData = naPrepend
-                    else:
-                        naData = np.vstack( (naPrepend, naData) )
+#            if bIncDelist == True and len(lsDelPaths) > 0 and naData == None:
+#                for sFile in lsDelPaths[-1:]:
+#                    ''' Changed to only use NEWEST data since sometimes there is overlap (JAVA) '''
+#                    inFile = open( sFile, "rb" )
+#                    naPrepend = pkl.load( inFile )
+#                    inFile.close()
+#                    
+#                    if naData == None:
+#                        naData = naPrepend
+#                    else:
+#                        naData = np.vstack( (naPrepend, naData) )
                         
             
             #now remove all the columns except the timestamps and one data column
@@ -241,7 +277,9 @@ class DataAccess(object):
             ''' Fix 1 row case by reshaping '''
             if( naData.ndim == 1 ):
                 naData = naData.reshape(1,-1)
-            
+                
+            #print naData
+            #print list_index
             ''' We open the file once, for each data item we need, fill out the array in all_stocks_data '''
             for lLabelNum, lLabelIndex in enumerate(list_index):
                 
@@ -250,7 +288,9 @@ class DataAccess(object):
                 
                 ''' select timestamps and the data column we want '''
                 temp_np = naData[:,(0,lLabelIndex)]
+                
                 #print temp_np
+                
                 num_rows= temp_np.shape[0]
                 
                 symbol_ts_list = range(num_rows) # preallocate
@@ -301,7 +341,7 @@ class DataAccess(object):
                             #while ends
                         #else ends
                                             
-                    #print "at time_stamp: " + str(time_stamp) + " and symbol_ts"  + str(symbol_ts_list[ts_ctr])
+                    #print "at time_stamp: " + str(time_stamp) + " and symbol_ts "  + str(symbol_ts_list[ts_ctr])
                     
                     if (time_stamp == symbol_ts_list[ts_ctr]):
                         #Data is present for this timestamp. So add to numpy array.
@@ -316,6 +356,7 @@ class DataAccess(object):
                     
                 #inner for ends
             #outer for ends
+        #print all_stocks_data
         
         ldmReturn = [] # List of data matrixes to return
         for naDataLabel in all_stocks_data:
@@ -456,9 +497,17 @@ class DataAccess(object):
                         
             lsPaths.sort()
             return lsPaths
-                    
              
-            
+        print "Did not find path to " + str (symbol_name)+". Looks like this file is missing"  
+        
+    def getPathOfCSVFile(self, symbol_name):
+        
+        for path1 in self.folderList:
+                if (os.path.exists(str(path1)+str(symbol_name+".csv"))):
+                    # Yay! We found it!
+                    return (str(str(path1)+str(symbol_name)+".csv"))
+                    #if ends
+                #for ends
         print "Did not find path to " + str (symbol_name)+". Looks like this file is missing"    
     
     def get_all_symbols (self):
@@ -572,8 +621,8 @@ class DataAccess(object):
         elif (self.source == DataSource.CUSTOM):
             retstr = "Custom:\n"
             retstr = retstr + "Attempts to load a custom data set, assuming each stock has\n"
-            retstr = retstr + "a pkl file with the name and first column as the stock ticker, date in second column, and data in following columns.\n"
-            retstr = retstr + "everything should be located in QSDATA/Processed/CUSTOM.\n"
+            retstr = retstr + "a csv file with the name and first column as the stock ticker, date in second column, and data in following columns.\n"
+            retstr = retstr + "everything should be located in QSDATA/Processed/Custom\n"
         else:
             retstr = "DataAccess internal error\n"
 
