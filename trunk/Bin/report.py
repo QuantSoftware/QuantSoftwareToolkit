@@ -21,13 +21,33 @@ from qstkutil import fundutil as fu
 import numpy as np
 from math import log10
 import converter
+import locale
 from pylab import savefig
 from matplotlib import pyplot
 from matplotlib import gridspec
 import matplotlib.dates as mdates
 import cPickle
 import datetime as dt
+import pandas
+import numpy as np
+from copy import deepcopy
 
+def _dividend_rets_funds(df_funds, f_dividend_rets):
+
+    df_funds_copy = deepcopy(df_funds)
+    f_price = deepcopy(df_funds_copy[0])
+
+    df_funds_copy.values[1:] = (df_funds_copy.values[1:]/df_funds_copy.values[0:-1])
+    df_funds_copy.values[0] = 1
+
+    df_funds_copy = df_funds_copy + f_dividend_rets
+
+    na_funds_copy = np.cumprod(df_funds_copy.values)
+    na_funds_copy = na_funds_copy*f_price
+
+    df_funds = pandas.Series(na_funds_copy, index = df_funds_copy.index)
+
+    return df_funds
 
 def print_header(html_file, name):
     """
@@ -205,8 +225,8 @@ def print_benchmark_coer(fund_ts, benchmark_close, sym,  ostream):
     b=np.ravel(tsu.daily(benchmark_close))
     f=np.ravel(tsu.daily(fund_ts))
     fBeta, unused = np.polyfit(b,f, 1);
-    ostream.write("\n\n        %6s Correlation:                  %+6.2f" % (sym, faCorr[0,1]))
-    ostream.write("\n               %6s Beta:                  %+6.2f\n" % (sym, fBeta))
+    ostream.write("\n        %6s Correlation:                  %+6.2f" % (sym, faCorr[0,1]))
+    ostream.write("\n               %6s Beta:                  %+6.2f" % (sym, fBeta))
 
 def print_monthly_returns(fund_ts, years, ostream):
     """
@@ -232,8 +252,7 @@ def print_monthly_returns(fund_ts, years, ostream):
             i += 1
         ostream.write("\n")
 
-def print_stats(fund_ts, benchmark, name, original="", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, \
-commissions = 0, slippage = 0, ostream = sys.stdout):
+def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_original_name="", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
@@ -259,14 +278,14 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
         
         if type(original)==type("str"):
             if type(leverage)!=type(False):
-                print_plot(fund_ts, benchmark, name, splot_dir, leverage=leverage)
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage)
             else:
-                print_plot(fund_ts, benchmark, name, splot_dir) 
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets) 
         else:
             if type(leverage)!=type(False):
-                print_plot([original, fund_ts], benchmark, name, splot_dir, leverage=leverage)
+                print_plot([original, fund_ts], benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage)
             else:
-                print_plot([original, fund_ts], benchmark, name, splot_dir) 
+                print_plot([original, fund_ts], benchmark, name, splot_dir, lf_dividend_rets) 
             
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
@@ -282,6 +301,8 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
             ostream.write("%26s: %20s\n" % (var, d_trading_params[var]))
     if d_hedge_params!="":
         ostream.write("\nHedging Paramaters\n\n")
+        if type(d_hedge_params['Weight of Hedge']) == type(float):
+            d_hedge_params['Weight of Hedge'] = str(int(d_hedge_params['Weight of Hedge']*100)) + '%'
         for var in d_hedge_params:
             ostream.write("%26s: %20s\n" % (var, d_hedge_params[var]))
         
@@ -291,7 +312,7 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     
     
     if directory != False :
-        ostream.write("<img src="+splot+" width=350 align=right>\n\n")
+        ostream.write("\t<img src="+splot+" width=450 />\n")
         
     mult = 1000000/fund_ts.values[0]
     
@@ -299,141 +320,177 @@ commissions = 0, slippage = 0, ostream = sys.stdout):
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
     dataobj = da.DataAccess('Norgate')
+    years = du.getYears(fund_ts)
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                                      verbose = False)
-    
     for bench_sym in benchmark:
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
     
-    ostream.write("        Initial Fund Value:           %10s\n" % ("$"+str(int(round(fund_ts.values[0]*mult)))))
-    ostream.write("         Ending Fund Value:           %10s\n\n" % ("$"+str(int(round(fund_ts.values[-1]*mult)))))
+    if type(lf_dividend_rets) != type(0.0):
+        for i,sym in enumerate(benchmark):
+            benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
+    
+    ostream.write("Resulting Values in $ with an initial investment of $1,000,000.00\n")
+    ostream.write("      Resulting Fund Value:           %10s\n" % (locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True)))
     if type(original)!=type("str"):
         mult3 = 1000000 / original.values[0]
-        ostream.write("      Initial Equity Value:           %10s\n" % ("$"+str(int(round(original.values[0]*mult3)))))  
-        ostream.write("       Ending Equity Value:           %10s\n\n" % ("$"+str(int(round(original.values[-1]*mult3)))))
+        ostream.write("       Resulting "+ s_original_name +" Value:           %10s\n" % (locale.currency(int(round(original.values[-1]*mult3)), grouping=True)))
         
     for bench_sym in benchmark:
         mult2=1000000/benchmark_close[bench_sym].values[0]
-        ostream.write("      Initial %6s Value:           %10s\n" % (bench_sym,"$"+str(int(round(benchmark_close[bench_sym].values[0]*mult2)))))
-        ostream.write("       Ending %6s Value:           %10s\n\n" % (bench_sym,"$"+str(int(round(benchmark_close[bench_sym].values[-1]*mult2)))))
+        ostream.write("     Resulting %6s Value:           %10s\n" % (bench_sym, locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True)))
+    ostream.write("\n")    
         
+    if len(years) > 1:
+        ostream.write("               Fund Sharpe Ratio:                %3s\n" % str(round(fu.get_sharpe_ratio(fund_ts.values)[0],3)))
+        if type(original)!=type("str"):
+            ostream.write("      "+ s_original_name +" Sharpe Ratio:                %3s\n" % str(round(fu.get_sharpe_ratio(original.values)[0],3)))
         
-    ostream.write("Transaction Costs\n\n")
-    ostream.write("          Total Comissions:           %10s\n" % ("$"+str(int(round(commissions)))))
-    ostream.write("            Total Slippage:           %10s\n\n" % ("$"+str(int(round(slippage)))))
-    
+        for bench_sym in benchmark:
+            ostream.write("             %6s Sharpe Ratio:                %3s\n" % (bench_sym,str(round(fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],3))))
+        ostream.write("\n")  
+        
+    ostream.write("Transaction Costs\n")
+    ostream.write("                Total Comissions:    %10s, %4s%%\n" % (locale.currency(int(round(commissions)), grouping=True), \
+                                                                                    str(round(float(round(commissions)/10000),2))))
+    ostream.write("                  Total Slippage:    %10s, %4s%%\n" % (locale.currency(int(round(slippage)), grouping=True), \
+                                                                                    str(round(float(round(slippage)/10000),2))))
+    ostream.write("\n")
     ostream.write("   Fund Std Dev of Returns:               ")
     
     print_std_dev(fund_ts, ostream)
     
     
     if type(original)!=type("str"):
-        ostream.write("\n Equity Std Dev of Returns:               ")    
+        ostream.write("\n "+ s_original_name +" Std Dev of Returns:               ")    
         print_std_dev(original, ostream)
     
     for bench_sym in benchmark:
         ostream.write("\n %6s Std Dev of Returns:               " % bench_sym)  
         print_std_dev(benchmark_close[bench_sym], ostream)  
-    
+    ostream.write("\n")
         
     
     for bench_sym in benchmark:
         print_benchmark_coer(fund_ts, benchmark_close[bench_sym], str(bench_sym), ostream)
-    
-    ostream.write("\n\nYearly Performance Metrics")
-    years = du.getYears(fund_ts)
-    ostream.write("\n                                ")
+    ostream.write("\n")    
+
+    ostream.write("\nYearly Performance Metrics")
+    ostream.write("\n                                      ")
     for year in years:
         ostream.write("      " + str(year))
+    ostream.write("\n                                      ")
+    for year in years:
+        ostream.write("      " + '----')
     ostream.write("\n")
     
     
-    ostream.write("    Fund Annualized Return:      ")
+    ostream.write("   Fund Annualized Return:      ")
     
     print_annual_return(fund_ts, years, ostream)
     
     
     
     if type(original)!=type("str"):
-        ostream.write("\n  Equity Annualized Return:      ")
+        ostream.write("\n "+ s_original_name +" Annualized Return:      ")
         print_annual_return(original, years, ostream)
     
     for bench_sym in benchmark:
-        ostream.write("\n  %6s Annualized Return:      " % bench_sym)
+        ostream.write("\n        %6s Annualized Return:      " % bench_sym)
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
         print_annual_return(benchmark_close[bench_sym], years, ostream)
     
-    
-    ostream.write("\n\n         Fund Winning Days:      ")                
+    ostream.write("\n\n                                      ")
+    for year in years:
+        ostream.write("      " + str(year))
+    ostream.write("\n                                      ")
+    for year in years:
+        ostream.write("      " + '----')    
+    ostream.write("\n       Fund Winning Days:      ")                
     print_winning_days(fund_ts, years, ostream)
     
     
     if type(original)!=type("str"):
-        ostream.write("\n       Equity Winning Days:      ")                
+        ostream.write("\n    "+ s_original_name +" Winning Days:      ")                
         print_winning_days(original, years, ostream)
 
 
     for bench_sym in benchmark:
-        ostream.write("\n       %6s Winning Days:      " % bench_sym)                
+        ostream.write("\n             %6s Winning Days:      " % bench_sym)                
         print_winning_days(benchmark_close[bench_sym], years, ostream)
     
-
-    ostream.write("\n\n        Fund Max Draw Down:      ")
+    ostream.write("\n\n                                      ")
+    for year in years:
+        ostream.write("      " + str(year))
+    ostream.write("\n                                      ")
+    for year in years:
+        ostream.write("      " + '----')    
+    ostream.write("\n    Fund Max Draw Down:      ")
     print_max_draw_down(fund_ts, years, ostream)
     
     if type(original)!=type("str"):
-        ostream.write("\n      Equity Max Draw Down:      ")
+        ostream.write("\n    "+ s_original_name +" Max Draw Down:      ")
         print_max_draw_down(original, years, ostream)
 
 
     for bench_sym in benchmark:
-        ostream.write("\n      %6s Max Draw Down:      " % bench_sym)
+        ostream.write("\n            %6s Max Draw Down:      " % bench_sym)
         print_max_draw_down(benchmark_close[bench_sym], years, ostream)
     
-
-    ostream.write("\n\n   Fund Daily Sharpe Ratio:      ")
+    ostream.write("\n\n                                      ")
+    for year in years:
+        ostream.write("      " + str(year))
+    ostream.write("\n                                      ")
+    for year in years:
+        ostream.write("      " + '----')    
+    ostream.write("\n      Fund Daily Sharpe Ratio:      ")
     print_daily_sharpe(fund_ts, years, ostream)
 
 
     if type(original)!=type("str"):
-        ostream.write("\n Equity Daily Sharpe Ratio:      ")       
+        ostream.write("\n"+ s_original_name +" Daily Sharpe Ratio:      ")       
         print_daily_sharpe(original, years, ostream)
 
     for bench_sym in benchmark:
-        ostream.write("\n%6s  Daily Sharpe Ratio:      " % bench_sym)       
+        ostream.write("\n      %6s  Daily Sharpe Ratio:      " % bench_sym)       
         print_daily_sharpe(benchmark_close[bench_sym], years, ostream)
     
-
-    ostream.write("\n\n  Fund Daily Sortino Ratio:      ")
+    ostream.write("\n\n                                      ")
+    for year in years:
+        ostream.write("      " + str(year))
+    ostream.write("\n                                      ")
+    for year in years:
+        ostream.write("      " + '----')    
+    ostream.write("\n     Fund Daily Sortino Ratio:      ")
 
     print_daily_sortino(fund_ts, years, ostream)
 
     if type(original)!=type("str"):
-        ostream.write("\nEquity Daily Sortino Ratio:      ")         
+        ostream.write("\n"+ s_original_name +" Daily Sortino Ratio:      ")         
         print_daily_sortino(original, years, ostream)
 
 
     for bench_sym in benchmark:
-        ostream.write("\n%6s Daily Sortino Ratio:      " % bench_sym)         
+        ostream.write("\n       %6s Daily Sortino Ratio:      " % bench_sym)         
 
         print_daily_sortino(benchmark_close[bench_sym], years, ostream)
     
     
-    ostream.write("\n\nCorrelation and Beta with DJ Industries")
+    ostream.write("\n\n\nCorrelation and Beta with DJ Industries for the Fund ")
     
     print_industry_coer(fund_ts,ostream)
     
-    ostream.write("\n\nCorrelation and Beta with Other Indices")
+    ostream.write("\n\nCorrelation and Beta with Other Indices for the Fund ")
     
     print_other_coer(fund_ts,ostream)
     
-    ostream.write("\n\nMonthly Returns %\n")
+    ostream.write("\n\n\nMonthly Returns for the Fund %\n")
     
     print_monthly_returns(fund_ts, years, ostream) 
     if directory != False:
         ostream.write("</pre>")           
 
-def print_plot(fund, benchmark, graph_name, filename, leverage=False):
+def print_plot(fund, benchmark, graph_name, filename, lf_dividend_rets=0.0, leverage=False):
     """
     @summary prints a plot of a provided fund and benchmark
     @param fund: fund value in pandas timeseries
@@ -476,6 +533,11 @@ def print_plot(fund, benchmark, graph_name, filename, leverage=False):
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                             verbose = False)
     benchmark_close = benchmark_close.fillna(method='pad')
+    
+    if type(lf_dividend_rets) != type(0.0):
+        for i,sym in enumerate(benchmark):
+            benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
+
     for sym in benchmark:
         mult = 1000000 / benchmark_close[sym].values[0]
         pyplot.plot(benchmark_close[sym].index, \
