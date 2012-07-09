@@ -251,7 +251,17 @@ def print_monthly_returns(fund_ts, years, ostream):
             ostream.write(" % + 6.2f" % (mrets[i]*100))
             i += 1
         ostream.write("\n")
-
+        
+        
+def print_years(years, ostream):
+    ostream.write("\n\n                               ")
+    for year in years:
+        ostream.write("      " + str(year))
+    ostream.write("\n                                ")
+    for year in years:
+        ostream.write("    " + '------')
+    ostream.write("\n")
+    
 def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_original_name="", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
@@ -264,6 +274,13 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_o
     @param slippage: value to print with report
     @param ostream: stream to print stats to, defaults to stdout
     """
+    
+    #Set locale for currency conversions
+    locale.setlocale(locale.LC_ALL, '')
+    
+    #make s_original_name symbol length independent for alignment
+    s_original_name="%6s" % s_original_name
+    
     fund_ts=fund_ts.fillna(method='pad')
     if directory != False :
         if not path.exists(directory):
@@ -312,7 +329,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_o
     
     
     if directory != False :
-        ostream.write("\t<img src="+splot+" width=450 />\n")
+        ostream.write("\n\n<img src="+splot+" width=600 />\n\n")
         
     mult = 1000000/fund_ts.values[0]
     
@@ -331,29 +348,29 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_o
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
     
     ostream.write("Resulting Values in $ with an initial investment of $1,000,000.00\n")
-    ostream.write("      Resulting Fund Value:           %10s\n" % (locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True)))
+    ostream.write("    Resulting   Fund Value:         %15s\n" % (locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True)))
     if type(original)!=type("str"):
         mult3 = 1000000 / original.values[0]
-        ostream.write("       Resulting "+ s_original_name +" Value:           %10s\n" % (locale.currency(int(round(original.values[-1]*mult3)), grouping=True)))
+        ostream.write("    Resulting "+ s_original_name +" Value:         %15s\n" % (locale.currency(int(round(original.values[-1]*mult3)), grouping=True)))
         
     for bench_sym in benchmark:
         mult2=1000000/benchmark_close[bench_sym].values[0]
-        ostream.write("     Resulting %6s Value:           %10s\n" % (bench_sym, locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True)))
+        ostream.write("    Resulting %6s Value:         %15s\n" % (bench_sym, locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True)))
     ostream.write("\n")    
         
     if len(years) > 1:
-        ostream.write("               Fund Sharpe Ratio:                %3s\n" % str(round(fu.get_sharpe_ratio(fund_ts.values)[0],3)))
+        ostream.write("         Fund Sharpe Ratio:                   %6s\n" % str(round(fu.get_sharpe_ratio(fund_ts.values)[0],3)))
         if type(original)!=type("str"):
-            ostream.write("      "+ s_original_name +" Sharpe Ratio:                %3s\n" % str(round(fu.get_sharpe_ratio(original.values)[0],3)))
+            ostream.write("       "+ s_original_name +" Sharpe Ratio:                   %6s\n" % str(round(fu.get_sharpe_ratio(original.values)[0],3)))
         
         for bench_sym in benchmark:
-            ostream.write("             %6s Sharpe Ratio:                %3s\n" % (bench_sym,str(round(fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],3))))
+            ostream.write("       %6s Sharpe Ratio:                   %6s\n" % (bench_sym,str(round(fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],3))))
         ostream.write("\n")  
         
     ostream.write("Transaction Costs\n")
-    ostream.write("                Total Comissions:    %10s, %4s%%\n" % (locale.currency(int(round(commissions)), grouping=True), \
+    ostream.write("          Total Comissions:         %15s, %6s%%\n" % (locale.currency(int(round(commissions)), grouping=True), \
                                                                                     str(round(float(round(commissions)/10000),2))))
-    ostream.write("                  Total Slippage:    %10s, %4s%%\n" % (locale.currency(int(round(slippage)), grouping=True), \
+    ostream.write("            Total Slippage:         %15s, %6s%%\n" % (locale.currency(int(round(slippage)), grouping=True), \
                                                                                     str(round(float(round(slippage)/10000),2))))
     ostream.write("\n")
     ostream.write("   Fund Std Dev of Returns:               ")
@@ -376,92 +393,73 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_o
     ostream.write("\n")    
 
     ostream.write("\nYearly Performance Metrics")
-    ostream.write("\n                                      ")
-    for year in years:
-        ostream.write("      " + str(year))
-    ostream.write("\n                                      ")
-    for year in years:
-        ostream.write("      " + '----')
-    ostream.write("\n")
+    print_years(years, ostream)
     
     
-    ostream.write("   Fund Annualized Return:      ")
+    ostream.write("    Fund Annualized Return:      ")
     
     print_annual_return(fund_ts, years, ostream)
     
     
     
     if type(original)!=type("str"):
-        ostream.write("\n "+ s_original_name +" Annualized Return:      ")
+        ostream.write("\n  "+ s_original_name +" Annualized Return:      ")
         print_annual_return(original, years, ostream)
     
     for bench_sym in benchmark:
-        ostream.write("\n        %6s Annualized Return:      " % bench_sym)
+        ostream.write("\n  %6s Annualized Return:      " % bench_sym)
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
         print_annual_return(benchmark_close[bench_sym], years, ostream)
     
-    ostream.write("\n\n                                      ")
-    for year in years:
-        ostream.write("      " + str(year))
-    ostream.write("\n                                      ")
-    for year in years:
-        ostream.write("      " + '----')    
-    ostream.write("\n       Fund Winning Days:      ")                
+    print_years(years, ostream)
+    
+    ostream.write("         Fund Winning Days:      ")                
     print_winning_days(fund_ts, years, ostream)
     
     
     if type(original)!=type("str"):
-        ostream.write("\n    "+ s_original_name +" Winning Days:      ")                
+        ostream.write("\n       "+ s_original_name +" Winning Days:      ")                
         print_winning_days(original, years, ostream)
 
 
     for bench_sym in benchmark:
-        ostream.write("\n             %6s Winning Days:      " % bench_sym)                
+        ostream.write("\n       %6s Winning Days:      " % bench_sym)                
         print_winning_days(benchmark_close[bench_sym], years, ostream)
     
-    ostream.write("\n\n                                      ")
-    for year in years:
-        ostream.write("      " + str(year))
-    ostream.write("\n                                      ")
-    for year in years:
-        ostream.write("      " + '----')    
-    ostream.write("\n    Fund Max Draw Down:      ")
+
+    print_years(years, ostream)
+    
+    ostream.write("        Fund Max Draw Down:      ")
     print_max_draw_down(fund_ts, years, ostream)
     
     if type(original)!=type("str"):
-        ostream.write("\n    "+ s_original_name +" Max Draw Down:      ")
+        ostream.write("\n      "+ s_original_name +" Max Draw Down:      ")
         print_max_draw_down(original, years, ostream)
 
 
     for bench_sym in benchmark:
-        ostream.write("\n            %6s Max Draw Down:      " % bench_sym)
+        ostream.write("\n      %6s Max Draw Down:      " % bench_sym)
         print_max_draw_down(benchmark_close[bench_sym], years, ostream)
     
-    ostream.write("\n\n                                      ")
-    for year in years:
-        ostream.write("      " + str(year))
-    ostream.write("\n                                      ")
-    for year in years:
-        ostream.write("      " + '----')    
-    ostream.write("\n      Fund Daily Sharpe Ratio:      ")
+
+    print_years(years, ostream)
+    
+    ostream.write("   Fund Daily Sharpe Ratio:      ")
     print_daily_sharpe(fund_ts, years, ostream)
 
 
     if type(original)!=type("str"):
-        ostream.write("\n"+ s_original_name +" Daily Sharpe Ratio:      ")       
+        ostream.write("\n "+ s_original_name +" Daily Sharpe Ratio:      ")       
         print_daily_sharpe(original, years, ostream)
 
     for bench_sym in benchmark:
-        ostream.write("\n      %6s  Daily Sharpe Ratio:      " % bench_sym)       
+        ostream.write("\n%6s  Daily Sharpe Ratio:      " % bench_sym)       
         print_daily_sharpe(benchmark_close[bench_sym], years, ostream)
     
-    ostream.write("\n\n                                      ")
-    for year in years:
-        ostream.write("      " + str(year))
-    ostream.write("\n                                      ")
-    for year in years:
-        ostream.write("      " + '----')    
-    ostream.write("\n     Fund Daily Sortino Ratio:      ")
+
+    print_years(years, ostream)
+    
+    ostream.write("  Fund Daily Sortino Ratio:      ")
 
     print_daily_sortino(fund_ts, years, ostream)
 
@@ -471,7 +469,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_o
 
 
     for bench_sym in benchmark:
-        ostream.write("\n       %6s Daily Sortino Ratio:      " % bench_sym)         
+        ostream.write("\n%6s Daily Sortino Ratio:      " % bench_sym)         
 
         print_daily_sortino(benchmark_close[bench_sym], years, ostream)
     
