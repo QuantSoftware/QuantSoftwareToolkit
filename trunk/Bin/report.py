@@ -300,9 +300,9 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_o
                 print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets) 
         else:
             if type(leverage)!=type(False):
-                print_plot([original, fund_ts], benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage)
+                print_plot([original, fund_ts], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage)
             else:
-                print_plot([original, fund_ts], benchmark, name, splot_dir, lf_dividend_rets) 
+                print_plot([original, fund_ts], benchmark, name, splot_dir, s_original_name, lf_dividend_rets) 
             
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
@@ -488,7 +488,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="", s_o
     if directory != False:
         ostream.write("</pre>")           
 
-def print_plot(fund, benchmark, graph_name, filename, lf_dividend_rets=0.0, leverage=False):
+def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_dividend_rets=0.0, leverage=False):
     """
     @summary prints a plot of a provided fund and benchmark
     @param fund: fund value in pandas timeseries
@@ -520,7 +520,7 @@ def print_plot(fund, benchmark, graph_name, filename, lf_dividend_rets=0.0, leve
             mult = 1000000/entity.values[0]
             if i == 0 and len(fund)!=1:
                 pyplot.plot(entity.index, entity.values * mult, label = \
-                                  'Original')
+                                  s_original_name)
             else:
                 pyplot.plot(entity.index, entity.values * mult, label = \
                                   path.basename(graph_name))
