@@ -437,8 +437,8 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
     h=matrix(np.vstack((naUpper, naLower)))
     ones=matrix(1.0,(1,length)) 
     A=matrix(np.vstack((naAvgRets, ones)))
-    b=matrix([0.0,1.0])
-    
+    b=matrix([fTarget,1.0])
+
     # Optional Settings for CVXOPT
     options['show_progress'] = False
     options['abstol']=1e-5
@@ -448,7 +448,7 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
 
     # Optimization Calls
     # Optimal Portfolio
-    lnaPortfolios = qp(S, -zeo, G, h, A, b+matrix([fTarget,0.0]))['x']
+    lnaPortfolios = qp(S, -zeo, G, h, A, b)['x']
     
     # Expected Return of the Portfolio
 #    lfReturn = dot(pbar, lnaPortfolios)
