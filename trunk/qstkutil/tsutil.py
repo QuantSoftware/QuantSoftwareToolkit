@@ -429,6 +429,7 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
     #pbar=matrix(naAvgRets)
     naLower.shape=(length,1)
     naUpper.shape=(length,1)
+    naAvgRets.shape = (1,length)
     zeo=matrix(0.0,(length,1))
     I = np.eye(length)
     minusI=-1*I
