@@ -437,7 +437,7 @@ def OptPort( naData, fTarget, lPeriod=1, naLower=None, naUpper=None, naExpected=
     h=matrix(np.vstack((naUpper, naLower)))
     ones=matrix(1.0,(1,length)) 
     A=matrix(np.vstack((naAvgRets, ones)))
-    b=matrix([fTarget,1.0])
+    b=matrix([float(fTarget),1.0])
 
     # Optional Settings for CVXOPT
     options['show_progress'] = False
@@ -546,10 +546,10 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
         indices = np.where(naUpper > 0.0)
         naLower[indices] = 0.0       
 
-    (fMin, fMax) = getRetRange( df_rets, naLower, naUpper, naExpected )
+    (fMin, fMax) = getRetRange( df_rets.values, naLower, naUpper, naExpected )
 
     if target_risk == 1:
-        (naPortWeights, fPortDev) = OptPort( df_rets, fMax, 1, naLower, naUpper, naExpected)
+        (naPortWeights, fPortDev) = OptPort( df_rets.values, fMax, 1, naLower, naUpper, naExpected)
         allocations = _create_dict(df_rets, naPortWeights)
         return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fMax}
 
@@ -560,7 +560,7 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
     lnaPortfolios = []
     
     for fTarget in lfReturn: 
-        (naWeights, fStd) = OptPort( df_rets, fTarget, 1, naLower, naUpper, naExpected)
+        (naWeights, fStd) = OptPort( df_rets.values, fTarget, 1, naLower, naUpper, naExpected)
         lfStd.append(fStd)
         lnaPortfolios.append( naWeights )
 
@@ -574,7 +574,7 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
     fTarget = (f_return + fMax)/2.0
 
     if target_risk == 0.5:
-        (naPortWeights, fPortDev) = OptPort( df_rets, fTarget, 1, naLower, naUpper, naExpected)
+        (naPortWeights, fPortDev) = OptPort( df_rets.values, fTarget, 1, naLower, naUpper, naExpected)
         allocations = _create_dict(df_rets, naPortWeights)
         return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fTarget}
     
