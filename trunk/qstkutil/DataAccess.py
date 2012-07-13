@@ -257,19 +257,18 @@ class DataAccess(object):
                 naData = None
                 
             ''' If we have delisted data, prepend to the current data '''
-#            if bIncDelist == True and len(lsDelPaths) > 0 and naData == None:
-#                for sFile in lsDelPaths[-1:]:
-#                    ''' Changed to only use NEWEST data since sometimes there is overlap (JAVA) '''
-#                    inFile = open( sFile, "rb" )
-#                    naPrepend = pkl.load( inFile )
-#                    inFile.close()
-#                    
-#                    if naData == None:
-#                        naData = naPrepend
-#                    else:
-#                        naData = np.vstack( (naPrepend, naData) )
+            if bIncDelist == True and len(lsDelPaths) > 0 and naData == None:
+                for sFile in lsDelPaths[-1:]:
+                    ''' Changed to only use NEWEST data since sometimes there is overlap (JAVA) '''
+                    inFile = open( sFile, "rb" )
+                    naPrepend = pkl.load( inFile )
+                    inFile.close()
+                    
+                    if naData == None:
+                        naData = naPrepend
+                    else:
+                        naData = np.vstack( (naPrepend, naData) )
                         
-            
             #now remove all the columns except the timestamps and one data column
             if verbose:
                 print self.getPathOfFile(symbol)
