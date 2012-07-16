@@ -22,11 +22,14 @@ from math import isnan
 from copy import copy
 
 ''' Function gets a 100 sample point frontier for given returns '''
-def getFrontier(naData, lPeriod):
+def getFrontier(naData):
     ''' Special case for fTarget = None, just get average returns '''
-    (naAvgRets,naStd) = tsu.OptPort( naData, None, lPeriod )
-    fMin = np.min(naAvgRets)
-    fMax = np.max(naAvgRets)
+    (naAvgRets,naStd, b_error) = tsu.OptPort( naData, None )
+
+    naLower = np.zeros(naData.shape[1])
+    naUpper = np.ones(naData.shape[1])
+    
+    (fMin, fMax) = tsu.getRetRange( naData, naLower, naUpper, naAvgRets)
     
     fStep = (fMax - fMin) / 100.0
     
@@ -36,9 +39,10 @@ def getFrontier(naData, lPeriod):
     
     ''' Call the function 100 times for the given range '''
     for fTarget in lfReturn: 
-        (naWeights, fStd) = tsu.OptPort( naData, fTarget, lPeriod )
-        lfStd.append(fStd)
-        lnaPortfolios.append( naWeights )
+        (naWeights, fStd, b_error) = tsu.OptPort( naData, fTarget, naLower, naUpper)
+        if b_error == False:
+            lfStd.append(fStd)
+            lnaPortfolios.append( naWeights )
     
     return (lfReturn, lfStd, lnaPortfolios, naAvgRets, naStd)
     
@@ -81,17 +85,15 @@ naDataTest = dmTest.values.copy()
 
 tsu.fillforward(naData)
 tsu.fillbackward(naData)
-tsu.returnize1(naData)
+tsu.returnize0(naData)
 
 tsu.fillforward(naDataTest)
 tsu.fillbackward(naDataTest)
-tsu.returnize1(naDataTest)
-
-lPeriod = 21
+tsu.returnize0(naDataTest)
 
 ''' Get efficient frontiers '''
-(lfReturn, lfStd, lnaPortfolios, naAvgRets, naStd) = getFrontier( naData, lPeriod )
-(lfReturnTest, lfStdTest, unused, unused, unused) = getFrontier( naDataTest, lPeriod )
+(lfReturn, lfStd, lnaPortfolios, naAvgRets, naStd) = getFrontier( naData)
+(lfReturnTest, lfStdTest, unused, unused, unused) = getFrontier( naDataTest)
 
 plt.clf()
 fig = plt.figure()
@@ -103,7 +105,7 @@ plt.plot(lfStdTest,lfReturnTest, 'r')
 ''' Plot where efficient frontier WOULD be the following year '''
 lfRetTest = []
 lfStdTest = []
-naRetsTest = tsu.getReindexedRets( naDataTest, lPeriod)
+naRetsTest = naDataTest
 for naPortWeights in lnaPortfolios:
     naPortRets =  np.dot( naRetsTest, naPortWeights)
     lfStdTest.append( np.std(naPortRets) )
@@ -111,9 +113,9 @@ for naPortWeights in lnaPortfolios:
 
 plt.plot(lfStdTest,lfRetTest,'k')
 
-''' plot some arrows showing transition of efficient frontier '''
-for i in range(0,101,10):
-    arrow( lfStd[i],lfReturn[i], lfStdTest[i]-lfStd[i], lfRetTest[i]-lfReturn[i], color='k' )
+#''' plot some arrows showing transition of efficient frontier '''
+#for i in range(0,101,10):
+#    arrow( lfStd[i],lfReturn[i], lfStdTest[i]-lfStd[i], lfRetTest[i]-lfReturn[i], color='k' )
 
 ''' Plot indifidual stock risk/return as green + ''' 
 for i, fReturn in enumerate(naAvgRets):
