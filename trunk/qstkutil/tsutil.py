@@ -462,7 +462,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None ):
         print "Optimization not Possible"
         na_port = naLower*-1
         if sum(na_port) < 1:
-            if sum(naUpper) ==1:
+            if sum(naUpper) == 1:
                 na_port = naUpper
             else:
                 i=0
@@ -472,7 +472,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None ):
                     indices = np.where(naOrder > 0)
                     na_port[indices]= na_port[indices] + (1-sum(na_port))/len(indices[0]) 
                     naOrder = naUpper - na_port
-                    indices = np.where(naOrder > 0)
+                    indices = np.where(naOrder < 0)
                     na_port[indices]= naUpper[indices]
             
         lnaPortfolios = matrix(na_port)
