@@ -419,9 +419,9 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None ):
         naCov[i][i]=2*naCov[i][i]
 
     (fMin, fMax) = getRetRange(False, naLower, naUpper, naAvgRets)
-    print (fMin, fMax)
+    #print (fTarget, fMin, fMax)
     if fTarget<fMin or fTarget>fMax:
-        print "Target not possible"
+        print "Target not possible", fTarget, fMin, fMax
         b_error = True
 
     naLower = naLower*(-1)
@@ -573,7 +573,11 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
     #    naLower[indices] = 0.0       
 
     (fMin, fMax) = getRetRange( df_rets.values, naLower, naUpper, naExpected )
-
+    
+    # Try to avoid intractible endpoints due to rounding errors """
+    fMin += abs(fMin) * 0.0000001 
+    fMax -= abs(fMax) * 0.0000001
+    
     if target_risk == 1:
         (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected)
         allocations = _create_dict(df_rets, naPortWeights)
