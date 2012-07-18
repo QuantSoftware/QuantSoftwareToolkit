@@ -58,7 +58,7 @@ class Test(unittest.TestCase):
         self.df_alloc['_CASH'] = 0.0
 
         #Based on hand calculation using the transaction costs and slippage.
-        self.i_open_result = 0.9532048655
+        self.i_open_result = 1.15921341122
 	
 
     def setUp(self):
