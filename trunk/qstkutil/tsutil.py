@@ -466,7 +466,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None ):
                 na_port = naUpper
             else:
                 i=0
-                while(sum(na_port)<1 or i<25):
+                while(sum(na_port)<1 and i<25):
                     naOrder = naUpper - na_port
                     i = i+1
                     indices = np.where(naOrder > 0)
