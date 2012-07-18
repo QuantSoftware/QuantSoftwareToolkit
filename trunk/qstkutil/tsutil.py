@@ -581,7 +581,7 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
     if target_risk == 1:
         (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected)
         allocations = _create_dict(df_rets, naPortWeights)
-        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fMax}
+        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fMax, 'error': b_error}
 
     fStep = (fMax - fMin) / 50.0
 
@@ -595,19 +595,24 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_ris
             lfStd.append(fStd)
             lnaPortfolios.append( naWeights )
 
+    if len(lfStd) == 0:
+        (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected)
+        allocations = _create_dict(df_rets, naPortWeights)
+        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fMax, 'error': True}
+
     f_return = lfReturn[lfStd.index(min(lfStd))]
 
     if target_risk == 0:
         naPortWeights=lnaPortfolios[lfStd.index(min(lfStd))]    
         allocations = _create_dict(df_rets, naPortWeights)
-        return {'allocations': allocations, 'std_dev': min(lfStd), 'expected_return': f_return}
+        return {'allocations': allocations, 'std_dev': min(lfStd), 'expected_return': f_return, 'error': False}
 
     fTarget = (f_return + fMax)/2.0
 
     if target_risk == 0.5:
         (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fTarget, naLower, naUpper, naExpected)
         allocations = _create_dict(df_rets, naPortWeights)
-        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fTarget}
+        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fTarget, 'error': b_error}
     
 
 def getFrontier( rets, lRes=100, fUpper=0.2, fLower=0.00):
