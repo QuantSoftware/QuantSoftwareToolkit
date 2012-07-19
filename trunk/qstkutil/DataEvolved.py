@@ -251,15 +251,15 @@ class _MySQL(DriverInterface):
                     JOIN tblListHeader B ON B.ID = C.tblListHeader_ID
                     WHERE B.list_name = %s
         """, (list_name,))
-        return self.cursor.fetchall()
+        return sorted([x[0] for x in self.cursor.fetchall()])
 
     def get_all_symbols(self):
         self.cursor.execute("SELECT DISTINCT symbol FROM tblEquity")
-        return self.cursor.fetchall()
+        return sorted([x[0] for x in self.cursor.fetchall()])
 
     def get_all_lists(self):
         self.cursor.execute("SELECT list_name FROM tblListHeader")
-        return self.cursor.fetchall()
+        return sorted([x[0] for x in self.cursor.fetchall()])
 
     def _find_ranges_of_symbols(self, results):
         ''' Finds range of current symbols in results list '''
