@@ -314,9 +314,9 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
                 print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets) 
         else:
             if type(leverage)!=type(False):
-                print_plot([original, fund_ts], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage)
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage)
             else:
-                print_plot([original, fund_ts], benchmark, name, splot_dir, s_original_name, lf_dividend_rets) 
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets) 
             
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
@@ -513,7 +513,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
             if(end_date == 0 or end_date<entity.index[-1]):
                 end_date = entity.index[-1]    
             mult = 1000000/entity.values[0]
-            if i == 0 and len(fund)!=1:
+            if i == 1 and len(fund)!=1:
                 pyplot.plot(entity.index, entity.values * mult, label = \
                                   s_original_name)
             else:
