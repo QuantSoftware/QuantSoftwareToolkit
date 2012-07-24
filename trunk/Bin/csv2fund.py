@@ -270,24 +270,22 @@ def csv2fund(filename, start_val):
         date=dp.parse(row[3])
         order_type=row[2]
         commission=float(row[7])
-        slippage=float(row[8])
-        f_total_slippage=f_total_slippage+slippage
         if order_type=="Buy":
-            share_table.ix[date][sym]=shares
+            share_table.ix[date][sym]+=shares
             commissions=commissions+float(commission)
-            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)-slippage
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
         if order_type=="Sell":
-            share_table[sym].ix[date]=-1*shares
+            share_table[sym].ix[date]+=-1*shares
             commissions=commissions+float(commission)
-            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)-float(commission)-slippage
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)-float(commission)
         if order_type=="Sell Short":
-            share_table[sym].ix[date]=-1*shares
+            share_table[sym].ix[date]+=-1*shares
             commissions=commissions+float(commission)
-            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)-float(commission)-slippage
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]+float(price)*float(shares)-float(commission)
         if order_type=="Buy to Cover":
-            share_table.ix[date][sym]=shares
+            share_table.ix[date][sym]+=shares
             commissions=commissions+float(commission)
-            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)-slippage
+            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
     share_table=share_table.cumsum()
     return [share_table, f_total_slippage, commissions]
     
@@ -344,8 +342,9 @@ def share_table2fund(share_table):
 
     # Get desired timestamps
     timeofday=dt.timedelta(hours=16)
-    timestamps = du.getNYSEdays(startday,endday+dt.timedelta(days=1),timeofday)
+    timestamps = du.getNYSEdays(startday-dt.timedelta(days=1),endday+dt.timedelta(days=1),timeofday)
     historic = dataobj.get_data( timestamps, share_table.columns ,"close" )
+    print historic
     historic["_CASH"]=1
     closest = historic[historic.index <= share_table.index[0]].ix[:]
     ts_leverage = pandas.Series( 0, index = [closest.index[0]] )
@@ -359,11 +358,13 @@ def share_table2fund(share_table):
         trade_price = historic.ix[row_index:].ix[0:1]
         trade_date = trade_price.index[0]
         
+        print trade_date
+        
         # get stock prices on all the days up until this trade
         to_calculate = historic[ (historic.index <= trade_date) &(historic.index > fund_ts.index[-1]) ]
-
         # multiply prices by our current shares
         values_by_stock = to_calculate * prev_row
+        print values_by_stock
         prev_row=row
         #update leverage
         ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
@@ -378,6 +379,7 @@ if __name__ == "__main__":
     plot_name="Log"
     print "load csv"
     [share_table, slippage, commissions] = csv2fund(filename, 1000000)
+    print share_table
     [fund_ts, ts_leverage] = share_table2fund(share_table)
     print "print report"
     report.print_stats(fund_ts, ["$SPX"], plot_name, directory = "./"+plot_name, commissions = commissions, slippage = slippage)
