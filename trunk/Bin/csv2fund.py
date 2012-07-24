@@ -34,7 +34,7 @@ def calculate_efficiency(dt_start_date, dt_end_date, s_stock):
     @return: float representing efficiency
     """
     # Get the data from the data store
-    dataobj = da.DataAccess('Norgate')
+    dataobj = da.DataAccess('Yahoo')
 
     # Get desired timestamps
     timeofday=dt.timedelta(hours=16)
@@ -336,7 +336,7 @@ def share_table2fund(share_table):
     @return leverage : time series containing fund value over time
     """
     # Get the data from the data store
-    dataobj = da.DataAccess('Norgate')
+    dataobj = da.DataAccess('Yahoo')
     startday=share_table.index[0]
     endday = share_table.index[-1]
 
@@ -382,10 +382,10 @@ if __name__ == "__main__":
     print share_table
     [fund_ts, ts_leverage] = share_table2fund(share_table)
     print "print report"
-    report.print_stats(fund_ts, ["$SPX"], plot_name, directory = "./"+plot_name, commissions = commissions, slippage = slippage)
+    report.print_stats(fund_ts, ["SPY"], plot_name, directory = "./"+plot_name, commissions = commissions, slippage = slippage)
     print "analyze transactions"
     #Generate new plot based off transactions alone
     
-    analyze_transactions(filename,plot_name)
+    #analyze_transactions(filename,plot_name)
     print "done"
     

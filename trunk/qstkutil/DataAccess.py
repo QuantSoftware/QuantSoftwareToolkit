@@ -237,7 +237,7 @@ class DataAccess(object):
             assert( not _file == None or bIncDelist == True )
             ''' Open the file only if we have a valid name, otherwise we need delisted data '''
             if _file != None:
-                if self.source==DataSource.CUSTOM:
+                if (self.source==DataSource.CUSTOM) or (self.source==DataSource.YAHOO):
                     creader = csv.reader(_file)
                     row=creader.next()
                     row=creader.next()
@@ -481,6 +481,9 @@ class DataAccess(object):
                     # Yay! We found it!
                     return (str(str(path1)+str(symbol_name)+".pkl"))
                     #if ends
+                elif (os.path.exists(str(path1)+str(symbol_name+".csv"))):
+                    # Yay! We found it!
+                    return (str(str(path1)+str(symbol_name)+".csv"))
                 #for ends
                 
         else:
