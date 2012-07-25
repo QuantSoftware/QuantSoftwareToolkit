@@ -236,60 +236,38 @@ def featRSI( dData, lLookback=14,  b_human=False):
     @param b_human: if true return dataframe to plot
     @return: DataFrame array containing values
     '''
+
+    # create deltas per day
+    dfDelta = dData['close'].copy()
+    dfDelta.ix[1:,:] -= dfDelta.ix[:-1,:].values
+    dfDelta.ix[0,:] = np.NAN
+
+    dfDeltaUp = dfDelta
+    dfDeltaDown = dfDelta.copy()
     
-    dfPrice = dData['close']
-    
-    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
-    fLookback = float(lLookback)
-    
-    #''' Loop through stocks '''
-    for sStock in dfPrice.columns:
-        tsPrice = dfPrice[sStock]
-        tsRet = dfRet[sStock]
+    # seperate data into positive and negative for easy calculations
+    for sColumn in dfDeltaUp.columns:
+        tsColDown = dfDeltaDown[sColumn]
+        tsColDown[tsColDown >= 0] = 0.0 
         
-        fGain = 0.0
-        fLoss = 0.0
-        
-        lNonNull=0
-        #''' Loop over time '''
-        for i in range(len(tsPrice.index)):
-            
-            if pand.isnull( tsPrice[i] ):
-                continue
-            else:
-                lNonNull += 1
-                 
-            #''' Once we have the proper number of periods we smooth the totals '''
-            if lNonNull > fLookback:
-                fGain *= (fLookback - 1) / fLookback
-                fLoss *= (fLookback - 1) / fLookback
-                
-            #''' Calculate gain or loss and add to total '''
-            if lNonNull > 1:
-                fDelta = tsPrice[i] - tsPrice[i-1]
-                if fDelta > 0.0:
-                    fGain += fDelta / fLookback
-                else:
-                    fLoss += fDelta / fLookback
-            
-            #''' Calculate RS and then RSI '''
-            if i > fLookback - 1:
-                if fLoss == 0.0:
-                    tsRet[i] = 100.0
-                elif fGain == 0.0:
-                    tsRet[i] = 0.0
-                else:
-                    fRS = fGain / fLoss
-                    tsRet[i] = 100 - 100 / (1-fRS)
+        tsColUp = dfDeltaUp[sColumn]
+        tsColUp[tsColUp <= 0] = 0.0 
     
+    # Note we take abs() of negative values, all should be positive now
+    dfRolUp = pand.rolling_mean(dfDeltaUp, lLookback)
+    dfRolDown = pand.rolling_mean(dfDeltaDown, lLookback).abs()
+    
+    # relative strength
+    dfRS = dfRolUp / dfRolDown
+    dfRSI = 100.0 - (100.0 / (1.0 + dfRS))
     
     if b_human:
         for sym in dData['close']:
             x=1000/dData['close'][sym][0]
             dData['close'][sym]=dData['close'][sym]*x
         return dData['close']
-    return dfRet
+    
+    return dfRSI
 
 
 def featDrawDown( dData, lLookback=30,  b_human=False):
