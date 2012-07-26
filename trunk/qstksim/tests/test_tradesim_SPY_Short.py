@@ -67,12 +67,13 @@ class Test(unittest.TestCase):
 
     def test_buy_close(self):
         ''' Tests tradesim buy-on-open functionality '''
-        (df_funds, ts_leverage, f_commision, f_slippage) = \
+        (df_funds, ts_leverage, f_commision, f_slippage, f_borrow) = \
               qstksim.tradesim( self.df_alloc, self.df_close, 10000, 1, True,
                                 0.02, 5, 0.02)
 
         print 'Commision Costs : ' + str(f_commision)
         print 'Slippage : ' + str(f_slippage)
+        print 'Short Borrowing Cost : ' + str(f_borrow)
         print 'Leverage : '	
         print ts_leverage
         np.testing.assert_approx_equal(df_funds[-1], \
