@@ -75,7 +75,7 @@ def _nearest_interger(f_x):
 def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1, 
             b_followleastcount=False, f_slippage=0.0, 
             f_minimumcommision=0.0, f_commision_share=0.0, 
-            i_target_leverage=1, log="false"):
+            i_target_leverage=1, f_rate_borrow = 0.0, log="false"):
     
     """
     @summary Quickly back tests an allocation for certain df_historical data, 
@@ -118,15 +118,18 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     prediction_shares = deepcopy(shares)
 
     # Total commision and Slippage costs 
-    f_total_commision = 0
-    f_total_slippage = 0
+    f_total_commision = 0.0
+    f_total_slippage = 0.0
+    f_total_borrow = 0.0
     
     #remember last change in cash due to transaction costs and slippage
-    cashleft = 0
+    cashleft = 0.0
     
     #value of fund ignoring cashleft
-    no_trans_fund = 0
-    
+    no_trans_fund = 0.0
+
+    dt_last_date = None
+    f_last_borrow = 0.0
     b_first_iter = True
 
     for row_index, row in alloc.iterrows():
@@ -141,8 +144,10 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                   df_historic.ix[df_historic.index[pred_index]:].ix[0:1]
         
         prediction_date = prediction_price.index[0]
+        
         #trade_date is unused right now, but holds the next timestamp
-        #trade_date = trade_price.index[0]
+        trade_date = trade_price.index[0]
+
         if b_first_iter == True:
             #log initial cash value
             if log!="false":
@@ -157,6 +162,9 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
 
             # Leverage at the start
             ts_leverage = pand.Series( 0, index = [prediction_date] )
+  
+            days_since_alloc = 0
+            f_borrow_cost = 0.0
 
             # Flag for first iteration is False now
             b_first_iter = False
@@ -175,6 +183,10 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             no_trans_fund = no_trans_fund.append(values_by_stock.sum(axis=1) - cashleft)
             #Leverage
             ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
+
+            days_since_alloc = (trade_date - dt_last_date).days
+            f_borrow_cost = abs((days_since_alloc*f_last_borrow*f_rate_borrow)/(100*365))
+            f_total_borrow = f_total_borrow + f_borrow_cost
 
         #Normalizing the allocations
         proportion = _normalize(row)
@@ -210,7 +222,8 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
         #remove cashleft from current holding
         cash_delta_less_shares=deepcopy(shares)
         cash_delta_less_shares["_CASH"]=cash_delta_less_shares["_CASH"]-cashleft
-        
+
+
         #compare current holding to future holding (both ignoring the last round of transmission cost and slippage)
         same=1
         for sym in shares:
@@ -252,9 +265,9 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             if np.isnan(f_slippage_cost) == False:
                 f_total_slippage = f_total_slippage + f_slippage_cost
                 # Rebalancing the cash left
-                cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_slippage_cost    
+                cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_slippage_cost - f_borrow_cost
             else: 
-                cashleft = value_before_trade - value_after_trade - f_transaction_cost
+                cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_borrow_cost
 
             
             #for all symbols, print required transaction to log
@@ -274,14 +287,22 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                     if log!="false":
                         if(abs(order[sym])!=0):
                             log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(prediction_date)+\
-                                       ","+str(order[sym])+","+str(trade_price[sym].values[0])+","+str(trade_price[sym].values[0]*order[sym])+","\
-                                       +str(shares[sym].ix[-1])+","+str(value_after_trade)+","+str(f_stock_commission)+","+str(round(f_slippage_cost,2))+",")
+                                       ","+str(order[sym])+","+str(trade_price[sym].values[0])+","+\
+                                        str(trade_price[sym].values[0]*order[sym])+","\
+                                       +str(shares[sym].ix[-1])+","+str(value_after_trade)+","+str(f_stock_commission)+","+\
+                                        str(round(f_slippage_cost,2))+",")
                             log_file.write("\n")
-            
+
+            dt_last_date = trade_date
+            f_last_holding = ((trade_price*shares.ix[-1]).ix[-1]).values
+            indices = np.where(f_last_holding < 0)
+            f_last_borrow = abs(sum(f_last_holding[indices]))
             shares['_CASH'] = shares['_CASH'] + cashleft
 
+
         # End of Loop
-    
+
+
     #close log 
     if log!="false":
         #deposit nothing at end so that if we reload the transaction history the whole period gets shown
@@ -291,13 +312,14 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #print ts_leverage
     #print f_total_commision
     #print f_total_slippage
-    return (ts_fund, ts_leverage, f_total_commision, f_total_slippage)
+    #print f_total_borrow
+    return (ts_fund, ts_leverage, f_total_commision, f_total_slippage, f_total_borrow)
 
 
 def tradesim_comb( df_alloc, d_data, f_start_cash, i_leastcount=1, 
                    b_followleastcount=False, f_slippage=0.0, 
                    f_minimumcommision=0.0, f_commision_share=0.0, 
-                   i_target_leverage=1):
+                   i_target_leverage=1, f_rate_borrow = 0.0, log="false"):
     
     """
     @summary Same as tradesim, but combines open and close data into one.
@@ -332,7 +354,7 @@ def tradesim_comb( df_alloc, d_data, f_start_cash, i_leastcount=1,
     
     return tradesim( df_alloc, df_combined, f_start_cash, i_leastcount, 
                    b_followleastcount, f_slippage, f_minimumcommision, 
-                   f_commision_share, i_target_leverage)
+                   f_commision_share, i_target_leverage, f_rate_borrow, log)
 
 if __name__ == '__main__':
     print "Done"
