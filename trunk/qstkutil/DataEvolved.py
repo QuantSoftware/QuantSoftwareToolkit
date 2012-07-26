@@ -308,11 +308,10 @@ class _ScratchCache(object):
         hashts = 0
 
         # print "test point 1: " + str(len(ts_list))
-        spyfile = os.environ['QSDATA'] + '/Processed/Norgate/Stocks/US/NYSE Arca/SPY.pkl'
         for i in ts_list:
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str(source) + '-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
-            + '-' + str(hash(str(data_item))) + '-' + str(hash(str(os.path.getmtime(spyfile))))
+            + '-' + str(hash(str(data_item)))
 
         # get the directory for scratch files from environment
         try:
