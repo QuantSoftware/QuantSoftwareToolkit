@@ -275,7 +275,7 @@ def print_years(years, ostream):
 def print_line(s_left_side, s_right_side, i_spacing=0, ostream="stdout"):
     ostream.write("%35s:%s%30s\n" % (s_left_side, " "*i_spacing, s_right_side))
     
-def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, ostream = sys.stdout):
+def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
@@ -389,6 +389,10 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
                                                                                     float(round(commissions)/10000)), i_spacing=4, ostream=ostream)
     print_line("Total Slippage"," %15s, %10.2f%%" % (locale.currency(int(round(slippage)), grouping=True), \
                                                                                     float(round(slippage)/10000)), i_spacing=4, ostream=ostream)
+    print_line("Total Short Borrowing Cost"," %15s, %10.2f%%" % (locale.currency(int(round(borrowcost)), grouping=True), \
+                                                                                    float(round(borrowcost)/10000)), i_spacing=4, ostream=ostream)
+    print_line("Total Costs"," %15s, %10.2f%%" % (locale.currency(int(round(borrowcost+slippage+commissions)), grouping=True), \
+                                                                                    float(round(borrowcost+slippage+commissions)/10000)), i_spacing=4, ostream=ostream)
     ostream.write("\n")
     
     print_line(s_formatted_fund_name+" Std Dev of Returns",get_std_dev(fund_ts),i_spacing=8, ostream=ostream)
