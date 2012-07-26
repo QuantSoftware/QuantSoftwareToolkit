@@ -388,7 +388,6 @@ class DataAccess(object):
     drivers = {'sqlite': _SQLite, 'mysql': _MySQL}
 
     def __new__(self, driver):
-        print "Creating new DataAccess Module."
         if not DataAccess.drivers[driver]:
             raise NotImplementedError("DataAccess Driver: " + driver +
                                       " not available or implmented.")
