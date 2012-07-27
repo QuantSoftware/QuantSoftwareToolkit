@@ -386,13 +386,17 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
         
     ostream.write("Transaction Costs\n")
     print_line("Total Commissions"," %15s, %10.2f%%" % (locale.currency(int(round(commissions)), grouping=True), \
-                                                                                    float(round(commissions)/10000)), i_spacing=4, ostream=ostream)
+                                                  float((round(commissions)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
+
     print_line("Total Slippage"," %15s, %10.2f%%" % (locale.currency(int(round(slippage)), grouping=True), \
-                                                                                    float(round(slippage)/10000)), i_spacing=4, ostream=ostream)
+                                                     float((round(slippage)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
+
     print_line("Total Short Borrowing Cost"," %15s, %10.2f%%" % (locale.currency(int(round(borrowcost)), grouping=True), \
-                                                                                    float(round(borrowcost)/10000)), i_spacing=4, ostream=ostream)
+                                                     float((round(borrowcost)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
+
     print_line("Total Costs"," %15s, %10.2f%%" % (locale.currency(int(round(borrowcost+slippage+commissions)), grouping=True), \
-                                                                                    float(round(borrowcost+slippage+commissions)/10000)), i_spacing=4, ostream=ostream)
+                                  float((round(borrowcost+slippage+commissions)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
+
     ostream.write("\n")
     
     print_line(s_formatted_fund_name+" Std Dev of Returns",get_std_dev(fund_ts),i_spacing=8, ostream=ostream)
