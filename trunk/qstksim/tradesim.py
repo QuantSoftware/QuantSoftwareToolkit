@@ -105,7 +105,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #write column headings
     if log!="false":
         print "writing transaction log to "+log
-        log_file.write("Symbol,Company Name,Txn Type,Txn Date/Time, ShortLong Ratio,# Shares,Price,Txn Value,Portfolio # Shares,Portfolio Value,Commission,Slippage(10BPS),Comments\n")
+        log_file.write("Symbol,Company Name,Txn Type,Txn Date/Time, Gross Leverage, Net Leverage,# Shares,Price,Txn Value,Portfolio # Shares,Portfolio Value,Commission,Slippage(10BPS),Comments\n")
     
     #a dollar is always worth a dollar
     df_historic['_CASH'] = 1.0
@@ -151,7 +151,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
         if b_first_iter == True:
             #log initial cash value
             if log!="false":
-                log_file.write("_CASH,_CASH,Cash Deposit,"+str(prediction_date)+",,,,"+str(f_start_cash)+",,\n")
+                log_file.write("_CASH,_CASH,Cash Deposit,"+str(prediction_date)+",,,,,"+str(f_start_cash)+",,\n")
             
 
             # Fund Value on start
@@ -190,7 +190,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
 
         #Normalizing the allocations
         proportion = _normalize(row)
-
+        '''
         indices_short = np.where(proportion.values < 0)
         short_val = abs(sum(proportion.values[indices_short]))
 
@@ -198,7 +198,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
         long_val = abs(sum(proportion.values[indices_long])) 
 
         sl_ratio = short_val/long_val
-        
+        '''
         # Allocation to be scaled upto the allowed Leverage
         proportion = proportion*i_target_leverage
         
@@ -278,6 +278,21 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                 cashleft = value_before_trade - value_after_trade - f_transaction_cost - f_borrow_cost
 
             
+            dt_last_date = trade_date
+            f_last_holding = ((trade_price*shares.ix[-1]).ix[-1]).values
+            indices = np.where(f_last_holding < 0)
+            f_last_borrow = abs(sum(f_last_holding[indices]))
+
+            shares['_CASH'] = shares['_CASH'] + cashleft
+
+            money_short = f_last_borrow
+            indices_long = np.where(f_last_holding >= 0)
+            money_long = abs(sum(f_last_holding[indices_long]))
+            money_cash = cashleft
+
+            GL = (money_long + money_short) / (money_long - money_short + money_cash)
+            NL = (money_long - money_short) / (money_long - money_short + money_cash)
+
             #for all symbols, print required transaction to log
             for sym in shares:
                 if sym != "_CASH":
@@ -294,19 +309,12 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
                     
                     if log!="false":
                         if(abs(order[sym])!=0):
-                            log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(prediction_date)+","+str(sl_ratio)+\
+                            log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(prediction_date)+","+str(GL)+","+str(NL)+\
                                        ","+str(order[sym])+","+str(trade_price[sym].values[0])+","+\
                                         str(trade_price[sym].values[0]*order[sym])+","\
                                        +str(shares[sym].ix[-1])+","+str(value_after_trade)+","+str(f_stock_commission)+","+\
                                         str(round(f_slippage_cost,2))+",")
                             log_file.write("\n")
-
-            dt_last_date = trade_date
-            f_last_holding = ((trade_price*shares.ix[-1]).ix[-1]).values
-            indices = np.where(f_last_holding < 0)
-            f_last_borrow = abs(sum(f_last_holding[indices]))
-            shares['_CASH'] = shares['_CASH'] + cashleft
-
 
         # End of Loop
 
@@ -314,7 +322,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #close log 
     if log!="false":
         #deposit nothing at end so that if we reload the transaction history the whole period gets shown
-        log_file.write("_CASH,_CASH,Cash Deposit,"+str(prediction_date)+",,,,"+str(0)+",,")
+        log_file.write("_CASH,_CASH,Cash Deposit,"+str(prediction_date)+",,,,,"+str(0)+",,")
         log_file.close()
     #print ts_fund
     #print ts_leverage
