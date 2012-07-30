@@ -62,7 +62,7 @@ def _ignore_zeros_average(array):
         i_num=1
     return f_sum/i_num
 
-def analyze_transactions(filename, plot_name):
+def analyze_transactions(filename, plot_name, share_table, show_transactions=False):
     """
     @summary computes various statistics for given filename and appends to report assumed via plot_name
     @param filename: file of past transactions
@@ -173,46 +173,69 @@ def analyze_transactions(filename, plot_name):
     html_file.write("\nAverage Slippage:         %10d" % avg_slip)
     html_file.write("\nAverage Return:           %%%9.4f\n\n" % avg_ret)
     
-    reader=csv.reader(open(filename,'r'), delimiter=',')
-    a=0
-    cash=0
-    for row in reader:
-        if a==0:
-            html_file.write("   Date    | ")
-            html_file.write("   Name    | ")
-            html_file.write("   Type    | ")
-            html_file.write("  Price    | ")
-            html_file.write("  Shares   | ")
-            html_file.write("Commission | ")
-            html_file.write(" Slippage  | ")
-            html_file.write("OnHand Cash| ")
-            html_file.write("Efficiency  | ")
-            html_file.write(" Returns    ")
-            a=1
-        else:
-            var=row[2]
-            if var == "Cash Deposit":
-                cash=cash+float(row[6])
-                var="Deposit"
-            elif var == "Cash Withdraw":
-                cash=cash-float(row[6])
-                var="Withdraw"
-            else:
-                cash=cash-float(row[6])
-            var=var.split(" ")[0]
-            html_file.write("%10s | " % str(row[3].split()[0]))
-            html_file.write("%10s | " % str(row[0]))
-            html_file.write("%10s | " % str(var))
-            html_file.write("%10s | " % str(row[5]))
-            html_file.write("%10s | " % str(row[4]))
-            html_file.write("%10s | " % str(row[7]))
-            html_file.write("%10s | " % str(row[8]))
-            html_file.write("%10s | " % str(round(cash,2)))
-            html_file.write(" %%%9.2f | " % (efficiencies[a-1]*100))
-            html_file.write(" %%%9.2f " % (rets[a-1]))
-            a=a+1
-        html_file.write(" | ")
+    html_file.write("Positions by Date\n")
+    for date in share_table.index:
+        html_file.write("\nPosition for day: "+str(date).split()[0])
         html_file.write("\n")
+        i=0
+        for item in share_table.ix[date]:
+            if(item>0):
+                html_file.write("%15s" % str(share_table.columns[i]))
+            i=i+1
+        html_file.write("\n")
+        for item in share_table.ix[date]:
+            if(item>0):
+                html_file.write("%15s" % str(item))
+        html_file.write("\n\nTransactions for day:\n")
+        reader=csv.reader(open(filename,'r'), delimiter=',')
+        a=0
+        cash=0
+        if(show_transactions):
+            for row in reader:
+                if a==0:
+                    html_file.write("   Date      | ")
+                    html_file.write("   Name    | ")
+                    html_file.write("   Type    | ")
+                    html_file.write("  Price    | ")
+                    html_file.write("  Shares   | ")
+                    html_file.write("Commission | ")
+                    html_file.write(" Slippage  | ")
+                    html_file.write("OnHand Cash| ")
+                    html_file.write("Efficiency  | ")
+                    html_file.write(" Returns    ")
+                    html_file.write(" | ")
+                    html_file.write("\n")
+                    a=1
+                else:
+                    compute=False
+                    if(len(str(row[3]).split())>2):
+                        compute=(dt.datetime.strptime(str(row[3]),"%b %d, %Y")==date)
+                    else:
+                        compute=(str(row[3])==str(date))
+                    if(compute):
+                        var=row[2]
+                        if var == "Cash Deposit":
+                            cash=cash+float(row[6])
+                            var="Deposit"
+                        elif var == "Cash Withdraw":
+                            cash=cash-float(row[6])
+                            var="Withdraw"
+                        else:
+                            cash=cash-float(row[6])
+                        var=var.split(" ")[0]
+                        html_file.write("%12s | " % str(row[3].split(':')[0]))
+                        html_file.write("%10s | " % str(row[0]))
+                        html_file.write("%10s | " % str(var))
+                        html_file.write("%10s | " % str(row[5]))
+                        html_file.write("%10s | " % str(row[4]))
+                        html_file.write("%10s | " % str(row[7]))
+                        html_file.write("%10s | " % str(row[8]))
+                        html_file.write("%10s | " % str(round(cash,2)))
+                        html_file.write(" %%%9.2f | " % (efficiencies[a-1]*100))
+                        html_file.write(" %%%9.2f " % (rets[a-1]))
+                        a=a+1
+                        html_file.write(" | ")
+                        html_file.write("\n")
                       
     html_file.close()
 
@@ -344,8 +367,8 @@ def share_table2fund(share_table):
     timeofday=dt.timedelta(hours=16)
     timestamps = du.getNYSEdays(startday-dt.timedelta(days=1),endday+dt.timedelta(days=1),timeofday)
     historic = dataobj.get_data( timestamps, share_table.columns ,"close" )
-    print historic
     historic["_CASH"]=1
+    print historic
     closest = historic[historic.index <= share_table.index[0]].ix[:]
     ts_leverage = pandas.Series( 0, index = [closest.index[0]] )
 
@@ -378,7 +401,7 @@ if __name__ == "__main__":
     filename="./log.csv"
     plot_name="Log"
     print "load csv"
-    [share_table, slippage, commissions] = csv2fund(filename, 1000000)
+    [share_table, slippage, commissions] = csv2fund(filename,100000)
     print share_table
     [fund_ts, ts_leverage] = share_table2fund(share_table)
     print "print report"
@@ -386,6 +409,6 @@ if __name__ == "__main__":
     print "analyze transactions"
     #Generate new plot based off transactions alone
     
-    #analyze_transactions(filename,plot_name)
+    analyze_transactions(filename,plot_name,share_table,True)
     print "done"
     
