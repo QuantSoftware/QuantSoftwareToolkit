@@ -22,7 +22,6 @@ import numpy as np
 from math import log10
 import converter
 import locale
-import pdfcrowd
 from pylab import savefig
 from matplotlib import pyplot
 from matplotlib import gridspec
@@ -186,7 +185,7 @@ def print_industry_coer(fund_ts, ostream):
         if(i%2==0):
             ostream.write("\n")
         #load data
-        norObj = da.DataAccess('Norgate')
+        norObj = da.DataAccess('Yahoo')
         ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
@@ -212,7 +211,7 @@ def print_other_coer(fund_ts, ostream):
         if(i%2==0):
             ostream.write("\n")
         #load data
-        norObj = da.DataAccess('Norgate')
+        norObj = da.DataAccess('Yahoo')
         ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
@@ -352,7 +351,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
-    dataobj = da.DataAccess('Norgate')
+    dataobj = da.DataAccess('Yahoo')
     years = du.getYears(fund_ts)
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                                      verbose = False)
@@ -785,7 +784,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
             i=i+1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
-    dataobj = da.DataAccess('Norgate')
+    dataobj = da.DataAccess('Yahoo')
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                             verbose = False)
     benchmark_close = benchmark_close.fillna(method='pad')
@@ -858,7 +857,7 @@ def generate_report(funds_list, graph_names, out_file):
         i += 1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
-    dataobj = da.DataAccess('Norgate')
+    dataobj = da.DataAccess('Yahoo')
     benchmark_close = dataobj.get_data(timestamps, symbol, "close", \
                                             verbose = False)
     mult = 10000/benchmark_close.values[0]
