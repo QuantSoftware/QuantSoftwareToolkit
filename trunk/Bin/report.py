@@ -290,7 +290,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     """
     
     #Set locale for currency conversions
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    locale.setlocale(locale.LC_ALL, '')
     
     #make names length independent for alignment
     s_formatted_original_name="%15s" % s_original_name
