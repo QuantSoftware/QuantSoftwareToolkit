@@ -303,6 +303,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     
     fund_ts=fund_ts.fillna(method='pad')
     fund_ts=fund_ts.fillna(method='bfill')
+    fund_ts=fund_ts.fillna(1.0)
     if directory != False :
         if not path.exists(directory):
             makedirs(directory)
@@ -364,6 +365,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     for bench_sym in benchmark:
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='bfill')
+        benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(1.0)
     
     if type(lf_dividend_rets) != type(0.0):
         for i,sym in enumerate(benchmark):
@@ -796,6 +798,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
                                             verbose = False)
     benchmark_close = benchmark_close.fillna(method='pad')
     benchmark_close = benchmark_close.fillna(method='bfill')
+    benchmark_close = benchmark_close.fillna(1.0)
     
     if type(lf_dividend_rets) != type(0.0):
         for i,sym in enumerate(benchmark):
