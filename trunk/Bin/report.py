@@ -161,6 +161,7 @@ def get_std_dev(fund_ts):
     @param ostream: stream to print to
     """
     fund_ts=fund_ts.fillna(method='pad')
+    fund_ts=fund_ts.fillna(method='bfill')
     ret=np.std(tsu.daily(fund_ts.values))*10000
     return ("%+7.2f bps " % ret)
 
@@ -190,6 +191,7 @@ def print_industry_coer(fund_ts, ostream):
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
         ldfData[0]=ldfData[0].fillna(method='pad')
+        ldfData[0]=ldfData[0].fillna(method='bfill')
         a=np.corrcoef(np.ravel(tsu.daily(ldfData[0][industries[i][0]])),np.ravel(tsu.daily(fund_ts.values)))
         b=np.ravel(tsu.daily(ldfData[0][industries[i][0]]))
         f=np.ravel(tsu.daily(fund_ts))
@@ -216,6 +218,7 @@ def print_other_coer(fund_ts, ostream):
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
         ldfData[0]=ldfData[0].fillna(method='pad')
+        ldfData[0]=ldfData[0].fillna(method='bfill')
         a=np.corrcoef(np.ravel(tsu.daily(ldfData[0][industries[i][0]])),np.ravel(tsu.daily(fund_ts.values)))
         b=np.ravel(tsu.daily(ldfData[0][industries[i][0]]))
         f=np.ravel(tsu.daily(fund_ts))
@@ -231,7 +234,9 @@ def print_benchmark_coer(fund_ts, benchmark_close, sym,  ostream):
     @param ostream: stream to print to
     """
     fund_ts=fund_ts.fillna(method='pad')
+    fund_ts=fund_ts.fillna(method='bfill')
     benchmark_close=benchmark_close.fillna(method='pad')
+    benchmark_close=benchmark_close.fillna(method='bfill')
     faCorr=np.corrcoef(np.ravel(tsu.daily(fund_ts.values)),np.ravel(tsu.daily(benchmark_close)));
     b=np.ravel(tsu.daily(benchmark_close))
     f=np.ravel(tsu.daily(fund_ts))
@@ -297,6 +302,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     s_formatted_fund_name = "%15s" % s_fund_name
     
     fund_ts=fund_ts.fillna(method='pad')
+    fund_ts=fund_ts.fillna(method='bfill')
     if directory != False :
         if not path.exists(directory):
             makedirs(directory)
@@ -357,6 +363,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
                                                      verbose = False)
     for bench_sym in benchmark:
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
+        benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='bfill')
     
     if type(lf_dividend_rets) != type(0.0):
         for i,sym in enumerate(benchmark):
@@ -788,6 +795,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                             verbose = False)
     benchmark_close = benchmark_close.fillna(method='pad')
+    benchmark_close = benchmark_close.fillna(method='bfill')
     
     if type(lf_dividend_rets) != type(0.0):
         for i,sym in enumerate(benchmark):
