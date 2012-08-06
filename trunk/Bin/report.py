@@ -428,14 +428,23 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     print_years(years, ostream)
     
     
-    print_line(s_formatted_fund_name+" Annualized Return"," %+8.2f%%" % get_annual_return(fund_ts, years), i_spacing=4, ostream=ostream)
+    s_line=""
+    for f_token in get_annual_return(fund_ts, years):
+        s_line+=" %+8.2f%%" % f_token
+    print_line(s_formatted_fund_name+" Annualized Return",s_line, i_spacing=4, ostream=ostream)
     
     
     if type(original)!=type("str"):
-        print_line(s_formatted_original_name+" Annualized Return", " %+8.2f%%" % get_annual_return(original, years), i_spacing=4, ostream=ostream)
+        s_line=""
+        for f_token in get_annual_return(original, years):
+            s_line+=" %+8.2f%%" % f_token
+        print_line(s_formatted_original_name+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
     
     for bench_sym in benchmark:
-        print_line(bench_sym+" Annualized Return", " %+8.2f%%" % get_annual_return(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
+        s_line=""
+        for f_token in get_annual_return(benchmark_close[bench_sym], years):
+            s_line+=" %+8.2f%%" % f_token
+        print_line(bench_sym+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
     
     print_years(years, ostream)
     
@@ -515,7 +524,7 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
     """
     
     #Set locale for currency conversions
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    locale.setlocale(locale.LC_ALL, '')
     
     #make names length independent for alignment
     s_formatted_original_name="%15s" % s_original_name
