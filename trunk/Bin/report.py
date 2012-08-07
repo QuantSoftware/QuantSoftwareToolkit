@@ -676,8 +676,11 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
         ls_labels.append(bench_sym)
         
     print lf_vals
-    print ls_labels   
-    print_bar_chart(lf_vals, ls_labels, directory+"/annual_rets.png")
+    print ls_labels
+    ls_year_labels=[]
+    for i in range(0,len(years)):
+        ls_year_labels.append(str(years[i]))
+    print_bar_chart(lf_vals, ls_labels, ls_year_labels, directory+"/annual_rets.png")
         
     print_years(years, ostream)
     
@@ -742,25 +745,43 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
     print_monthly_returns(fund_ts, years, ostream)   
     print_footer(ostream)       
     
-def print_bar_chart(lf_vals, ls_labels, s_filename):
+def print_bar_chart(llf_vals, ls_fund_labels, ls_year_labels, s_filename):
+    llf_vals=((1,2,3),(3,2,1),(2,2,2))
+    amin=min(min(llf_vals))
+    print amin
+    min_lim=0
+    if amin<0:
+        min_lim = amin
+    ls_fund_labels=("Fund 1","Benchmark","Original")
+    ls_year_labels=("2000","2001","2002")
     pyplot.clf()
-    lf_lefts=[]
-    lf_heights=[]
-    f_x=20
-    for lf_group in lf_vals:
-        for f_entity in lf_group:
-            lf_heights.append(f_entity)
-            lf_lefts.append(f_x)
-            f_x+=10
-        f_x+=30
-    width = 10
-    pyplot.bar(lf_lefts, lf_heights, width=width)
-    pyplot.yticks(range(-5, 20))
-    pyplot.xticks([40.70,100], ls_labels)
-    pyplot.xlim(0, lf_lefts[-1]+width*10)
-    pyplot.title("Annualized Returns")
-    pyplot.gca().get_xaxis().tick_bottom()
-    pyplot.gca().get_yaxis().tick_left()
+    ind = np.arange(len(ls_year_labels))
+    ind=ind*2
+    width = 0.35
+    fig = pyplot.figure()
+    ax = fig.add_subplot(111)
+    colors=('r','g','b')
+    rects=[]
+    for i in range(0,len(llf_vals)):
+        rects.append( ax.bar(ind+width*i, llf_vals[i], width, color=colors[i]))
+    ax.set_ylabel('Annual Return')
+    ax.set_ylim(min_lim, 5)
+    ax.set_title('Annual Return by Fund and Year')
+    ax.set_xticks(ind+width*len(llf_vals)/2)
+    ax.set_xticklabels(ls_year_labels)
+    plots=[]
+    for i in range(0,len(llf_vals)):
+        plots.append(rects[i][0])
+    ax.legend(plots,ls_fund_labels)
+    
+    def autolabel(rects):
+        # attach some text labels
+        for rect in rects:
+            height = rect.get_height()
+            ax.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
+                    ha='center', va='bottom')
+    for i in range(0,len(llf_vals)):
+        autolabel(rects[i])
     savefig(s_filename, format = 'png')
 
 def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_dividend_rets=0.0, leverage=False):
