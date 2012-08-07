@@ -14,7 +14,7 @@ Created on Jan 1, 2011
 
 from os import path, makedirs
 from os import sys
-from qstkutil import DataAccess as da
+from qstkutil import DataEvolved as de
 from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 from qstkutil import fundutil as fu
@@ -186,7 +186,7 @@ def print_industry_coer(fund_ts, ostream):
         if(i%2==0):
             ostream.write("\n")
         #load data
-        norObj = da.DataAccess('Yahoo')
+        norObj = de.DataAccess('mysql')
         ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
@@ -213,7 +213,7 @@ def print_other_coer(fund_ts, ostream):
         if(i%2==0):
             ostream.write("\n")
         #load data
-        norObj = da.DataAccess('Yahoo')
+        norObj =de.DataAccess('mysql')
         ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
@@ -358,7 +358,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
-    dataobj = da.DataAccess('Yahoo')
+    dataobj =de.DataAccess('mysql')
     years = du.getYears(fund_ts)
     benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
                                                      verbose = False)
@@ -585,10 +585,10 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
     
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
-    dataobj = da.DataAccess('Norgate')
+    dataobj =de.DataAccess('mysql')
     years = du.getYears(fund_ts)
-    benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
-                                                     verbose = False)
+    benchmark_close = dataobj.get_data(timestamps, benchmark, ["close"])
+    benchmark_close=benchmark_close[0]
     for bench_sym in benchmark:
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
     
@@ -823,9 +823,9 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
             i=i+1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
-    dataobj = da.DataAccess('Yahoo')
-    benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
-                                            verbose = False)
+    dataobj = de.DataAccess('mysql')
+    benchmark_close = dataobj.get_data(timestamps, benchmark, ["close"])
+    benchmark_close = benchmark_close[0]
     benchmark_close = benchmark_close.fillna(method='pad')
     benchmark_close = benchmark_close.fillna(method='bfill')
     benchmark_close = benchmark_close.fillna(1.0)
@@ -898,7 +898,7 @@ def generate_report(funds_list, graph_names, out_file):
         i += 1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
-    dataobj = da.DataAccess('Yahoo')
+    dataobj = de.DataAccess('mysql')
     benchmark_close = dataobj.get_data(timestamps, symbol, "close", \
                                             verbose = False)
     mult = 10000/benchmark_close.values[0]
