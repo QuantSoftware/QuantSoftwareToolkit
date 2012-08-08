@@ -548,7 +548,8 @@ def _create_dict(df_rets, lnaPortfolios):
 
     return allocations
 
-def optimizePortfolio(df_rets, list_min, list_max, list_price_target, target_risk, direction="long"):
+def optimizePortfolio(df_rets, list_min, list_max, list_price_target, 
+                      target_risk, direction="long"):
     
     naLower = np.array(list_min)
     naUpper = np.array(list_max)
