@@ -6,6 +6,8 @@ rsync --verbose \
       --compress \
       --update \
       --times \
+      --copy-links \
       --recursive --times --perms --links \
       --exclude "*bak" --exclude "*~" --exclude "*Newscred*" \
+      --exclude "*Compustat*" \
       ubuntu@www-dev.lucenaresearch.com:/home/ubuntu/QSData/ ~/QSData
