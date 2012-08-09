@@ -93,7 +93,12 @@ class kdtknn(object):
             #which is the class of the neighbor.
             return self.data[tmp[1][0]][-1]
         #for all the neighbors returned by kdt.query, get their class and stick that into a list
-        n_clsses = map(lambda rslt: map(lambda p: p[-1], self.data[rslt]), self.kdt.query(points,k)[1])
+        
+        na_dist, na_neighbors =  self.kdt.query(points,k)
+        
+        n_clsses = map(lambda rslt: map(lambda p: p[-1], self.data[rslt]), na_neighbors)
+        #print n_clsses
+
         if method=='mode':
             return map(lambda x: scipy.stats.stats.mode(x)[0],n_clsses)[0]
         elif method=='mean':
@@ -102,6 +107,8 @@ class kdtknn(object):
             return numpy.array(map(lambda x: numpy.median(x),n_clsses))
         elif method=='raw':
             return numpy.array(n_clsses)
+        elif method=='all':
+            return numpy.array(n_clsses), na_dist
 
 def getflatcsv(fname):
     inf = open(fname)
