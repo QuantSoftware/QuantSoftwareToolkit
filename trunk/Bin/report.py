@@ -360,8 +360,8 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
     dataobj =de.DataAccess('mysql')
     years = du.getYears(fund_ts)
-    benchmark_close = dataobj.get_data(timestamps, benchmark, "close", \
-                                                     verbose = False)
+    benchmark_close = dataobj.get_data(timestamps, benchmark, ["close"], \
+                                                     verbose = False)[0]
     for bench_sym in benchmark:
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='bfill')
@@ -899,8 +899,8 @@ def generate_report(funds_list, graph_names, out_file):
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
     dataobj = de.DataAccess('mysql')
-    benchmark_close = dataobj.get_data(timestamps, symbol, "close", \
-                                            verbose = False)
+    benchmark_close = dataobj.get_data(timestamps, symbol, ["close"], \
+                                            verbose = False)[0]
     mult = 10000/benchmark_close.values[0]
     i = 0
     for fund in funds_list:
