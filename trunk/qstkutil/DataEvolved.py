@@ -334,7 +334,7 @@ class _ScratchCache(object):
         try:
             catchstall = datetime.timedelta(hours=int(os.environ['CACHESTALLTIME']))
         except:
-            catchstall = datetime.timedelta(hours=1)
+            catchstall = datetime.timedelta(hours=12)
 
         # Check if the file is older than the cachestalltime
         if os.path.exists(cachefilename):
