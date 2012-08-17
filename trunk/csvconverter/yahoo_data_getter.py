@@ -110,7 +110,6 @@ def get_data_for_exchange (exchange, data_path):
     
     _now =datetime.datetime.now();
     miss_ctr=0; #Counts how many symbols we could get
-    
     for symbol in symbol_list:
         symbol_data=list()
         print "Getting " + str (symbol)
