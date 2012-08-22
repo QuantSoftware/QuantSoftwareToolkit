@@ -19,6 +19,9 @@ import sqlite3
 import datetime
 import MySQLdb
 from operator import itemgetter
+from dateutil.relativedelta import relativedelta
+
+B_NEW = True
 
 
 class DriverInterface(object):
@@ -91,14 +94,21 @@ class _SQLite(DriverInterface):
         # Combine Data Fields for Query
         data_item = map(lambda x: "B." + x, data_item)
         query_select_items = ",".join(data_item)
-
-        # Build Query - Inherently Unsafe!
-        self.cursor.execute("""
-                SELECT A.symbol,B.timestamp,""" + query_select_items + """
-                FROM tblEquity A JOIN tblPriceVolumeHistory B ON A.ID = B.tblEquity_ID
-                WHERE B.timestamp >= (?) AND B.timestamp <= (?) AND A.symbol IN (%s)
-                ORDER BY A.symbol ASC
-            """ % symbol_query_list, (ts_list[0], ts_list[-1],))
+        
+        if B_NEW == False:
+            # Build Query - Inherently Unsafe!
+            self.cursor.execute("""
+                    SELECT A.symbol,B.timestamp,""" + query_select_items + """
+                    FROM tblEquity A JOIN tblPriceVolumeHistory B ON A.ID = B.tblEquity_ID
+                    WHERE B.timestamp >= (?) AND B.timestamp <= (?) AND A.symbol IN (%s)
+                    ORDER BY A.symbol ASC
+                """ % symbol_query_list, (ts_list[0], ts_list[-1],))
+        else:
+            self.cursor.execute("""
+            select A.code as symbol, B.date,"""+ query_select_items + 
+            """ from price B, asset A where A.assetid = B.assetid and 
+            B.date >= (?) and B.date <= (?) 
+            and A.code in (%s);""" % symbol_query_list, (ts_list[0], ts_list[-1],))
 
         # Retrieve Results
         results = self.cursor.fetchall()
@@ -171,7 +181,11 @@ class _MySQL(DriverInterface):
         self._connect()
 
     def _connect(self):
-        self.db = MySQLdb.connect("localhost", "root", "sevilla?4dvent", "HistoricalEquityData")
+        if B_NEW:
+            self.db = MySQLdb.connect("localhost", "finance", "cduwh2PXnL", "premiumdata")
+        else:
+            self.db = MySQLdb.connect("localhost", "finance", "cduwh2PXnL", "HistoricalEquityData")
+
         self.cursor = self.db.cursor()
 
     def get_data(self, ts_list, symbol_list, data_item,
@@ -201,6 +215,18 @@ class _MySQL(DriverInterface):
         assert isinstance(symbol_list, list)
         assert isinstance(data_item, list)
 
+        if B_NEW:
+            #TODO fix mapping
+            for i in range(len(data_item)):
+                if data_item[i] == 'close':
+                    data_item[i] = 'trclose'
+                if data_item[i] == 'actual_close':
+                    data_item[i] = 'trclose'
+        
+        
+        print data_item
+
+
         # Combine Symbols List for Query
         symbol_query_list = ",".join(map(lambda x: "'" + x + "'", symbol_list))
 
@@ -208,27 +234,44 @@ class _MySQL(DriverInterface):
         data_item = map(lambda x: "B." + x, data_item)
         query_select_items = ",".join(data_item)
 
-        # Build Query - Inherently Unsafe!
-        self.cursor.execute("""
+        if B_NEW == False:
+            # Build Query - Inherently Unsafe!
+            self.cursor.execute("""
                 SELECT A.symbol,B.timestamp,""" + query_select_items + """
-                FROM tblEquity A JOIN tblPriceVolumeHistory B ON A.ID = B.tblEquity_ID
-                WHERE B.timestamp >= %s AND B.timestamp <= %s AND A.symbol IN (""" + symbol_query_list + """)
-                ORDER BY A.symbol ASC
-            """, (ts_list[0], ts_list[-1],))
+                FROM tblEquity A JOIN tblPriceVolumeHistory B ON 
+                A.ID = B.tblEquity_ID
+                WHERE B.timestamp >= %s AND B.timestamp <= %s AND A.symbol 
+                IN (""" + symbol_query_list + """) ORDER BY A.symbol ASC
+                """, (ts_list[0], ts_list[-1],))
+        else:
+
+            self.cursor.execute("""
+            select A.code as symbol, B.date,""" + query_select_items + """
+            from price B, asset A where A.assetid = B.assetid and 
+            B.date >= %s and B.date <= %s and A.code in (
+            """ + symbol_query_list + """)""", (ts_list[0], ts_list[-1],))
+
 
         # Retrieve Results
         results = self.cursor.fetchall()
 
         # Remove all rows that were not asked for
         results = list(results)
+
         if len(results) == 0:
             for current_column in range(len(data_item)):
                 columns.append( pandas.DataFrame(columns=symbol_list) )
                 return columns
 
         for i, row in enumerate(results):
-            if row[1] not in ts_list:
-                del results[i]
+            if row[0] == 'AAPL':
+                print row 
+            if B_NEW:
+                if row[1] + relativedelta(hours=16) not in ts_list:
+                    del results[i]
+            else:
+                if row[1] not in ts_list:
+                    del results[i]
 
         # Create Pandas DataFrame in Expected Format
         current_dict = {}
@@ -236,21 +279,38 @@ class _MySQL(DriverInterface):
         for current_column in range(len(data_item)):
             for symbol, ranges in symbol_ranges.items():
                 current_symbol_data = results[ranges[0]:ranges[1] + 1]
-                current_dict[symbol] = pandas.Series(
-                                        map(itemgetter(current_column + 2), current_symbol_data),
-                                        index=map(itemgetter(1), current_symbol_data))
+                
+                if B_NEW:
+                    current_dict[symbol] = pandas.Series(
+                      map(itemgetter(current_column + 2), current_symbol_data),
+                    index=map(lambda x: itemgetter(1)(x) + relativedelta(hours=16), 
+                                                      current_symbol_data))
+                else:
+                    current_dict[symbol] = pandas.Series(
+                      map(itemgetter(current_column + 2), current_symbol_data),
+                    index=map(itemgetter(1), current_symbol_data))
+                    
             # Make DataFrame
             columns.append(pandas.DataFrame(current_dict, columns=symbol_list))
             current_dict = {}
+                
 
         return columns
 
     def get_list(self, list_name):
-        self.cursor.execute("""SELECT A.Symbol
-                    FROM tblEquity A JOIN tblListDetail C ON A.ID = C.tblEquity_ID
-                    JOIN tblListHeader B ON B.ID = C.tblListHeader_ID
-                    WHERE B.list_name = %s
-        """, (list_name,))
+        
+        if B_NEW:
+            self.cursor.execute("""select myself.code as symbol from 
+                indexconstituent consititue1_, asset belongsTo, asset myself
+                where belongsTo.assetid=consititue1_.indexassetid and 
+                myself.assetid = consititue1_.assetid
+                and belongsTo.issuerName = %s;""", (list_name))
+        else:
+            self.cursor.execute("""SELECT DISTINCT A.Symbol
+                        FROM tblEquity A JOIN tblListDetail C ON A.ID = C.tblEquity_ID
+                        JOIN tblListHeader B ON B.ID = C.tblListHeader_ID
+                        WHERE B.list_name = %s
+            """, (list_name,))
         return sorted([x[0] for x in self.cursor.fetchall()])
 
     def get_all_symbols(self):
@@ -258,8 +318,17 @@ class _MySQL(DriverInterface):
         return sorted([x[0] for x in self.cursor.fetchall()])
 
     def get_all_lists(self):
-        self.cursor.execute("SELECT list_name FROM tblListHeader")
-        return sorted([x[0] for x in self.cursor.fetchall()])
+        
+        if B_NEW:
+            self.cursor.execute("""select asset0_.assetid as id, asset0_.issuername as name
+                from asset asset0_ where exists 
+                (select consititue1_.assetid from indexconstituent consititue1_ 
+                where asset0_.assetid=consititue1_.indexassetid) 
+                order by asset0_.issuername;""")
+            return sorted([x[1] for x in self.cursor.fetchall()])
+        else:
+            self.cursor.execute("SELECT list_name FROM tblListHeader")
+            return sorted([x[0] for x in self.cursor.fetchall()])
 
     def _find_ranges_of_symbols(self, results):
         ''' Finds range of current symbols in results list '''
@@ -312,6 +381,8 @@ class _ScratchCache(object):
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str(source) + '-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
             + '-' + str(hash(str(data_item)))
+        if B_NEW == False:
+            hashstr += '-old'
 
         # get the directory for scratch files from environment
         try:
