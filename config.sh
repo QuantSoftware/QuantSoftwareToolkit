@@ -43,7 +43,7 @@ export PATH=$PATH:$QSBIN
 
 # location to store scratch files
 export QSSCRATCH=$QSDATA/Scratch
-export CACHESTALLTIME=1
+export CACHESTALLTIME=12
 #Cachestalltime in hours
 
 # Info regarding remote hosting of the system.
