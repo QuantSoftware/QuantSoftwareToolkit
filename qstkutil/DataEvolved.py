@@ -179,7 +179,10 @@ class _MySQL(DriverInterface):
 
     def __init__(self):
         self._connect()
-
+    
+    def __del__(self):
+        self.db.close()
+            
     def _connect(self):
         if B_NEW:
             self.db = MySQLdb.connect("localhost", "finance", "cduwh2PXnL", "premiumdata")
@@ -216,12 +219,17 @@ class _MySQL(DriverInterface):
         assert isinstance(data_item, list)
 
         if B_NEW:
-            #TODO fix mapping
-            for i in range(len(data_item)):
-                if data_item[i] == 'close':
-                    data_item[i] = 'trclose'
-                if data_item[i] == 'actual_close':
-                    data_item[i] = 'trclose'
+            
+            # Map to new database schema to preserve legacy code
+            ds_map = {'open':'tropen',
+                      'high':'trhigh',
+                      'low':'trlow',
+                      'close':'trclose',
+                      'actual_close':'close',
+                      'volume':'volume',
+                      'adjusted_close':'adjclose'}
+
+            data_item = map(lambda(x): ds_map[x], data_item)
         
         
         print data_item
@@ -264,8 +272,6 @@ class _MySQL(DriverInterface):
                 return columns
 
         for i, row in enumerate(results):
-            if row[0] == 'AAPL':
-                print row 
             if B_NEW:
                 if row[1] + relativedelta(hours=16) not in ts_list:
                     del results[i]
