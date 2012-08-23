@@ -306,11 +306,18 @@ class _MySQL(DriverInterface):
     def get_list(self, list_name):
         
         if B_NEW:
-            self.cursor.execute("""select myself.code as symbol from 
-                indexconstituent consititue1_, asset belongsTo, asset myself
-                where belongsTo.assetid=consititue1_.indexassetid and 
-                myself.assetid = consititue1_.assetid
-                and belongsTo.issuerName = %s;""", (list_name))
+            if type(list_name) == type('str') or \
+               type(list_name) == type(u'unicode'):
+                self.cursor.execute("""select myself.code as symbol from 
+                    indexconstituent consititue1_, asset belongsTo, asset myself
+                    where belongsTo.assetid=consititue1_.indexassetid and 
+                    myself.assetid = consititue1_.assetid
+                    and belongsTo.issuerName = %s;""", (list_name))
+            else:
+                self.cursor.execute("""select myself.code as symbol from 
+                    indexconstituent consititue1_, asset myself
+                    where myself.assetid = consititue1_.assetid and 
+                    consititue1_.indexassetid = %s;""", (str(int(list_name))))
         else:
             self.cursor.execute("""SELECT DISTINCT A.Symbol
                         FROM tblEquity A JOIN tblListDetail C ON A.ID = C.tblEquity_ID
