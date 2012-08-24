@@ -234,9 +234,6 @@ class _MySQL(DriverInterface):
                       'adjusted_close':'adjclose'}
 
             data_item = map(lambda(x): ds_map[x], data_item)
-        
-        
-        print data_item
 
 
         # Combine Symbols List for Query
@@ -261,7 +258,8 @@ class _MySQL(DriverInterface):
             select A.code as symbol, B.date,""" + query_select_items + """
             from priceadj B, asset A where A.assetid = B.assetid and 
             B.date >= %s and B.date <= %s and A.code in (
-            """ + symbol_query_list + """)""", (ts_list[0], ts_list[-1],))
+            """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
+                                                 ts_list[-1],))
 
 
         # Retrieve Results
