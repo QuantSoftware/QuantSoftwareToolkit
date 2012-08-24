@@ -185,8 +185,8 @@ class _MySQL(DriverInterface):
             
     def _connect(self):
         s_filepath = os.path.dirname(os.path.abspath(__file__))
-        # Read password from a file
-        s_pass = open(os.path.join(s_filepath,'pass.txt')).read()
+        # Read password from a file (does not support whitespace)
+        s_pass = open(os.path.join(s_filepath,'pass.txt')).read().rstrip()
         
         if B_NEW:
             self.db = MySQLdb.connect("localhost", "finance", s_pass, "premiumdata")
