@@ -184,10 +184,14 @@ class _MySQL(DriverInterface):
         self.db.close()
             
     def _connect(self):
+        s_filepath = os.path.dirname(os.path.abspath(__file__))
+        # Read password from a file
+        s_pass = open(os.path.join(s_filepath,'pass.txt')).read()
+        
         if B_NEW:
-            self.db = MySQLdb.connect("localhost", "finance", "cduwh2PXnL", "premiumdata")
+            self.db = MySQLdb.connect("localhost", "finance", s_pass, "premiumdata")
         else:
-            self.db = MySQLdb.connect("localhost", "finance", "cduwh2PXnL", "HistoricalEquityData")
+            self.db = MySQLdb.connect("localhost", "finance", s_pass, "HistoricalEquityData")
 
         self.cursor = self.db.cursor()
 
