@@ -384,7 +384,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
 
     except ImportError:
         print 'Could not import CVX library'
-        return ([],0)
+        return ([],0, True)
     
     ''' Get number of stocks '''
     length = naData.shape[1]
@@ -407,7 +407,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
         na_signs = np.ones(len(na_signs))
     elif s_type == "short":
         na_signs = np.ones(len(na_signs))*(-1)
-    print na_signs
+    
     naData = na_signs*naData
 
     # Covariance matrix of the Data Set
@@ -488,7 +488,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
             
         lnaPortfolios = matrix(na_port)
     lnaPortfolios = na_signs*lnaPortfolios       
-    print lnaPortfolios
+    
     # Expected Return of the Portfolio
     # lfReturn = dot(pbar, lnaPortfolios)
     
