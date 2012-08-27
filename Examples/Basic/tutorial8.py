@@ -29,7 +29,7 @@ def getFrontier(naData):
     naLower = np.zeros(naData.shape[1])
     naUpper = np.ones(naData.shape[1])
     
-    (fMin, fMax) = tsu.getRetRange( naData, naLower, naUpper, naAvgRets)
+    (fMin, fMax) = tsu.getRetRange( naData, naLower, naUpper, naAvgRets, s_type="long")
     
     fStep = (fMax - fMin) / 100.0
     
@@ -39,11 +39,11 @@ def getFrontier(naData):
     
     ''' Call the function 100 times for the given range '''
     for fTarget in lfReturn: 
-        (naWeights, fStd, b_error) = tsu.OptPort( naData, fTarget, naLower, naUpper)
-        if b_error == False:
-            lfStd.append(fStd)
-            lnaPortfolios.append( naWeights )
-    
+        (naWeights, fStd, b_error) = tsu.OptPort( naData, fTarget, naLower, naUpper, s_type = "long")
+        #if b_error == False:
+        lfStd.append(fStd)
+        lnaPortfolios.append( naWeights )
+        #lfReturn.pop(lfReturn.index(fTarget))
     return (lfReturn, lfStd, lnaPortfolios, naAvgRets, naStd)
     
 
