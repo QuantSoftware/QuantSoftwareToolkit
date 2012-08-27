@@ -400,7 +400,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     else: naAvgRets=naExpected
 
 
-    na_signs = np.sign(naExpected)
+    na_signs = np.sign(naAvgRets)
     indices,  = np.where(na_signs == 0)
     na_signs[indices] = 1
     if s_type == "long":
