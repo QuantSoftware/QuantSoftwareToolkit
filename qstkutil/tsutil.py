@@ -365,7 +365,7 @@ def getOptPort(rets, f_target, l_period=1, naLower=None, naUpper=None, lNagDebug
     return (naReturn[0, 0:-1], fPortDev)
 
 
-def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None ):
+def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_type = "long"):
     """
     @summary Returns the Markowitz optimum portfolio for a specific return.
     @param naData: Daily returns of the various stocks (using returnize1)
@@ -398,6 +398,17 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None ):
     if (naExpected==None):
         naAvgRets = np.average( naData, axis=0 )
     else: naAvgRets=naExpected
+
+
+    na_signs = np.sign(naExpected)
+    indices,  = np.where(na_signs == 0)
+    na_signs[indices] = 1
+    if s_type == "long":
+        na_signs = np.ones(len(na_signs)
+    elif s_type == "short":
+        na_signs = np.ones(len(na_signs)*(-1)
+    print na_signs
+    naData = na_signs*naData
 
     # Covariance matrix of the Data Set
     naCov=np.cov(naData, rowvar=False)
@@ -476,7 +487,8 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None ):
                     na_port[indices]= naUpper[indices]
             
         lnaPortfolios = matrix(na_port)
-           
+    lnaPortfolios = na_signs*lnaPortfolios       
+    print lnaPortfolios
     # Expected Return of the Portfolio
     # lfReturn = dot(pbar, lnaPortfolios)
     
@@ -565,22 +577,22 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target,
     indices = np.where(naUpper < 0.0)
     naUpper[indices] = 0.0
 
-    if direction == "long":
-        indices = np.where(naLower < 0.0)
-        naLower[indices] = 0.0
+    #if direction == "long":
+    #    indices = np.where(naLower < 0.0)
+    #    naLower[indices] = 0.0
 
     #if direction == "short":
     #    indices = np.where(naUpper > 0.0)
     #    naLower[indices] = 0.0       
 
-    (fMin, fMax) = getRetRange( df_rets.values, naLower, naUpper, naExpected )
+    (fMin, fMax) = getRetRange( df_rets.values, naLower, naUpper, naExpected)
     
     # Try to avoid intractible endpoints due to rounding errors """
     fMin += abs(fMin) * 0.0000001 
     fMax -= abs(fMax) * 0.0000001
     
     if target_risk == 1:
-        (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected)
+        (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected, direction)
         allocations = _create_dict(df_rets, naPortWeights)
         return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fMax, 'error': b_error}
 
@@ -591,13 +603,13 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target,
     lnaPortfolios = []
     
     for fTarget in lfReturn: 
-        (naWeights, fStd, b_error) = OptPort( df_rets.values, fTarget, naLower, naUpper, naExpected)
+        (naWeights, fStd, b_error) = OptPort( df_rets.values, fTarget, naLower, naUpper, naExpected, direction)
         if b_error == False:
             lfStd.append(fStd)
             lnaPortfolios.append( naWeights )
 
     if len(lfStd) == 0:
-        (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected)
+        (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected, direction)
         allocations = _create_dict(df_rets, naPortWeights)
         return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fMax, 'error': True}
 
@@ -611,7 +623,7 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target,
     fTarget = (f_return + fMax)/2.0
 
     if target_risk == 0.5:
-        (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fTarget, naLower, naUpper, naExpected)
+        (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fTarget, naLower, naUpper, naExpected, direction)
         allocations = _create_dict(df_rets, naPortWeights)
         return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fTarget, 'error': b_error}
     
