@@ -404,9 +404,9 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     indices,  = np.where(na_signs == 0)
     na_signs[indices] = 1
     if s_type == "long":
-        na_signs = np.ones(len(na_signs)
+        na_signs = np.ones(len(na_signs))
     elif s_type == "short":
-        na_signs = np.ones(len(na_signs)*(-1)
+        na_signs = np.ones(len(na_signs))*(-1)
     print na_signs
     naData = na_signs*naData
 
