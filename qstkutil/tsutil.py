@@ -396,11 +396,9 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     
     # Assuming AvgReturns as the expected returns if parameter is not specified
     if (naExpected==None):
-        naAvgRets = np.average( naData, axis=0 )
-    else: naAvgRets=naExpected
+        naExpected = np.average( naData, axis=0 )
 
-
-    na_signs = np.sign(naAvgRets)
+    na_signs = np.sign(naExpected)
     indices,  = np.where(na_signs == 0)
     na_signs[indices] = 1
     if s_type == "long":
@@ -409,13 +407,14 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
         na_signs = np.ones(len(na_signs))*(-1)
     
     naData = na_signs*naData
+    naExpected = na_signs*naExpected
 
     # Covariance matrix of the Data Set
     naCov=np.cov(naData, rowvar=False)
     
     ''' Special case for None == fTarget, simply return average returns and cov '''
     if( fTarget is None ):
-        return (naAvgRets, np.std(naData, axis=0), b_error)
+        return (naExpected, np.std(naData, axis=0), b_error)
     
     # Upper bound of the Weights of a equity, If not specified, assumed to be 1.
     if(naUpper is None):
@@ -429,7 +428,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     for i in range(length):
         naCov[i][i]=2*naCov[i][i]
 
-    (fMin, fMax) = getRetRange(False, naLower, naUpper, naAvgRets)
+    (fMin, fMax) = getRetRange(False, naLower, naUpper, naExpected, "long") 
     #print (fTarget, fMin, fMax)
     if fTarget<fMin or fTarget>fMax:
         print "Target not possible", fTarget, fMin, fMax
@@ -442,17 +441,17 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     The Risk minimization problem is a standard Quadratic Programming problem according to the Markowitz Theory.
     '''
     S=matrix(naCov)
-    #pbar=matrix(naAvgRets)
+    #pbar=matrix(naExpected)
     naLower.shape=(length,1)
     naUpper.shape=(length,1)
-    naAvgRets.shape = (1,length)
+    naExpected.shape = (1,length)
     zeo=matrix(0.0,(length,1))
     I = np.eye(length)
     minusI=-1*I
     G=matrix(np.vstack((I, minusI)))
     h=matrix(np.vstack((naUpper, naLower)))
     ones=matrix(1.0,(1,length)) 
-    A=matrix(np.vstack((naAvgRets, ones)))
+    A=matrix(np.vstack((naExpected, ones)))
     b=matrix([float(fTarget),1.0])
 
     # Optional Settings for CVXOPT
@@ -497,7 +496,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     return (lnaPortfolios, fPortDev, b_error)
 
 
-def getRetRange( rets, naLower, naUpper, naExpected = "False"):
+def getRetRange( rets, naLower, naUpper, naExpected = "False", s_type = "long"):
     """
     @summary Returns the range of possible returns with upper and lower bounds on the portfolio participation
     @param rets: Expected returns
@@ -509,15 +508,27 @@ def getRetRange( rets, naLower, naUpper, naExpected = "False"):
     # Calculate theoretical minimum and maximum theoretical returns """
     fMin = 0
     fMax = 0
+
+    rets = deepcopy(rets)
     
     if naExpected == "False":
-        naAvgRets = np.average( rets, axis=0 )
-    else:
-        naAvgRets = naExpected  
-    naSortInd = naAvgRets.argsort()
+        naExpected = np.average( rets, axis=0 )
+        
+    na_signs = np.sign(naExpected)
+    indices,  = np.where(na_signs == 0)
+    na_signs[indices] = 1
+    if s_type == "long":
+        na_signs = np.ones(len(na_signs))
+    elif s_type == "short":
+        na_signs = np.ones(len(na_signs))*(-1)
+    
+    rets = na_signs*rets
+    naExpected = na_signs*naExpected
+
+    naSortInd = naExpected.argsort()
     
     # First add the lower bounds on portfolio participation """ 
-    for i, fRet in enumerate(naAvgRets):
+    for i, fRet in enumerate(naExpected):
         fMin = fMin + fRet*naLower[i]
         fMax = fMax + fRet*naLower[i]
 
@@ -528,25 +539,25 @@ def getRetRange( rets, naLower, naUpper, naExpected = "False"):
     naUpperAdd = naUpper - naLower
     fTotalPercent = np.sum(naLower[:])
     for i, lInd in enumerate(naSortInd):
-        fRetAdd = naUpperAdd[lInd] * naAvgRets[lInd]
+        fRetAdd = naUpperAdd[lInd] * naExpected[lInd]
         fTotalPercent = fTotalPercent + naUpperAdd[lInd]
         fMin = fMin + fRetAdd
         # Check if this additional percent puts us over the limit """
         if fTotalPercent > 1.0:
-            fMin = fMin - naAvgRets[lInd] * (fTotalPercent - 1.0)
+            fMin = fMin - naExpected[lInd] * (fTotalPercent - 1.0)
             break
     
     # Repeat for max, just reverse the sort, i.e. high to low """
     naUpperAdd = naUpper - naLower
     fTotalPercent = np.sum(naLower[:])
     for i, lInd in enumerate(naSortInd[::-1]):
-        fRetAdd = naUpperAdd[lInd] * naAvgRets[lInd]
+        fRetAdd = naUpperAdd[lInd] * naExpected[lInd]
         fTotalPercent = fTotalPercent + naUpperAdd[lInd]
         fMax = fMax + fRetAdd
         
         # Check if this additional percent puts us over the limit """
         if fTotalPercent > 1.0:
-            fMax = fMax - naAvgRets[lInd] * (fTotalPercent - 1.0)
+            fMax = fMax - naExpected[lInd] * (fTotalPercent - 1.0)
             break
 
     return (fMin, fMax)
