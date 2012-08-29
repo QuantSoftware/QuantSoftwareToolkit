@@ -281,7 +281,9 @@ def print_years(years, ostream):
 def print_line(s_left_side, s_right_side, i_spacing=0, ostream="stdout"):
     ostream.write("%35s:%s%30s\n" % (s_left_side, " "*i_spacing, s_right_side))
     
-def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout):
+def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", 
+    s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, 
+    leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, i_start_cash=1000000):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
@@ -317,14 +319,14 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
         
         if type(original)==type("str"):
             if type(leverage)!=type(False):
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage)
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash= i_start_cash)
             else:
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets) 
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash= i_start_cash) 
         else:
             if type(leverage)!=type(False):
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage)
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage, i_start_cash= i_start_cash)
             else:
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets) 
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash) 
             
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
@@ -353,7 +355,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     if directory != False :
         ostream.write("\n\n<img src="+splot+" width=600 />\n\n")
         
-    mult = 1000000/fund_ts.values[0]
+    mult = i_start_cash/fund_ts.values[0]
     
     
     timeofday = dt.timedelta(hours = 16)
@@ -371,16 +373,16 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
         for i,sym in enumerate(benchmark):
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
     
-    ostream.write("Resulting Values in $ with an initial investment of $1,000,000.00\n")
+    ostream.write("Resulting Values in $ with an initial investment of "+ locale.currency(int(round(i_start_cash)), grouping=True) + "\n")
     
     print_line(s_formatted_fund_name+" Resulting Value",(locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True)),i_spacing=3, ostream=ostream)
     
     if type(original)!=type("str"):
-        mult3 = 1000000 / original.values[0]
+        mult3 = i_start_cash / original.values[0]
         print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original.values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
         
     for bench_sym in benchmark:
-        mult2=1000000/benchmark_close[bench_sym].values[0]
+        mult2= i_start_cash / benchmark_close[bench_sym].values[0]
         print_line(bench_sym+" Resulting Value",locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True),i_spacing=3, ostream=ostream)
         
     ostream.write("\n")    
@@ -510,7 +512,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     if directory != False:
         ostream.write("</pre>")           
      
-def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout):
+def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, i_start_cash=1000000):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
@@ -543,14 +545,14 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
         
         if type(original)==type("str"):
             if type(leverage)!=type(False):
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage)
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash)
             else:
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets) 
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash = i_start_cash) 
         else:
             if type(leverage)!=type(False):
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage)
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash)
             else:
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets) 
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash) 
             
     print_header(ostream,name)
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
@@ -580,7 +582,7 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
     if directory != False :
         ostream.write("\n\n<img src="+splot+" width=600 />\n\n")
         
-    mult = 1000000/fund_ts.values[0]
+    mult = i_start_cash/fund_ts.values[0]
     
     
     timeofday = dt.timedelta(hours = 16)
@@ -596,16 +598,16 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
         for i,sym in enumerate(benchmark):
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
     
-    ostream.write("Resulting Values in $ with an initial investment of $1,000,000.00\n")
+    ostream.write("Resulting Values in $ with an initial investment of "+ locale.currency(int(round(i_start_cash)), grouping=True) + "\n")
     
     print_line(s_formatted_fund_name+" Resulting Value",(locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True)),i_spacing=3, ostream=ostream)
     
     if type(original)!=type("str"):
-        mult3 = 1000000 / original.values[0]
+        mult3 = i_start_cash / original.values[0]
         print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original.values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
         
     for bench_sym in benchmark:
-        mult2=1000000/benchmark_close[bench_sym].values[0]
+        mult2=i_start_cash/benchmark_close[bench_sym].values[0]
         print_line(bench_sym+" Resulting Value",locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True),i_spacing=3, ostream=ostream)
         
     ostream.write("\n")    
@@ -784,7 +786,7 @@ def print_bar_chart(llf_vals, ls_fund_labels, ls_year_labels, s_filename):
         autolabel(rects[i])
     savefig(s_filename, format = 'png')
 
-def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_dividend_rets=0.0, leverage=False):
+def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_dividend_rets=0.0, leverage=False, i_start_cash = 1000000):
     """
     @summary prints a plot of a provided fund and benchmark
     @param fund: fund value in pandas timeseries
@@ -803,7 +805,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
             start_date = fund.index[0]    
         if(end_date == 0 or end_date<fund.index[-1]):
             end_date = fund.index[-1]    
-        mult = 1000000/fund.values[0]
+        mult = i_start_cash/fund.values[0]
         pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_name))
     else:    
@@ -813,7 +815,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
                 start_date = entity.index[0]    
             if(end_date == 0 or end_date<entity.index[-1]):
                 end_date = entity.index[-1]    
-            mult = 1000000/entity.values[0]
+            mult = i_start_cash/entity.values[0]
             if i == 1 and len(fund)!=1:
                 pyplot.plot(entity.index, entity.values * mult, label = \
                                   s_original_name)
@@ -835,7 +837,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
 
     for sym in benchmark:
-        mult = 1000000 / benchmark_close[sym].values[0]
+        mult = i_start_cash / benchmark_close[sym].values[0]
         pyplot.plot(benchmark_close[sym].index, \
                 benchmark_close[sym].values*mult, label = sym)
     pyplot.gcf().autofmt_xdate()
@@ -864,7 +866,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
         pyplot.legend()
     savefig(filename, format = 'png')
      
-def generate_report(funds_list, graph_names, out_file):
+def generate_report(funds_list, graph_names, out_file, i_start_cash = 10000):
     """
     @summary generates a report given a list of fund time series
     """
@@ -884,7 +886,7 @@ def generate_report(funds_list, graph_names, out_file):
                 start_date = fund.index[0]    
             if(end_date == 0 or end_date<fund.index[-1]):
                 end_date = fund.index[-1]    
-            mult = 10000/fund.values[0]
+            mult = i_start_cash/fund.values[0]
             pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_names[i]))
         else:    
@@ -892,7 +894,7 @@ def generate_report(funds_list, graph_names, out_file):
                 start_date = fund[0].index[0]    
             if(end_date == 0 or end_date<fund[0].index[-1]):
                 end_date = fund[0].index[-1]    
-            mult = 10000/fund[0].values[0]
+            mult = i_start_cash/fund[0].values[0]
             pyplot.plot(fund[0].index, fund[0].values * mult, label = \
                                       path.basename(graph_names[i]))    
         i += 1
@@ -901,7 +903,7 @@ def generate_report(funds_list, graph_names, out_file):
     dataobj = de.DataAccess('mysql')
     benchmark_close = dataobj.get_data(timestamps, symbol, ["close"], \
                                             verbose = False)[0]
-    mult = 10000/benchmark_close.values[0]
+    mult = i_start_cash/benchmark_close.values[0]
     i = 0
     for fund in funds_list:
         if(type(fund)!= type(list())):
