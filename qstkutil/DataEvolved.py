@@ -344,7 +344,17 @@ class _MySQL(DriverInterface):
         else:
             self.cursor.execute("SELECT list_name FROM tblListHeader")
             return sorted([x[0] for x in self.cursor.fetchall()])
-
+    def get_last_date(self):
+        ''' Returns last day of valid data '''
+        self.cursor.execute( ''' select ts from premiumdata.price 
+                p,premiumdata.asset a, (select assetid as id,max(date)
+                as ts from premiumdata.price group by assetid) s
+                where p.assetid = a.assetid and s.id = p.assetid and 
+                p.date = s.ts and a.code='SPY';''')
+        dt_ret = datetime.datetime.combine(self.cursor.fetchall()[0][0],
+                                           datetime.time(16))
+        return dt_ret
+         
     def _find_ranges_of_symbols(self, results):
         ''' Finds range of current symbols in results list '''
         symbol_dict = {}
