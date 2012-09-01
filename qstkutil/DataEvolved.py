@@ -310,11 +310,13 @@ class _MySQL(DriverInterface):
         if B_NEW:
             if type(list_name) == type('str') or \
                type(list_name) == type(u'unicode'):
-                self.cursor.execute("""select myself.code as symbol from 
-                    indexconstituent consititue1_, asset belongsTo, asset myself
-                    where belongsTo.assetid=consititue1_.indexassetid and 
-                    myself.assetid = consititue1_.assetid
-                    and belongsTo.issuerName = %s;""", (list_name))
+                self.cursor.execute("""select symbol from premiumdata.lists
+                                       where name=%s;""", (list_name))
+#                self.cursor.execute("""select myself.code as symbol from 
+#                    indexconstituent consititue1_, asset belongsTo, asset myself
+#                    where belongsTo.assetid=consititue1_.indexassetid and 
+#                    myself.assetid = consititue1_.assetid
+#                    and belongsTo.issuerName = %s;""", (list_name))
             else:
                 self.cursor.execute("""select myself.code as symbol from 
                     indexconstituent consititue1_, asset myself
