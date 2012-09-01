@@ -486,7 +486,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
                     na_port[indices]= naUpper[indices]
             
         lnaPortfolios = matrix(na_port)
-    lnaPortfolios = na_signs*lnaPortfolios       
+    lnaPortfolios = (na_signs*lnaPortfolios)[:,0]       
     
     # Expected Return of the Portfolio
     # lfReturn = dot(pbar, lnaPortfolios)
