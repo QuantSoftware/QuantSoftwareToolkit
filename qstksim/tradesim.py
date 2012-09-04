@@ -97,7 +97,15 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     @return Slippage costs : Total slippage costs in the whole backtester    
     @rtype TimeSeries
     """
-    
+
+    if alloc.index[-1] > df_historic.index[-1]:
+        indices, = np.where(alloc.index <= df_historic.index[-1])
+        alloc = alloc.reindex(index = alloc.index[indices])
+
+    if alloc.index[0] < df_historic.index[0]:
+        indices, = np.where(alloc.index >= df_historic.index[0])
+        alloc = alloc.reindex(index = alloc.index[indices])
+
     #open log file 
     if log!="false":
         log_file=open(log,"w")
@@ -136,7 +144,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
 
         # Trade Date and Price (Next timestamp)
         # Prediction Date and Price (Previous timestamp)
-
+        
         trade_price = df_historic.ix[row_index:].ix[0:1]
         trade_index = df_historic.index.searchsorted(trade_price.index[0])
         pred_index = trade_index - 1
