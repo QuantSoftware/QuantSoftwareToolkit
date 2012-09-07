@@ -109,7 +109,7 @@ class DataAccess(object):
         
         elif (sourcein == DataSource.MLT) :
             self.source = DataSource.MLT
-            self.folderList.append(self.rootdir+"/Processed/ML4Trading/")   
+            self.folderList.append(self.rootdir+"/ML4Trading/")   
             
         elif (sourcein == DataSource.COMPUSTAT):
             self.source= DataSource.COMPUSTAT
@@ -316,10 +316,11 @@ class DataAccess(object):
                 #print temp_np
                 
                 num_rows= temp_np.shape[0]
+
                 
                 symbol_ts_list = range(num_rows) # preallocate
                 for i in range (0, num_rows):
-    
+
                     timebase = temp_np[i][0]
                     timeyear = int(timebase/10000)
                     
@@ -339,6 +340,7 @@ class DataAccess(object):
     
                     #The earliest time it can generate a time for is platform dependent
                     symbol_ts_list[i]=dt.datetime(timeyear,timemonth,timeday,timehour) # To make the time 1600 hrs on the day previous to this midnight
+                    
                 #for ends
     
     
