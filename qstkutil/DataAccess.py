@@ -46,6 +46,7 @@ class DataSource(object):
     NORGATE="Norgate"
     NORGATElc="norgate" #For backward compatibility
     YAHOO="Yahoo"
+    YAHOOold = "YahooOld"
     COMPUSTAT="Compustat"
     CUSTOM="Custom"    
     MLT = "ML4Trading"
@@ -90,9 +91,9 @@ class DataAccess(object):
                 self.folderList.append(self.rootdir+self.midPath+i)            
                     
             #if ends
-        elif (sourcein == DataSource.YAHOO):
-            self.source= DataSource.YAHOO
-            self.midPath= "/Processed/Yahoo"
+        elif (sourcein == DataSource.YAHOOold):
+            self.source= DataSource.YAHOOold
+            self.midPath= "/Processed/YahooOld"
             #What if these paths don't exist?
             self.folderSubList.append ("/US/NASDAQ/")
             self.folderSubList.append ("/US/NYSE/")
@@ -110,6 +111,10 @@ class DataAccess(object):
         elif (sourcein == DataSource.MLT) :
             self.source = DataSource.MLT
             self.folderList.append(self.rootdir+"/ML4Trading/")   
+
+        elif (sourcein == DataSource.YAHOO) :
+            self.source = DataSource.YAHOO
+            self.folderList.append(self.rootdir+"/Yahoo/")   
             
         elif (sourcein == DataSource.COMPUSTAT):
             self.source= DataSource.COMPUSTAT
@@ -191,7 +196,7 @@ class DataAccess(object):
                     #incorrect value
                     raise ValueError ("Incorrect value for data_item %s"%sItem)
                 
-            if( self.source == DataSource.YAHOO ):
+            if( self.source == DataSource.YAHOOold ):
                 if (sItem == DataItem.OPEN):
                     list_index.append(1)
                 elif (sItem == DataItem.HIGH):
@@ -208,21 +213,19 @@ class DataAccess(object):
                     #incorrect value
                     raise ValueError ("Incorrect value for data_item %s"%sItem)
 
-            if( self.source == DataSource.MLT ):
+            if( self.source == DataSource.MLT or self.source == DataSource.YAHOO):
                 if (sItem == DataItem.OPEN):
                     list_index.append(1)
                 elif (sItem == DataItem.HIGH):
                     list_index.append (2)
                 elif (sItem ==DataItem.LOW):
                     list_index.append(3)
-                elif (sItem == DataItem.CLOSE):
+                elif (sItem == DataItem.ACTUAL_CLOSE):
                     list_index.append(4)
                 elif(sItem == DataItem.VOL):
                     list_index.append(5)
-                elif (sItem == DataItem.ACTUAL_CLOSE):
+                elif (sItem == DataItem.CLOSE):
                     list_index.append(6)
-                elif (sItem == DataItem.ADJUSTED_CLOSE):
-                    list_index.append(7)
                 else:
                     #incorrect value
                     raise ValueError ("Incorrect value for data_item %s"%sItem)
@@ -236,7 +239,7 @@ class DataAccess(object):
             symbol_ctr = symbol_ctr + 1
             #print self.getPathOfFile(symbol)
             try:
-                if (self.source == DataSource.CUSTOM) or (self.source == DataSource.MLT):
+                if (self.source == DataSource.CUSTOM) or (self.source == DataSource.MLT)or (self.source == DataSource.YAHOO):
                     file_path= self.getPathOfCSVFile(symbol);
                 else:
                     file_path= self.getPathOfFile(symbol);
@@ -266,15 +269,34 @@ class DataAccess(object):
                     creader = csv.reader(_file)
                     row=creader.next()
                     row=creader.next()
-                    row.pop(0)
+                    #row.pop(0)
                     for i, item in enumerate(row):
-                        row[i]=float(item)
+                        if i==0:
+                            try:
+                                date = dt.datetime.strptime(item, '%Y-%m-%d')
+                                date = date.strftime('%Y%m%d')
+                                row[i] = float(date)
+                            except:
+                                date = dt.datetime.strptime(item, '%m/%d/%y')
+                                date = date.strftime('%Y%m%d')
+                                row[i] = float(date)
+                        else:
+                            row[i]=float(item)
                     naData=np.array(row)
                     for row in creader:
-                        row.pop(0)
                         for i, item in enumerate(row):
-                            row[i]=float(item)
-                        naData=np.vstack([naData,np.array(row)])
+                            if i==0:
+                                try:
+                                    date = dt.datetime.strptime(item, '%Y-%m-%d')
+                                    date = date.strftime('%Y%m%d')
+                                    row[i] = float(date)
+                                except:
+                                    date = dt.datetime.strptime(item, '%m/%d/%y')
+                                    date = date.strftime('%Y%m%d')
+                                    row[i] = float(date)
+                            else: 
+                                row[i]=float(item)
+                        naData=np.vstack([np.array(row),naData])
                 else:
                     naData = pkl.load (_file)
                 _file.close()
