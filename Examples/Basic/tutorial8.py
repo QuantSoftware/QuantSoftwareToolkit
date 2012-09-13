@@ -56,7 +56,7 @@ def getFrontier(naData):
 lsSymbols = [ 'AA', 'AAPL', 'ABT', 'AEP', 'ALL', 'AMGN', 'AMZN', 'AVP', 'AXP', 'BA', 'BAC', 'BAX', 'BHI', 'BK', 'BMY', 'BNI', 'C', 'CAT', 'CL', 'CMCSA', 'COF', 'COP', 'COST', 'COV', 'CPB', 'CSCO', 'CVS', 'CVX', 'DD', 'DELL', 'DIS', 'DOW', 'DVN', 'EMC', 'ETR', 'EXC', 'F', 'FDX', 'GD', 'GE', 'GILD', 'GOOG', 'GS', 'HAL', 'HD', 'HNZ', 'HON', 'HPQ', 'IBM', 'INTC', 'JNJ', 'JPM', 'KFT', 'KO', 'LMT', 'LOW', 'MA', 'MCD', 'MDT', 'MMM', 'MO', 'MRK', 'MS', 'MSFT', 'NKE', 'NOV', 'NSC', 'NYX', 'ORCL', 'OXY', 'PEP', 'PFE', 'PG', 'PM', 'QCOM', 'RF', 'RTN', 'S', 'SGP', 'SLB', 'SLE', 'SO', 'T', 'TGT', 'TWX', 'TXN', 'TYC', 'UNH', 'UPS', 'USB', 'UTX', 'VZ', 'WAG', 'WFC', 'WMB', 'WMT', 'WY', 'WYE', 'XOM', 'XRX']
 
 ''' Create norgate object and query it for stock data '''
-norgateObj = da.DataAccess('Norgate')
+norgateObj = da.DataAccess('Yahoo')
 
 lsAll = norgateObj.get_all_symbols()
 intersect = set(lsAll) & set(lsSymbols)
