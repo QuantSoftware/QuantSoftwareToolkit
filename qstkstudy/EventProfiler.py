@@ -53,7 +53,7 @@ class EventProfiler():
 	    self.lookback_days = lookback_days
 	    self.lookforward_days = lookforward_days
 	    self.total_days = lookback_days + lookforward_days + 1
-	    self.dataobj = da.DataAccess('Norgate')
+	    self.dataobj = da.DataAccess('Yahoo')
 	    self.timeofday = dt.timedelta(hours=16)
 	    self.timestamps = du.getNYSEdays(startday,endday,self.timeofday)
             self.verbose = verbose

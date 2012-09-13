@@ -44,7 +44,7 @@ for i in portfolio:
 #
 # Read in the symbols available and compare with our portfolio
 #
-dataobj = da.DataAccess('Norgate')
+dataobj = da.DataAccess('Yahoo')
 all_symbols = dataobj.get_all_symbols()
 intersectsyms = list(set(all_symbols) & set(portsyms)) # valid symbols
 badsyms = []

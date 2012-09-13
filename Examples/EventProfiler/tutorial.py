@@ -40,7 +40,7 @@ nan = no information about any event.
 """
 
 # Get the data from the data store
-storename = "Norgate" # get data from our daily prices source
+storename = "Yahoo" # get data from our daily prices source
 # Available field names: open, close, high, low, close, actual_close, volume
 closefield = "close"
 volumefield = "volume"
@@ -51,7 +51,7 @@ def findEvents(symbols, startday,endday, marketSymbol,verbose=False):
 	# Reading the Data for the list of Symbols.	
 	timeofday=dt.timedelta(hours=16)
 	timestamps = du.getNYSEdays(startday,endday,timeofday)
-	dataobj = da.DataAccess('Norgate')
+	dataobj = da.DataAccess('Yahoo')
 	if verbose:
             print __name__ + " reading data"
 	# Reading the Data
