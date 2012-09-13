@@ -415,6 +415,21 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     # If length is one, just return 100% single symbol
     if length == 1:
         return (list(na_signs), np.std(naData, axis=0)[0], False)
+    # If we have 0/1 "free" equity we can't optimize
+    # We just use     limits since we are stuck with 0 degrees of freedom
+    naFree = naUpper != naLower
+    if naFree.sum() <= 1:
+        lnaPortfolios = naUpper.copy()
+        
+        # If there is 1 free we need to modify it to make the total
+        # Add up to 1
+        if naFree.sum() == 1:
+            f_rest = naUpper[~naFree].sum()
+            lnaPortfolios[naFree] = 1.0 - f_rest
+            
+        lnaPortfolios = na_signs * lnaPortfolios
+        fPortDev = np.std(np.dot(naData, lnaPortfolios))
+        return (lnaPortfolios, fPortDev, False)
     
     ''' Special case for None == fTarget, simply return average returns and cov '''
     if( fTarget is None ):
