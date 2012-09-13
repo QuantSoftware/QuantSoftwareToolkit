@@ -114,7 +114,8 @@ class DataAccess(object):
 
         elif (sourcein == DataSource.YAHOO) :
             self.source = DataSource.YAHOO
-            self.folderList.append(self.rootdir+"/Yahoo/")   
+            self.folderList.append(self.rootdir+"/Yahoo/") 
+            self.fileExtensionToRemove=".csv"  
             
         elif (sourcein == DataSource.COMPUSTAT):
             self.source= DataSource.COMPUSTAT
@@ -587,6 +588,21 @@ class DataAccess(object):
                 #listOfStocks.append(stock)
         return listOfStocks    
         #get_all_symbols ends
+
+    def get_symbols_from_list(self, s_list):
+        ls_symbols = []
+        if (len(self.folderList) == 0):
+            raise ValueError ("DataAccess source not set")   
+
+        for path in self.folderList:
+            path_to_look = path + 'Lists/'+s_list + '.txt'
+            file = open(path_to_look, 'r')
+            for f in file.readlines():
+                j = f[:-1]
+                ls_symbols.append(j)
+            file.close()
+            
+        return ls_symbols         
         
     def get_symbols_in_sublist (self, subdir):
         '''
