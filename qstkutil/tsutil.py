@@ -419,19 +419,6 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
         return ([], [0], False)
     # If we have 0/1 "free" equity we can't optimize
     # We just use     limits since we are stuck with 0 degrees of freedom
-    naFree = naUpper != naLower
-    if naFree.sum() <= 1:
-        lnaPortfolios = naUpper.copy()
-        
-        # If there is 1 free we need to modify it to make the total
-        # Add up to 1
-        if naFree.sum() == 1:
-            f_rest = naUpper[~naFree].sum()
-            lnaPortfolios[naFree] = 1.0 - f_rest
-            
-        lnaPortfolios = na_signs * lnaPortfolios
-        fPortDev = np.std(np.dot(naData, lnaPortfolios))
-        return (lnaPortfolios, fPortDev, False)
     
     ''' Special case for None == fTarget, simply return average returns and cov '''
     if( fTarget is None ):
@@ -445,9 +432,23 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     if(naLower is None):
         naLower= np.zeros(length)
     
+    naFree = naUpper != naLower
+    if naFree.sum() <= 1:
+        lnaPortfolios = naUpper.copy()
+        
+        # If there is 1 free we need to modify it to make the total
+        # Add up to 1
+        if naFree.sum() == 1:
+            f_rest = naUpper[~naFree].sum()
+            lnaPortfolios[naFree] = 1.0 - f_rest
+            
+        lnaPortfolios = na_signs * lnaPortfolios
+        fPortDev = np.std(np.dot(naData, lnaPortfolios))
+        return (lnaPortfolios, fPortDev, False)
+
     # Double the covariance of the diagonal elements for calculating risk.
-        for i in range(length):
-            naCov[i][i]=2*naCov[i][i]
+    for i in range(length):
+        naCov[i][i]=2*naCov[i][i]
 
     # Note, returns are modified to all be long from here on out
     (fMin, fMax) = getRetRange(False, naLower, naUpper, naExpected, "long") 
