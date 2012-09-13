@@ -30,7 +30,7 @@ endday = dt.datetime(2010,12,31)
 timeofday=dt.timedelta(hours=16)
 timestamps = du.getNYSEdays(startday,endday,timeofday)
 
-dataobj = da.DataAccess('Norgate')
+dataobj = da.DataAccess('Yahoo')
 voldata = dataobj.get_data(timestamps, symbols, "volume",verbose=True)
 close = dataobj.get_data(timestamps, symbols, "close",verbose=True)
 actualclose = dataobj.get_data(timestamps, symbols, "actual_close",verbose=True)

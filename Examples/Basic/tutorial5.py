@@ -46,7 +46,7 @@ l_symbols = ['AAPL','GOOG']
 timeofday = dt.timedelta(hours = 16)
 ldt_timestamps = du.getNYSEdays(startday, endday, timeofday)
 
-dataobj = da.DataAccess('Norgate')
+dataobj = da.DataAccess('Yahoo')
 df_close = dataobj.get_data( \
                 ldt_timestamps, l_symbols, "close", verbose=False)
 
@@ -70,7 +70,7 @@ l_symbols = ['GOOG','MSFT']
 timeofday = dt.timedelta(hours = 16)
 ldt_timestamps = du.getNYSEdays(startday, endday, timeofday)
 
-dataobj = da.DataAccess('Norgate')
+dataobj = da.DataAccess('Yahoo')
 df_close = dataobj.get_data( \
                 ldt_timestamps, l_symbols, "close", verbose=False)
 
