@@ -415,6 +415,8 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     # If length is one, just return 100% single symbol
     if length == 1:
         return (list(na_signs), np.std(naData, axis=0)[0], False)
+    if length == 0:
+        return ([], [0], False)
     # If we have 0/1 "free" equity we can't optimize
     # We just use     limits since we are stuck with 0 degrees of freedom
     naFree = naUpper != naLower
