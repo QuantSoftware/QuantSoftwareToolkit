@@ -601,12 +601,22 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target,
     naUpper = np.array(list_max)
     naExpected = np.array(list_price_target)      
 
+    b_same_flag = np.all( naExpected == naExpected[0])
+    if b_same_flag and (naExpected[0] == 0):
+        naExpected = naExpected + 0.1
+    if b_same_flag:
+        na_randomness = np.ones(naExpected.shape)
+        for i in range(len(na_randomness)):
+            if i%2 ==0:
+                na_randomness[i] = -1
+        naExpected = naExpected + naExpected*0.0000001*na_randomness
+
     (fMin, fMax) = getRetRange( df_rets.values, naLower, naUpper, 
                                 naExpected, direction)
     
     # Try to avoid intractible endpoints due to rounding errors """
-    fMin += abs(fMin) * 0.0000001 
-    fMax -= abs(fMax) * 0.0000001
+    fMin += abs(fMin) * 0.00000000001 
+    fMax -= abs(fMax) * 0.00000000001
     
     if target_risk == 1:
         (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fMax, naLower, naUpper, naExpected, direction)
