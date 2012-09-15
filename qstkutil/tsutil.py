@@ -431,6 +431,14 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     # Lower bound of the Weights of a equity, If not specified assumed to be 0 (No shorting case)
     if(naLower is None):
         naLower= np.zeros(length)
+
+    if sum(naLower) == 1:
+        fPortDev = np.std(np.dot(naData, naLower))
+        return (naLower, fPortDev, False)
+
+    if sum(naUpper) == 1:
+        fPortDev = np.std(np.dot(naData, naUpper))
+        return (naUpper, fPortDev, False)
     
     naFree = naUpper != naLower
     if naFree.sum() <= 1:
@@ -606,6 +614,7 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target,
         naExpected = naExpected + 0.1
     if b_same_flag:
         na_randomness = np.ones(naExpected.shape)
+        target_risk = 0
         for i in range(len(na_randomness)):
             if i%2 ==0:
                 na_randomness[i] = -1
