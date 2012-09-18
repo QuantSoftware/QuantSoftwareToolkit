@@ -69,7 +69,7 @@ def read_symbols(s_symbols_file):
 
 def main():
     path = './'
-    ls_symbols = ['AAPL']
+    ls_symbols = read_symbols('symbols.txt')
     get_data(path, ls_symbols)
 
 if __name__ == '__main__':
