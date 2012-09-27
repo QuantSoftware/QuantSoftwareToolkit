@@ -95,20 +95,11 @@ class _SQLite(DriverInterface):
         data_item = map(lambda x: "B." + x, data_item)
         query_select_items = ",".join(data_item)
         
-        if B_NEW == False:
-            # Build Query - Inherently Unsafe!
-            self.cursor.execute("""
-                    SELECT A.symbol,B.timestamp,""" + query_select_items + """
-                    FROM tblEquity A JOIN tblPriceVolumeHistory B ON A.ID = B.tblEquity_ID
-                    WHERE B.timestamp >= (?) AND B.timestamp <= (?) AND A.symbol IN (%s)
-                    ORDER BY A.symbol ASC
-                """ % symbol_query_list, (ts_list[0], ts_list[-1],))
-        else:
-            self.cursor.execute("""
-            select A.code as symbol, B.date,"""+ query_select_items + 
-            """ from price B, asset A where A.assetid = B.assetid and 
-            B.date >= (?) and B.date <= (?) 
-            and A.code in (%s);""" % symbol_query_list, (ts_list[0], ts_list[-1],))
+        self.cursor.execute("""
+        select A.code as symbol, B.date,"""+ query_select_items + 
+        """ from price B, asset A where A.assetid = B.assetid and 
+        B.date >= (?) and B.date <= (?) 
+        and A.code in (%s);""" % symbol_query_list, (ts_list[0], ts_list[-1],))
 
         # Retrieve Results
         results = self.cursor.fetchall()
@@ -188,10 +179,8 @@ class _MySQL(DriverInterface):
         # Read password from a file (does not support whitespace)
         s_pass = open(os.path.join(s_filepath,'pass.txt')).read().rstrip()
         
-        if B_NEW:
-            self.db = MySQLdb.connect("localhost", "finance", s_pass, "premiumdata")
-        else:
-            self.db = MySQLdb.connect("localhost", "finance", s_pass, "HistoricalEquityData")
+
+        self.db = MySQLdb.connect("localhost", "finance", s_pass, "premiumdata")
 
         self.cursor = self.db.cursor()
 
@@ -222,18 +211,16 @@ class _MySQL(DriverInterface):
         assert isinstance(symbol_list, list)
         assert isinstance(data_item, list)
 
-        if B_NEW:
-            
-            # Map to new database schema to preserve legacy code
-            ds_map = {'open':'tropen',
-                      'high':'trhigh',
-                      'low':'trlow',
-                      'close':'trclose',
-                      'actual_close':'close',
-                      'volume':'volume',
-                      'adjusted_close':'adjclose'}
+        # Map to new database schema to preserve legacy code
+        ds_map = {'open':'tropen',
+                  'high':'trhigh',
+                  'low':'trlow',
+                  'close':'trclose',
+                  'actual_close':'close',
+                  'volume':'volume',
+                  'adjusted_close':'adjclose'}
 
-            data_item = map(lambda(x): ds_map[x], data_item)
+        data_item = map(lambda(x): ds_map[x], data_item)
 
 
         # Combine Symbols List for Query
@@ -243,23 +230,12 @@ class _MySQL(DriverInterface):
         data_item = map(lambda x: "B." + x, data_item)
         query_select_items = ",".join(data_item)
 
-        if B_NEW == False:
-            # Build Query - Inherently Unsafe!
-            self.cursor.execute("""
-                SELECT A.symbol,B.timestamp,""" + query_select_items + """
-                FROM tblEquity A JOIN tblPriceVolumeHistory B ON 
-                A.ID = B.tblEquity_ID
-                WHERE B.timestamp >= %s AND B.timestamp <= %s AND A.symbol 
-                IN (""" + symbol_query_list + """) ORDER BY A.symbol ASC
-                """, (ts_list[0], ts_list[-1],))
-        else:
-
-            self.cursor.execute("""
-            select A.code as symbol, B.date,""" + query_select_items + """
-            from priceadj B, asset A where A.assetid = B.assetid and 
-            B.date >= %s and B.date <= %s and A.code in (
-            """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
-                                                 ts_list[-1],))
+        self.cursor.execute("""
+        select A.code as symbol, B.date,""" + query_select_items + """
+        from priceadj B, asset A where A.assetid = B.assetid and 
+        B.date >= %s and B.date <= %s and A.code in (
+        """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
+                                             ts_list[-1],))
 
 
         # Retrieve Results
@@ -274,12 +250,9 @@ class _MySQL(DriverInterface):
                 return columns
 
         for i, row in enumerate(results):
-            if B_NEW:
-                if row[1] + relativedelta(hours=16) not in ts_list:
-                    del results[i]
-            else:
-                if row[1] not in ts_list:
-                    del results[i]
+            if row[1] + relativedelta(hours=16) not in ts_list:
+                del results[i]
+  
 
         # Create Pandas DataFrame in Expected Format
         current_dict = {}
@@ -288,15 +261,11 @@ class _MySQL(DriverInterface):
             for symbol, ranges in symbol_ranges.items():
                 current_symbol_data = results[ranges[0]:ranges[1] + 1]
                 
-                if B_NEW:
-                    current_dict[symbol] = pandas.Series(
-                      map(itemgetter(current_column + 2), current_symbol_data),
-                    index=map(lambda x: itemgetter(1)(x) + relativedelta(hours=16), 
-                                                      current_symbol_data))
-                else:
-                    current_dict[symbol] = pandas.Series(
-                      map(itemgetter(current_column + 2), current_symbol_data),
-                    index=map(itemgetter(1), current_symbol_data))
+                current_dict[symbol] = pandas.Series(
+                  map(itemgetter(current_column + 2), current_symbol_data),
+                index=map(lambda x: itemgetter(1)(x) + relativedelta(hours=16), 
+                                                  current_symbol_data))
+
                     
             # Make DataFrame
             columns.append(pandas.DataFrame(current_dict, columns=symbol_list))
@@ -307,27 +276,16 @@ class _MySQL(DriverInterface):
 
     def get_list(self, list_name):
         
-        if B_NEW:
-            if type(list_name) == type('str') or \
-               type(list_name) == type(u'unicode'):
-                self.cursor.execute("""select symbol from premiumdata.lists
-                                       where name=%s;""", (list_name))
-#                self.cursor.execute("""select myself.code as symbol from 
-#                    indexconstituent consititue1_, asset belongsTo, asset myself
-#                    where belongsTo.assetid=consititue1_.indexassetid and 
-#                    myself.assetid = consititue1_.assetid
-#                    and belongsTo.issuerName = %s;""", (list_name))
-            else:
-                self.cursor.execute("""select myself.code as symbol from 
-                    indexconstituent consititue1_, asset myself
-                    where myself.assetid = consititue1_.assetid and 
-                    consititue1_.indexassetid = %s;""", (str(int(list_name))))
+        if type(list_name) == type('str') or \
+           type(list_name) == type(u'unicode'):
+            self.cursor.execute("""select symbol from premiumdata.lists
+                                   where name=%s;""", (list_name))
         else:
-            self.cursor.execute("""SELECT DISTINCT A.Symbol
-                        FROM tblEquity A JOIN tblListDetail C ON A.ID = C.tblEquity_ID
-                        JOIN tblListHeader B ON B.ID = C.tblListHeader_ID
-                        WHERE B.list_name = %s
-            """, (list_name,))
+            self.cursor.execute("""select myself.code as symbol from 
+                indexconstituent consititue1_, asset myself
+                where myself.assetid = consititue1_.assetid and 
+                consititue1_.indexassetid = %s;""", (str(int(list_name))))
+
         return sorted([x[0] for x in self.cursor.fetchall()])
 
     def get_all_symbols(self):
@@ -336,16 +294,14 @@ class _MySQL(DriverInterface):
 
     def get_all_lists(self):
         
-        if B_NEW:
-            self.cursor.execute("""select asset0_.assetid as id, asset0_.issuername as name
-                from asset asset0_ where exists 
-                (select consititue1_.assetid from indexconstituent consititue1_ 
-                where asset0_.assetid=consititue1_.indexassetid) 
-                order by asset0_.issuername;""")
-            return sorted([x[1] for x in self.cursor.fetchall()])
-        else:
-            self.cursor.execute("SELECT list_name FROM tblListHeader")
-            return sorted([x[0] for x in self.cursor.fetchall()])
+
+        self.cursor.execute("""select asset0_.assetid as id, asset0_.issuername as name
+            from asset asset0_ where exists 
+            (select consititue1_.assetid from indexconstituent consititue1_ 
+            where asset0_.assetid=consititue1_.indexassetid) 
+            order by asset0_.issuername;""")
+        return sorted([x[1] for x in self.cursor.fetchall()])
+
     def get_last_date(self):
         ''' Returns last day of valid data '''
         self.cursor.execute( ''' select ts from premiumdata.price 
@@ -364,7 +320,7 @@ class _MySQL(DriverInterface):
         self.cursor.execute( ''' SELECT code, sharesoutstanding FROM asset a
                                  where code in (''' + symbol_query_list + ');' )
 
-        print dict(self.cursor.fetchall())
+        return dict(self.cursor.fetchall())
         
          
     def _find_ranges_of_symbols(self, results):
@@ -418,8 +374,6 @@ class _ScratchCache(object):
             hashts = (hashts + hash(i)) % 10000000
         hashstr = 'qstk-' + str(source) + '-' + str(abs(hashsyms)) + '-' + str(abs(hashts)) \
             + '-' + str(hash(str(data_item)))
-        if B_NEW == False:
-            hashstr += '-old'
 
         # get the directory for scratch files from environment
         try:
@@ -511,8 +465,8 @@ if __name__ == "__main__":
     print db.get_shares(['GOOG', 'AAPL'])
 
     print db.get_all_lists()
-    print db.get_all_symbols()
+    #print db.get_all_symbols()
 
-    print db.get_list("S&P 1500 SubInd Industrial Machinery")
+    print db.get_list('Dow Jones Transportation')
 
     print db.get_data([date1, date2], ["AAPL", "IBM", "GOOG", "A"], ["open", "close"])
