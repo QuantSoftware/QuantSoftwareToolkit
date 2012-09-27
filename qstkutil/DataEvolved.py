@@ -356,6 +356,16 @@ class _MySQL(DriverInterface):
         dt_ret = datetime.datetime.combine(self.cursor.fetchall()[0][0],
                                            datetime.time(16))
         return dt_ret
+    
+    def get_shares(self, symbol_list):
+        ''' Returns list of values corresponding to shares outstanding '''
+        
+        symbol_query_list = ",".join(map(lambda x: "'" + x + "'", symbol_list))
+        self.cursor.execute( ''' SELECT code, sharesoutstanding FROM asset a
+                                 where code in (''' + symbol_query_list + ');' )
+
+        print dict(self.cursor.fetchall())
+        
          
     def _find_ranges_of_symbols(self, results):
         ''' Finds range of current symbols in results list '''
@@ -497,6 +507,8 @@ if __name__ == "__main__":
 
     date1 = datetime.datetime(2012, 2, 27, 16)
     date2 = datetime.datetime(2012, 2, 29, 16)
+
+    print db.get_shares(['GOOG', 'AAPL'])
 
     print db.get_all_lists()
     print db.get_all_symbols()
