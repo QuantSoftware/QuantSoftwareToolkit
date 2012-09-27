@@ -274,6 +274,49 @@ class _MySQL(DriverInterface):
 
         return columns
 
+    def get_dividends(self, ts_list, symbol_list):
+        """
+        Read data into a DataFrame from SQLite
+        @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
+        @param symbol_list: The list of symbols for which the data values are needed
+        """
+
+        # Combine Symbols List for Query
+        symbol_query_list = ",".join(map(lambda x: "'" + x + "'", symbol_list))
+
+        self.cursor.execute("""
+        select code, exdate, divamt
+        from dividend B, asset A where A.assetid = B.assetid and 
+        B.exdate >= %s and B.exdate <= %s and A.code in (
+        """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
+                                             ts_list[-1],))
+        
+        # Retrieve Results
+        results = self.cursor.fetchall()
+
+        # Remove all rows that were not asked for
+        results = list(results)
+
+        if len(results) == 0:
+            return pandas.DataFrame(columns=symbol_list)
+  
+        # Create Pandas DataFrame in Expected Format
+        current_dict = {}
+        symbol_ranges = self._find_ranges_of_symbols(results)
+        for symbol, ranges in symbol_ranges.items():
+            current_symbol_data = results[ranges[0]:ranges[1] + 1]
+        
+            current_dict[symbol] = pandas.Series(map(itemgetter(2), 
+                                                current_symbol_data),
+                 index=map(lambda x: itemgetter(1)(x) + relativedelta(hours=16), 
+                                              current_symbol_data))
+
+                    
+        # Make DataFrame
+        ret = pandas.DataFrame(current_dict, columns=symbol_list)
+        return ret.reindex(ts_list)
+
+
     def get_list(self, list_name):
         
         if type(list_name) == type('str') or \
@@ -461,6 +504,7 @@ if __name__ == "__main__":
 
     date1 = datetime.datetime(2012, 2, 27, 16)
     date2 = datetime.datetime(2012, 2, 29, 16)
+    date3 = datetime.datetime(2012, 9, 29, 16)
 
     print db.get_shares(['GOOG', 'AAPL'])
 
@@ -468,5 +512,8 @@ if __name__ == "__main__":
     #print db.get_all_symbols()
 
     print db.get_list('Dow Jones Transportation')
+    
+    print db.get_dividends([date1 + datetime.timedelta(days=x) for x in range(100)],
+                            ["MSFT", "PGF", "GOOG", "A"])
 
     print db.get_data([date1, date2], ["AAPL", "IBM", "GOOG", "A"], ["open", "close"])
