@@ -276,7 +276,7 @@ class _MySQL(DriverInterface):
 
     def get_dividends(self, ts_list, symbol_list):
         """
-        Read data into a DataFrame from SQLite
+        Read dividend data into a DataFrame from SQLite
         @param ts_list: List of timestamps for which the data values are needed. Timestamps must be sorted.
         @param symbol_list: The list of symbols for which the data values are needed
         """
