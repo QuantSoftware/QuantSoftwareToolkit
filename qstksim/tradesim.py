@@ -99,10 +99,12 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     """
 
     if alloc.index[-1] > df_historic.index[-1]:
+        print "Historical Data not sufficient"
         indices, = np.where(alloc.index <= df_historic.index[-1])
         alloc = alloc.reindex(index = alloc.index[indices])
 
     if alloc.index[0] < df_historic.index[0]:
+        print "Historical Data not sufficient"
         indices, = np.where(alloc.index >= df_historic.index[0])
         alloc = alloc.reindex(index = alloc.index[indices])
 
