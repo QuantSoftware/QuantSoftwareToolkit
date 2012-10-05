@@ -80,7 +80,7 @@ def get_annual_return(fund_ts, years):
             if(date.year ==year):
                 year_vals.append([fund_ts.ix[date]])
         day_rets = tsu.daily1(year_vals)
-        ret = tsu.get_ror_annual(day_rets[1:-1])
+        ret = tsu.get_ror_annual(day_rets)
         ret=float(ret)
         lf_ret.append(ret*100) #" %+8.2f%%" % (ret*100)
     return lf_ret
