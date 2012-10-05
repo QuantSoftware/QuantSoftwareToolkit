@@ -237,42 +237,25 @@ class _MySQL(DriverInterface):
         """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
                                              ts_list[-1],))
 
-
         # Retrieve Results
         results = self.cursor.fetchall()
+        
+        # Create Data frames
+        for i in range(len(data_item)):
+            columns.append(pandas.DataFrame(index=ts_list, columns=symbol_list))
 
-        # Remove all rows that were not asked for
-        results = list(results)
-
-        if len(results) == 0:
-            for current_column in range(len(data_item)):
-                columns.append( pandas.DataFrame(columns=symbol_list) )
-                return columns
-
-        for i, row in enumerate(results):
-            if row[1] + relativedelta(hours=16) not in ts_list:
-                del results[i]
-  
-
-        # Create Pandas DataFrame in Expected Format
-        current_dict = {}
-        symbol_ranges = self._find_ranges_of_symbols(results)
-        for current_column in range(len(data_item)):
-            for symbol, ranges in symbol_ranges.items():
-                current_symbol_data = results[ranges[0]:ranges[1] + 1]
-                
-                current_dict[symbol] = pandas.Series(
-                  map(itemgetter(current_column + 2), current_symbol_data),
-                index=map(lambda x: itemgetter(1)(x) + relativedelta(hours=16), 
-                                                  current_symbol_data))
-
-                    
-            # Make DataFrame
-            columns.append(pandas.DataFrame(current_dict, columns=symbol_list))
-            current_dict = {}
-                
-
+        # Loop through rows
+        for row in results:
+            #format of row is (sym, date, item1, item2, ...)
+            dt_date = row[1] + relativedelta(hours=16)
+            if dt_date not in columns[i].index:
+                continue
+            # Add all columns to respective data-frames
+            for i in range(len(data_item)):
+                columns[i][row[0]][dt_date] = row[i + 2]
+        
         return columns
+  
 
     def get_dividends(self, ts_list, symbol_list):
         """
@@ -332,7 +315,9 @@ class _MySQL(DriverInterface):
         return sorted([x[0] for x in self.cursor.fetchall()])
 
     def get_all_symbols(self):
-        self.cursor.execute("SELECT DISTINCT symbol FROM tblEquity")
+        ''' Returns all symbols '''
+        self.cursor.execute('''select distinct code from asset a where  
+                               a.statuscodeid<100 and a.recordstatus=1''')
         return sorted([x[0] for x in self.cursor.fetchall()])
 
     def get_all_lists(self):
