@@ -276,24 +276,6 @@ def csv2fund(filename):
     commissions=0
 
     for row in reader:
-        # print row
-
-        # row_num+=1
-        # sym=row[0]
-        # if row_num == 1 and (sym == "_CASH" or sym=="cash"):
-        #     cash=float(row[6])
-        #     date=dp.parse(row[3])
-        #     share_table["_CASH"].ix[date]=cash
-        #     continue
-        # elif (sym == "_CASH" or sym=="cash"):
-        #     order_type=row[2]
-        #     cash=float(row[6])
-        #     date=dp.parse(row[3])
-        #     if order_type=="Cash Deposit":
-        #         share_table["_CASH"].ix[date]+=cash
-        #     else:
-        #         share_table["_CASH"].ix[date]-=cash
-        #     continue
         date=dp.parse(row[3])
         order_type=row[2]
         sym = row[0]

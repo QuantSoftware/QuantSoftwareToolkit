@@ -7,7 +7,6 @@ def csv_converter(inputfile, outputfile):
 
     reader=csv.reader(open(inputfile,'r'), delimiter=',')
     header = reader.next()
-    print header 
     input_str = []
     for row in reader:
         input_str.append(row)
@@ -27,11 +26,20 @@ def csv_converter(inputfile, outputfile):
         Notes = ''
         cashvalue = row[12]
 
-        if row[7] == 'Sale' or row[7] == 'Purchase':
-            if row[7] == 'Sale':
-                ordertype = 'Sell'
-            if row[7] == 'Purchase':
-                ordertype = 'Buy'
+        if row[9] == 'BRKB':
+            row[9] = 'BRK.B'
+
+        if row[7] == 'Close Short':
+            continue
+
+        if row[7] == 'Sale ':
+            ordertype = 'Sell'
+            symbol = row[9]
+            name = row[8]
+            shares = str(int(row[10])*(-1))
+            price = row[11]
+        elif row[7] == 'Purchase ':
+            ordertype = 'Buy'
             symbol = row[9]
             name = row[8]
             shares = row[10]
@@ -88,7 +96,7 @@ def csv_converter(inputfile, outputfile):
         writer.writerow(row_to_enter)
 
 if __name__ == "__main__":
-    inputfile="./Settled.csv"
+    inputfile = "./Settled.csv"
     outputfile = 'trans.csv'
     csv_converter(inputfile, outputfile)
     print "Done"
