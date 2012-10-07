@@ -41,8 +41,8 @@ def calculate_efficiency(dt_start_date, dt_end_date, s_stock):
     timeofday=dt.timedelta(hours=16)
     timestamps = du.getNYSEdays(dt_start_date,dt_end_date+dt.timedelta(days=1),timeofday)
     historic = dataobj.get_data( timestamps, [s_stock] ,["close"] )[0]
-    print "######"
-    print historic
+    # print "######"
+    # print historic
     hi=numpy.max(historic.values)
     low=numpy.min(historic.values)
     entry=historic.values[0]
@@ -258,18 +258,12 @@ def csv2fund(filename):
     reader.next()
     symbols=[]
     dates=[]
-    i_start_cash = 1000000
-    row_num=0
     for row in reader:
-        row_num+=1
         if not(row[0] in symbols):
             if not(row[0]=="cash" or row[0] == ''):
                 symbols.append(row[0])
         if not(dp.parse(row[3]) in dates):
             dates.append(dp.parse(row[3]))
-        if row_num == 1 and row[6]!='':
-            i_start_cash = float(row[6])
-            print "I start : ", i_start_cash
     print symbols
     reader=csv.reader(open(filename,'r'), delimiter=',')
     reader.next()
@@ -280,9 +274,9 @@ def csv2fund(filename):
     share_table["_CASH"]=0
     # share_table["_CASH"].ix[0]=start_val
     commissions=0
-    row_num=0
+
     for row in reader:
-        print row
+        # print row
 
         # row_num+=1
         # sym=row[0]
@@ -328,6 +322,11 @@ def csv2fund(filename):
             commissions=commissions+float(commission)
             share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
     share_table=share_table.cumsum()
+    time_index = sorted(share_table.index)
+    column_index = sorted(share_table.columns)
+    share_table = share_table.reindex(index = time_index, columns= column_index)
+    i_start_cash = share_table["_CASH"].ix[0]
+    print i_start_cash
     return [share_table, commissions, i_start_cash]
     
 # def ofx2fund(filename, start_val):
@@ -384,52 +383,55 @@ def share_table2fund(share_table):
     symbols = list(share_table.columns)
     symbols.remove('_CASH')
 
-    print symbols
+    # print symbols
 
     # Get desired timestamps
     timeofday=dt.timedelta(hours=16)
-    timestamps = du.getNYSEdays(startday-dt.timedelta(days=5),endday+dt.timedelta(days=5),timeofday)
+    timestamps = du.getNYSEdays(startday-dt.timedelta(days=5),endday+dt.timedelta(days=1),timeofday)
     historic = dataobj.get_data( timestamps, symbols ,["close"] )[0]
     historic["_CASH"]=1
-    print historic
     closest = historic[historic.index <= share_table.index[0]].ix[:]
-    print closest
-    ts_leverage = pandas.Series( 0, index = [closest.index[0]] )
+    ts_leverage = pandas.Series( 0, index = [closest.index[-1]] )
 
     # start shares/fund out as 100% cash
     first_val=closest.ix[-1] * share_table.ix[0]
-    fund_ts = pandas.Series( [first_val.sum(axis=1)], index = [closest.index[0]])
+    fund_ts = pandas.Series( [first_val.sum(axis=1)], index = [closest.index[-1]])
     prev_row=share_table.ix[0]
     for row_index, row in share_table.iterrows():
-        
+        # print row_index
         trade_price = historic.ix[row_index:].ix[0:1]
         trade_date = trade_price.index[0]
         
-        print trade_date
+        # print trade_date
         
         # get stock prices on all the days up until this trade
         to_calculate = historic[ (historic.index <= trade_date) &(historic.index > fund_ts.index[-1]) ]
         # multiply prices by our current shares
         values_by_stock = to_calculate * prev_row
-        print values_by_stock
+
+        # for date, sym in values_by_stock.iteritems():
+        #     print date,sym
+        # print values_by_stock
         prev_row=row
         #update leverage
         ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
         
         # calculate total value and append to our fund history
         fund_ts = fund_ts.append( [values_by_stock.sum(axis=1)])
-        
     return [fund_ts, ts_leverage]
 
 if __name__ == "__main__":
-    filename="./trans.csv"
-    # filename = 'Stump.csv'
+    # filename="./trans.csv"
+    filename = 'Stump.csv'
     plot_name="Log"
     print "load csv"
     [share_table, commissions, i_start_cash] = csv2fund(filename)
     print share_table
+    # share_table.to_csv('test_stump.csv')
+    # share_table.to_csv('test.csv')
     [fund_ts, ts_leverage] = share_table2fund(share_table)
     print "print report"
+    print fund_ts
     report.print_stats(fund_ts, ["SPY"], plot_name, directory = "./"+plot_name, commissions = commissions, i_start_cash = i_start_cash)
     print "analyze transactions"
     #Generate new plot based off transactions alone
