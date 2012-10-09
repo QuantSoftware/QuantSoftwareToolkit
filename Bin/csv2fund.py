@@ -13,7 +13,7 @@ Created on October, 2, 2012
 
 '''
 
-import sys
+# import sys
 import pandas
 import csv
 # from ofxparse import OfxParser
@@ -23,9 +23,9 @@ import dateutil.parser as dp
 from Bin import report
 from qstksim import _calculate_leverage
 from qstkutil import qsdateutil as du
-from qstkutil import DataAccess as da
 from qstkutil import DataEvolved as de
-        
+
+
 def calculate_efficiency(dt_start_date, dt_end_date, s_stock):
     """
     @summary calculates the exit-entry/high-low trade efficiency of a stock from historical data
@@ -302,18 +302,18 @@ def csv2fund(filename):
         if order_type=="Buy to Cover":
             share_table.ix[date][sym]+=shares
             commissions=commissions+float(commission)
-            share_table["_CASH"].ix[date]=share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
-    share_table=share_table.cumsum()
+            share_table["_CASH"].ix[date] = share_table.ix[date]["_CASH"]-float(price)*float(shares)-float(commission)
+    share_table = share_table.cumsum()
     time_index = sorted(share_table.index)
     column_index = sorted(share_table.columns)
-    share_table = share_table.reindex(index = time_index, columns= column_index)
+    share_table = share_table.reindex(index=time_index, columns=column_index)
     i_start_cash = share_table["_CASH"].ix[0]
     print i_start_cash
     return [share_table, commissions, i_start_cash]
-    
+
 # def ofx2fund(filename, start_val):
 #     """
-#     @summary converts a ofx file to a fund with the given starting value 
+#     @summary converts a ofx file to a fund with the given starting value
 #     @param filename: ofx file to open and convert
 #     @param start_val: starting value for the portfolio
 #     @return fund : time series containing fund value over time
@@ -325,7 +325,7 @@ def csv2fund(filename):
 #         from ofxparse import OfxParser
 #     except:
 #         print "ofxparse is required to use ofx2fund"
-#         exit() 
+#         exit()
 #     ofx = OfxParser.parse(file(filename))
 #     symbols=[]
 #     dates=[]
@@ -349,7 +349,8 @@ def csv2fund(filename):
 #     slippage=0
 #     commissions=0
 #     return [share_table, slippage, commissions]
-    
+
+
 def share_table2fund(share_table):
     """
     @summary converts data frame of shares into fund values
@@ -359,7 +360,7 @@ def share_table2fund(share_table):
     """
     # Get the data from the data store
     dataobj = de.DataAccess('mysql')
-    startday=share_table.index[0]
+    startday = share_table.index[0]
     endday = share_table.index[-1]
 
     symbols = list(share_table.columns)
@@ -368,44 +369,44 @@ def share_table2fund(share_table):
     # print symbols
 
     # Get desired timestamps
-    timeofday=dt.timedelta(hours=16)
-    timestamps = du.getNYSEdays(startday-dt.timedelta(days=5),endday+dt.timedelta(days=1),timeofday)
-    historic = dataobj.get_data( timestamps, symbols ,["close"] )[0]
-    historic["_CASH"]=1
+    timeofday = dt.timedelta(hours=16)
+    timestamps = du.getNYSEdays(startday - dt.timedelta(days=5), endday + dt.timedelta(days=1), timeofday)
+    historic = dataobj.get_data(timestamps, symbols, ["close"])[0]
+    historic["_CASH"] = 1
     closest = historic[historic.index <= share_table.index[0]].ix[:]
-    ts_leverage = pandas.Series( 0, index = [closest.index[-1]] )
+    ts_leverage = pandas.Series(0, index=[closest.index[-1]])
 
     # start shares/fund out as 100% cash
-    first_val=closest.ix[-1] * share_table.ix[0]
-    fund_ts = pandas.Series( [first_val.sum(axis=1)], index = [closest.index[-1]])
-    prev_row=share_table.ix[0]
+    first_val = closest.ix[-1] * share_table.ix[0]
+    fund_ts = pandas.Series([first_val.sum(axis=1)], index=[closest.index[-1]])
+    prev_row = share_table.ix[0]
     for row_index, row in share_table.iterrows():
         # print row_index
         trade_price = historic.ix[row_index:].ix[0:1]
         trade_date = trade_price.index[0]
-        
+
         # print trade_date
-        
+
         # get stock prices on all the days up until this trade
-        to_calculate = historic[ (historic.index <= trade_date) &(historic.index > fund_ts.index[-1]) ]
+        to_calculate = historic[(historic.index <= trade_date) & (historic.index > fund_ts.index[-1])]
         # multiply prices by our current shares
         values_by_stock = to_calculate * prev_row
 
         # for date, sym in values_by_stock.iteritems():
         #     print date,sym
         # print values_by_stock
-        prev_row=row
+        prev_row = row
         #update leverage
         ts_leverage = _calculate_leverage(values_by_stock, ts_leverage)
-        
+
         # calculate total value and append to our fund history
-        fund_ts = fund_ts.append( [values_by_stock.sum(axis=1)])
+        fund_ts = fund_ts.append([values_by_stock.sum(axis=1)])
     return [fund_ts, ts_leverage]
 
 if __name__ == "__main__":
     # filename="./trans.csv"
     filename = 'Stump.csv'
-    plot_name="Log"
+    plot_name = "Log"
     print "load csv"
     [share_table, commissions, i_start_cash] = csv2fund(filename)
     print share_table
@@ -414,10 +415,8 @@ if __name__ == "__main__":
     [fund_ts, ts_leverage] = share_table2fund(share_table)
     print "print report"
     print fund_ts
-    report.print_stats(fund_ts, ["SPY"], plot_name, directory = "./"+plot_name, commissions = commissions, i_start_cash = i_start_cash)
+    report.print_stats(fund_ts, ["SPY"], plot_name, directory="./" + plot_name, commissions=commissions, i_start_cash=i_start_cash)
     print "analyze transactions"
     #Generate new plot based off transactions alone
-    
-    analyze_transactions(filename,plot_name,share_table,True)
+    analyze_transactions(filename, plot_name, share_table, True)
     print "done"
-    
