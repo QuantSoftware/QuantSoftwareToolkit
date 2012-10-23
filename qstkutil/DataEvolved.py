@@ -219,6 +219,9 @@ class _MySQL(DriverInterface):
                   'actual_close':'close',
                   'volume':'volume',
                   'adjusted_close':'adjclose'}
+        
+        for i in range(1, 101):
+            ds_map['f%i' % i] = 'f%i' % i
 
         data_item = map(lambda(x): ds_map[x], data_item)
 
@@ -232,7 +235,7 @@ class _MySQL(DriverInterface):
 
         self.cursor.execute("""
         select A.code as symbol, B.date,""" + query_select_items + """
-        from priceadj B, asset A where A.assetid = B.assetid and 
+        from priceupdate B, asset A where A.assetid = B.assetid and 
         B.date >= %s and B.date <= %s and A.code in (
         """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
                                              ts_list[-1],))
