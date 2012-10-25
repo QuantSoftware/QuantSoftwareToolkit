@@ -235,7 +235,7 @@ class _MySQL(DriverInterface):
 
         self.cursor.execute("""
         select A.code as symbol, B.date,""" + query_select_items + """
-        from priceupdate B, asset A where A.assetid = B.assetid and 
+        from priceadj B, asset A where A.assetid = B.assetid and 
         B.date >= %s and B.date <= %s and A.code in (
         """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
                                              ts_list[-1],))
