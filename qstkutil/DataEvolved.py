@@ -219,6 +219,9 @@ class _MySQL(DriverInterface):
                   'actual_close':'close',
                   'volume':'volume',
                   'adjusted_close':'adjclose'}
+        
+        for i in range(1, 101):
+            ds_map['f%i' % i] = 'f%i' % i
 
         data_item = map(lambda(x): ds_map[x], data_item)
 
