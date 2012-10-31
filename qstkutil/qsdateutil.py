@@ -19,6 +19,26 @@ from datetime import timedelta
 import time as t
 import numpy as np
 import os
+import pandas as pd
+
+
+def _cache_dates():
+    ''' Caches dates '''
+    try:
+        filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt"
+    except KeyError:
+        print "Please be sure to set the value for QS in config.sh or\n"
+        print "in local.sh and then \'source local.sh\'.\n"
+    
+    datestxt = np.loadtxt(filename,dtype=str)
+    dates = []
+    for i in datestxt:
+        dates.append(dt.datetime.strptime(i,"%m/%d/%Y"))
+    return pd.TimeSeries(index=dates, data=dates)
+
+GTS_DATES = _cache_dates()
+
+
 
 def getMonthNames():
     return(['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'])
@@ -112,23 +132,14 @@ def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,3
     @return list: of timestamps between startday and endday on which NYSE traded
     @rtype datetime
     """
- 
-    try:
-        filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt"
-    except KeyError:
-        print "Please be sure to set the value for QS in config.sh or\n"
-        print "in local.sh and then \'source local.sh\'.\n"
+    start = startday - timeofday
+    end = endday - timeofday
+    
+    dates = GTS_DATES[start:end]
+    
+    ret = [x + timeofday for x in dates]
 
-    datestxt = np.loadtxt(filename,dtype=str)
-    dates = []
-
-    for i in datestxt:
-        dates.append(dt.datetime.strptime(i,"%m/%d/%Y")+timeofday)
-
-    dates = [x for x in dates if x >= startday]
-    dates = [x for x in dates if x <= endday]
-
-    return(dates)
+    return(ret)
 
 def getNextNNYSEdays(startday, days, timeofday):
     """
