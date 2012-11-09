@@ -235,7 +235,7 @@ class _MySQL(DriverInterface):
 
         self.cursor.execute("""
         select A.code as symbol, B.date,""" + query_select_items + """
-        from priceadj B, asset A where A.assetid = B.assetid and 
+        from priceadjusted B, asset A where A.assetid = B.assetid and 
         B.date >= %s and B.date <= %s and A.code in (
         """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
                                              ts_list[-1],))
@@ -248,15 +248,16 @@ class _MySQL(DriverInterface):
             columns.append(pandas.DataFrame(index=ts_list, columns=symbol_list))
 
         # Loop through rows
+        dt_time = datetime.time(hour=16)
         for row in results:
             #format of row is (sym, date, item1, item2, ...)
-            dt_date = row[1] + relativedelta(hours=16)
+            dt_date = datetime.datetime.combine(row[1], dt_time)
             if dt_date not in columns[i].index:
                 continue
             # Add all columns to respective data-frames
             for i in range(len(data_item)):
                 columns[i][row[0]][dt_date] = row[i + 2]
-        
+
         return columns
   
 
