@@ -15,6 +15,7 @@ Created on Jan 1, 2011
 from os import path, makedirs
 from os import sys
 from qstkutil import DataEvolved as de
+from qstkutil import DataAccess as da
 from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 from qstkutil import fundutil as fu
@@ -152,7 +153,7 @@ def get_daily_sortino(fund_ts, years):
         ret = fu.get_sortino_ratio(year_vals)
         s_ret+=" % + 8.2f " % ret
     return s_ret
-        
+
 def get_std_dev(fund_ts):
     """
     @summary gets standard deviation of returns for a fund as a string
@@ -267,22 +268,25 @@ def print_monthly_returns(fund_ts, years, ostream):
             ostream.write(" % + 6.2f" % (mrets[i]*100))
             i += 1
         ostream.write("\n")
-        
-        
+
+
 def print_years(years, ostream):
-    ostream.write("\n\n                                      ")
-    for year in years:
-        ostream.write("      " + str(year))
-    ostream.write("\n                                       ")
-    for year in years:
-        ostream.write("    " + '------')
     ostream.write("\n")
-    
+    s_line=""
+    s_line2=""
+    for f_token in years:
+        s_line+="%9d " % f_token
+        s_line2+="%10s" % '------'
+
+    ostream.write("%35s %s%30s\n" % ("                  ", " "*4, s_line))
+    ostream.write("%35s %s%30s\n" % ("                  ", " "*4, s_line2))
+
+
 def print_line(s_left_side, s_right_side, i_spacing=0, ostream="stdout"):
     ostream.write("%35s:%s%30s\n" % (s_left_side, " "*i_spacing, s_right_side))
-    
-def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", 
-    s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, 
+
+def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund",
+    s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False,
     leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, i_start_cash=1000000):
     """
     @summary prints stats of a provided fund and benchmark
@@ -295,46 +299,46 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     @param slippage: value to print with report
     @param ostream: stream to print stats to, defaults to stdout
     """
-    
+
     #Set locale for currency conversions
     locale.setlocale(locale.LC_ALL, '')
-    
+
     #make names length independent for alignment
     s_formatted_original_name="%15s" % s_original_name
     s_formatted_fund_name = "%15s" % s_fund_name
-    
+
     fund_ts=fund_ts.fillna(method='pad')
     fund_ts=fund_ts.fillna(method='bfill')
     fund_ts=fund_ts.fillna(1.0)
     if directory != False :
         if not path.exists(directory):
             makedirs(directory)
-        
+
         sfile = path.join(directory, "report-%s.html" % name )
         splot = "plot-%s.png" % name
         splot_dir =  path.join(directory, splot)
         ostream = open(sfile, "wb")
         ostream.write("<pre>")
         print "writing to ", sfile
-        
+
         if type(original)==type("str"):
             if type(leverage)!=type(False):
                 print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash= i_start_cash)
             else:
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash= i_start_cash) 
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash= i_start_cash)
         else:
             if type(leverage)!=type(False):
                 print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage, i_start_cash= i_start_cash)
             else:
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash) 
-            
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash)
+
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
     ostream.write("Performance Summary for "\
 	 + str(path.basename(name)) + " Backtest\n")
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "")
-    
+
     #paramater section
     if d_trading_params!="":
         ostream.write("\n\nTrading Paramaters\n\n")
@@ -346,18 +350,18 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
             d_hedge_params['Weight of Hedge'] = str(int(d_hedge_params['Weight of Hedge']*100)) + '%'
         for var in d_hedge_params:
             print_line(var, d_hedge_params[var],ostream=ostream)
-        
+
     #comment section
     if s_comments!="":
         ostream.write("\nComments\n\n%s" % s_comments)
-    
-    
+
+
     if directory != False :
         ostream.write("\n\n<img src="+splot+" width=600 />\n\n")
-        
+
     mult = i_start_cash/fund_ts.values[0]
-    
-    
+
+
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
     dataobj =de.DataAccess('mysql')
@@ -368,34 +372,39 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='bfill')
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(1.0)
-    
+
     if type(lf_dividend_rets) != type(0.0):
         for i,sym in enumerate(benchmark):
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
-    
+
     ostream.write("Resulting Values in $ with an initial investment of "+ locale.currency(int(round(i_start_cash)), grouping=True) + "\n")
-    
-    print_line(s_formatted_fund_name+" Resulting Value",(locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True)),i_spacing=3, ostream=ostream)
-    
+
+    print_line(s_formatted_fund_name+" Resulting Value"," %15s, %10.2f%%" % (locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True), \
+                                                     float(100*((fund_ts.values[-1]/fund_ts.values[0])-1))), i_spacing=4, ostream=ostream)
+
     if type(original)!=type("str"):
         mult3 = i_start_cash / original.values[0]
-        print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original.values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
-        
+        # print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original.values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
+        print_line(s_formatted_original_name+" Resulting Value"," %15s, %10.2f%%" % (locale.currency(int(round(original.values[-1]*mult3)), grouping=True), \
+                                                     float(100*((original.values[-1]/original.values[0])-1))), i_spacing=4, ostream=ostream)
+
     for bench_sym in benchmark:
         mult2= i_start_cash / benchmark_close[bench_sym].values[0]
-        print_line(bench_sym+" Resulting Value",locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True),i_spacing=3, ostream=ostream)
-        
-    ostream.write("\n")    
-        
+        # print_line(bench_sym+" Resulting Value",locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True),i_spacing=3, ostream=ostream)
+        print_line(bench_sym+" Resulting Value"," %15s, %10.2f%%" % (locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True), \
+                                                     float(100*((benchmark_close[bench_sym].values[-1]/benchmark_close[bench_sym].values[0])-1))), i_spacing=4, ostream=ostream)
+
+    ostream.write("\n")
+
     if len(years) > 1:
         print_line(s_formatted_fund_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(fund_ts.values)[0],i_spacing=4, ostream=ostream)
         if type(original)!=type("str"):
             print_line(s_formatted_original_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(original.values)[0],i_spacing=4, ostream=ostream)
-        
+
         for bench_sym in benchmark:
             print_line(bench_sym+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],i_spacing=4,ostream=ostream)
-        ostream.write("\n")  
-        
+        ostream.write("\n")
+
     ostream.write("Transaction Costs\n")
     print_line("Total Commissions"," %15s, %10.2f%%" % (locale.currency(int(round(commissions)), grouping=True), \
                                                   float((round(commissions)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
@@ -410,72 +419,72 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
                                   float((round(borrowcost+slippage+commissions)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
 
     ostream.write("\n")
-    
+
     print_line(s_formatted_fund_name+" Std Dev of Returns",get_std_dev(fund_ts),i_spacing=8, ostream=ostream)
-    
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Std Dev of Returns", get_std_dev(original), i_spacing=8, ostream=ostream)
-        
+
     for bench_sym in benchmark:
         print_line(bench_sym+" Std Dev of Returns", get_std_dev(benchmark_close[bench_sym]), i_spacing=8, ostream=ostream)
-        
+
     ostream.write("\n")
-        
-    
+
+
     for bench_sym in benchmark:
         print_benchmark_coer(fund_ts, benchmark_close[bench_sym], str(bench_sym), ostream)
-    ostream.write("\n")    
+    ostream.write("\n")
 
     ostream.write("\nYearly Performance Metrics")
     print_years(years, ostream)
-    
-    
+
+
     s_line=""
     for f_token in get_annual_return(fund_ts, years):
         s_line+=" %+8.2f%%" % f_token
     print_line(s_formatted_fund_name+" Annualized Return",s_line, i_spacing=4, ostream=ostream)
-    
-    
+
+
     if type(original)!=type("str"):
         s_line=""
         for f_token in get_annual_return(original, years):
             s_line+=" %+8.2f%%" % f_token
         print_line(s_formatted_original_name+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
-    
+
     for bench_sym in benchmark:
         s_line=""
         for f_token in get_annual_return(benchmark_close[bench_sym], years):
             s_line+=" %+8.2f%%" % f_token
         print_line(bench_sym+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
-    
+
     print_years(years, ostream)
-    
+
     print_line(s_formatted_fund_name+" Winning Days",get_winning_days(fund_ts, years), i_spacing=4, ostream=ostream)
-    
-    
+
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Winning Days",get_winning_days(original, years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Winning Days",get_winning_days(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
+
 
     print_years(years, ostream)
-    
+
     print_line(s_formatted_fund_name+" Max Draw Down",get_max_draw_down(fund_ts, years), i_spacing=4, ostream=ostream)
-    
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Max Draw Down",get_max_draw_down(original, years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Max Draw Down",get_max_draw_down(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
+
 
     print_years(years, ostream)
-    
-    
+
+
     print_line(s_formatted_fund_name+" Daily Sharpe Ratio",get_daily_sharpe(fund_ts, years), i_spacing=4, ostream=ostream)
 
 
@@ -484,34 +493,34 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Daily Sharpe Ratio",get_daily_sharpe(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
+
 
     print_years(years, ostream)
 
     print_line(s_formatted_fund_name+" Daily Sortino Ratio",get_daily_sortino(fund_ts, years), i_spacing=4, ostream=ostream)
-    
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Daily Sortino Ratio",get_daily_sortino(original, years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Daily Sortino Ratio",get_daily_sortino(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
-    
+
+
     ostream.write("\n\n\nCorrelation and Beta with DJ Industries for the Fund ")
-    
+
     print_industry_coer(fund_ts,ostream)
-    
+
     ostream.write("\n\nCorrelation and Beta with Other Indices for the Fund ")
-    
+
     print_other_coer(fund_ts,ostream)
-    
+
     ostream.write("\n\n\nMonthly Returns for the Fund %\n")
-    
-    print_monthly_returns(fund_ts, years, ostream) 
+
+    print_monthly_returns(fund_ts, years, ostream)
     if directory != False:
-        ostream.write("</pre>")           
-     
+        ostream.write("</pre>")
+
 def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, i_start_cash=1000000):
     """
     @summary prints stats of a provided fund and benchmark
@@ -524,36 +533,36 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
     @param slippage: value to print with report
     @param ostream: stream to print stats to, defaults to stdout
     """
-    
+
     #Set locale for currency conversions
     locale.setlocale(locale.LC_ALL, '')
-    
+
     #make names length independent for alignment
     s_formatted_original_name="%15s" % s_original_name
     s_formatted_fund_name = "%15s" % s_fund_name
-    
+
     fund_ts=fund_ts.fillna(method='pad')
     if directory != False :
         if not path.exists(directory):
             makedirs(directory)
-        
+
         sfile = path.join(directory, "report-%s.html" % name )
         splot = "plot-%s.png" % name
         splot_dir =  path.join(directory, splot)
         ostream = open(sfile, "wb")
         print "writing to ", sfile
-        
+
         if type(original)==type("str"):
             if type(leverage)!=type(False):
                 print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash)
             else:
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash = i_start_cash) 
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash = i_start_cash)
         else:
             if type(leverage)!=type(False):
                 print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash)
             else:
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash) 
-            
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash)
+
     print_header(ostream,name)
     start_date = fund_ts.index[0].strftime("%m/%d/%Y")
     end_date = fund_ts.index[-1].strftime("%m/%d/%Y")
@@ -561,7 +570,7 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
      + str(path.basename(name)) + " Backtest\n")
     ostream.write("For the dates " + str(start_date) + " to "\
                                        + str(end_date) + "")
-    
+
     #paramater section
     if d_trading_params!="":
         ostream.write("\n\nTrading Paramaters\n\n")
@@ -573,18 +582,18 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
             d_hedge_params['Weight of Hedge'] = str(int(d_hedge_params['Weight of Hedge']*100)) + '%'
         for var in d_hedge_params:
             print_line(var, d_hedge_params[var],ostream=ostream)
-        
+
     #comment section
     if s_comments!="":
         ostream.write("\nComments\n\n%s" % s_comments)
-    
-    
+
+
     if directory != False :
         ostream.write("\n\n<img src="+splot+" width=600 />\n\n")
-        
+
     mult = i_start_cash/fund_ts.values[0]
-    
-    
+
+
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
     dataobj =de.DataAccess('mysql')
@@ -593,34 +602,34 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
     benchmark_close=benchmark_close[0]
     for bench_sym in benchmark:
         benchmark_close[bench_sym]=benchmark_close[bench_sym].fillna(method='pad')
-    
+
     if type(lf_dividend_rets) != type(0.0):
         for i,sym in enumerate(benchmark):
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
-    
+
     ostream.write("Resulting Values in $ with an initial investment of "+ locale.currency(int(round(i_start_cash)), grouping=True) + "\n")
-    
+
     print_line(s_formatted_fund_name+" Resulting Value",(locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True)),i_spacing=3, ostream=ostream)
-    
+
     if type(original)!=type("str"):
         mult3 = i_start_cash / original.values[0]
         print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original.values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
-        
+
     for bench_sym in benchmark:
         mult2=i_start_cash/benchmark_close[bench_sym].values[0]
         print_line(bench_sym+" Resulting Value",locale.currency(int(round(benchmark_close[bench_sym].values[-1]*mult2)), grouping=True),i_spacing=3, ostream=ostream)
-        
-    ostream.write("\n")    
-        
+
+    ostream.write("\n")
+
     if len(years) > 1:
         print_line(s_formatted_fund_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(fund_ts.values)[0],i_spacing=4, ostream=ostream)
         if type(original)!=type("str"):
             print_line(s_formatted_original_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(original.values)[0],i_spacing=4, ostream=ostream)
-        
+
         for bench_sym in benchmark:
             print_line(bench_sym+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],i_spacing=4,ostream=ostream)
-        ostream.write("\n")  
-        
+        ostream.write("\n")
+
     ostream.write("Transaction Costs\n")
     print_line("Total Commissions"," %15s, %10.2f%%" % (locale.currency(int(round(commissions)), grouping=True), \
                                                   float((round(commissions)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
@@ -635,32 +644,32 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
                                   float((round(borrowcost+slippage+commissions)*100)/(fund_ts.values[-1]*mult))), i_spacing=4, ostream=ostream)
 
     ostream.write("\n")
-    
+
     print_line(s_formatted_fund_name+" Std Dev of Returns",get_std_dev(fund_ts),i_spacing=8, ostream=ostream)
-    
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Std Dev of Returns", get_std_dev(original), i_spacing=8, ostream=ostream)
-        
+
     for bench_sym in benchmark:
         print_line(bench_sym+" Std Dev of Returns", get_std_dev(benchmark_close[bench_sym]), i_spacing=8, ostream=ostream)
-        
+
     ostream.write("\n")
-        
-    
+
+
     for bench_sym in benchmark:
         print_benchmark_coer(fund_ts, benchmark_close[bench_sym], str(bench_sym), ostream)
-    ostream.write("\n")    
+    ostream.write("\n")
 
     ostream.write("\nYearly Performance Metrics")
     print_years(years, ostream)
-    
+
     s_line=""
     for f_token in get_annual_return(fund_ts, years):
         s_line+=" %+8.2f%%" % f_token
     print_line(s_formatted_fund_name+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
     lf_vals=[get_annual_return(fund_ts, years)]
     ls_labels=[name]
-    
+
     if type(original)!=type("str"):
         s_line=""
         for f_token in get_annual_return(original, years):
@@ -668,7 +677,7 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
         print_line(s_formatted_original_name+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
         lf_vals.append(get_annual_return(original, years))
         ls_labels.append(s_original_name)
-        
+
     for bench_sym in benchmark:
         s_line=""
         for f_token in get_annual_return(benchmark_close[bench_sym], years):
@@ -676,42 +685,42 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
         print_line(bench_sym+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
         lf_vals.append(get_annual_return(benchmark_close[bench_sym], years))
         ls_labels.append(bench_sym)
-        
+
     print lf_vals
     print ls_labels
     ls_year_labels=[]
     for i in range(0,len(years)):
         ls_year_labels.append(str(years[i]))
     print_bar_chart(lf_vals, ls_labels, ls_year_labels, directory+"/annual_rets.png")
-        
+
     print_years(years, ostream)
-    
+
     print_line(s_formatted_fund_name+" Winning Days",get_winning_days(fund_ts, years), i_spacing=4, ostream=ostream)
-    
-    
+
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Winning Days",get_winning_days(original, years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Winning Days",get_winning_days(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
+
 
     print_years(years, ostream)
-    
+
     print_line(s_formatted_fund_name+" Max Draw Down",get_max_draw_down(fund_ts, years), i_spacing=4, ostream=ostream)
-    
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Max Draw Down",get_max_draw_down(original, years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Max Draw Down",get_max_draw_down(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
+
 
     print_years(years, ostream)
-    
-    
+
+
     print_line(s_formatted_fund_name+" Daily Sharpe Ratio",get_daily_sharpe(fund_ts, years), i_spacing=4, ostream=ostream)
 
 
@@ -720,33 +729,33 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Daily Sharpe Ratio",get_daily_sharpe(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
+
 
     print_years(years, ostream)
 
     print_line(s_formatted_fund_name+" Daily Sortino Ratio",get_daily_sortino(fund_ts, years), i_spacing=4, ostream=ostream)
-    
+
     if type(original)!=type("str"):
         print_line(s_formatted_original_name+" Daily Sortino Ratio",get_daily_sortino(original, years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Daily Sortino Ratio",get_daily_sortino(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
-    
-    
+
+
     ostream.write("\n\n\nCorrelation and Beta with DJ Industries for the Fund ")
-    
+
     print_industry_coer(fund_ts,ostream)
-    
+
     ostream.write("\n\nCorrelation and Beta with Other Indices for the Fund ")
-    
+
     print_other_coer(fund_ts,ostream)
-    
+
     ostream.write("\n\n\nMonthly Returns for the Fund %\n")
-    
-    print_monthly_returns(fund_ts, years, ostream)   
-    print_footer(ostream)       
-    
+
+    print_monthly_returns(fund_ts, years, ostream)
+    print_footer(ostream)
+
 def print_bar_chart(llf_vals, ls_fund_labels, ls_year_labels, s_filename):
     llf_vals=((1,2,3),(3,2,1),(2,2,2))
     amin=min(min(llf_vals))
@@ -775,7 +784,7 @@ def print_bar_chart(llf_vals, ls_fund_labels, ls_year_labels, s_filename):
     for i in range(0,len(llf_vals)):
         plots.append(rects[i][0])
     ax.legend(plots,ls_fund_labels)
-    
+
     def autolabel(rects):
         # attach some text labels
         for rect in rects:
@@ -795,26 +804,26 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
     @param filename: file location to store plot1
     """
     pyplot.clf()
-    if type(leverage)!=type(False): 
-        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+    if type(leverage)!=type(False):
+        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])
         pyplot.subplot(gs[0])
     start_date = 0
     end_date = 0
     if(type(fund)!= type(list())):
         if(start_date == 0 or start_date>fund.index[0]):
-            start_date = fund.index[0]    
+            start_date = fund.index[0]
         if(end_date == 0 or end_date<fund.index[-1]):
-            end_date = fund.index[-1]    
+            end_date = fund.index[-1]
         mult = i_start_cash/fund.values[0]
         pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_name))
-    else:    
+    else:
         i=0
         for entity in fund:
             if(start_date == 0 or start_date>entity.index[0]):
-                start_date = entity.index[0]    
+                start_date = entity.index[0]
             if(end_date == 0 or end_date<entity.index[-1]):
-                end_date = entity.index[-1]    
+                end_date = entity.index[-1]
             mult = i_start_cash/entity.values[0]
             if i == 1 and len(fund)!=1:
                 pyplot.plot(entity.index, entity.values * mult, label = \
@@ -831,7 +840,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
     benchmark_close = benchmark_close.fillna(method='pad')
     benchmark_close = benchmark_close.fillna(method='bfill')
     benchmark_close = benchmark_close.fillna(1.0)
-    
+
     if type(lf_dividend_rets) != type(0.0):
         for i,sym in enumerate(benchmark):
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
@@ -865,7 +874,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
         pyplot.xlabel('Date')
         pyplot.legend()
     savefig(filename, format = 'png')
-     
+
 def generate_report(funds_list, graph_names, out_file, i_start_cash = 10000):
     """
     @summary generates a report given a list of fund time series
@@ -883,20 +892,20 @@ def generate_report(funds_list, graph_names, out_file, i_start_cash = 10000):
     for fund in funds_list:
         if(type(fund)!= type(list())):
             if(start_date == 0 or start_date>fund.index[0]):
-                start_date = fund.index[0]    
+                start_date = fund.index[0]
             if(end_date == 0 or end_date<fund.index[-1]):
-                end_date = fund.index[-1]    
+                end_date = fund.index[-1]
             mult = i_start_cash/fund.values[0]
             pyplot.plot(fund.index, fund.values * mult, label = \
                                  path.basename(graph_names[i]))
-        else:    
+        else:
             if(start_date == 0 or start_date>fund[0].index[0]):
-                start_date = fund[0].index[0]    
+                start_date = fund[0].index[0]
             if(end_date == 0 or end_date<fund[0].index[-1]):
-                end_date = fund[0].index[-1]    
+                end_date = fund[0].index[-1]
             mult = i_start_cash/fund[0].values[0]
             pyplot.plot(fund[0].index, fund[0].values * mult, label = \
-                                      path.basename(graph_names[i]))    
+                                      path.basename(graph_names[i]))
         i += 1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
@@ -908,7 +917,7 @@ def generate_report(funds_list, graph_names, out_file, i_start_cash = 10000):
     for fund in funds_list:
         if(type(fund)!= type(list())):
             print_stats(fund, ["$SPX"], graph_names[i])
-        else:    
+        else:
             print_stats( fund[0], ["$SPX"], graph_names[i])
         i += 1
     pyplot.plot(benchmark_close.index, \
@@ -944,14 +953,14 @@ if __name__  ==  '__main__':
     # Robust:
     # python report.py -r 'out.pkl'
     #
-    
+
     ROBUST = 0
 
     if(sys.argv[1] == '-r'):
         ROBUST = 1
 
     FILENAME  =  "report.html"
-    
+
     if(ROBUST == 1):
         ANINPUT = open(sys.argv[2],"r")
         FUNDS = cPickle.load(ANINPUT)
