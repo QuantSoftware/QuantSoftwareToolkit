@@ -248,15 +248,16 @@ class _MySQL(DriverInterface):
             columns.append(pandas.DataFrame(index=ts_list, columns=symbol_list))
 
         # Loop through rows
+        dt_time = datetime.time(hour=16)
         for row in results:
             #format of row is (sym, date, item1, item2, ...)
-            dt_date = row[1] + relativedelta(hours=16)
+            dt_date = datetime.datetime.combine(row[1], dt_time)
             if dt_date not in columns[i].index:
                 continue
             # Add all columns to respective data-frames
             for i in range(len(data_item)):
                 columns[i][row[0]][dt_date] = row[i + 2]
-        
+
         return columns
   
 
