@@ -592,7 +592,7 @@ def featBeta( dData, lLookback=14, sMarket='$SPX', b_human=False ):
         return dData['close']
     return dfRet
 
-def featBollinger( dData, lLookback=20, b_human=False ):
+def featBollinger( dData, lLookback=20, teeth=0, b_human=False ):
     '''
     @summary: Calculate bollinger position as a function of std deviations.
     @param dData: Dictionary of data to use
