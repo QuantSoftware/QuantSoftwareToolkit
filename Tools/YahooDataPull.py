@@ -19,6 +19,9 @@ def get_data(data_path, ls_symbols):
     _now =datetime.datetime.now();
     miss_ctr=0; #Counts how many symbols we could not get
     for symbol in ls_symbols:
+        # Preserve original symbol since it might
+        # get manipulated if it starts with a "$"
+        symbol_name = symbol
         if symbol[0] == '$':
             symbol = '^' + symbol[1:]
 
@@ -37,7 +40,7 @@ def get_data(data_path, ls_symbols):
             
             symbol_data.pop(-1) #The last element is going to be the string of length zero. We don't want to write that to file.
             #now writing data to file
-            f= open (data_path + symbol + ".csv", 'w')
+            f= open (data_path + symbol_name + ".csv", 'w')
             
             #Writing the header
             f.write (header)
@@ -49,10 +52,10 @@ def get_data(data_path, ls_symbols):
                         
         except urllib2.HTTPError:
             miss_ctr += 1
-            print "Unable to fetch data for stock: {0}".format(symbol)
+            print "Unable to fetch data for stock: {0} at {1}".format(symbol_name, url)
         except urllib2.URLError:
             miss_ctr += 1
-            print "URL Error for stock: {0}".format(symbol)
+            print "URL Error for stock: {0} at {1}".format(symbol_name, url)
             
     print "All done. Got {0} stocks. Could not get {1}".format(len(ls_symbols) - miss_ctr, miss_ctr)
 
