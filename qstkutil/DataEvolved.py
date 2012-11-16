@@ -324,7 +324,7 @@ class _MySQL(DriverInterface):
         else:
             self.cursor.execute("""select myself.code as symbol from 
                 indexconstituent consititue1_, asset myself
-                where myself.assetid = consititue1_.assetid and 
+                where myself.assetid = consititue1_.assetid and myself.recordstatus=1 and myself.statuscodeid < 100 and 
                 consititue1_.indexassetid = %s;""", (str(int(list_name))))
 
         return sorted([x[0] for x in self.cursor.fetchall()])
