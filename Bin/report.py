@@ -32,6 +32,7 @@ import datetime as dt
 import pandas
 import numpy as np
 from copy import deepcopy
+import scipy
 
 def _dividend_rets_funds(df_funds, f_dividend_rets):
 
@@ -165,6 +166,26 @@ def get_std_dev(fund_ts):
     fund_ts=fund_ts.fillna(method='bfill')
     ret=np.std(tsu.daily(fund_ts.values))*10000
     return ("%+7.2f bps " % ret)
+
+
+def ks_statistic(fund_ts):
+    fund_ts = deepcopy(fund_ts)
+    if len(fund_ts.values) > 60:
+        seq1 = fund_ts.values[0:-60]
+        seq2 = fund_ts.values[-60:]
+        tsu.returnize0(seq1)
+        tsu.returnize0(seq2)
+        (ks, p) = scipy.stats.ks_2samp(seq1, seq2)
+        return ks, p
+    # elif len(fund_ts.values) > 5:
+    #     seq1 = fund_ts.values[0:-5]
+    #     seq2 = fund_ts.values[-5:]
+    #     (ks, p) = scipy.stats.ks_2samp(seq1, seq2)
+    #     return ks, p
+
+    ks = -1
+    p = -1
+    return ks, p
 
 def print_industry_coer(fund_ts, ostream):
     """
@@ -396,14 +417,24 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
     ostream.write("\n")
 
-    if len(years) > 1:
-        print_line(s_formatted_fund_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(fund_ts.values)[0],i_spacing=4, ostream=ostream)
-        if type(original)!=type("str"):
-            print_line(s_formatted_original_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(original.values)[0],i_spacing=4, ostream=ostream)
+    # if len(years) > 1:
+    print_line(s_formatted_fund_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(fund_ts.values)[0],i_spacing=4, ostream=ostream)
+    if type(original)!=type("str"):
+        print_line(s_formatted_original_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(original.values)[0],i_spacing=4, ostream=ostream)
 
-        for bench_sym in benchmark:
-            print_line(bench_sym+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],i_spacing=4,ostream=ostream)
-        ostream.write("\n")
+    for bench_sym in benchmark:
+        print_line(bench_sym+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],i_spacing=4,ostream=ostream)
+    ostream.write("\n")
+
+
+    # KS - Similarity
+    ks, p = ks_statistic(fund_ts);
+    if ks!= -1 and p!= -1:
+        if ks < p:
+            ostream.write("\nThe last three month's returns are consistent with previous performance (KS = %2.5f, p = %2.5f) \n\n"% (ks, p))
+        else:
+            ostream.write("\nThe last three month's returns are NOT CONSISTENT with previous performance (KS = %2.5f, p = %2.5f) \n\n"% (ks, p))
+
 
     ostream.write("Transaction Costs\n")
     print_line("Total Commissions"," %15s, %10.2f%%" % (locale.currency(int(round(commissions)), grouping=True), \
