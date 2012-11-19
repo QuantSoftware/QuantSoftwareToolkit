@@ -19,6 +19,7 @@ from qstkutil import DataAccess as da
 from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 from qstkutil import fundutil as fu
+from dateutil.relativedelta import relativedelta
 import numpy as np
 from math import log10
 import converter
@@ -187,6 +188,14 @@ def ks_statistic(fund_ts):
     p = -1
     return ks, p
 
+def ks_statistic_calc(fund_ts_past, fund_ts_month):
+    seq1 = deepcopy(fund_ts_past.values)
+    seq2 = deepcopy(fund_ts_month.values)
+    tsu.returnize0(seq1)
+    tsu.returnize0(seq2)
+    (ks, p) = scipy.stats.ks_2samp(seq1, seq2)
+    return ks, p
+
 def print_industry_coer(fund_ts, ostream):
     """
     @summary prints standard deviation of returns for a fund
@@ -288,6 +297,55 @@ def print_monthly_returns(fund_ts, years, ostream):
         for month in months:
             ostream.write(" % + 6.2f" % (mrets[i]*100))
             i += 1
+        ostream.write("\n")
+
+
+def print_monthly_ks(fund_ts, years, ostream):
+    """
+    @summary prints monthly returns for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    ostream.write("    ")
+    month_names = du.getMonthNames()
+    for name in month_names:
+        ostream.write("    " + str(name))
+    ostream.write("\n")
+
+    # mrets = tsu.monthly(fund_ts)
+    m_str = []
+
+    for i, year in enumerate(years):
+        months = du.getMonths(fund_ts, year)
+        for j, month in enumerate(months):
+            if i == 0 and j < 3:
+                m_str.append('    ')
+            else:
+                # dt_st = max(fund_ts.index[0], dt.datetime(year, month, 1)-relativedelta(months=6))
+                dt_st = fund_ts.index[0]
+                dt_today = dt.datetime(year, month, 1) - relativedelta(months=2)
+                dt_end = min(dt.datetime(year, month, 1) + relativedelta(months=1) + dt.timedelta(hours=-5), fund_ts.index[-1])
+                fund_ts_past = fund_ts.ix[dt_st: dt_today]
+                fund_ts_month = fund_ts.ix[dt_today: dt_end]
+                ks, p = ks_statistic_calc(fund_ts_past, fund_ts_month)
+                if not(ks == -1 or p == -1):
+                    if ks < p:
+                        m_str.append('PASS')
+                    else:
+                        m_str.append('FAIL')
+                else:
+                    m_str.append('    ')
+
+    i = 0
+    for year in years:
+        ostream.write(str(year))
+        months = du.getMonths(fund_ts, year)
+        for k in range(1, months[0]):
+            ostream.write("       ")
+        for month in months:
+            ostream.write("%7s" % (m_str[i]))
+            i = i + 1
         ostream.write("\n")
 
 
@@ -428,12 +486,12 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
 
     # KS - Similarity
-    ks, p = ks_statistic(fund_ts);
-    if ks!= -1 and p!= -1:
-        if ks < p:
-            ostream.write("\nThe last three month's returns are consistent with previous performance (KS = %2.5f, p = %2.5f) \n\n"% (ks, p))
-        else:
-            ostream.write("\nThe last three month's returns are NOT CONSISTENT with previous performance (KS = %2.5f, p = %2.5f) \n\n"% (ks, p))
+    # ks, p = ks_statistic(fund_ts);
+    # if ks!= -1 and p!= -1:
+    #     if ks < p:
+    #         ostream.write("\nThe last three month's returns are consistent with previous performance (KS = %2.5f, p = %2.5f) \n\n"% (ks, p))
+    #     else:
+    #         ostream.write("\nThe last three month's returns are NOT CONSISTENT with previous performance (KS = %2.5f, p = %2.5f) \n\n"% (ks, p))
 
 
     ostream.write("Transaction Costs\n")
@@ -549,6 +607,15 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     ostream.write("\n\n\nMonthly Returns for the Fund %\n")
 
     print_monthly_returns(fund_ts, years, ostream)
+
+    ostream.write("\n\n3 Month Kolmogorov-Smirnov 2-Sample Similarity Test\n")
+
+    print_monthly_ks(fund_ts, years, ostream)
+
+    ks, p = ks_statistic(fund_ts);
+    if ks!= -1 and p!= -1:
+        ostream.write("\nResults for the Similarity Test over last 3 months : (KS = %2.5f, p = %2.5f) \n\n"% (ks, p))
+
     if directory != False:
         ostream.write("</pre>")
 
