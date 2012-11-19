@@ -222,6 +222,9 @@ class _MySQL(DriverInterface):
         
         for i in range(1, 101):
             ds_map['f%i' % i] = 'f%i' % i
+        
+        for i in range(1, 10):
+            ds_map['c%i' % i] = 'c%i' % i
 
         data_item = map(lambda(x): ds_map[x], data_item)
 
@@ -230,19 +233,27 @@ class _MySQL(DriverInterface):
         symbol_query_list = ",".join(map(lambda x: "'" + x + "'", symbol_list))
 
         # Combine Data Fields for Query
-        data_item = map(lambda x: "B." + x, data_item)
         query_select_items = ",".join(data_item)
+        
+        # Now convert to ID's 
+        self.cursor.execute('''select assetid, code from asset 
+                               where code in( ''' + symbol_query_list + ''')''')
+        # Dictionary linking id's:symbols
+        d_id_sym = dict(self.cursor.fetchall())
 
-        self.cursor.execute("""
-        select A.code as symbol, B.date,""" + query_select_items + """
-        from priceadjusted B, asset A where A.assetid = B.assetid and 
-        B.date >= %s and B.date <= %s and A.code in (
-        """ + symbol_query_list + """)""", (ts_list[0].replace(hour=0),
-                                             ts_list[-1],))
+        ls_ids = d_id_sym.keys()
+        s_idlist = ",".join([str(x) for x in ls_ids])
+        
+        s_query = 'SELECT assetid, date, ' + query_select_items + \
+                  ' FROM priceadjusted WHERE assetid in (' + s_idlist + ')' + \
+                  ' AND date >= %s AND date <= %s '
+        
+        
+        self.cursor.execute(s_query, (ts_list[0].replace(hour=0), ts_list[-1]))
 
         # Retrieve Results
         results = self.cursor.fetchall()
-        
+
         # Create Data frames
         for i in range(len(data_item)):
             columns.append(pandas.DataFrame(index=ts_list, columns=symbol_list))
@@ -256,7 +267,7 @@ class _MySQL(DriverInterface):
                 continue
             # Add all columns to respective data-frames
             for i in range(len(data_item)):
-                columns[i][row[0]][dt_date] = row[i + 2]
+                columns[i][d_id_sym[row[0]]][dt_date] = row[i + 2]
 
         return columns
   
@@ -313,7 +324,7 @@ class _MySQL(DriverInterface):
         else:
             self.cursor.execute("""select myself.code as symbol from 
                 indexconstituent consititue1_, asset myself
-                where myself.assetid = consititue1_.assetid and 
+                where myself.assetid = consititue1_.assetid and myself.recordstatus=1 and myself.statuscodeid < 100 and 
                 consititue1_.indexassetid = %s;""", (str(int(list_name))))
 
         return sorted([x[0] for x in self.cursor.fetchall()])
