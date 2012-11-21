@@ -29,7 +29,7 @@ def _cache_dates():
     except KeyError:
         print "Please be sure to set the value for QS in config.sh or\n"
         print "in local.sh and then \'source local.sh\'.\n"
-    
+
     datestxt = np.loadtxt(filename,dtype=str)
     dates = []
     for i in datestxt:
@@ -74,14 +74,14 @@ def getFirstDay(funds,year,month):
     for date in funds.index:
         if((date.year==year) and (date.month==month)):
             return(date)
-    return('ERROR') 
+    return('ERROR')
 
 def getLastDay(funds,year,month):
     return_date = 'ERROR'
     for date in funds.index:
         if((date.year==year) and (date.month==month)):
             return_date = date
-    return(return_date) 
+    return(return_date)
 
 def getNextOptionClose(day, trade_days, offset=0):
     #get third friday in month of day
@@ -121,9 +121,9 @@ def getLastOptionClose(day, trade_days):
 def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31),
     timeofday = dt.timedelta(0)):
     """
-    @summary: Create a list of timestamps between startday and endday (inclusive) 
-    that correspond to the days there was trading at the NYSE. This function 
-    depends on a separately created a file that lists all days since July 4, 
+    @summary: Create a list of timestamps between startday and endday (inclusive)
+    that correspond to the days there was trading at the NYSE. This function
+    depends on a separately created a file that lists all days since July 4,
     1962 that the NYSE has been open, going forward to 2020 (based
     on the holidays that NYSE recognizes).
 
@@ -134,9 +134,9 @@ def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,3
     """
     start = startday - timeofday
     end = endday - timeofday
-    
+
     dates = GTS_DATES[start:end]
-    
+
     ret = [x + timeofday for x in dates]
 
     return(ret)
@@ -144,7 +144,7 @@ def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,3
 def getNextNNYSEdays(startday, days, timeofday):
     """
     @summary: Create a list of timestamps from startday that is days days long
-    that correspond to the days there was trading at  NYSE. This function 
+    that correspond to the days there was trading at  NYSE. This function
     depends on the file used in getNYSEdays and assumes the dates within are
     in order.
     @param startday: First timestamp to consider (inclusive)
@@ -153,11 +153,11 @@ def getNextNNYSEdays(startday, days, timeofday):
     @rtype datetime
     """
     try:
-        filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt" 
+        filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt"
     except KeyError:
         print "Please be sure to set the value for QS in config.sh or\n"
         print "in local.sh and then \'source local.sh\'.\n"
-    
+
     datestxt = np.loadtxt(filename,dtype=str)
     dates=[]
     for i in datestxt:
@@ -169,7 +169,7 @@ def getNextNNYSEdays(startday, days, timeofday):
 def getPrevNNYSEday(startday, timeofday):
     """
     @summary: This function returns the last valid trading day before the start
-    day, or returns the start day if it is a valid trading day. This function 
+    day, or returns the start day if it is a valid trading day. This function
     depends on the file used in getNYSEdays and assumes the dates within are
     in order.
     @param startday: First timestamp to consider (inclusive)
@@ -178,26 +178,26 @@ def getPrevNNYSEday(startday, timeofday):
     @rtype datetime
     """
     try:
-        filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt" 
+        filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt"
     except KeyError:
         print "Please be sure to set the value for QS in config.sh or\n"
         print "in local.sh and then \'source local.sh\'.\n"
-    
+
     datestxt = np.loadtxt(filename,dtype=str)
-    
+
     #''' Set return to first day '''
     dtReturn = dt.datetime.strptime( datestxt[0],"%m/%d/%Y")+timeofday
-    
+
     #''' Loop through all but first '''
     for i in datestxt[1:]:
         dtNext = dt.datetime.strptime(i,"%m/%d/%Y")
-        
+
         #''' If we are > startday, then use previous valid day '''
         if( dtNext > startday ):
             break
-        
+
         dtReturn = dtNext + timeofday
-    
+
     return(dtReturn)
 
 def ymd2epoch(year, month, day):
@@ -218,3 +218,51 @@ def epoch2date(ts):
     """
     tm = t.gmtime(ts)
     return(dt.date(tm.tm_year,tm.tm_mon,tm.tm_mday))
+
+
+def _trade_dates(dt_start, dt_end, s_period):
+    '''
+    @summary: Generate dates on which we need to trade
+    @param c_strat: Strategy config class
+    @param dt_start: Start date
+    @param dt_end: End date
+    '''
+
+    ldt_timestamps = getNYSEdays(dt_start,
+                dt_end, dt.timedelta(hours=16) )
+
+
+    # Use pandas reindex method instead
+    # Note, dates are index as well as values, we select based on index
+    # but return values since it is a numpy array of datetimes instead of
+    # pandas specific.
+    ts_dates = pd.TimeSeries(index=ldt_timestamps, data=ldt_timestamps)
+
+    # These are the dates we want
+    if s_period[:2] == 'BW':
+        # special case for biweekly
+
+        dr_range = pd.DateRange(dt_start, dt_end,
+                                timeRule=s_period[1:])
+        dr_range = np.asarray(dr_range)
+        li_even = np.array(range(len(dr_range)))
+        dr_range = dr_range[li_even[li_even % 2 == 0]]
+    else:
+        dr_range = pd.DateRange(dt_start, dt_end,
+                                timeRule=s_period)
+        dr_range = np.asarray(dr_range)
+
+
+    # Warning, we MUST copy the date range, if we modify it it will be returned
+    # in it's modified form the next time we use it.
+    dr_range = np.copy(dr_range)
+    dr_range += pd.DateOffset(hours=16)
+    ts_dates = ts_dates.reindex( dr_range, method='bfill' )
+    ldt_dates = ts_dates[ts_dates.notnull()].values
+
+    #Make unique
+    sdt_unique = set()
+    ldt_dates = [x for x in ldt_dates
+                 if x not in sdt_unique and not sdt_unique.add(x)]
+
+    return ldt_dates
