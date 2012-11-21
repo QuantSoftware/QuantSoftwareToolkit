@@ -54,44 +54,29 @@ def getMarketRel( dData, sRel='$SPX' ):
             dRet['volume'] = dData['volume']
             continue
         
-        dfAbsolute = dData[sKey]
-        dfRelative = pand.DataFrame( index=dfAbsolute.index, columns=dfAbsolute.columns, data=np.zeros(dfAbsolute.shape) )
+        dfMarkRel = dData[sKey].copy()
         
-        ''' Get returns and strip off the market returns '''
-        naRets = dfAbsolute.values.copy()
-        tsu.returnize0( naRets )
+        #Get returns
+        tsu.returnize0(  dfMarkRel.values )
         
-        naMarkRets = naRets[:, list(dfAbsolute.columns).index(sRel) ]
+        # Subtract market returns and make them 1-based, stocks start at 100
+        dfMarkRel = (dfMarkRel - dfMarkRel[sRel]) + 1.
+        dfMarkRel.ix[0, :] = 100.
         
-        for i, sStock in enumerate(dfAbsolute.columns):
-            ''' Don't change the 'market' stock '''
-            if sStock == sRel:
-                dfRelative.values[:,i] = dfAbsolute.values[:,i]
-                continue
-    
-            naMarkRel = (naRets[:,i] - naMarkRets) + 1.0
+        dfMarkRel = dfMarkRel.cumprod(axis=0)
 
-            ''' Find the first non-nan value and start the price at 100 '''
-            for j in range(0, dfAbsolute.values.shape[0]):
-                if pand.isnull( dfAbsolute.values[j][i] ):
-                    dfRelative.values[j][i] = float('nan')
-                    continue
-                dfRelative.values[j][i] = 100
-                break
-                
-            ''' Now fill prices out using market relative returns '''
-            for j in range(j+1, dfAbsolute.values.shape[0]):
-                dfRelative.values[j][i] =  dfRelative.values[j-1][i] * naMarkRel[j]
+        ''' Do not change market stock '''
+        dfMarkRel[sRel] = dData[sKey][sRel]
         
         ''' Add dataFrame to dictionary to return, move to next key '''
-        dRet[sKey] = dfRelative
+        dRet[sKey] = dfMarkRel
         
         
     return dRet
 
 
 
-def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
+def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None, bMin=False ):
     '''
     @summary: Calculates the feature values using a list of feature functions and arguments.
     @param dData - Dictionary containing data to be used, requires specific naming: open/high/low/close/volume
@@ -100,6 +85,7 @@ def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
                    There is a special argument 'MR', if it exists, the data will be made market relative
     @param sMarketRel: If not none, the data will all be made relative to the symbol provided
     @param sLog: If not None, will be filename to log all of the features to 
+    @param bMin: If true, only run for the last day
     @return: list of dataframes containing values
     '''
 
@@ -115,7 +101,8 @@ def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
     
     ''' Loop though feature functions, pass each data dictionary and arguments '''
     for i, fcFeature in enumerate(lfcFeatures):
-        
+        #dt_start = dt.datetime.now()
+        #print fcFeature, ldArgs[i], ' in:',
         ''' Check for special arguments '''
         if 'MR' in ldArgs[i]:
             
@@ -126,11 +113,26 @@ def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None ):
             if sMarketRel == None:
                 raise AssertionError('Functions require market relative stock but sMarketRel=None')
             del ldArgs[i]['MR']
-            ldfRet.append( fcFeature( dDataRelative, **ldArgs[i] ) )
+            if bMin:
+                # bMin means only calculate the LAST row of the stock
+                dTmp = {}
+                for sKey in dDataRelative:
+                    dTmp[sKey] = dDataRelative[sKey].ix[ -ldArgs[i]['lLookback']:]
+                ldfRet.append( fcFeature( dTmp, **ldArgs[i] ).ix[-1:] )
+            else:
+                ldfRet.append( fcFeature( dDataRelative, **ldArgs[i] ) )
         else:
-            ldfRet.append( fcFeature( dData, **ldArgs[i] ) )
+            if bMin:
+                # bMin means only calculate the LAST row of the stock
+                dTmp = {}
+                for sKey in dData:
+                    dTmp[sKey] = dData[sKey].ix[ -ldArgs[i]['lLookback']:]
+                ldfRet.append( fcFeature( dTmp, **ldArgs[i] ).ix[-1:] )
+            else:
+                ldfRet.append( fcFeature( dData, **ldArgs[i] ) )
+        #print  dt.datetime.now() - dt_start
 
-        
+    
     if not sLog == None:
         with open( sLog, 'wb' ) as fFile:
             pickle.dump( ldfRet, fFile, -1 )
@@ -408,4 +410,5 @@ def testFeature( fcFeature, dArgs ):
         plt.show()
 
 if __name__ == '__main__':
+    testFeature( class_fut_ret, {'MR':True})
     pass
