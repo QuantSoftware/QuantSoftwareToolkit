@@ -379,7 +379,7 @@ def testFeature( fcFeature, dArgs ):
     lsSym.append('$VIX')
     lsSym.sort()
     
-    lsKeys = ['open', 'high', 'low', 'close', 'volume']
+    lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldfData = norObj.get_data( ldtTimestamps, lsSym, lsKeys )
     dData = dict(zip(lsKeys, ldfData))
     dfPrice = dData['close']
