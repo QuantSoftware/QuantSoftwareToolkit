@@ -250,8 +250,14 @@ def normFeatures( naFeatures, fMin, fMax, bAbsolute, bIgnoreLast=True ):
             
         ''' Calculate multiplier and shift variable so that new data fits in specified range '''
         fRange = fFeatMax - fFeatMin
-        fMult = fNewRange / fRange
-        fShift = fMin - (fFeatMin * fMult)
+        
+        if fRange == 0:
+            print 'Warning, bad query data range'
+            fMult = 1.
+            fShigt = 0.
+        else:
+            fMult = fNewRange / fRange
+            fShift = fMin - (fFeatMin * fMult)
         
         ''' scale and shift, save in return array '''
         naFeatures[:,i] *= fMult
