@@ -73,7 +73,7 @@ if __name__ == '__main__':
     dtStart = dt.datetime(2010,8,01)
     dtEnd = dt.datetime(2010,12,31)
     
-    norObj = da.DataAccess('Norgate')      
+    norObj = da.DataAccess('Yahoo')      
     ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
     
     lsKeys = ['open', 'high', 'low', 'close', 'volume']
