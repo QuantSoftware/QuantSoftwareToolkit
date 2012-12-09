@@ -33,7 +33,7 @@ import datetime as dt
 import pandas
 import numpy as np
 from copy import deepcopy
-import scipy
+import scipy.stats as scst
 
 def _dividend_rets_funds(df_funds, f_dividend_rets):
 
@@ -176,12 +176,12 @@ def ks_statistic(fund_ts):
         seq2 = fund_ts.values[-60:]
         tsu.returnize0(seq1)
         tsu.returnize0(seq2)
-        (ks, p) = scipy.stats.ks_2samp(seq1, seq2)
+        (ks, p) = scst.ks_2samp(seq1, seq2)
         return ks, p
     # elif len(fund_ts.values) > 5:
     #     seq1 = fund_ts.values[0:-5]
     #     seq2 = fund_ts.values[-5:]
-    #     (ks, p) = scipy.stats.ks_2samp(seq1, seq2)
+    #     (ks, p) = scst.ks_2samp(seq1, seq2)
     #     return ks, p
 
     ks = -1
@@ -193,7 +193,7 @@ def ks_statistic_calc(fund_ts_past, fund_ts_month):
     seq2 = deepcopy(fund_ts_month.values)
     tsu.returnize0(seq1)
     tsu.returnize0(seq2)
-    (ks, p) = scipy.stats.ks_2samp(seq1, seq2)
+    (ks, p) = scst.ks_2samp(seq1, seq2)
     return ks, p
 
 def print_industry_coer(fund_ts, ostream):
@@ -382,8 +382,15 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     #Set locale for currency conversions
     locale.setlocale(locale.LC_ALL, '')
 
+    if original != "" and type(original) != type([]):
+        original = [original]
+        if type(s_original_name) != type([]):
+            s_original_name = [s_original_name]
+
     #make names length independent for alignment
-    s_formatted_original_name="%15s" % s_original_name
+    s_formatted_original_name = []
+    for name_temp in s_original_name:
+        s_formatted_original_name.append("%15s" % name_temp)
     s_formatted_fund_name = "%15s" % s_fund_name
 
     fund_ts=fund_ts.fillna(method='pad')
@@ -461,11 +468,18 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     print_line(s_formatted_fund_name+" Resulting Value"," %15s, %10.2f%%" % (locale.currency(int(round(fund_ts.values[-1]*mult)), grouping=True), \
                                                      float(100*((fund_ts.values[-1]/fund_ts.values[0])-1))), i_spacing=4, ostream=ostream)
 
+    # if type(original)!=type("str"):
+    #     mult3 = i_start_cash / original.values[0]
+    #     # print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original.values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
+    #     print_line(s_formatted_original_name+" Resulting Value"," %15s, %10.2f%%" % (locale.currency(int(round(original.values[-1]*mult3)), grouping=True), \
+    #                                                  float(100*((original.values[-1]/original.values[0])-1))), i_spacing=4, ostream=ostream)
+
     if type(original)!=type("str"):
-        mult3 = i_start_cash / original.values[0]
-        # print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original.values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
-        print_line(s_formatted_original_name+" Resulting Value"," %15s, %10.2f%%" % (locale.currency(int(round(original.values[-1]*mult3)), grouping=True), \
-                                                     float(100*((original.values[-1]/original.values[0])-1))), i_spacing=4, ostream=ostream)
+        for i in range(len(original)):
+            mult3 = i_start_cash / original[i].values[0]
+            # print_line(s_formatted_original_name +" Resulting Value",(locale.currency(int(round(original[i].values[-1]*mult3)), grouping=True)),i_spacing=3, ostream=ostream)
+            print_line(s_formatted_original_name[i]+" Resulting Value"," %15s, %10.2f%%" % (locale.currency(int(round(original[i].values[-1]*mult3)), grouping=True), \
+                                                     float(100*((original[i].values[-1]/original[i].values[0])-1))), i_spacing=4, ostream=ostream)
 
     for bench_sym in benchmark:
         mult2= i_start_cash / benchmark_close[bench_sym].values[0]
@@ -478,7 +492,8 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     # if len(years) > 1:
     print_line(s_formatted_fund_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(fund_ts.values)[0],i_spacing=4, ostream=ostream)
     if type(original)!=type("str"):
-        print_line(s_formatted_original_name+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(original.values)[0],i_spacing=4, ostream=ostream)
+        for i in range(len(original)):
+            print_line(s_formatted_original_name[i]+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(original[i].values)[0],i_spacing=4, ostream=ostream)
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Sharpe Ratio","%10.3f" % fu.get_sharpe_ratio(benchmark_close[bench_sym].values)[0],i_spacing=4,ostream=ostream)
@@ -512,7 +527,8 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     print_line(s_formatted_fund_name+" Std Dev of Returns",get_std_dev(fund_ts),i_spacing=8, ostream=ostream)
 
     if type(original)!=type("str"):
-        print_line(s_formatted_original_name+" Std Dev of Returns", get_std_dev(original), i_spacing=8, ostream=ostream)
+        for i in range(len(original)):
+            print_line(s_formatted_original_name[i]+" Std Dev of Returns", get_std_dev(original[i]), i_spacing=8, ostream=ostream)
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Std Dev of Returns", get_std_dev(benchmark_close[bench_sym]), i_spacing=8, ostream=ostream)
@@ -535,10 +551,11 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
 
     if type(original)!=type("str"):
-        s_line=""
-        for f_token in get_annual_return(original, years):
-            s_line+=" %+8.2f%%" % f_token
-        print_line(s_formatted_original_name+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
+        for i in range(len(original)):
+            s_line=""
+            for f_token in get_annual_return(original[i], years):
+                s_line+=" %+8.2f%%" % f_token
+            print_line(s_formatted_original_name[i]+" Annualized Return", s_line, i_spacing=4, ostream=ostream)
 
     for bench_sym in benchmark:
         s_line=""
@@ -552,7 +569,8 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
 
     if type(original)!=type("str"):
-        print_line(s_formatted_original_name+" Winning Days",get_winning_days(original, years), i_spacing=4, ostream=ostream)
+        for i in range(len(original)):
+            print_line(s_formatted_original_name[i]+" Winning Days",get_winning_days(original[i], years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
@@ -564,7 +582,8 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     print_line(s_formatted_fund_name+" Max Draw Down",get_max_draw_down(fund_ts, years), i_spacing=4, ostream=ostream)
 
     if type(original)!=type("str"):
-        print_line(s_formatted_original_name+" Max Draw Down",get_max_draw_down(original, years), i_spacing=4, ostream=ostream)
+        for i in range(len(original)):
+            print_line(s_formatted_original_name[i]+" Max Draw Down",get_max_draw_down(original[i], years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
@@ -578,7 +597,8 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
 
     if type(original)!=type("str"):
-        print_line(s_formatted_original_name+" Daily Sharpe Ratio",get_daily_sharpe(original, years), i_spacing=4, ostream=ostream)
+        for i in range(len(original)):
+            print_line(s_formatted_original_name[i]+" Daily Sharpe Ratio",get_daily_sharpe(original[i], years), i_spacing=4, ostream=ostream)
 
     for bench_sym in benchmark:
         print_line(bench_sym+" Daily Sharpe Ratio",get_daily_sharpe(benchmark_close[bench_sym], years), i_spacing=4, ostream=ostream)
@@ -589,7 +609,8 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     print_line(s_formatted_fund_name+" Daily Sortino Ratio",get_daily_sortino(fund_ts, years), i_spacing=4, ostream=ostream)
 
     if type(original)!=type("str"):
-        print_line(s_formatted_original_name+" Daily Sortino Ratio",get_daily_sortino(original, years), i_spacing=4, ostream=ostream)
+        for i in range(len(original)):
+            print_line(s_formatted_original_name[i]+" Daily Sortino Ratio",get_daily_sortino(original[i], years), i_spacing=4, ostream=ostream)
 
 
     for bench_sym in benchmark:
@@ -913,21 +934,31 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
         if(end_date == 0 or end_date<fund.index[-1]):
             end_date = fund.index[-1]
         mult = i_start_cash/fund.values[0]
-        pyplot.plot(fund.index, fund.values * mult, label = \
+        pyplot.plot(fund.index, fund.values * mult,'b', label = \
                                  path.basename(graph_name))
     else:
         i=0
         for entity in fund:
-            if(start_date == 0 or start_date>entity.index[0]):
-                start_date = entity.index[0]
-            if(end_date == 0 or end_date<entity.index[-1]):
-                end_date = entity.index[-1]
-            mult = i_start_cash/entity.values[0]
             if i == 1 and len(fund)!=1:
-                pyplot.plot(entity.index, entity.values * mult, label = \
-                                  s_original_name)
+                for j in range(len(entity)):
+                    if(start_date == 0 or start_date>entity[j].index[0]):
+                        start_date = entity[j].index[0]
+                    if(end_date == 0 or end_date<entity[j].index[-1]):
+                        end_date = entity[j].index[-1]
+                    mult = i_start_cash/entity[j].values[0]
+                    if j ==0:
+                        pyplot.plot(entity[j].index, entity[j].values * mult, 'k', label = \
+                                      s_original_name[j])
+                    else:
+                        pyplot.plot(entity[j].index, entity[j].values * mult, 'g', label = \
+                                      s_original_name[j])
             else:
-                pyplot.plot(entity.index, entity.values * mult, label = \
+                if(start_date == 0 or start_date>entity.index[0]):
+                    start_date = entity.index[0]
+                if(end_date == 0 or end_date<entity.index[-1]):
+                    end_date = entity.index[-1]
+                mult = i_start_cash/entity.values[0]
+                pyplot.plot(entity.index, entity.values * mult, 'b', label = \
                                   path.basename(graph_name))
             i=i+1
     timeofday = dt.timedelta(hours = 16)
@@ -943,10 +974,11 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
         for i,sym in enumerate(benchmark):
             benchmark_close[sym] = _dividend_rets_funds(benchmark_close[sym], lf_dividend_rets[i])
 
-    for sym in benchmark:
+    for i,sym in enumerate(benchmark):
         mult = i_start_cash / benchmark_close[sym].values[0]
         pyplot.plot(benchmark_close[sym].index, \
-                benchmark_close[sym].values*mult, label = sym)
+                benchmark_close[sym].values*mult, 'r', label = sym)
+
     pyplot.gcf().autofmt_xdate()
     pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
     pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
