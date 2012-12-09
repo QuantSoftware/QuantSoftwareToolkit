@@ -248,14 +248,14 @@ def featRSI( dData, lLookback=14,  b_human=False):
     # seperate data into positive and negative for easy calculations
     for sColumn in dfDeltaUp.columns:
         tsColDown = dfDeltaDown[sColumn]
-        tsColDown[tsColDown >= 0] = 0.0 
+        tsColDown[tsColDown >= 0] = np.NAN 
         
         tsColUp = dfDeltaUp[sColumn]
-        tsColUp[tsColUp <= 0] = 0.0 
+        tsColUp[tsColUp <= 0] = np.NAN
     
     # Note we take abs() of negative values, all should be positive now
-    dfRolUp = pand.rolling_mean(dfDeltaUp, lLookback)
-    dfRolDown = pand.rolling_mean(dfDeltaDown, lLookback).abs()
+    dfRolUp = pand.rolling_mean(dfDeltaUp, lLookback, min_periods=1)
+    dfRolDown = pand.rolling_mean(dfDeltaDown, lLookback, min_periods=1).abs()
     
     # relative strength
     dfRS = dfRolUp / dfRolDown
@@ -285,26 +285,9 @@ def featDrawDown( dData, lLookback=30,  b_human=False):
     #''' Feature DataFrame will be 1:1, we can use the price as a template '''
     dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
     
-    #''' Loop through stocks '''
-    for sStock in dfPrice.columns:
-        tsPrice = dfPrice[sStock]
-        tsRet = dfRet[sStock]
-           
-        #''' Loop over time '''
-        for i in range(len(tsPrice.index)):
-            
-            #''' Get starting and stopping indexes '''
-            if i != len(tsPrice.index):
-                lStop = i + 1
-            else:
-                lStop = None
-                
-            lStart = max( 0,  i - (lLookback - 1) )
- 
-            #''' Calculate peak value, and subsequent drawdown '''
-            fPeak = np.max( tsPrice.values[ lStart:lStop ] )    
-            
-            tsRet[i] = tsPrice[i] / fPeak
+    dfMax = pand.rolling_max(dfPrice, lLookback)
+    return (dfMax - dfPrice) / dfMax;
+    
     if b_human:
         for sym in dData['close']:
             x=1000/dData['close'][sym][0]
@@ -324,33 +307,8 @@ def featRunUp( dData, lLookback=30, b_human=False ):
     
     dfPrice = dData['close']
     
-    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
-    
-    #''' Loop through stocks '''
-    for sStock in dfPrice.columns:
-        tsPrice = dfPrice[sStock]
-        tsRet = dfRet[sStock]
-           
-        #''' Loop over time '''
-        for i in range(len(tsPrice.index)):
-                      
-            #''' Get starting and stopping indexes '''
-            if i != len(tsPrice.index):
-                lStop = i + 1
-            else:
-                lStop = None
-                
-            lStart = max( 0,  i - (lLookback - 1) )
- 
-            #''' Calculate trough value, and subsequent drawdown '''
-            fTrough = np.min( tsPrice.values[ lStart:lStop ] )    
-            
-            tsRet[i] = tsPrice[i] / fTrough
-            if tsPrice[i] < fTrough or pand.isnull(fTrough):
-                fTrough = tsPrice[i]
-            
-            tsRet[i] = tsPrice[i] / fTrough
+    dfMax = pand.rolling_min(dfPrice, lLookback)
+    return dfPrice / dfMax;
             
     if b_human:
         for sym in dData['close']:
@@ -371,31 +329,8 @@ def featVolumeDelta( dData, lLookback=30, b_human=False ):
     
     dfVolume = dData['volume']
     
-    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfVolume.index, columns=dfVolume.columns, data=np.zeros(dfVolume.shape) )
-    
-    #''' Loop through stocks '''
-    for sStock in dfVolume.columns:
-        
-        tsVol = dfVolume[sStock]
-        tsRet = dfRet[sStock]
-        #lSum = 0
-        
-        #''' Loop over time '''
-        for i in range(len(tsVol.index)):
-            
-            #if pand.notnull( tsVol[i] ):
-            #    lSum += tsVol[i]
-            
-            if i < lLookback - 1:
-                tsRet[i] = float('nan')
-                continue
-            
-            #''' If we have the bare min, take the avg, else remove the last and take the avg '''
-            tsRet[i] = np.sum( tsVol[i-(lLookback-1):i+1]) / lLookback
-            
-            #''' Make this relative to the MA of volume '''
-            tsRet[i] /= tsVol[i]
+    dfRet = pand.rolling_mean(dfVolume, lLookback)
+    dfRet /= dfVolume
         
     if b_human:
         for sym in dData['close']:
@@ -415,52 +350,22 @@ def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
     '''
     
     dfPrice = dData['close']
-    
+
     #''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, 
+                            data=np.zeros(dfPrice.shape) )
     
-    #''' Loop through stocks '''
-    for sStock in dfPrice.columns:
-        tsPrice = dfPrice[sStock]
-        tsRet = dfRet[sStock]
-           
-        #''' Peaks will be a sorted, descending list of highs and indexes '''
-        lfPeaks = []
-        
-        #''' Loop over time '''
-        for i in range(len(tsPrice.index)):
-            j = 0
-            while j < (len(lfPeaks)):
-                if bDown:
-                    #''' If down, use troughts '''
-                    if tsPrice[i] < lfPeaks[j][0]:
-                        break
-                else:
-                    #''' If up, use peaks '''
-                    if tsPrice[i] > lfPeaks[j][0]:
-                        break
-                j+=1
-                
-            #''' Insert into sorted list, remove all lesser, older peaks '''
-            lfPeaks.insert( j, (tsPrice[i], i) )
-            lfPeaks = lfPeaks[:j+1]
-            
-            #''' Remove all outdated peaks '''
-            j = 0
-            while j < (len(lfPeaks)):
-                if i - lfPeaks[j][1] > lLookback:
-                    lfPeaks.pop(j)
-                    continue
-                    
-                j += 1    
-            
-            #print lfPeaks
-            
-            tsRet[i] = ((lLookback - (i - lfPeaks[0][1])) / float(lLookback)) * 100.0
-            
-            #''' perturb value '''
-            random.seed(i)
-            tsRet[i] += random.uniform( -0.0001, 0.0001 )
+    #''' Loop through time '''
+    for i in range(dfPrice.shape[0]):
+        if( (i-lLookback)+1 < 0 ):
+            dfRet.ix[i,:] = np.NAN
+        else:
+            if bDown:
+                dfRet.ix[i,:] = dfPrice.values[i+1:(i-lLookback)+1:-1,:].argmin(axis=0)
+            else:
+                dfRet.ix[i,:] = dfPrice.values[i+1:(i-lLookback)+1:-1,:].argmax(axis=0)
+    
+    dfRet = ((lLookback - 1.) - dfRet) / (lLookback - 1.) * 100.
 
     if b_human:
         for sym in dData['close']:
@@ -468,6 +373,13 @@ def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
             dData['close'][sym]=dData['close'][sym]*x
         return dData['close']
     return dfRet
+
+
+def featAroonDown( dData, lLookback=25, b_human=False ):
+    '''
+    @summary: Wrapper to call aroon with flag = true
+    '''
+    return featAroon(dData, bDown=True, lLookback=lLookback, b_human=b_human)
 
 
 def featStochastic( dData, lLookback=14, bFast=True, lMA=3, b_human=False ):
@@ -484,62 +396,23 @@ def featStochastic( dData, lLookback=14, bFast=True, lMA=3, b_human=False ):
     dfPrice = dData['close']
 
     
-    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
-    
     #''' Loop through stocks '''
-    for sStock in dfPrice.columns:
-        tsPrice = dfPrice[sStock]
-        tsHigh = dfHigh[sStock]
-        tsLow = dfLow[sStock]
-        tsRet = dfRet[sStock]
-           
-        #''' For slow stochastic oscillator we need to remember 3 past values '''
-        lfPastStoch = []
-        
-        #''' Loop over time '''
-        for i in range(len(tsPrice.index)):
+    dfLows = pand.rolling_min(dfLow, lLookback)
+    dfHighs = pand.rolling_max(dfHigh, lLookback)
+    
+    dfStoch = (dfPrice - dfLows) / (dfHighs - dfLows)
             
-            #''' NaN if not enough data to do lookback '''
-            if i < lLookback - 1:
-                tsRet[i] = float('nan')
-                continue    
-            
-            fLow = 1E300
-            fHigh = -1E300
-            #''' Find highest high and lowest low '''
-            for j in range(lLookback):
-                
-                lInd = i-j
-                
-                if tsHigh[lInd] > fHigh:
-                    fHigh = tsHigh[lInd]
-                if tsLow[lInd] < fLow:
-                    fLow = tsLow[lInd]
-             
-            fStoch = (tsPrice[i] - fLow) / (fHigh - fLow)
-            
-            #''' For fast we just take the stochastic value, slow we need 3 day MA '''
-            if bFast:
-                tsRet[i] = fStoch   
-            else:
-                if len(lfPastStoch) < lMA:
-                    lfPastStoch.append(fStoch)
-                    continue
-                
-                lfPastStoch.append(fStoch)
-                lfPastStoch.pop(0)
-                
-                tsRet[i] = sum(lfPastStoch) / float(len(lfPastStoch))
+    #''' For fast we just take the stochastic value, slow we need 3 day MA '''
+    if not bFast:
+       dfStoch = pand.rolling_mean(dfStoch, lMA)
                  
-                
-
     if b_human:
         for sym in dData['close']:
             x=1000/dData['close'][sym][0]
             dData['close'][sym]=dData['close'][sym]*x
         return dData['close']
-    return dfRet
+    
+    return dfStoch
 
 def featBeta( dData, lLookback=14, sMarket='$SPX', b_human=False ):
     '''
@@ -553,38 +426,14 @@ def featBeta( dData, lLookback=14, sMarket='$SPX', b_human=False ):
     dfPrice = dData['close']
 
     #''' Calculate returns '''
-    naRets = dfPrice.values.copy()
-    tsu.returnize1(naRets)
-    dfHistReturns = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=naRets )
-    
-    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
-    
-    #''' Loop through stocks '''
-    for sStock in dfHistReturns.columns:   
-        tsHistReturns = dfHistReturns[sStock]
-        tsMarket = dfHistReturns[sMarket]
-        tsRet = dfRet[sStock]
-           
-        #''' Loop over time '''
-        for i in range(len(tsRet.index)):
-            
-            #''' NaN if not enough data to do lookback '''
-            if i < lLookback - 1:
-                tsRet[i] = float('nan')
-                continue    
-            
-            naStock = tsHistReturns[ i - (lLookback - 1): i+1 ]
-            naMarket = tsMarket[ i - (lLookback - 1): i+1 ]
-            
-            #''' Beta is the slope the line, with market returns on X, stock returns on Y '''
-            try:
-                fBeta, unused = np.polyfit( naMarket, naStock, 1)
-                tsRet[i] = fBeta
-            except:
-                #'Numpy Error featBeta'
-                tsRet[i] = float('NaN')
+    dfRets = dfPrice.copy()
+    tsu.returnize1(dfRets.values)
 
+    tsMarket = dfRets[sMarket]
+
+    dfRet = pand.rolling_cov(tsMarket, dfRets, lLookback)
+    dfRet /= dfRet[sMarket]
+   
     if b_human:
         for sym in dData['close']:
             x=1000/dData['close'][sym][0]
@@ -631,24 +480,9 @@ def featBollinger( dData, lLookback=20, teeth=0, b_human=False ):
         dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, data=np.zeros(dfPrice.shape) )
         
         #''' Loop through stocks '''
-        for sStock in dfPrice.columns:   
-            tsPrice = dfPrice[sStock]
-            tsRet = dfRet[sStock]
-               
-            #''' Loop over time '''
-            for i in range(len(tsPrice.index)):
-                
-                #''' NaN if not enough data to do lookback '''
-                if i < lLookback - 1:
-                    tsRet[i] = float('nan')
-                    continue    
-                
-                fAvg = np.average( tsPrice[ i-(lLookback-1):i+1 ] )
-                fStd = np.std( tsPrice[ i-(lLookback-1):i+1 ] )
-                
-                tsRet[i] = (tsPrice[i] - fAvg) / fStd
-    
-        return dfRet
+        dfAvg = pand.rolling_mean(dfPrice, lLookback)
+        dfStd = pand.rolling_std(dfPrice, lLookback)
+        return (dfPrice - dfAvg) / dfStd
 
 
 def featCorrelation( dData, lLookback=20, sRel='$SPX', b_human=False ):
