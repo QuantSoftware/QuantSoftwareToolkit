@@ -18,6 +18,7 @@ import pandas
 import csv
 # from ofxparse import OfxParser
 import numpy
+import pickle
 import datetime as dt
 import dateutil.parser as dp
 from Bin import report
@@ -74,9 +75,9 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
     html_file  =  open("./"+plot_name+"/report-"+plot_name+".html","a")
     html_file.write("<pre>\n\nTransaction Statistics\n")
     #calc stats
-    
+
     #first pass
-    reader=csv.reader(open(filename,'r'), delimiter=',')
+    reader=csv.reader(open(filename,'rU'), delimiter=',')
     reader.next()
     prev=0
     first=1
@@ -150,7 +151,7 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
             #elif row[2] == "Buy to Cover":
                 #do nothing
             # elif row[2] == "Deposit Cash":
-                
+
             if(prev!=dp.parse(row[3])):
                 diffs.append(dp.parse(row[3])-prev)
                 prev=dp.parse(row[3])
@@ -158,7 +159,7 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
         holds.append(weighted_hold)
         efficiencies.append(weighted_e)
         rets.append(weighted_ret*100)
-            
+
     avg_period=sum(diffs, dt.timedelta(0))/len(diffs)
     avg_hold=_ignore_zeros_average(holds)
     t=sold/(bought+sold)
@@ -167,7 +168,7 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
     avg_com=_ignore_zeros_average(commissions)
     # avg_slip=_ignore_zeros_average(slippage)
     avg_ret=_ignore_zeros_average(rets)
-    
+
     #print stats
     html_file.write("\nNumber of trades:         %10d" % volume)
     html_file.write("\nAverage Trading Period:   %10s" % str(avg_period).split(",")[0])
@@ -177,7 +178,7 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
     html_file.write("\nAverage Commissions:      %10d" % avg_com)
     # html_file.write("\nAverage Slippage:         %10d" % avg_slip)
     html_file.write("\nAverage Return:           %%%9.4f\n\n" % avg_ret)
-    
+
     html_file.write("Positions by Date\n")
     for date in share_table.index:
         html_file.write("\nPosition for day: "+str(date).split()[0])
@@ -192,7 +193,7 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
             if(item>0):
                 html_file.write("%15s" % str(item))
         html_file.write("\n\nTransactions for day:\n")
-        reader=csv.reader(open(filename,'r'), delimiter=',')
+        reader=csv.reader(open(filename,'rU'), delimiter=',')
         a=0
         cash=0
         if(show_transactions):
@@ -241,12 +242,12 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
                         a=a+1
                         html_file.write(" | ")
                         html_file.write("\n")
-                      
+
     html_file.close()
 
 def csv2fund(filename):
     """
-    @summary converts a csv file to a fund with the given starting value 
+    @summary converts a csv file to a fund with the given starting value
     @param filename: csv file to open and convert
     @param start_val: starting value for the portfolio
     @return fund : time series containing fund value over time
@@ -254,7 +255,7 @@ def csv2fund(filename):
     @return slippage : value of slippage over the csv time
     @return commissions : value of slippage over the csv time
     """
-    reader=csv.reader(open(filename,'r'), delimiter=',')
+    reader=csv.reader(open(filename,'rU'), delimiter=',')
     reader.next()
     symbols=[]
     dates=[]
@@ -265,7 +266,7 @@ def csv2fund(filename):
         if not(dp.parse(row[3]) in dates):
             dates.append(dp.parse(row[3]))
     print symbols
-    reader=csv.reader(open(filename,'r'), delimiter=',')
+    reader=csv.reader(open(filename,'rU'), delimiter=',')
     reader.next()
     if not("_CASH" in symbols):
         symbols.append("_CASH")
@@ -372,6 +373,7 @@ def share_table2fund(share_table):
     timeofday = dt.timedelta(hours=16)
     timestamps = du.getNYSEdays(startday - dt.timedelta(days=5), endday + dt.timedelta(days=1), timeofday)
     historic = dataobj.get_data(timestamps, symbols, ["close"])[0]
+    historic.fillna(method='ffill', inplace=True)
     historic["_CASH"] = 1
     closest = historic[historic.index <= share_table.index[0]].ix[:]
     ts_leverage = pandas.Series(0, index=[closest.index[-1]])
@@ -404,9 +406,8 @@ def share_table2fund(share_table):
     return [fund_ts, ts_leverage]
 
 if __name__ == "__main__":
-    # filename="./trans.csv"
-    filename = 'Stump.csv'
-    plot_name = "Log"
+    filename = "./New-CSV/Stump.csv"
+    plot_name = "StumpGrinder"
     print "load csv"
     [share_table, commissions, i_start_cash] = csv2fund(filename)
     print share_table
@@ -415,7 +416,11 @@ if __name__ == "__main__":
     [fund_ts, ts_leverage] = share_table2fund(share_table)
     print "print report"
     print fund_ts
-    report.print_stats(fund_ts, ["SPY"], plot_name, directory="./" + plot_name, commissions=commissions, i_start_cash=i_start_cash)
+    # original_1 = pickle.load(open('Core.pkl', 'rb'))
+    # original_2 = pickle.load(open('Hedge.pkl', 'rb'))
+    # pickle.dump(fund_ts, open('Hedge.pkl', 'wb'))
+    report.print_stats(fund_ts, ["SPY"], "StumpGrinder", directory="./" + plot_name, commissions=commissions, i_start_cash=i_start_cash)
+        # original=[original_1, original_2], s_original_name=['EvenKeel-Core', 'EvenKeel-Hedge'])
     print "analyze transactions"
     #Generate new plot based off transactions alone
     analyze_transactions(filename, plot_name, share_table, True)
