@@ -118,6 +118,22 @@ def getLastOptionClose(day, trade_days):
         day= day - dt.timedelta(days=1)
     return(getNextOptionClose(day, trade_days))
 
+
+def getNYSEoffset(mark, offset):
+    ''' Returns NYSE date offset by number of days '''
+    mark = mark.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    i = GTS_DATES.index.searchsorted(mark, side='right')
+    # If there is no exact match, take first date in past
+    if GTS_DATES[i] != mark:
+        i -= 1
+        
+    ret = GTS_DATES[i + offset]
+
+    ret.replace(hour=16)
+    return ret
+
+
 def getNYSEdays(startday = dt.datetime(1964,7,5), endday = dt.datetime(2020,12,31),
     timeofday = dt.timedelta(0)):
     """
