@@ -444,7 +444,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
 
     if directory != False :
-        ostream.write("\n\n<img src="+splot+" width=600 />\n\n")
+        ostream.write("\n\n<img src="+splot+" width=700 />\n\n")
 
     mult = i_start_cash/fund_ts.values[0]
 
@@ -929,10 +929,14 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
     """
     pyplot.clf()
     fig = pyplot.figure()
+    from matplotlib.font_manager import FontProperties
+    fontP = FontProperties()
+    fontP.set_size('small')
+
     if type(leverage)==type(False):
         ax = pyplot.subplot(111)
     else:
-        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])
+        gs = gridspec.GridSpec(2, 1, height_ratios=[4, 1])
         ax = pyplot.subplot(gs[0])
 
     start_date = 0
@@ -1002,7 +1006,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
                      box.width, box.height * 0.9])
 
     # Put a legend below current axis
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+    ax.legend(prop=fontP, loc='upper center', bbox_to_anchor=(0.5, -0.05),
                ncol=3)
 
 
@@ -1027,7 +1031,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
             pyplot.yticks(labels, size='xx-small')
         # pyplot.title(graph_name + " Leverage")
         pyplot.xlabel('Date', size='xx-small')
-        pyplot.ylabel('Leverage', size='xx-small')
+        pyplot.ylabel('Exposure', size='xx-small')
         pyplot.xticks(size='xx-small')
         pyplot.yticks(size='xx-small')
 
@@ -1037,7 +1041,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
                          box.width, box.height * 0.9])
 
         # Put a legend below current axis
-        ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.08),
+        ax1.legend(prop=fontP, loc='upper center', bbox_to_anchor=(0.5, -0.15),
                    ncol=3)
 
     pyplot.savefig(filename, format = 'png')
