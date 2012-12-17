@@ -38,25 +38,71 @@ def _calculate_leverage(values_by_stock, ts_leverage, ts_long_exposure, ts_short
         f_long = 0
         f_short = 0
         for val in r_val.values[:-1]:
-            if val >= 0:
-                f_long = f_long + val
-            else:
-                f_short = f_short + val
+            if np.isnan(val) == False:
+                if val >= 0:
+                    f_long = f_long + val
+                else:
+                    f_short = f_short + val
+                
         f_lev = (f_long + abs(f_short)) \
                 /(f_long + r_val.values[-1] + f_short)
         f_net = (f_long - abs(f_short)) \
                 /(f_long + r_val.values[-1] + f_short)
-        f_long = (f_long) \
+        f_long_ex = (f_long) \
                 /(f_long + r_val.values[-1] + f_short)
-        f_short = (abs(f_short)) \
-                /(f_long + r_val.values[-1] + f_short)
+        f_short_ex = (abs(f_short)) \
+                /(f_long + r_val.values[-1] + f_short)                
+
+        if np.isnan(f_lev): f_lev = 0
+        if np.isnan(f_net): f_net = 0
+        if np.isnan(f_long): f_long = 0
+        if np.isnan(f_short): f_short = 0
 
         ts_leverage = ts_leverage.append(pand.Series(f_lev, index = [r_index] ))
-        ts_long_exposure = ts_long_exposure.append(pand.Series(f_long, index = [r_index] ))
-        ts_short_exposure = ts_short_exposure.append(pand.Series(f_short, index = [r_index] ))
+        ts_long_exposure = ts_long_exposure.append(pand.Series(f_long_ex, index = [r_index] ))
+        ts_short_exposure = ts_short_exposure.append(pand.Series(f_short_ex, index = [r_index] ))
         ts_net_exposure = ts_net_exposure.append(pand.Series(f_net, index = [r_index] ))
 
     return ts_leverage, ts_long_exposure, ts_short_exposure, ts_net_exposure
+    
+    
+def _monthly_turnover(ts_orders, ts_fund):
+    
+    order_val_month = 0
+    last_date = ts_orders.index[0]
+    b_first_month = True
+    ts_turnover = None
+    for date in ts_orders.index:
+        if last_date.month == date.month:
+            order_val_month += ts_orders.ix[date]
+        else:
+            if b_first_month == True:
+                ts_turnover = pand.Series(order_val_month, index=[last_date])
+                b_first_month = False
+            else:
+                ts_turnover = ts_turnover.append(pand.Series(order_val_month, index=[last_date]))
+            order_val_month = ts_orders.ix[date]
+            last_date = date
+    ts_turnover = ts_turnover.append(pand.Series(order_val_month, index=[last_date]))
+            
+    order_month = 0
+    len_orders = len(ts_turnover.index)
+    last_date = ts_fund.index[0]
+    
+    for date in ts_fund.index:
+        if order_month < len_orders:
+            if (ts_turnover.index[order_month]).month != date.month:
+                ts_turnover.ix[ts_turnover.index[order_month]] = ts_turnover.ix[ts_turnover.index[order_month]]/(2*ts_fund.ix[last_date])
+                order_month += 1 
+            else:
+                last_date = date
+        else:
+            last_date = date
+            
+    ts_turnover.ix[ts_turnover.index[-1]] = ts_turnover.ix[ts_turnover.index[-1]]/(2*ts_fund.ix[last_date])           
+
+    return ts_turnover
+
 
 def _normalize(row):
 
@@ -150,6 +196,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     dt_last_date = None
     f_last_borrow = 0.0
     b_first_iter = True
+    b_order_flag = True
 
     for row_index, row in alloc.iterrows():
 
@@ -184,6 +231,8 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             ts_long_exposure = pand.Series(0, index=[prediction_date])
             ts_short_exposure = pand.Series(0, index=[prediction_date])
             ts_net_exposure = pand.Series(0, index=[prediction_date])
+
+            ts_orders = None
 
             days_since_alloc = 0
             f_borrow_cost = 0.0
@@ -294,6 +343,18 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             f_slippage_cost[np.isnan(f_slippage_cost)] = 0.0
             f_slippage_cost = f_slippage_cost.sum()
 
+            #Orders
+            f_order = (1+f_slippage)*(trade_price.values[0][:-1])*order.values
+            f_order = abs(f_order)
+            f_order[np.isnan(f_order)] = 0.0
+            f_order = f_order.sum()
+            
+            if b_order_flag == True:
+                ts_orders = pand.Series(f_order, index=[trade_date])
+                b_order_flag = False
+            else:
+                ts_orders = ts_orders.append(pand.Series(f_order, index=[trade_date]))
+
             if np.isnan(f_slippage_cost) == False:
                 f_total_slippage = f_total_slippage + f_slippage_cost
                 # Rebalancing the cash left
@@ -317,7 +378,6 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
             GL = (money_long + money_short) / (money_long - money_short + money_cash)
             NL = (money_long - money_short) / (money_long - money_short + money_cash)
 
-            # LongExposure =
 
             #for all symbols, print required transaction to log
             for sym in shares:
@@ -355,8 +415,12 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     #print f_total_commision
     #print f_total_slippage
     #print f_total_borrow
+
+    ts_turnover = _monthly_turnover(ts_orders, ts_fund)
+    
     if b_exposure:
-        return (ts_fund, ts_leverage, f_total_commision, f_total_slippage, f_total_borrow, ts_long_exposure, ts_short_exposure, ts_net_exposure)
+        return (ts_fund, ts_leverage, f_total_commision, f_total_slippage, f_total_borrow, 
+                        ts_long_exposure, ts_short_exposure, ts_net_exposure, ts_turnover)
     return (ts_fund, ts_leverage, f_total_commision, f_total_slippage, f_total_borrow)
 
 
