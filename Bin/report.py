@@ -300,6 +300,31 @@ def print_monthly_returns(fund_ts, years, ostream):
         ostream.write("\n")
 
 
+
+def print_monthly_turnover(fund_ts, years, ts_turnover, ostream):
+    """
+    @summary prints monthly returns for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    ostream.write("    ")
+    month_names = du.getMonthNames()
+    for name in month_names:
+        ostream.write("    " + str(name))
+    ostream.write("\n")
+    i = 0
+    # mrets = tsu.monthly(fund_ts)
+    for year in years:
+        ostream.write(str(year))
+        months = du.getMonths(ts_turnover, year)
+        for k in range(1, months[0]):
+            ostream.write("       ")
+        for month in months:
+            ostream.write(" % + 6.2f" % (ts_turnover[i]*100))
+            i += 1
+        ostream.write("\n")
+        
 def print_monthly_ks(fund_ts, years, ostream):
     """
     @summary prints monthly returns for given fund and years to the given stream
@@ -366,7 +391,8 @@ def print_line(s_left_side, s_right_side, i_spacing=0, ostream="stdout"):
 
 def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund",
     s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False,
-    leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, i_start_cash=1000000):
+    leverage = False, s_leverage_name="Leverage", commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, 
+    i_start_cash=1000000, ts_turnover="False"):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
@@ -409,12 +435,13 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
         if type(original)==type("str"):
             if type(leverage)!=type(False):
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash= i_start_cash)
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash, s_leverage_name=s_leverage_name)
             else:
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash= i_start_cash)
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash = i_start_cash)
         else:
             if type(leverage)!=type(False):
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage, i_start_cash= i_start_cash)
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets,
+                             leverage=leverage, i_start_cash = i_start_cash, s_leverage_name=s_leverage_name)
             else:
                 print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash)
 
@@ -443,7 +470,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
 
     if directory != False :
-        ostream.write("\n\n<img src="+splot+" width=600 />\n\n")
+        ostream.write("\n\n<img src="+splot+" width=700 />\n\n")
 
     mult = i_start_cash/fund_ts.values[0]
 
@@ -629,6 +656,10 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
     print_monthly_returns(fund_ts, years, ostream)
 
+    if type(ts_turnover) != type("False"):
+        ostream.write("\n\nMonthly Turnover for the fund\n")
+        print_monthly_turnover(fund_ts, years, ts_turnover, ostream)
+
     ostream.write("\n\n3 Month Kolmogorov-Smirnov 2-Sample Similarity Test\n")
 
     print_monthly_ks(fund_ts, years, ostream)
@@ -640,7 +671,11 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     if directory != False:
         ostream.write("</pre>")
 
-def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False, leverage = False, commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, i_start_cash=1000000):
+
+def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",
+    s_fund_name="Fund", s_original_name="Original", d_trading_params="", d_hedge_params="",
+    s_comments="", directory=False, leverage=False, s_leverage_name="Leverage",commissions=0, slippage=0,
+    borrowcost=0, ostream=sys.stdout, i_start_cash=1000000):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
@@ -673,12 +708,12 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fun
 
         if type(original)==type("str"):
             if type(leverage)!=type(False):
-                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash)
+                print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash, s_leverage_name=s_leverage_name)
             else:
                 print_plot(fund_ts, benchmark, name, splot_dir, lf_dividend_rets, i_start_cash = i_start_cash)
         else:
             if type(leverage)!=type(False):
-                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash)
+                print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, leverage=leverage, i_start_cash = i_start_cash, s_leverage_name=s_leverage_name)
             else:
                 print_plot([fund_ts, original], benchmark, name, splot_dir, s_original_name, lf_dividend_rets, i_start_cash = i_start_cash)
 
@@ -914,7 +949,7 @@ def print_bar_chart(llf_vals, ls_fund_labels, ls_year_labels, s_filename):
         autolabel(rects[i])
     savefig(s_filename, format = 'png')
 
-def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_dividend_rets=0.0, leverage=False, i_start_cash = 1000000):
+def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_dividend_rets=0.0, leverage=False, i_start_cash = 1000000, s_leverage_name="Leverage"):
     """
     @summary prints a plot of a provided fund and benchmark
     @param fund: fund value in pandas timeseries
@@ -923,9 +958,17 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
     @param filename: file location to store plot1
     """
     pyplot.clf()
-    if type(leverage)!=type(False):
-        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])
-        pyplot.subplot(gs[0])
+    fig = pyplot.figure()
+    from matplotlib.font_manager import FontProperties
+    fontP = FontProperties()
+    fontP.set_size('small')
+
+    if type(leverage)==type(False):
+        ax = pyplot.subplot(111)
+    else:
+        gs = gridspec.GridSpec(2, 1, height_ratios=[4, 1])
+        ax = pyplot.subplot(gs[0])
+
     start_date = 0
     end_date = 0
     if(type(fund)!= type(list())):
@@ -979,31 +1022,60 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
         pyplot.plot(benchmark_close[sym].index, \
                 benchmark_close[sym].values*mult, 'r', label = sym)
 
-    pyplot.gcf().autofmt_xdate()
-    pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
-    pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
-    pyplot.xlabel('Date')
-    pyplot.ylabel('Fund Value')
-    pyplot.legend(loc = "best")
+    # pyplot.gcf().autofmt_xdate()
+    # pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
+    # pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
+    pyplot.xlabel('Date', size='xx-small')
+    pyplot.ylabel('Fund Value', size='xx-small')
+    pyplot.xticks(size='xx-small')
+    pyplot.yticks(size='xx-small')
+
+    # Shink current axis's height by 10% on the bottom
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                     box.width, box.height * 0.9])
+
+    # Put a legend below current axis
+    ax.legend(prop=fontP, loc='upper center', bbox_to_anchor=(0.5, -0.05),
+               ncol=3)
+
+
     if type(leverage)!=type(False):
-        pyplot.subplot(gs[1])
-        pyplot.plot(leverage.index, leverage.values, label="Leverage")
-        pyplot.gcf().autofmt_xdate()
-        pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
-        pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
-        labels=[]
-        max_label=max(leverage.values)
-        min_label=min(leverage.values)
-        rounder= -1*(round(log10(max_label))-1)
-        labels.append(round(min_label*0.9, int(rounder)))
-        labels.append(round((max_label+min_label)/2, int(rounder)))
-        labels.append(round(max_label*1.1, int(rounder)))
-        pyplot.yticks(labels)
-        pyplot.legend(loc = "best")
-        pyplot.title(graph_name + " Leverage")
-        pyplot.xlabel('Date')
-        pyplot.legend()
-    savefig(filename, format = 'png')
+        ax1 = pyplot.subplot(gs[1])
+        if type(leverage) == type([]):
+            for i in range(len(leverage)):
+                pyplot.plot(leverage[i].index, leverage[i].values, label=s_leverage_name[i])
+        else:
+            pyplot.plot(leverage.index, leverage.values, label=s_leverage_name)
+        # pyplot.gcf().autofmt_xdate()
+        # pyplot.gca().fmt_xdata = mdates.DateFormatter('%m-%d-%Y')
+        # pyplot.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d %Y'))
+        if type(leverage) != type([]):
+            labels=[]
+            max_label=max(leverage.values)
+            min_label=min(leverage.values)
+            rounder= -1*(round(log10(max_label))-1)
+            labels.append(round(min_label*0.9, int(rounder)))
+            labels.append(round((max_label+min_label)/2, int(rounder)))
+            labels.append(round(max_label*1.1, int(rounder)))
+            pyplot.yticks(labels, size='xx-small')
+        # pyplot.title(graph_name + " Leverage")
+        pyplot.xlabel('Date', size='xx-small')
+        pyplot.ylabel('Exposure', size='xx-small')
+        pyplot.xticks(size='xx-small')
+        pyplot.yticks(size='xx-small')
+
+        # Shink current axis's height by 10% on the bottom
+        box = ax1.get_position()
+        ax1.set_position([box.x0, box.y0 + box.height * 0.1,
+                         box.width, box.height * 0.9])
+
+        # Put a legend below current axis
+        ax1.legend(prop=fontP, loc='upper center', bbox_to_anchor=(0.5, -0.15),
+                   ncol=3)
+
+    pyplot.savefig(filename, format = 'png')
+
 
 def generate_report(funds_list, graph_names, out_file, i_start_cash = 10000):
     """
