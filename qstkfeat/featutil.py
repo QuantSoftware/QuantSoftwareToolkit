@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 ''' Our Imports '''
 import qstklearn.kdtknn as kdt
 from qstkutil import DataAccess as da
+from qstkutil import DataEvolved as de
 from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 
@@ -415,6 +416,47 @@ def testFeature( fcFeature, dArgs ):
         plt.title( '%s-%s'%(fcFeature.__name__, str(dArgs)) )
         plt.show()
 
+
+def speed_test(lsFeature):
+	'''
+	@Author: Tingyu Zhu
+	@summary: Function to test the runtime for a list of features, and output them by speed
+	@param lsFeature: a list of features that will be sorted by runtime
+	@param dArgs: Arguments to pass into feature function
+	''' 	
+
+
+	'''pulling out 2 years data to run test'''
+        dicFeature = {'MovingAverage':featMA,'RSI':featRSI,'Aroon':featAroon,'Stochastic':featStochastic,'Beta':featBeta,'Correlation':featCorrelation,'Bollinger':featBollinger}
+        daData = de.DataAccess('mysql')
+        #daData = da.DataAccess('Yahoo')
+	dtStart = dt.datetime(2008,1,1)
+	dtEnd = dt.datetime(2010,12,31)
+	dtTimeofday = dt.timedelta(hours=16)
+	lsSym = ['AAPL','GOOG','XOM','AMZN','BA','GILD']
+        lsSym.append('$SPX')  
+	'''set up variables for applyFeatures'''
+	ldArgs = [{'lLookback':30}]
+	lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
+	ldtTimestamps = du.getNYSEdays( dtStart,dtEnd, dtTimeofday)
+	ldfData = daData.get_data( ldtTimestamps,lsSym, lsKeys)
+	dData = dict(zip(lsKeys,ldfData))
+	dfPrice = dData['close']
+        lsRuntime = []
+        dicLog = {}
+	for feature in lsFeature:
+		dtFuncStart = dt.datetime.now()
+		ldfFeatures = applyFeatures( dData,[dicFeature[feature]], ldArgs)
+		dtFuncEnd = dt.datetime.now()
+		tRuntime = dtFuncEnd - dtFuncStart
+                dicLog[tRuntime] = feature 
+                lsRuntime.append(tRuntime)
+        lsRuntime.sort()
+        for i in lsRuntime:
+		print dicLog[i] + ' : ' + str(i)
+	return 
+
 if __name__ == '__main__':
-    testFeature( class_fut_ret, {'MR':True})
-    pass
+   speed_test(['MovingAverage','RSI','Aroon','Beta','Correlation','Bollinger','Stochastic']) 
+   #testFeature( class_fut_ret, {'MR':True})
+   #pass
