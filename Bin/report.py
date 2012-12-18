@@ -300,6 +300,31 @@ def print_monthly_returns(fund_ts, years, ostream):
         ostream.write("\n")
 
 
+
+def print_monthly_turnover(fund_ts, years, ts_turnover, ostream):
+    """
+    @summary prints monthly returns for given fund and years to the given stream
+    @param fund_ts: pandas fund time series
+    @param years: list of years to print out
+    @param ostream: stream to print to
+    """
+    ostream.write("    ")
+    month_names = du.getMonthNames()
+    for name in month_names:
+        ostream.write("    " + str(name))
+    ostream.write("\n")
+    i = 0
+    # mrets = tsu.monthly(fund_ts)
+    for year in years:
+        ostream.write(str(year))
+        months = du.getMonths(ts_turnover, year)
+        for k in range(1, months[0]):
+            ostream.write("       ")
+        for month in months:
+            ostream.write(" % + 6.2f" % (ts_turnover[i]*100))
+            i += 1
+        ostream.write("\n")
+        
 def print_monthly_ks(fund_ts, years, ostream):
     """
     @summary prints monthly returns for given fund and years to the given stream
@@ -366,7 +391,8 @@ def print_line(s_left_side, s_right_side, i_spacing=0, ostream="stdout"):
 
 def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fund_name="Fund",
     s_original_name="Original", d_trading_params="", d_hedge_params="", s_comments="", directory = False,
-    leverage = False, s_leverage_name="Leverage", commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, i_start_cash=1000000):
+    leverage = False, s_leverage_name="Leverage", commissions = 0, slippage = 0, borrowcost = 0, ostream = sys.stdout, 
+    i_start_cash=1000000, ts_turnover="False"):
     """
     @summary prints stats of a provided fund and benchmark
     @param fund_ts: fund value in pandas timeseries
@@ -629,6 +655,10 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
     ostream.write("\n\n\nMonthly Returns for the Fund %\n")
 
     print_monthly_returns(fund_ts, years, ostream)
+
+    if type(ts_turnover) != type("False"):
+        ostream.write("\n\nMonthly Turnover for the fund\n")
+        print_monthly_turnover(fund_ts, years, ts_turnover, ostream)
 
     ostream.write("\n\n3 Month Kolmogorov-Smirnov 2-Sample Similarity Test\n")
 
