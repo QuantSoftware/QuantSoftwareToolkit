@@ -253,9 +253,11 @@ class _MySQL(DriverInterface):
                   ' FROM priceadjusted WHERE assetid in (' + s_idlist + ')' + \
                   ' AND date >= %s AND date <= %s '
         
-        
-        self.cursor.execute(s_query, (ts_list[0].replace(hour=0), ts_list[-1]))
-
+        try:
+            self.cursor.execute(s_query, (ts_list[0].replace(hour=0), ts_list[-1]))
+        except:
+            print 'Data error, probably using an non-existent symbol'
+            
         # Retrieve Results
         results = self.cursor.fetchall()
 

@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 ''' Our Imports '''
 import qstklearn.kdtknn as kdt
 from qstkutil import DataAccess as da
+from qstkutil import DataEvolved as de
 from qstkutil import qsdateutil as du
 from qstkutil import tsutil as tsu
 
@@ -415,6 +416,58 @@ def testFeature( fcFeature, dArgs ):
         plt.title( '%s-%s'%(fcFeature.__name__, str(dArgs)) )
         plt.show()
 
+
+def speedTest(fcFeature,ldArgs):
+    '''
+    @Author: Tingyu Zhu
+    @summary: Function to test the runtime for a list of features, and output them by speed
+    @param lsFeature: a list of features that will be sorted by runtime
+    @param dArgs: Arguments to pass into feature function
+    ''' 	
+
+    '''pulling out 2 years data to run test'''
+    daData = de.DataAccess('mysql')
+    #daData = da.DataAccess('Yahoo')
+    dtStart = dt.datetime(2010,12,1)
+    dtEnd = dt.datetime(2010,12,31)
+    dtTimeofday = dt.timedelta(hours=16)
+    #lsSym = ['AAPL','GOOG','XOM','AMZN','BA','GILD']
+    lsSym = daData.get_all_symbols()
+ 
+    print lsSym
+	
+    '''set up variables for applyFeatures'''
+    lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
+    ldtTimestamps = du.getNYSEdays( dtStart,dtEnd, dtTimeofday)
+    ldfData = daData.get_data( ldtTimestamps,lsSym, lsKeys)
+    dData = dict(zip(lsKeys,ldfData))
+    
+    
+    
+    '''loop through features'''
+    lsRuntime = []
+    dicLog = {}
+    for feature in fcFeature:
+    	print feature.__name__
+        dtFuncStart = dt.datetime.now()
+        ldfFeatures = applyFeatures( dData,[feature], ldArgs)
+        dtFuncEnd = dt.datetime.now()
+        tRuntime = dtFuncEnd - dtFuncStart
+        dicLog[tRuntime] = feature.__name__ 
+        lsRuntime.append(tRuntime)
+        lsRuntime.sort()
+    
+    '''print out result'''
+    txLog = []
+    for i in lsRuntime:
+        temp = dicLog[i] + ' : ' + str(i)
+        txLog.append(temp)
+        print temp
+    
+ 
+    return txLog
+
 if __name__ == '__main__':
-    testFeature( class_fut_ret, {'MR':True})
-    pass
+   speedTest([featMA,featRSI,featAroon,featBeta,featCorrelation,featBollinger,featStochastic],[{'lLookback':30}]) 
+   #testFeature( class_fut_ret, {'MR':True})
+   #pass
