@@ -71,7 +71,7 @@ def _monthly_turnover(ts_orders, ts_fund):
     order_val_month = 0
     last_date = ts_orders.index[0]
     b_first_month = True
-    ts_turnover = None
+    ts_turnover = "None"
     for date in ts_orders.index:
         if last_date.month == date.month:
             order_val_month += ts_orders.ix[date]
@@ -83,8 +83,12 @@ def _monthly_turnover(ts_orders, ts_fund):
                 ts_turnover = ts_turnover.append(pand.Series(order_val_month, index=[last_date]))
             order_val_month = ts_orders.ix[date]
             last_date = date
-    ts_turnover = ts_turnover.append(pand.Series(order_val_month, index=[last_date]))
             
+    if type(ts_turnover) != type("None"):
+        ts_turnover = ts_turnover.append(pand.Series(order_val_month, index=[last_date]))
+    else:
+        ts_turnover = pand.Series(order_val_month, index=[last_date])
+    
     order_month = 0
     len_orders = len(ts_turnover.index)
     last_date = ts_fund.index[0]
@@ -97,8 +101,11 @@ def _monthly_turnover(ts_orders, ts_fund):
             else:
                 last_date = date
         else:
-            last_date = date
-            
+            if date.month == last_date.month:
+                last_date = date
+            else:
+                break
+    
     ts_turnover.ix[ts_turnover.index[-1]] = ts_turnover.ix[ts_turnover.index[-1]]/(2*ts_fund.ix[last_date])           
 
     return ts_turnover
