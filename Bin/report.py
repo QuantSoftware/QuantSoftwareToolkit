@@ -189,12 +189,15 @@ def ks_statistic(fund_ts):
     return ks, p
 
 def ks_statistic_calc(fund_ts_past, fund_ts_month):
-    seq1 = deepcopy(fund_ts_past.values)
-    seq2 = deepcopy(fund_ts_month.values)
-    tsu.returnize0(seq1)
-    tsu.returnize0(seq2)
-    (ks, p) = scst.ks_2samp(seq1, seq2)
-    return ks, p
+    try:
+        seq1 = deepcopy(fund_ts_past.values)
+        seq2 = deepcopy(fund_ts_month.values)
+        tsu.returnize0(seq1)
+        tsu.returnize0(seq2)
+        (ks, p) = scst.ks_2samp(seq1, seq2)
+        return ks, p
+    except:
+        return -1,-1
 
 def print_industry_coer(fund_ts, ostream):
     """
