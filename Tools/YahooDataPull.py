@@ -29,7 +29,7 @@ def get_data(data_path, ls_symbols):
         # print "Getting {0}".format(symbol)
         
         try:
-            params= urllib.urlencode ({'a':1, 'b':1, 'c':2000, 'd':_now.month, 'e':_now.day, 'f':_now.year, 's': symbol})
+            params= urllib.urlencode ({'a':0, 'b':1, 'c':2000, 'd':_now.month, 'e':_now.day, 'f':_now.year, 's': symbol})
             url = "http://ichart.finance.yahoo.com/table.csv?%s" % params
             url_get= urllib2.urlopen(url)
             
