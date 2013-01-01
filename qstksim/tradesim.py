@@ -338,6 +338,8 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
 
             f_total_commision = f_total_commision + f_transaction_cost
 
+            value_before_trade = ((trade_price*shares.ix[-1]).sum(axis = 1)).ix[-1]
+
             # Shares that were actually purchased
             shares = prediction_shares
 
