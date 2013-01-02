@@ -404,7 +404,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
 
                     if log!="false":
                         if(abs(order[sym])!=0):
-                            log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(prediction_date)+","+str(GL)+","+str(NL)+\
+                            log_file.write(str(sym) + ","+str(sym)+","+order_type+","+str(trade_date)+","+str(GL)+","+str(NL)+\
                                        ","+str(order[sym])+","+str(trade_price[sym].values[0])+","+\
                                         str(trade_price[sym].values[0]*order[sym])+","\
                                        +str(shares[sym].ix[-1])+","+str(value_after_trade)+","+str(f_stock_commission)+","+\
