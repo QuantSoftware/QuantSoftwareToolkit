@@ -434,13 +434,12 @@ def speedTest(fcFeature,ldArgs):
     ''' 	
 
     '''pulling out 2 years data to run test'''
-    daData = de.DataAccess('mysql')
-    #daData = da.DataAccess('Yahoo')
+    daData = da.DataAccess('Yahoo')
     dtStart = dt.datetime(2011,7,1)
     dtEnd = dt.datetime(2011,12,31)
     dtTimeofday = dt.timedelta(hours=16)
-    #lsSym = ['AAPL','GOOG','XOM','AMZN','BA','GILD','$SPX']
-    lsSym = daData.get_all_symbols()
+    lsSym = ['AAPL','GOOG','XOM','AMZN','BA','GILD','$SPX']
+
  
     #print lsSym
 	
@@ -476,22 +475,7 @@ def speedTest(fcFeature,ldArgs):
     return txLog
 
 if __name__ == '__main__':
-    daData = de.DataAccess('mysql')
-    #daData = da.DataAccess('Yahoo')
-    dtStart = dt.datetime(2011,12,1)
-    dtEnd = dt.datetime(2011,12,31)
-    dtTimeofday = dt.timedelta(hours=16)
-    lsSym = ['AAPL','GOOG','XOM','$SPX']
-    #lsSym = daData.get_all_symbols()
- 
-    #print lsSym
-	
-    '''set up variables for applyFeatures'''
-    lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
-    ldtTimestamps = du.getNYSEdays( dtStart,dtEnd, dtTimeofday)
-    ldfData = daData.get_data( ldtTimestamps,lsSym, lsKeys)
-    dData = dict(zip(lsKeys,ldfData))
-    getMarketRel(dData)
+
    #speedTest([featMA,featRSI,featAroon,featBeta,featCorrelation,featBollinger,featStochastic],[{'lLookback':30}]) 
    #testFeature( class_fut_ret, {'MR':True})
-   #pass
+   pass
