@@ -41,38 +41,42 @@ def getMarketRel( dData, sRel='$SPX' ):
     @return: Dictionary of market relative values
     '''
     
+    # the close dataframe is assumed to be in the dictionary data
+    # otherwise the function will NOT WORK!
     if sRel not in dData['close'].columns:
         raise KeyError( 'Market relative stock %s not found in getMR()'%sRel )
     
     
     dRet = {}
-       
-    ''' Make all data market relative, except for volume '''
+
+    dfClose = dData['close'].copy()
+    
+    dfCloseMark = dfClose.copy()
+    tsu.returnize0(  dfCloseMark.values )
+    dfCloseMark = (dfCloseMark - dfCloseMark[sRel]) + 1.
+    dfCloseMark.ix[0, :] = 100.
+    dfCloseMark = dfCloseMark.cumprod(axis=0)
+    print dfCloseMark
+    #Make all data market relative, except for volume
     for sKey in dData.keys():
         
-        ''' Don't calculate market relative volume, but still copy it over '''
+        # Don't calculate market relative volume, but still copy it over 
         if sKey == 'volume':
             dRet['volume'] = dData['volume']
             continue
-        
-        dfMarkRel = dData[sKey].copy()
-        
-        #Get returns
-        tsu.returnize0(  dfMarkRel.values )
-        
-        # Subtract market returns and make them 1-based, stocks start at 100
-        dfMarkRel = (dfMarkRel - dfMarkRel[sRel]) + 1.
-        dfMarkRel.ix[0, :] = 100.
-        
-        dfMarkRel = dfMarkRel.cumprod(axis=0)
 
-        ''' Do not change market stock '''
-        dfMarkRel[sRel] = dData[sKey][sRel]
-        
-        ''' Add dataFrame to dictionary to return, move to next key '''
-        dRet[sKey] = dfMarkRel
+        dfKey = dData[sKey]
+        dfRatio = dfKey/dfClose
         
         
+        #Add dataFrame to dictionary to return, move to next key 
+        dRet[sKey] = dfCloseMark * dfRatio
+        
+        #Comment the line below to convert the sRel as well, uncomment it
+        #to keep the relative symbol's raw data
+        dRet[sKey][sRel] = dData[sKey][sRel]
+
+    #print dRet 
     return dRet
 
 
@@ -372,11 +376,11 @@ def testFeature( fcFeature, dArgs ):
     '''
     
     ''' Get Train data for 2009-2010 '''
-    dtStart = dt.datetime(2009, 1, 1)
-    dtEnd = dt.datetime(2009, 5, 1)
+    dtStart = dt.datetime(2011, 7, 1)
+    dtEnd = dt.datetime(2011, 12, 31)
          
     ''' Pull in current training data and test data '''
-    norObj = da.DataAccess('Norgate')
+    norObj = de.DataAccess('mysql')
     ''' Get 2 extra months for moving averages and future returns '''
     ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
     
@@ -417,24 +421,27 @@ def testFeature( fcFeature, dArgs ):
         plt.show()
 
 
+    
+    
 def speedTest(fcFeature,ldArgs):
     '''
     @Author: Tingyu Zhu
     @summary: Function to test the runtime for a list of features, and output them by speed
     @param lsFeature: a list of features that will be sorted by runtime
     @param dArgs: Arguments to pass into feature function
+    @return: an array containing the log of the information of the features' runtime
+   
     ''' 	
 
     '''pulling out 2 years data to run test'''
-    daData = de.DataAccess('mysql')
-    #daData = da.DataAccess('Yahoo')
-    dtStart = dt.datetime(2010,12,1)
-    dtEnd = dt.datetime(2010,12,31)
+    daData = da.DataAccess('Yahoo')
+    dtStart = dt.datetime(2011,7,1)
+    dtEnd = dt.datetime(2011,12,31)
     dtTimeofday = dt.timedelta(hours=16)
-    #lsSym = ['AAPL','GOOG','XOM','AMZN','BA','GILD']
-    lsSym = daData.get_all_symbols()
+    lsSym = ['AAPL','GOOG','XOM','AMZN','BA','GILD','$SPX']
+
  
-    print lsSym
+    #print lsSym
 	
     '''set up variables for applyFeatures'''
     lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
@@ -468,6 +475,7 @@ def speedTest(fcFeature,ldArgs):
     return txLog
 
 if __name__ == '__main__':
-   speedTest([featMA,featRSI,featAroon,featBeta,featCorrelation,featBollinger,featStochastic],[{'lLookback':30}]) 
+
+   #speedTest([featMA,featRSI,featAroon,featBeta,featCorrelation,featBollinger,featStochastic],[{'lLookback':30}]) 
    #testFeature( class_fut_ret, {'MR':True})
-   #pass
+   pass
