@@ -56,7 +56,8 @@ def getMarketRel( dData, sRel='$SPX' ):
     dfCloseMark = (dfCloseMark - dfCloseMark[sRel]) + 1.
     dfCloseMark.ix[0, :] = 100.
     dfCloseMark = dfCloseMark.cumprod(axis=0)
-    print dfCloseMark
+    
+    #print dfCloseMark
     #Make all data market relative, except for volume
     for sKey in dData.keys():
         
@@ -434,7 +435,7 @@ def speedTest(fcFeature,ldArgs):
     ''' 	
 
     '''pulling out 2 years data to run test'''
-    daData = da.DataAccess('Yahoo')
+    daData = de.DataAccess('mysql')
     dtStart = dt.datetime(2011,7,1)
     dtEnd = dt.datetime(2011,12,31)
     dtTimeofday = dt.timedelta(hours=16)
@@ -476,6 +477,6 @@ def speedTest(fcFeature,ldArgs):
 
 if __name__ == '__main__':
 
-   #speedTest([featMA,featRSI,featAroon,featBeta,featCorrelation,featBollinger,featStochastic],[{'lLookback':30}]) 
+   speedTest([featMA,featRSI,featAroon,featBeta,featCorrelation,featBollinger,featStochastic],[{'lLookback':30}]) 
    #testFeature( class_fut_ret, {'MR':True})
    pass
