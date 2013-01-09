@@ -318,8 +318,9 @@ def print_monthly_turnover(fund_ts, years, ts_turnover, ostream):
     for year in years:
         ostream.write(str(year))
         months = du.getMonths(ts_turnover, year)
-        for k in range(1, months[0]):
-            ostream.write("       ")
+        if months != []:
+            for k in range(1, months[0]):
+                ostream.write("       ")
         for month in months:
             ostream.write(" % + 6.2f" % (ts_turnover[i]*100))
             i += 1
