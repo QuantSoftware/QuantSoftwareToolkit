@@ -434,7 +434,7 @@ def speedTest(fcFeature,ldArgs):
     ''' 	
 
     '''pulling out 2 years data to run test'''
-    daData = da.DataAccess('Yahoo')
+    daData = de.DataAccess('mysql')
     dtStart = dt.datetime(2011,7,1)
     dtEnd = dt.datetime(2011,12,31)
     dtTimeofday = dt.timedelta(hours=16)
