@@ -424,59 +424,49 @@ def testFeature( fcFeature, dArgs ):
 
     
     
-def speedTest(fcFeature,ldArgs):
+def speedTest(lfcFeature,ldArgs):
     '''
     @Author: Tingyu Zhu
     @summary: Function to test the runtime for a list of features, and output them by speed
-    @param lsFeature: a list of features that will be sorted by runtime
+    @param lfcFeature: a list of features that will be sorted by runtime
     @param dArgs: Arguments to pass into feature function
-    @return: an array containing the log of the information of the features' runtime
-   
+    @return: A list of sorted tuples of format (time, function name/param string)
     ''' 	
 
     '''pulling out 2 years data to run test'''
     daData = de.DataAccess('mysql')
-    dtStart = dt.datetime(2011,7,1)
-    dtEnd = dt.datetime(2011,12,31)
+    dtStart = dt.datetime(2010, 1, 1)
+    dtEnd = dt.datetime(2011, 12, 31)
     dtTimeofday = dt.timedelta(hours=16)
-    lsSym = ['AAPL','GOOG','XOM','AMZN','BA','GILD','$SPX']
+    lsSym = ['AAPL', 'GOOG', 'XOM', 'AMZN', 'BA', 'GILD', '$SPX']
 
- 
     #print lsSym
-	
+
     '''set up variables for applyFeatures'''
     lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
-    ldtTimestamps = du.getNYSEdays( dtStart,dtEnd, dtTimeofday)
-    ldfData = daData.get_data( ldtTimestamps,lsSym, lsKeys)
-    dData = dict(zip(lsKeys,ldfData))
-    
-    
+    ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dtTimeofday)
+    ldfData = daData.get_data( ldtTimestamps, lsSym, lsKeys)
+    dData = dict(zip(lsKeys, ldfData))
     
     '''loop through features'''
-    lsRuntime = []
-    dicLog = {}
-    for feature in fcFeature:
-    	print feature.__name__
+    ltResults = []
+    for i in range(len(lfcFeature)):
         dtFuncStart = dt.datetime.now()
-        ldfFeatures = applyFeatures( dData,[feature], ldArgs)
-        dtFuncEnd = dt.datetime.now()
-        tRuntime = dtFuncEnd - dtFuncStart
-        dicLog[tRuntime] = feature.__name__ 
-        lsRuntime.append(tRuntime)
-        lsRuntime.sort()
+        ldfFeatures = applyFeatures( dData, [lfcFeature[i]], [ldArgs[i]], 
+                                     sMarketRel='$SPX')
+        ltResults.append((dt.datetime.now() - dtFuncStart, 
+                         lfcFeature[i].__name__ + ' : ' + str(ldArgs[i])))
+    ltResults.sort()
     
     '''print out result'''
-    txLog = []
-    for i in lsRuntime:
-        temp = dicLog[i] + ' : ' + str(i)
-        txLog.append(temp)
-        print temp
+    for tResult in ltResults:
+        print tResult[1], ':', tResult[0]
     
- 
-    return txLog
+    return ltResults
 
 if __name__ == '__main__':
 
-   speedTest([featMA,featRSI,featAroon,featBeta,featCorrelation,featBollinger,featStochastic],[{'lLookback':30}]) 
+   speedTest([featMA, featRSI, featAroon, featBeta, featCorrelation, 
+              featBollinger, featStochastic], [{'lLookback':30}] * 7) 
    #testFeature( class_fut_ret, {'MR':True})
    pass
