@@ -222,8 +222,26 @@ class _MySQL(DriverInterface):
                   'low':'trlow',
                   'close':'trclose',
                   'actual_close':'close',
-                  'volume':'volume',
                   'adjusted_close':'adjclose'}
+        
+        #keys for fundamental indicators
+        ls_fund_keys = ['sharesout',
+                              'latestavailableannual',
+                              'latestavailableinterim',
+                              'projfiscalyearend',
+                              'peproj',
+                              'pe',
+                              'eps',
+                              'dividend',
+                              'yield',
+                              'pegproj',
+                              'p2b',
+                              'p2s',
+                              'totd2eq',
+                              'ebitda',
+                              'grossmargin',
+                             ]
+        
         
         for i in range(1, 101):
             ds_map['f%i' % i] = 'f%i' % i
@@ -231,9 +249,19 @@ class _MySQL(DriverInterface):
         for i in range(1, 10):
             ds_map['c%i' % i] = 'c%i' % i
 
-        data_item = map(lambda(x): ds_map[x], data_item)
-
-
+        data_item = data_item[:]
+        data_fund = []
+        data_tech = []
+        for i, item in enumerate(data_item):
+            if item in ds_map.keys():
+                data_item[i] = ds_map[item]
+            if item in ls_fund_keys:
+                data_fund.append(item)
+            else:
+                data_tech.append(item)               
+        print data_fund
+        print data_tech    
+        
         # Combine Symbols List for Query
         symbol_query_list = ",".join(map(lambda x: "'" + x + "'", symbol_list))
 
