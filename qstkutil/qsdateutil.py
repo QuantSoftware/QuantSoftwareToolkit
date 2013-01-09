@@ -130,7 +130,8 @@ def getNYSEoffset(mark, offset):
         
     ret = GTS_DATES[i + offset]
 
-    ret.replace(hour=16)
+    ret = ret.replace(hour=16)
+
     return ret
 
 
