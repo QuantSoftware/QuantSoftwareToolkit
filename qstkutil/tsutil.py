@@ -18,6 +18,7 @@ import datetime as dt
 import numpy as np
 from qstkutil import qsdateutil
 from math import sqrt
+import pandas as pd
 from copy import deepcopy
 
 
@@ -33,6 +34,9 @@ def daily(lfFunds):
     @param funds: A time series containing daily fund values
     @return an array of daily returns
     """
+    if type(lfFunds) == type(pd.Series()):
+        ldt_timestamps = du.getNYSEdays(lfFunds.index[0], lfFunds.index[-1], dt.timedelta(hours=16))
+        lfFunds = lfFunds.reindex(index=ldt_timestamps, method='ffill')
     nds = np.asarray(deepcopy(lfFunds))
     s= np.shape(nds)
     if len(s)==1:
