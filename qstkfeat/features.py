@@ -248,10 +248,10 @@ def featRSI( dData, lLookback=14,  b_human=False):
     # seperate data into positive and negative for easy calculations
     for sColumn in dfDeltaUp.columns:
         tsColDown = dfDeltaDown[sColumn]
-        tsColDown[tsColDown >= 0] = np.NAN 
+        tsColDown[tsColDown >= 0] = 0 
         
         tsColUp = dfDeltaUp[sColumn]
-        tsColUp[tsColUp <= 0] = np.NAN
+        tsColUp[tsColUp <= 0] = 0
     
     # Note we take abs() of negative values, all should be positive now
     dfRolUp = pand.rolling_mean(dfDeltaUp, lLookback, min_periods=1)

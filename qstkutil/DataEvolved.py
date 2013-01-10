@@ -180,12 +180,12 @@ class _MySQL(DriverInterface):
         s_pass = open(os.path.join(s_filepath,'pass.txt')).read().rstrip()
         
         try:
-            self.db = MySQLdb.connect("localhost", "finance", s_pass, "premiumdata")
+            self.db = MySQLdb.connect("127.0.0.1", "finance", s_pass, "premiumdata")
         except:
             s_filepath = os.path.dirname(os.path.abspath(__file__))
             # Read password from a file (does not support whitespace)
             s_pass = open(os.path.join(s_filepath,'pass2.txt')).read().rstrip()
-            self.db = MySQLdb.connect("localhost", "finance", s_pass, "premiumdata")
+            self.db = MySQLdb.connect("127.0.0.1", "finance", s_pass, "premiumdata")
 
         self.cursor = self.db.cursor()
 
