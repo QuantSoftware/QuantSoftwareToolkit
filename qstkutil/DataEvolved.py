@@ -253,16 +253,16 @@ class _MySQL(DriverInterface):
 
         data_item = data_item[:]
         data_fund = []
-        ls_fund_index = []
+        li_fund_index = []
         data_tech = []
-        ls_tech_index = []
+        li_tech_index = []
         for i, item in enumerate(data_item):
             if item in ls_fund_keys:
                 data_fund.append(item)
-                ls_fund_index.append(i)
+                li_fund_index.append(i)
             else:
                 data_tech.append(item)
-                ls_tech_index.append(i) 
+                li_tech_index.append(i) 
             
         for i, item in enumerate(data_tech):     
             if item in ds_map.keys():
@@ -342,9 +342,9 @@ class _MySQL(DriverInterface):
                     columns_fund[i][d_id_sym[row[0]]][dt_date] = row[i+2]
         
         columns = [numpy.NaN]*len(data_item)    
-        for i,item in enumerate(ls_tech_index):
+        for i,item in enumerate(li_tech_index):
             columns[item]=columns_tech[i]
-        for i,item in enumerate(ls_fund_index):
+        for i,item in enumerate(li_fund_index):
             columns[item]=columns_fund[i]
    
         return columns 
