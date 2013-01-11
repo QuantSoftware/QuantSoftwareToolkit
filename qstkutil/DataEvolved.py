@@ -245,11 +245,6 @@ class _MySQL(DriverInterface):
                        ]
         
         
-#        for i in range(1, 101):
-#            ds_map['f%i' % i] = 'f%i' % i
-#        
-#        for i in range(1, 10):
-#            ds_map['c%i' % i] = 'c%i' % i
 
         data_item = data_item[:]
         data_fund = []
