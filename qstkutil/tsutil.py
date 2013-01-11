@@ -665,7 +665,20 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target,
         allocations = _create_dict(df_rets, naPortWeights)
         return {'allocations': allocations, 'std_dev': min(lfStd), 'expected_return': f_return, 'error': False}
 
-    # Otherwise try to hit custom target between 0-1 min-max risk
+    # If target_risk = 0.5, then return the one with maximum sharpe
+    if target_risk == 0.5:
+        lf_return_new = np.array(lfReturn)
+        lf_std_new = np.array(lfStd)
+        lf_std_new = lf_std_new[lf_return_new >= f_return]
+        lf_return_new = lf_return_new[lf_return_new >= f_return]
+        na_sharpe = lf_return_new / lf_std_new
+
+        fTarget = lf_return_new[na_sharpe.index(max(na_sharpe))]
+        (naPortWeights, fPortDev, b_error) = OptPort(df_rets.values, fTarget, naLower, naUpper, naExpected, direction)
+        allocations = _create_dict(df_rets, naPortWeights)
+        return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fTarget, 'error': b_error}
+
+    # Otherwise try to hit custom target between 0-1 min-max return
     fTarget = f_return + ((fMax - f_return) * target_risk)
 
     (naPortWeights, fPortDev, b_error) = OptPort( df_rets.values, fTarget, naLower, naUpper, naExpected, direction)
