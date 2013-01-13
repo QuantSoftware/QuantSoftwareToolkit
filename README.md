@@ -25,7 +25,9 @@ Author
 ====
 
 Dr. Tucker Balch 
+
 Sourabh Bajaj
+
 John Cornwell
 
 Website
