@@ -1,1 +1,0 @@
-This is the Java code that wakes up everyday and makes the data updater run. 
