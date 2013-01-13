@@ -1,0 +1,10 @@
+Changes in QSTK 2.0 
+===================
+
+1. Cleaning up the repository for redundant code not used in its applications. 
+
+2. Better installation and setup capabilities. 
+
+3. Speed optimization for basic functions.
+
+4. Formatting the repository as a python library for better documentation and control.  

@@ -1,0 +1,6 @@
+include *.txt
+recursive-include docs *
+recursive-include bin *
+recursive-include Examples *
+recursive-include *.csv
+recursive-include *.png
