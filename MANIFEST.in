@@ -4,3 +4,4 @@ recursive-include bin *
 recursive-include Examples *
 recursive-include *.csv
 recursive-include *.png
+recursive-include QSData *
