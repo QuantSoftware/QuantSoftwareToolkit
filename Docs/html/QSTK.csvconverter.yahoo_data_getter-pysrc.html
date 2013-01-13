@@ -1,295 +1,0 @@
-<?xml version="1.0" encoding="ascii"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-          "DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <title>QSTK.csvconverter.yahoo_data_getter</title>
-  <link rel="stylesheet" href="epydoc.css" type="text/css" />
-  <script type="text/javascript" src="epydoc.js"></script>
-</head>
-
-<body bgcolor="white" text="black" link="blue" vlink="#204080"
-      alink="#204080">
-<!-- ==================== NAVIGATION BAR ==================== -->
-<table class="navbar" border="0" width="100%" cellpadding="0"
-       bgcolor="#a0c0ff" cellspacing="0">
-  <tr valign="middle">
-  <!-- Home link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Tree link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Index link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Help link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Project homepage -->
-      <th class="navbar" align="right" width="100%">
-        <table border="0" cellpadding="0" cellspacing="0">
-          <tr><th class="navbar" align="center"
-            >QSTK</th>
-          </tr></table></th>
-  </tr>
-</table>
-<table width="100%" cellpadding="0" cellspacing="0">
-  <tr valign="top">
-    <td width="100%">
-      <span class="breadcrumbs">
-        <a href="QSTK-module.html">Package&nbsp;QSTK</a> ::
-        <a href="QSTK.csvconverter-module.html">Package&nbsp;csvconverter</a> ::
-        Module&nbsp;yahoo_data_getter
-      </span>
-    </td>
-    <td>
-      <table cellpadding="0" cellspacing="0">
-        <!-- hide/show private -->
-        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
-    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
-        <tr><td align="right"><span class="options"
-            >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="QSTK.csvconverter.yahoo_data_getter-pysrc.html"
-            target="_top">no&nbsp;frames</a>]</span></td></tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<h1 class="epydoc">Source Code for <a href="QSTK.csvconverter.yahoo_data_getter-module.html">Module QSTK.csvconverter.yahoo_data_getter</a></h1>
-<pre class="py-src">
-<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">'''</tt> </tt>
-<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring">Created on Apr 8, 2011</tt> </tt>
-<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
-<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-docstring">@author: sjoshi42</tt> </tt>
-<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-docstring">@summary: This module get stock data from yahoo finance</tt> </tt>
-<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-docstring">'''</tt> </tt>
-<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"> </tt>
-<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-0" class="py-name" targets="Package QSTK.qstkutil=QSTK.qstkutil-module.html"><a title="QSTK.qstkutil" class="py-name" href="#" onclick="return doclink('link-0', 'qstkutil', 'link-0');">qstkutil</a></tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Module QSTK.qstkutil.DataAccess=QSTK.qstkutil.DataAccess-module.html,Class QSTK.qstkutil.DataAccess.DataAccess=QSTK.qstkutil.DataAccess.DataAccess-class.html"><a title="QSTK.qstkutil.DataAccess
-QSTK.qstkutil.DataAccess.DataAccess" class="py-name" href="#" onclick="return doclink('link-1', 'DataAccess', 'link-1');">DataAccess</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">da</tt> </tt>
-<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-2" class="py-name"><a title="QSTK.qstkutil" class="py-name" href="#" onclick="return doclink('link-2', 'qstkutil', 'link-0');">qstkutil</a></tt><tt class="py-op">.</tt><tt id="link-3" class="py-name" targets="Module QSTK.qstkutil.utils=QSTK.qstkutil.utils-module.html"><a title="QSTK.qstkutil.utils" class="py-name" href="#" onclick="return doclink('link-3', 'utils', 'link-3');">utils</a></tt> <tt class="py-keyword">as</tt> <tt id="link-4" class="py-name"><a title="QSTK.qstkutil.utils" class="py-name" href="#" onclick="return doclink('link-4', 'utils', 'link-3');">utils</a></tt> </tt>
-<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">urllib2</tt> </tt>
-<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">urllib</tt> </tt>
-<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">datetime</tt> </tt>
-<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
-<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
-<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"> </tt>
-<a name="adjust"></a><div id="adjust-def"><a name="L16"></a><tt class="py-lineno"> 16</tt> <a class="py-toggle" href="#" id="adjust-toggle" onclick="return toggle('adjust');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.csvconverter.yahoo_data_getter-module.html#adjust">adjust</a> <tt class="py-op">(</tt><tt class="py-param">_str</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-</div><div id="adjust-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="adjust-expanded"><a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line">    <tt class="py-name">_list</tt><tt class="py-op">=</tt> <tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("Before" + _str)</tt> </tt>
-<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment">#    symbol= _str.partition (",")[0]</tt> </tt>
-<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment">#    rest= _str.partition (",")[2] #Everything but symbol</tt> </tt>
-<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">     </tt>
-<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line">    <tt class="py-name">_date</tt><tt class="py-op">=</tt> <tt class="py-name">_str</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
-<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">    <tt class="py-name">rest</tt><tt class="py-op">=</tt> <tt class="py-name">_str</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt> <tt class="py-comment">#Everything but symbol and date</tt> </tt>
-<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("DT: " + _date)</tt> </tt>
-<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"> </tt>
-<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">    <tt class="py-name">_list</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-comment">#open</tt> </tt>
-<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">    <tt class="py-name">rest</tt><tt class="py-op">=</tt> <tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt> <tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt> <tt class="py-comment">#Removed open</tt> </tt>
-<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("OP: " + _list[-1])</tt> </tt>
-<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">     </tt>
-<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-name">_list</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-comment">#high</tt> </tt>
-<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line">    <tt class="py-name">rest</tt><tt class="py-op">=</tt> <tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt> <tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt> <tt class="py-comment">#Removed high</tt> </tt>
-<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("HI: " + _list[-1])</tt> </tt>
-<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">     </tt>
-<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">    <tt class="py-name">_list</tt><tt class="py-op">.</tt><tt class="py-name">append</tt> <tt class="py-op">(</tt><tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-comment">#low</tt> </tt>
-<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">    <tt class="py-name">rest</tt><tt class="py-op">=</tt> <tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt> <tt class="py-comment">#Removed low</tt> </tt>
-<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("LO: " + _list[-1])</tt> </tt>
-<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">     </tt>
-<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">    <tt class="py-name">_list</tt><tt class="py-op">.</tt><tt class="py-name">append</tt> <tt class="py-op">(</tt><tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-comment">#close</tt> </tt>
-<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt class="py-name">rest</tt><tt class="py-op">=</tt> <tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt> <tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt> <tt class="py-comment">#Removed close</tt> </tt>
-<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("CL: " + _list[-1])</tt> </tt>
-<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">     </tt>
-<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">     </tt>
-<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">    <tt class="py-name">vol</tt><tt class="py-op">=</tt> <tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-comment">#volume</tt> </tt>
-<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("VOL: " + vol)</tt> </tt>
-<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">     </tt>
-<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">    <tt class="py-name">adj_close</tt><tt class="py-op">=</tt> <tt class="py-name">float</tt> <tt class="py-op">(</tt><tt class="py-name">rest</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt> <tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-comment">#Removed volume, and what we have left is adjusted close..</tt> </tt>
-<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-comment">#    print str ("ADJ_CL: " + str(adj_close))</tt> </tt>
-<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">     </tt>
-<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">    <tt class="py-name">_list</tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt> <tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt><tt class="py-name">float</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">_list</tt><tt class="py-op">)</tt> <tt class="py-comment">#convert strings to floats</tt> </tt>
-<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">     </tt>
-<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
-<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">        <tt class="py-name">ratio</tt><tt class="py-op">=</tt> <tt class="py-name">adj_close</tt><tt class="py-op">/</tt> <tt class="py-name">_list</tt><tt class="py-op">[</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> <tt class="py-comment">#Adjusted close / close</tt> </tt>
-<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">        <tt class="py-name">_list</tt><tt class="py-op">=</tt> <tt class="py-name">map</tt> <tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt><tt class="py-name">x</tt> <tt class="py-op">*</tt> <tt class="py-name">ratio</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">_list</tt><tt class="py-op">)</tt> <tt class="py-comment">#Updating the values</tt> </tt>
-<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">        <tt class="py-name">_list</tt><tt class="py-op">=</tt> <tt class="py-name">map</tt> <tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">_list</tt><tt class="py-op">)</tt> </tt>
-<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">        <tt class="py-name">_list_concat</tt><tt class="py-op">=</tt> <tt class="py-string">","</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-name">_list</tt><tt class="py-op">)</tt> <tt class="py-comment">#Concat all the elements in the list using `,' as the separator</tt> </tt>
-<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">        <tt class="py-name">_str</tt><tt class="py-op">=</tt> <tt class="py-name">_date</tt> <tt class="py-op">+</tt> <tt class="py-string">","</tt> <tt class="py-op">+</tt> <tt class="py-name">_list_concat</tt> <tt class="py-op">+</tt> <tt class="py-string">","</tt> <tt class="py-op">+</tt> <tt class="py-name">vol</tt> <tt class="py-op">+</tt> <tt class="py-string">","</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">adj_close</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">"\n"</tt> </tt>
-<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">ZeroDivisionError</tt><tt class="py-op">:</tt> </tt>
-<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt> <tt class="py-op">(</tt><tt class="py-string">"Warning: Close value is Zero."</tt><tt class="py-op">)</tt> </tt>
-<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">         </tt>
-<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">     </tt>
-<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">_str</tt> </tt>
-</div><a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt class="py-comment">#adjust ends </tt> </tt>
-<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"> </tt>
-<a name="main"></a><div id="main-def"><a name="L64"></a><tt class="py-lineno"> 64</tt> <a class="py-toggle" href="#" id="main-toggle" onclick="return toggle('main');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.csvconverter.yahoo_data_getter-module.html#main">main</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-</div><div id="main-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="main-expanded"><a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-comment">#Getting path</tt> </tt>
-<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">    <tt class="py-name">path</tt><tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">environ</tt><tt class="py-op">[</tt><tt class="py-string">'QSDATA'</tt><tt class="py-op">]</tt> </tt>
-<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">     </tt>
-<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">    <tt id="link-5" class="py-name" targets="Function QSTK.csvconverter.yahoo_data_getter.get_data_for_exchange()=QSTK.csvconverter.yahoo_data_getter-module.html#get_data_for_exchange"><a title="QSTK.csvconverter.yahoo_data_getter.get_data_for_exchange" class="py-name" href="#" onclick="return doclink('link-5', 'get_data_for_exchange', 'link-5');">get_data_for_exchange</a></tt><tt class="py-op">(</tt><tt class="py-string">"NASDAQ"</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
-<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt id="link-6" class="py-name"><a title="QSTK.csvconverter.yahoo_data_getter.get_data_for_exchange" class="py-name" href="#" onclick="return doclink('link-6', 'get_data_for_exchange', 'link-5');">get_data_for_exchange</a></tt><tt class="py-op">(</tt><tt class="py-string">"NYSE"</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
-<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">    <tt id="link-7" class="py-name"><a title="QSTK.csvconverter.yahoo_data_getter.get_data_for_exchange" class="py-name" href="#" onclick="return doclink('link-7', 'get_data_for_exchange', 'link-5');">get_data_for_exchange</a></tt><tt class="py-op">(</tt><tt class="py-string">"AMEX"</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">     </tt>
-<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">    <tt class="py-comment">#main ends</tt> </tt>
-<a name="get_data_for_exchange"></a><div id="get_data_for_exchange-def"><a name="L73"></a><tt class="py-lineno"> 73</tt> <a class="py-toggle" href="#" id="get_data_for_exchange-toggle" onclick="return toggle('get_data_for_exchange');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.csvconverter.yahoo_data_getter-module.html#get_data_for_exchange">get_data_for_exchange</a> <tt class="py-op">(</tt><tt class="py-param">exchange</tt><tt class="py-op">,</tt> <tt class="py-param">data_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-</div><div id="get_data_for_exchange-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="get_data_for_exchange-expanded"><a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">     </tt>
-<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">    <tt class="py-comment">#data_access= da.DataAccess('norgate')</tt> </tt>
-<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">    <tt class="py-comment">#symbol_list= data_access.get_all_symbols()</tt> </tt>
-<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">    <tt class="py-name">data_path</tt><tt class="py-op">=</tt> <tt class="py-name">data_path</tt> <tt class="py-op">+</tt> <tt class="py-string">"/Raw/Yahoo/US/"</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">exchange</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">"/"</tt> </tt>
-<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">     </tt>
-<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">    <tt class="py-comment">#Create path if it doesn't exist</tt> </tt>
-<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">access</tt><tt class="py-op">(</tt><tt class="py-name">data_path</tt><tt class="py-op">,</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">F_OK</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">        <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">makedirs</tt><tt class="py-op">(</tt><tt class="py-name">data_path</tt><tt class="py-op">)</tt> </tt>
-<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">         </tt>
-<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">    <tt id="link-8" class="py-name"><a title="QSTK.qstkutil.utils" class="py-name" href="#" onclick="return doclink('link-8', 'utils', 'link-3');">utils</a></tt><tt class="py-op">.</tt><tt id="link-9" class="py-name" targets="Function QSTK.qstkutil.utils.clean_paths()=QSTK.qstkutil.utils-module.html#clean_paths"><a title="QSTK.qstkutil.utils.clean_paths" class="py-name" href="#" onclick="return doclink('link-9', 'clean_paths', 'link-9');">clean_paths</a></tt><tt class="py-op">(</tt><tt class="py-name">data_path</tt><tt class="py-op">)</tt>     </tt>
-<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">     </tt>
-<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">    <tt class="py-name">symbol_list</tt><tt class="py-op">=</tt> <tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">     </tt>
-<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"Getting list of stocks.."</tt> </tt>
-<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">     </tt>
-<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
-<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">        <tt class="py-name">nasdaq_params</tt><tt class="py-op">=</tt> <tt class="py-name">urllib</tt><tt class="py-op">.</tt><tt class="py-name">urlencode</tt> <tt class="py-op">(</tt><tt class="py-op">{</tt><tt class="py-string">'exchange'</tt><tt class="py-op">:</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">exchange</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-string">'render'</tt><tt class="py-op">:</tt><tt class="py-string">'download'</tt><tt class="py-op">}</tt><tt class="py-op">)</tt> </tt>
-<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">        <tt class="py-name">nasdaq_get</tt><tt class="py-op">=</tt> <tt class="py-name">urllib2</tt><tt class="py-op">.</tt><tt class="py-name">urlopen</tt> <tt class="py-op">(</tt><tt class="py-string">'http://www.nasdaq.com/screening/companies-by-name.aspx?%s'</tt> <tt class="py-op">%</tt> <tt class="py-name">nasdaq_params</tt><tt class="py-op">)</tt> </tt>
-<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">        <tt class="py-name">symbol_list</tt><tt class="py-op">.</tt><tt class="py-name">append</tt> <tt class="py-op">(</tt><tt class="py-name">nasdaq_get</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-comment">#Now we have all the data in a list- but we need only the symbols so we remove the rest</tt> </tt>
-<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">        <tt class="py-keyword">while</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt> <tt class="py-op">(</tt><tt class="py-name">symbol_list</tt><tt class="py-op">[</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-op">&gt;</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">            <tt class="py-name">symbol_list</tt><tt class="py-op">.</tt><tt class="py-name">append</tt> <tt class="py-op">(</tt><tt class="py-name">nasdaq_get</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
-<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">            <tt class="py-comment">#while ends</tt> </tt>
-<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">        <tt class="py-name">symbol_list</tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">)</tt> <tt class="py-comment">#This is just the word "symbol" and not a symbol itself    </tt> </tt>
-<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">        <tt class="py-name">symbol_list</tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt> <tt class="py-comment">#Remove the last element because its going to be blank anyway    </tt> </tt>
-<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">        <tt class="py-comment">#symbol_list = map(lambda x:(x.partition(str(","))[0]),symbol_list) #Get the stuff before the first comma- which is the symbol</tt> </tt>
-<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">         </tt>
-<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">        <tt class="py-comment">#Unfortunately this symbol is in quotes. So we have to remove them now</tt> </tt>
-<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">        <tt class="py-name">symbol_list</tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-string">"\""</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-name">symbol_list</tt><tt class="py-op">)</tt> <tt class="py-comment">#Keep the stuff only after the first "</tt> </tt>
-<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">        <tt class="py-name">symbol_list</tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">.</tt><tt class="py-name">partition</tt><tt class="py-op">(</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-string">"\""</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-name">symbol_list</tt><tt class="py-op">)</tt> <tt class="py-comment">#Keep the stuff before the second "</tt> </tt>
-<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">         </tt>
-<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">urllib2</tt><tt class="py-op">.</tt><tt class="py-name">HTTPError</tt><tt class="py-op">:</tt> </tt>
-<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt> <tt class="py-string">"Unable to get list of stocks from server. Please check your internet connection and retry."</tt> </tt>
-<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
-<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt><tt class="py-string">"Unknown error occoured when getting list of stocks from server."</tt> </tt>
-<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">     </tt>
-<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"Got "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">symbol_list</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">" symbols. Now getting symbol data..."</tt> </tt>
-<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">     </tt>
-<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">    <tt class="py-name">_now</tt> <tt class="py-op">=</tt><tt class="py-name">datetime</tt><tt class="py-op">.</tt><tt class="py-name">datetime</tt><tt class="py-op">.</tt><tt class="py-name">now</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">;</tt> </tt>
-<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt class="py-name">miss_ctr</tt><tt class="py-op">=</tt><tt class="py-number">0</tt><tt class="py-op">;</tt> <tt class="py-comment">#Counts how many symbols we could get</tt> </tt>
-<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">     </tt>
-<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">symbol</tt> <tt class="py-keyword">in</tt> <tt class="py-name">symbol_list</tt><tt class="py-op">:</tt> </tt>
-<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt class="py-name">symbol_data</tt><tt class="py-op">=</tt><tt class="py-name">list</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt> <tt class="py-string">"Getting "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">symbol</tt><tt class="py-op">)</tt> </tt>
-<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">         </tt>
-<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
-<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">            <tt class="py-name">params</tt><tt class="py-op">=</tt> <tt class="py-name">urllib</tt><tt class="py-op">.</tt><tt class="py-name">urlencode</tt> <tt class="py-op">(</tt><tt class="py-op">{</tt><tt class="py-string">'a'</tt><tt class="py-op">:</tt><tt class="py-number">03</tt><tt class="py-op">,</tt> <tt class="py-string">'b'</tt><tt class="py-op">:</tt><tt class="py-number">12</tt><tt class="py-op">,</tt> <tt class="py-string">'c'</tt><tt class="py-op">:</tt><tt class="py-number">2000</tt><tt class="py-op">,</tt> <tt class="py-string">'d'</tt><tt class="py-op">:</tt><tt class="py-name">_now</tt><tt class="py-op">.</tt><tt class="py-name">month</tt><tt class="py-op">,</tt> <tt class="py-string">'e'</tt><tt class="py-op">:</tt><tt class="py-name">_now</tt><tt class="py-op">.</tt><tt class="py-name">day</tt><tt class="py-op">,</tt> <tt class="py-string">'f'</tt><tt class="py-op">:</tt><tt class="py-name">_now</tt><tt class="py-op">.</tt><tt class="py-name">year</tt><tt class="py-op">,</tt> <tt class="py-string">'s'</tt><tt class="py-op">:</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">symbol</tt><tt class="py-op">)</tt><tt class="py-op">}</tt><tt class="py-op">)</tt> </tt>
-<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">            <tt class="py-name">url_get</tt><tt class="py-op">=</tt> <tt class="py-name">urllib2</tt><tt class="py-op">.</tt><tt class="py-name">urlopen</tt><tt class="py-op">(</tt><tt class="py-string">"http://ichart.finance.yahoo.com/table.csv?%s"</tt> <tt class="py-op">%</tt> <tt class="py-name">params</tt><tt class="py-op">)</tt> </tt>
-<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">             </tt>
-<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">            <tt class="py-name">header</tt><tt class="py-op">=</tt> <tt class="py-name">url_get</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">            <tt class="py-name">symbol_data</tt><tt class="py-op">.</tt><tt class="py-name">append</tt> <tt class="py-op">(</tt><tt class="py-name">url_get</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
-<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">            <tt class="py-keyword">while</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">symbol_data</tt><tt class="py-op">[</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-op">&gt;</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">                <tt class="py-name">symbol_data</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">url_get</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
-<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt class="py-comment">#                print str(symbol_data[-1])</tt> </tt>
-<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">             </tt>
-<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">            <tt class="py-name">symbol_data</tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt> <tt class="py-comment">#The last element is going to be the string of length zero. We don't want to write that to file.</tt> </tt>
-<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"> </tt>
-<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">            <tt class="py-comment">#To change adjusted close so that Yahoo data is same as Norgate data</tt> </tt>
-<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">            <tt class="py-name">symbol_data</tt><tt class="py-op">=</tt> <tt class="py-name">map</tt> <tt class="py-op">(</tt><tt id="link-10" class="py-name" targets="Function QSTK.csvconverter.yahoo_data_getter.adjust()=QSTK.csvconverter.yahoo_data_getter-module.html#adjust"><a title="QSTK.csvconverter.yahoo_data_getter.adjust" class="py-name" href="#" onclick="return doclink('link-10', 'adjust', 'link-10');">adjust</a></tt><tt class="py-op">,</tt> <tt class="py-name">symbol_data</tt><tt class="py-op">)</tt> </tt>
-<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">             </tt>
-<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">            <tt class="py-comment">#Following changes so that the data looks like Norgate data and the change to cav_to_pkl.csv is minimized</tt> </tt>
-<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">            <tt class="py-name">symbol_data</tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">.</tt><tt class="py-name">replace</tt><tt class="py-op">(</tt><tt class="py-string">"-"</tt><tt class="py-op">,</tt> <tt class="py-string">""</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-name">symbol_data</tt><tt class="py-op">)</tt>  </tt>
-<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">            <tt class="py-name">symbol_data</tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt><tt class="py-op">(</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">symbol</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">","</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-op">,</tt><tt class="py-name">symbol_data</tt><tt class="py-op">)</tt> <tt class="py-comment">#This means that the header is wrong but since it is ignored later anyways- this will work</tt> </tt>
-<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">             </tt>
-<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">            <tt class="py-comment">#now writing data to file</tt> </tt>
-<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">            <tt id="link-11" class="py-name" targets="Function QSTK.qstklearn.mldiagnostics.f()=QSTK.qstklearn.mldiagnostics-module.html#f"><a title="QSTK.qstklearn.mldiagnostics.f" class="py-name" href="#" onclick="return doclink('link-11', 'f', 'link-11');">f</a></tt><tt class="py-op">=</tt> <tt class="py-name">open</tt> <tt class="py-op">(</tt><tt class="py-name">data_path</tt> <tt class="py-op">+</tt> <tt class="py-name">symbol</tt> <tt class="py-op">+</tt> <tt class="py-string">".csv"</tt><tt class="py-op">,</tt> <tt class="py-string">'w'</tt><tt class="py-op">)</tt> </tt>
-<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">             </tt>
-<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">            <tt class="py-comment">#Writing the header</tt> </tt>
-<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">            <tt id="link-12" class="py-name"><a title="QSTK.qstklearn.mldiagnostics.f" class="py-name" href="#" onclick="return doclink('link-12', 'f', 'link-11');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">write</tt> <tt class="py-op">(</tt><tt class="py-name">header</tt><tt class="py-op">)</tt> </tt>
-<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">             </tt>
-<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line">            <tt class="py-keyword">while</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">symbol_data</tt><tt class="py-op">)</tt> <tt class="py-op">&gt;</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">                <tt id="link-13" class="py-name"><a title="QSTK.qstklearn.mldiagnostics.f" class="py-name" href="#" onclick="return doclink('link-13', 'f', 'link-11');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">write</tt> <tt class="py-op">(</tt><tt class="py-name">symbol_data</tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
-<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">              </tt>
-<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">            <tt id="link-14" class="py-name"><a title="QSTK.qstklearn.mldiagnostics.f" class="py-name" href="#" onclick="return doclink('link-14', 'f', 'link-11');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">close</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">;</tt>     </tt>
-<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-comment">#            print url_get.readline()</tt> </tt>
-<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-comment">#            f= open (data_path + symbol + ".csv", 'w')</tt> </tt>
-<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-comment">#            f.write (url_get.read())</tt> </tt>
-<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-comment">#            f.close()</tt> </tt>
-<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">                         </tt>
-<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">urllib2</tt><tt class="py-op">.</tt><tt class="py-name">HTTPError</tt><tt class="py-op">:</tt> </tt>
-<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">            <tt class="py-name">miss_ctr</tt><tt class="py-op">=</tt> <tt class="py-name">miss_ctr</tt><tt class="py-op">+</tt><tt class="py-number">1</tt> </tt>
-<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">            <tt class="py-keyword">print</tt> <tt class="py-string">"Unable to fetch data for stock: "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">symbol</tt><tt class="py-op">)</tt> </tt>
-<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">urllib2</tt><tt class="py-op">.</tt><tt class="py-name">URLError</tt><tt class="py-op">:</tt> </tt>
-<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">            <tt class="py-keyword">print</tt> <tt class="py-string">"URL Error for stock: "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">symbol</tt><tt class="py-op">)</tt> </tt>
-<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">             </tt>
-<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-comment">#        except:</tt> </tt>
-<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"><tt class="py-comment">#            print "Some error occurred"</tt> </tt>
-<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">            <tt class="py-comment">#except ends </tt> </tt>
-<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">             </tt>
-<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">         </tt>
-<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">        <tt class="py-comment">#for ends</tt> </tt>
-<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"All done. Got "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">symbol_list</tt><tt class="py-op">)</tt> <tt class="py-op">-</tt> <tt class="py-name">miss_ctr</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">" stocks. Could not get "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt> <tt class="py-op">(</tt><tt class="py-name">miss_ctr</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">" stocks."</tt>    </tt>
-</div><a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">    <tt class="py-comment">#main ends</tt> </tt>
-<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"> </tt>
-<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line"> </tt>
-<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">__name__</tt> <tt class="py-op">==</tt> <tt class="py-string">'__main__'</tt><tt class="py-op">:</tt> </tt>
-<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">    <tt id="link-15" class="py-name" targets="Function QSTK.csvconverter.norgate_csv_to_pkl.main()=QSTK.csvconverter.norgate_csv_to_pkl-module.html#main,Function QSTK.csvconverter.yahoo_csv_to_pkl.main()=QSTK.csvconverter.yahoo_csv_to_pkl-module.html#main,Function QSTK.csvconverter.yahoo_data_getter.main()=QSTK.csvconverter.yahoo_data_getter-module.html#main,Function QSTK.qstklearn.parallelknn.main()=QSTK.qstklearn.parallelknn-module.html#main"><a title="QSTK.csvconverter.norgate_csv_to_pkl.main
-QSTK.csvconverter.yahoo_csv_to_pkl.main
-QSTK.csvconverter.yahoo_data_getter.main
-QSTK.qstklearn.parallelknn.main" class="py-name" href="#" onclick="return doclink('link-15', 'main', 'link-15');">main</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"> </tt><script type="text/javascript">
-<!--
-expandto(location.href);
-// -->
-</script>
-</pre>
-<br />
-<!-- ==================== NAVIGATION BAR ==================== -->
-<table class="navbar" border="0" width="100%" cellpadding="0"
-       bgcolor="#a0c0ff" cellspacing="0">
-  <tr valign="middle">
-  <!-- Home link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Tree link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Index link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Help link -->
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
-
-  <!-- Project homepage -->
-      <th class="navbar" align="right" width="100%">
-        <table border="0" cellpadding="0" cellspacing="0">
-          <tr><th class="navbar" align="center"
-            >QSTK</th>
-          </tr></table></th>
-  </tr>
-</table>
-<table border="0" cellpadding="0" cellspacing="0" width="100%%">
-  <tr>
-    <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Mon Mar  5 00:49:16 2012
-    </td>
-    <td align="right" class="footer">
-      <a target="mainFrame" href="http://epydoc.sourceforge.net"
-        >http://epydoc.sourceforge.net</a>
-    </td>
-  </tr>
-</table>
-
-<script type="text/javascript">
-  <!--
-  // Private objects are initially displayed (because if
-  // javascript is turned off then we want them to be
-  // visible); but by default, we want to hide them.  So hide
-  // them unless we have a cookie that says to show them.
-  checkCookie();
-  // -->
-</script>
-</body>
-</html>
