@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>QSTK.qstklearn.parallelknn</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="QSTK-module.html">Package&nbsp;QSTK</a> ::
+        <a href="QSTK.qstklearn-module.html">Package&nbsp;qstklearn</a> ::
+        Module&nbsp;parallelknn
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="QSTK.qstklearn.parallelknn-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="QSTK.qstklearn.parallelknn-module.html">Module QSTK.qstklearn.parallelknn</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">'''</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring">Created on Feb 1, 2011</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring">@author: Shreyas Joshi</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-docstring">@organization: Georgia Institute of Technology</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-docstring">@contact: shreyasj@gatech.edu</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-docstring">@summary: This is an implementation of the K nearest neighbor learning algorithm. The implementation is trivial in that the near neighbors are </tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-docstring">          calculated naively- without any smart tricks. Euclidean distance is used to calculate the distance between two points. The implementation</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-docstring">          also provides some coarse parallelism. If the par_query function is used then the query points are split up equally amongst threads and their</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-docstring">          near neighbors are calculated in parallel. If the number of threads to use is not specified then no of threads  = no of cores as returned by</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-docstring">          the cpu_count function. This may not be ideal.    </tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-docstring">@status: complete. "mode" untested</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-docstring">'''</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">numpy</tt> <tt class="py-keyword">as</tt> <tt class="py-name">np</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">scipy</tt> <tt class="py-keyword">as</tt> <tt class="py-name">sc</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">math</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">time</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">multiprocessing</tt> <tt class="py-keyword">import</tt> <tt class="py-name">Pool</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">multiprocessing</tt> <tt class="py-keyword">import</tt> <tt class="py-name">cpu_count</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt id="link-0" class="py-name" targets="Variable QSTK.qstklearn.parallelknn.data=QSTK.qstklearn.parallelknn-module.html#data"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-0', 'data', 'link-0');">data</a></tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt> <tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-comment">#this is the global data</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">scipy</tt><tt class="py-op">.</tt><tt class="py-name">stats</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"> </tt>
+<a name="par_query"></a><div id="par_query-def"><a name="L24"></a><tt class="py-lineno"> 24</tt> <a class="py-toggle" href="#" id="par_query-toggle" onclick="return toggle('par_query');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.qstklearn.parallelknn-module.html#par_query">par_query</a> <tt class="py-op">(</tt><tt class="py-param">allQueries</tt><tt class="py-op">,</tt> <tt class="py-param">k</tt><tt class="py-op">,</tt> <tt class="py-param">method</tt><tt class="py-op">=</tt><tt class="py-string">'mean'</tt><tt class="py-op">,</tt> <tt class="py-param">noOfThreads</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="par_query-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="par_query-expanded"><a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">    <tt class="py-docstring">'''</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-docstring">    @summary: Finds the k- nearest nrighbors in parallel. Based on function "query"</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-docstring">    @param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-docstring">    @param k: no. of neighbors to consider</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"><tt class="py-docstring">    @param method: method of combining the 'y' values of the nearest neighbors. Default is mean.</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">    @param noOfThreads: optional parameter that specifies how many threads to create. Default value: no. of threads = value returned by cpu_count</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">    @return: A numpy array with the predicted 'y' values for the query points. The ith element in the array is the 'y' value for the ith query point.</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">     </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">    <tt class="py-comment">#Here we basically start 'noOfThreads' threads. Each thread calculates the neighbors for (noOfQueryPoints / noOfThreads) query points.</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">     </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">noOfThreads</tt> <tt class="py-op">==</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">        <tt class="py-name">noOfThreads</tt> <tt class="py-op">=</tt> <tt class="py-name">cpu_count</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">        <tt class="py-comment">#if ends</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">     </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">    <tt class="py-comment">#print "No of threads: " + str (noOfThreads)</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">    <tt class="py-name">pool</tt> <tt class="py-op">=</tt> <tt class="py-name">Pool</tt> <tt class="py-op">(</tt><tt class="py-name">processes</tt><tt class="py-op">=</tt><tt class="py-name">noOfThreads</tt><tt class="py-op">)</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">     </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">    <tt class="py-name">resultList</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">    <tt class="py-name">query_per_thread</tt> <tt class="py-op">=</tt> <tt class="py-name">allQueries</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">/</tt> <tt class="py-name">noOfThreads</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">     </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">    <tt class="py-comment">#time_start = time.time();</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">thread_ctr</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt> <tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-name">noOfThreads</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">        <tt class="py-name">resultList</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">pool</tt><tt class="py-op">.</tt><tt class="py-name">apply_async</tt><tt class="py-op">(</tt><tt id="link-1" class="py-name" targets="Method QSTK.qstklearn.fastknn.FastKNN.query()=QSTK.qstklearn.fastknn.FastKNN-class.html#query,Method QSTK.qstklearn.kdtknn.kdtknn.query()=QSTK.qstklearn.kdtknn.kdtknn-class.html#query,Function QSTK.qstklearn.parallelknn.query()=QSTK.qstklearn.parallelknn-module.html#query"><a title="QSTK.qstklearn.fastknn.FastKNN.query
+QSTK.qstklearn.kdtknn.kdtknn.query
+QSTK.qstklearn.parallelknn.query" class="py-name" href="#" onclick="return doclink('link-1', 'query', 'link-1');">query</a></tt><tt class="py-op">,</tt> <tt class="py-op">(</tt><tt class="py-name">allQueries</tt><tt class="py-op">[</tt><tt class="py-name">math</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Variable QSTK.Bin.converter.floor=QSTK.Bin.converter-module.html#floor,Variable QSTK.Bin.report.floor=QSTK.Bin.report-module.html#floor,Variable QSTK.qstklearn.mldiagnostics.floor=QSTK.qstklearn.mldiagnostics-module.html#floor,Variable QSTK.qstkutil.bollinger.floor=QSTK.qstkutil.bollinger-module.html#floor,Variable QSTK.qstkutil.tsutil.floor=QSTK.qstkutil.tsutil-module.html#floor,Variable QSTK.quicksim.quickSim.floor=QSTK.quicksim.quickSim-module.html#floor"><a title="QSTK.Bin.converter.floor
+QSTK.Bin.report.floor
+QSTK.qstklearn.mldiagnostics.floor
+QSTK.qstkutil.bollinger.floor
+QSTK.qstkutil.tsutil.floor
+QSTK.quicksim.quickSim.floor" class="py-name" href="#" onclick="return doclink('link-2', 'floor', 'link-2');">floor</a></tt><tt class="py-op">(</tt><tt class="py-name">query_per_thread</tt> <tt class="py-op">*</tt> <tt class="py-name">thread_ctr</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt><tt class="py-name">math</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name"><a title="QSTK.Bin.converter.floor
+QSTK.Bin.report.floor
+QSTK.qstklearn.mldiagnostics.floor
+QSTK.qstkutil.bollinger.floor
+QSTK.qstkutil.tsutil.floor
+QSTK.quicksim.quickSim.floor" class="py-name" href="#" onclick="return doclink('link-3', 'floor', 'link-2');">floor</a></tt><tt class="py-op">(</tt><tt class="py-name">query_per_thread</tt> <tt class="py-op">*</tt> <tt class="py-op">(</tt><tt class="py-name">thread_ctr</tt> <tt class="py-op">+</tt> <tt class="py-number">1</tt> <tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-op">:</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">k</tt><tt class="py-op">,</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">        <tt class="py-comment">#NOTE: we may need a -1 in above. Possible bug</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">        <tt class="py-comment">#for ends</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">    <tt class="py-comment">#the "remaining" query points go to the last thread</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">    <tt class="py-name">resultList</tt><tt class="py-op">.</tt><tt class="py-name">append</tt> <tt class="py-op">(</tt><tt class="py-name">pool</tt><tt class="py-op">.</tt><tt class="py-name">apply_async</tt><tt class="py-op">(</tt><tt id="link-4" class="py-name"><a title="QSTK.qstklearn.fastknn.FastKNN.query
+QSTK.qstklearn.kdtknn.kdtknn.query
+QSTK.qstklearn.parallelknn.query" class="py-name" href="#" onclick="return doclink('link-4', 'query', 'link-1');">query</a></tt> <tt class="py-op">,</tt> <tt class="py-op">(</tt><tt class="py-name">allQueries</tt><tt class="py-op">[</tt><tt class="py-op">(</tt><tt class="py-name">math</tt><tt class="py-op">.</tt><tt id="link-5" class="py-name"><a title="QSTK.Bin.converter.floor
+QSTK.Bin.report.floor
+QSTK.qstklearn.mldiagnostics.floor
+QSTK.qstkutil.bollinger.floor
+QSTK.qstkutil.tsutil.floor
+QSTK.quicksim.quickSim.floor" class="py-name" href="#" onclick="return doclink('link-5', 'floor', 'link-2');">floor</a></tt><tt class="py-op">(</tt><tt class="py-name">query_per_thread</tt><tt class="py-op">*</tt> <tt class="py-op">(</tt><tt class="py-name">noOfThreads</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt><tt class="py-op">,</tt> <tt class="py-op">:</tt><tt class="py-op">]</tt> <tt class="py-op">,</tt><tt class="py-name">k</tt> <tt class="py-op">,</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt>     </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">     </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">    <tt class="py-name">pool</tt><tt class="py-op">.</tt><tt class="py-name">close</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">    <tt class="py-name">pool</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">     </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">    <tt class="py-comment">#time_finish = time.time()</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">    <tt class="py-comment">#print "Time taken (secs): " + str (time_finish - time_start)</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">     </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">    <tt class="py-name">answer</tt> <tt class="py-op">=</tt> <tt class="py-name">resultList</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">get</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">     </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">thread_ctr</tt>  <tt class="py-keyword">in</tt> <tt class="py-name">range</tt> <tt class="py-op">(</tt><tt class="py-number">1</tt><tt class="py-op">,</tt> <tt class="py-name">noOfThreads</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">        <tt class="py-name">answer</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">hstack</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">answer</tt><tt class="py-op">,</tt> <tt class="py-name">resultList</tt><tt class="py-op">[</tt><tt class="py-name">thread_ctr</tt><tt class="py-op">]</tt><tt class="py-op">.</tt><tt class="py-name">get</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-comment">#for ends</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">    <tt class="py-comment">#print "par_query done"</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">answer</tt> </tt>
+</div><a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">    <tt class="py-comment">#par_query ends</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"> </tt>
+<a name="query"></a><div id="query-def"><a name="L71"></a><tt class="py-lineno"> 71</tt> <a class="py-toggle" href="#" id="query-toggle" onclick="return toggle('query');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.qstklearn.parallelknn-module.html#query">query</a><tt class="py-op">(</tt><tt class="py-param">allQueries</tt><tt class="py-op">,</tt> <tt class="py-param">k</tt><tt class="py-op">,</tt> <tt class="py-param">method</tt><tt class="py-op">=</tt><tt class="py-string">'mean'</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="query-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="query-expanded"><a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">    <tt class="py-docstring">'''</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring">    @summary: A serial implementation of k-nearest neighbors.</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">    @param allQueries: is another 2D numpy array. Each row here is one query point. It has no 'y' values. These have to be calculated.</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">    @param k: no. of neighbors to consider</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring">    @param method: method of combining the 'y' values of the nearest neighbors. Default is mean.</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">    @return: A numpy array with the predicted 'y' values for the query points. The ith element in the array is the 'y' value for the ith query point. If there is more than one mode then only the first mode is returned.</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">     </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">    <tt class="py-name">limit</tt> <tt class="py-op">=</tt> <tt class="py-name">allQueries</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt> <tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">    <tt class="py-name">data_limit</tt> <tt class="py-op">=</tt> <tt id="link-6" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-6', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">    <tt class="py-name">omitLastCol</tt> <tt class="py-op">=</tt> <tt id="link-7" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-7', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt> <tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">;</tt> <tt class="py-comment">#It must have two columns at least. Possibly add a check for this?</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">    <tt class="py-name">answer</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt> <tt class="py-op">(</tt><tt class="py-name">limit</tt><tt class="py-op">)</tt> <tt class="py-comment">#initialize the answer array to all zeros</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">    <tt class="py-name">temp1</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt> <tt class="py-op">(</tt><tt class="py-op">(</tt><tt id="link-8" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-8', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-op">(</tt><tt id="link-9" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-9', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> <tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">    <tt class="py-name">temp2</tt><tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt> <tt class="py-op">(</tt><tt id="link-10" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-10', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">     </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">allQueries</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> <tt class="py-op">!=</tt> <tt class="py-op">(</tt><tt id="link-11" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-11', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> <tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt> <tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt> <tt class="py-string">"ERROR: Data and query points are not of the same dimension"</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">        <tt class="py-comment">#if ends</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">k</tt> <tt class="py-op">&lt;</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt> <tt class="py-string">"ERROR: K should be &gt;= 1"</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-comment">#if ends    </tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">k</tt> <tt class="py-op">&gt;</tt> <tt id="link-12" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-12', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt> <tt class="py-string">"ERROR: K is greater than the total number of data points."</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">        <tt class="py-comment">#if ends</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">     </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">ctr</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt> <tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-name">limit</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> <tt class="py-comment">#for every query point...  </tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">        <tt class="py-comment">#if (ctr % 10 == 0):</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">         <tt class="py-comment">#   print ctr</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">            <tt class="py-comment">#if ends</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">         </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt class="py-comment">#for i in range (0 , data_limit): #for every data point</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt class="py-name">temp1</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">:</tt><tt class="py-name">data_limit</tt><tt class="py-op">,</tt> <tt class="py-op">:</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-13" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-13', 'data', 'link-0');">data</a></tt> <tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">:</tt><tt class="py-name">data_limit</tt> <tt class="py-op">,</tt><tt class="py-number">0</tt><tt class="py-op">:</tt><tt class="py-name">omitLastCol</tt><tt class="py-op">]</tt> <tt class="py-op">-</tt> <tt class="py-name">allQueries</tt><tt class="py-op">[</tt><tt class="py-name">ctr</tt><tt class="py-op">,</tt> <tt class="py-op">:</tt><tt class="py-op">]</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">        <tt class="py-comment">#for loop done</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">         </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">        <tt class="py-name">temp1</tt> <tt class="py-op">=</tt> <tt class="py-name">temp1</tt><tt class="py-op">*</tt><tt class="py-name">temp1</tt><tt class="py-op">;</tt> <tt class="py-comment">#square each element in temp1</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">ctr2</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt> <tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-name">data_limit</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">            <tt class="py-name">temp2</tt><tt class="py-op">[</tt><tt class="py-name">ctr2</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">math</tt><tt class="py-op">.</tt><tt id="link-14" class="py-name" targets="Variable QSTK.Bin.converter.sqrt=QSTK.Bin.converter-module.html#sqrt,Variable QSTK.Bin.report.sqrt=QSTK.Bin.report-module.html#sqrt,Variable QSTK.qstklearn.mldiagnostics.sqrt=QSTK.qstklearn.mldiagnostics-module.html#sqrt,Variable QSTK.qstkutil.bollinger.sqrt=QSTK.qstkutil.bollinger-module.html#sqrt,Variable QSTK.quicksim.quickSim.sqrt=QSTK.quicksim.quickSim-module.html#sqrt"><a title="QSTK.Bin.converter.sqrt
+QSTK.Bin.report.sqrt
+QSTK.qstklearn.mldiagnostics.sqrt
+QSTK.qstkutil.bollinger.sqrt
+QSTK.quicksim.quickSim.sqrt" class="py-name" href="#" onclick="return doclink('link-14', 'sqrt', 'link-14');">sqrt</a></tt><tt class="py-op">(</tt><tt class="py-name">sum</tt> <tt class="py-op">(</tt><tt class="py-name">temp1</tt><tt class="py-op">[</tt><tt class="py-name">ctr2</tt><tt class="py-op">,</tt><tt class="py-op">:</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">            <tt class="py-comment">#for ends</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">                   </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">        <tt class="py-name">index</tt> <tt class="py-op">=</tt> <tt class="py-name">temp2</tt><tt class="py-op">.</tt><tt class="py-name">argsort</tt> <tt class="py-op">(</tt><tt class="py-op">)</tt> <tt class="py-comment">#This is actually overkill because we need to sort only the top 'k' terms- but this sorts all of them     </tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt class="py-comment">#following loop for debugging only  </tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">        <tt class="py-comment">#for j in range (0, k):</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-comment">#   print str(data [index[j], :])</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">            <tt class="py-comment">#for ends</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">         </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">method</tt> <tt class="py-op">==</tt> <tt class="py-string">'mean'</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">            <tt class="py-comment">#Now we need to find the average of the k top most 'y' values</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">            <tt class="py-name">answer</tt><tt class="py-op">[</tt><tt class="py-name">ctr</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">sum</tt> <tt class="py-op">(</tt><tt id="link-15" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-15', 'data', 'link-0');">data</a></tt><tt class="py-op">[</tt> <tt class="py-name">index</tt> <tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">:</tt><tt class="py-name">k</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-op">/</tt> <tt class="py-name">k</tt>  <tt class="py-comment">#0 to (k-1)th index will be k values. But for this we have to give [0:k] because it stops one short of the last index</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">            <tt class="py-comment">#if method == mean ends</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">method</tt> <tt class="py-op">==</tt> <tt class="py-string">'median'</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">            <tt class="py-name">answer</tt> <tt class="py-op">[</tt><tt class="py-name">ctr</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">median</tt> <tt class="py-op">(</tt><tt id="link-16" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-16', 'data', 'link-0');">data</a></tt><tt class="py-op">[</tt><tt class="py-name">index</tt> <tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">:</tt><tt class="py-name">k</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">            <tt class="py-comment"># if median ends</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">method</tt> <tt class="py-op">==</tt> <tt class="py-string">'mode'</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">            <tt class="py-name">answer</tt> <tt class="py-op">[</tt><tt class="py-name">ctr</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">sc</tt><tt class="py-op">.</tt><tt class="py-name">stats</tt><tt class="py-op">.</tt><tt class="py-name">mode</tt> <tt class="py-op">(</tt><tt id="link-17" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-17', 'data', 'link-0');">data</a></tt><tt class="py-op">[</tt><tt class="py-name">index</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">:</tt><tt class="py-name">k</tt><tt class="py-op">]</tt><tt class="py-op">,</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">;</tt> <tt class="py-comment">#The first mode. If there is more than one mode then the only the first mode is returned</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">            <tt class="py-comment">#endif mode    </tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">        <tt class="py-comment">#for ctr in range (0, limit) ends</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">answer</tt> </tt>
+</div><a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">    <tt class="py-comment">#getAnswer ends</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"> </tt>
+<a name="addEvidence"></a><div id="addEvidence-def"><a name="L135"></a><tt class="py-lineno">135</tt> <a class="py-toggle" href="#" id="addEvidence-toggle" onclick="return toggle('addEvidence');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.qstklearn.parallelknn-module.html#addEvidence">addEvidence</a> <tt class="py-op">(</tt><tt class="py-param">newData</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="addEvidence-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="addEvidence-expanded"><a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">    <tt class="py-docstring">'''</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"><tt class="py-docstring">    @summary: This is the funtion to be called to add data. This function can be called multiple times- to add data whenever you like.</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"><tt class="py-docstring">    @note: Any dimensional data can be added the first time. After that- the data must have the same number of columns as the data that was added the first time.</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line"><tt class="py-docstring">    @param newData: A 2D numpy array. Each row is a data point and each column is a dimension. The last dimension corresponds to 'y' values.</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">     </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-18" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-18', 'data', 'link-0');">data</a></tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt id="link-19" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-19', 'data', 'link-0');">data</a></tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">        <tt id="link-20" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-20', 'data', 'link-0');">data</a></tt> <tt class="py-op">=</tt> <tt class="py-name">newData</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">            <tt id="link-21" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-21', 'data', 'link-0');">data</a></tt><tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">vstack</tt> <tt class="py-op">(</tt><tt class="py-op">(</tt><tt id="link-22" class="py-name"><a title="QSTK.qstklearn.parallelknn.data" class="py-name" href="#" onclick="return doclink('link-22', 'data', 'link-0');">data</a></tt><tt class="py-op">,</tt> <tt class="py-name">newData</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt> <tt class="py-keyword">as</tt> <tt class="py-name">ex</tt><tt class="py-op">:</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line">            <tt class="py-keyword">print</tt> <tt class="py-string">"Type of exception: "</tt><tt class="py-op">+</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">type</tt> <tt class="py-op">(</tt><tt class="py-name">ex</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line">            <tt class="py-keyword">print</tt> <tt class="py-string">"args: "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">ex</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">            <tt class="py-comment">#except ends   </tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">    <tt class="py-comment">#addEvidence ends</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"> </tt>
+<a name="main"></a><div id="main-def"><a name="L155"></a><tt class="py-lineno">155</tt> <a class="py-toggle" href="#" id="main-toggle" onclick="return toggle('main');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="QSTK.qstklearn.parallelknn-module.html#main">main</a><tt class="py-op">(</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="main-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="main-expanded"><a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">    <tt class="py-docstring">'''</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line"><tt class="py-docstring">    @summary: This function is just for testing. Will not be used as such...</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">     </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">    <tt class="py-comment">#Below code just for testing</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">    <tt class="py-name">a</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">loadtxt</tt> <tt class="py-op">(</tt><tt class="py-string">"/nethome/sjoshi42/knn_naive/data/3_D_1000_diskQueryPoints.txt"</tt><tt class="py-op">)</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">    <tt class="py-name">b</tt><tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">loadtxt</tt> <tt class="py-op">(</tt><tt class="py-string">"/nethome/sjoshi42/knn_naive/data/3_D_128000_diskDataPoints.txt"</tt><tt class="py-op">)</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">    <tt id="link-23" class="py-name" targets="Method QSTK.qstklearn.fastknn.FastKNN.addEvidence()=QSTK.qstklearn.fastknn.FastKNN-class.html#addEvidence,Method QSTK.qstklearn.hmm.HMMLearner.addEvidence()=QSTK.qstklearn.hmm.HMMLearner-class.html#addEvidence,Method QSTK.qstklearn.kdtknn.kdtknn.addEvidence()=QSTK.qstklearn.kdtknn.kdtknn-class.html#addEvidence,Function QSTK.qstklearn.parallelknn.addEvidence()=QSTK.qstklearn.parallelknn-module.html#addEvidence"><a title="QSTK.qstklearn.fastknn.FastKNN.addEvidence
+QSTK.qstklearn.hmm.HMMLearner.addEvidence
+QSTK.qstklearn.kdtknn.kdtknn.addEvidence
+QSTK.qstklearn.parallelknn.addEvidence" class="py-name" href="#" onclick="return doclink('link-23', 'addEvidence', 'link-23');">addEvidence</a></tt><tt class="py-op">(</tt><tt class="py-name">b</tt><tt class="py-op">)</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">    <tt class="py-name">answer</tt> <tt class="py-op">=</tt> <tt id="link-24" class="py-name" targets="Function QSTK.qstklearn.parallelknn.par_query()=QSTK.qstklearn.parallelknn-module.html#par_query"><a title="QSTK.qstklearn.parallelknn.par_query" class="py-name" href="#" onclick="return doclink('link-24', 'par_query', 'link-24');">par_query</a></tt><tt class="py-op">(</tt><tt class="py-name">a</tt><tt class="py-op">,</tt> <tt class="py-number">5</tt> <tt class="py-op">,</tt><tt class="py-string">'mode'</tt><tt class="py-op">)</tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">    <tt class="py-comment">#answer = query(a, 5, 'mean')</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">     </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-25" class="py-name" targets="Variable QSTK.Bin.gen_nyse_dates.i=QSTK.Bin.gen_nyse_dates-module.html#i"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-25', 'i', 'link-25');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt> <tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-name">answer</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">        <tt class="py-keyword">print</tt> <tt class="py-name">answer</tt><tt class="py-op">[</tt><tt id="link-26" class="py-name"><a title="QSTK.Bin.gen_nyse_dates.i" class="py-name" href="#" onclick="return doclink('link-26', 'i', 'link-25');">i</a></tt><tt class="py-op">]</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">    <tt class="py-comment">#end for    </tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line">     </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">     </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"The answer is: "</tt> </tt>
+</div><a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">__name__</tt> <tt class="py-op">==</tt> <tt class="py-string">'__main__'</tt><tt class="py-op">:</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">    <tt id="link-27" class="py-name" targets="Function QSTK.csvconverter.norgate_csv_to_pkl.main()=QSTK.csvconverter.norgate_csv_to_pkl-module.html#main,Function QSTK.csvconverter.yahoo_csv_to_pkl.main()=QSTK.csvconverter.yahoo_csv_to_pkl-module.html#main,Function QSTK.csvconverter.yahoo_data_getter.main()=QSTK.csvconverter.yahoo_data_getter-module.html#main,Function QSTK.qstklearn.parallelknn.main()=QSTK.qstklearn.parallelknn-module.html#main"><a title="QSTK.csvconverter.norgate_csv_to_pkl.main
+QSTK.csvconverter.yahoo_csv_to_pkl.main
+QSTK.csvconverter.yahoo_data_getter.main
+QSTK.qstklearn.parallelknn.main" class="py-name" href="#" onclick="return doclink('link-27', 'main', 'link-27');">main</a></tt> <tt class="py-op">(</tt><tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">argv</tt><tt class="py-op">)</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Mar  5 00:49:16 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

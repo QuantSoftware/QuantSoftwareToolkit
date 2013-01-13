@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>QSTK.qstklearn.hmm.HMMLearner</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="QSTK-module.html">Package&nbsp;QSTK</a> ::
+        <a href="QSTK.qstklearn-module.html">Package&nbsp;qstklearn</a> ::
+        <a href="QSTK.qstklearn.hmm-module.html">Module&nbsp;hmm</a> ::
+        Class&nbsp;HMMLearner
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="QSTK.qstklearn.hmm.HMMLearner-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class HMMLearner</h1><p class="nomargin-top"><span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner">source&nbsp;code</a></span></p>
+<pre class="literalblock">
+
+A class for modeling and learning HMMs.
+
+This class conveniently wraps the module level functions. Class objects hold 6
+data members:
+- num_states                    number of hidden states in the HMM
+- num_symbols                   number of possible symbols in the observation 
+                                sequence
+- precision                     precision of the numpy.array elements (defaults to
+                                longdouble)
+- prior                         The prior probability of starting in each state
+                                (Nx1 array)
+- transition_matrix             The probability of transitioning between each state
+                                (NxN matrix)
+- emission_matrix               The probability of each symbol in each state
+                                (NxO matrix)
+You can set the 3 matrix parameters as you wish, but make sure the shape of
+the arrays matches num_states and num_symbols, as these are used internally
+
+Typical usage of this class is to create an HMM with a set number of states
+and external symbols, train the HMM using addEvidence(...), and then use
+the sequenceProb(...) method to see how well a specific sequence matches
+the trained HMM.
+
+</pre>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="QSTK.qstklearn.hmm.HMMLearner-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">num_states</span>,
+        <span class="summary-sig-arg">num_symbols</span>,
+        <span class="summary-sig-arg">init_type</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">uniform</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">precision</span>=<span class="summary-sig-default">&lt;type 'numpy.float128'&gt;</span>)</span><br />
+      Creates a new HMMLearner object with the given number of internal 
+      states, and external symbols.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="QSTK.qstklearn.hmm.HMMLearner-class.html#reset" class="summary-sig-name">reset</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">init_type</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">uniform</code><code class="variable-quote">'</code></span>)</span><br />
+      Resets the 3 arrays using the given initialization method.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.reset">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="QSTK.qstklearn.hmm.HMMLearner-class.html#sequenceProb" class="summary-sig-name">sequenceProb</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">newData</span>)</span><br />
+      Returns the probability that this HMM generated the given sequence.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.sequenceProb">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="QSTK.qstklearn.hmm.HMMLearner-class.html#addEvidence" class="summary-sig-name">addEvidence</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">newData</span>,
+        <span class="summary-sig-arg">iterations</span>=<span class="summary-sig-default">1</span>,
+        <span class="summary-sig-arg">epsilon</span>=<span class="summary-sig-default">0.0</span>)</span><br />
+      Updates this HMMs parameters given a new set of observed sequences 
+      using the Baum-Welch algorithm.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.addEvidence">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">num_states</span>,
+        <span class="sig-arg">num_symbols</span>,
+        <span class="sig-arg">init_type</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">uniform</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">precision</span>=<span class="sig-default">&lt;type 'numpy.float128'&gt;</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Creates a new HMMLearner object with the given number of internal 
+  states, and external symbols.</p>
+  <p>calls self.reset(init_type=init_type)</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="reset"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">reset</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">init_type</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">uniform</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.reset">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Resets the 3 arrays using the given initialization method.
+
+Wipes out the old arrays. You can use this method to change the shape
+of the arrays by first changing num_states and/or num_symbols, and then
+calling this method.
+
+Currently supported initialization methods:
+uniform         prior, transition, and emission probabilities are all 
+                        uniform (default)
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="sequenceProb"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">sequenceProb</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">newData</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.sequenceProb">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the probability that this HMM generated the given 
+  sequence.</p>
+  <p>Uses the forward-backward algorithm.  If given an array of sequences, 
+  returns a 1D array of probabilities.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="addEvidence"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">addEvidence</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">newData</span>,
+        <span class="sig-arg">iterations</span>=<span class="sig-default">1</span>,
+        <span class="sig-arg">epsilon</span>=<span class="sig-default">0.0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="QSTK.qstklearn.hmm-pysrc.html#HMMLearner.addEvidence">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Updates this HMMs parameters given a new set of observed sequences 
+  using the Baum-Welch algorithm.</p>
+  <p>newData can either be a single (1D) array of observed symbols, or a 2D
+  matrix, each row of which is a seperate sequence. The Baum-Welch update 
+  is repeated 'iterations' times, or until the sum absolute change in each 
+  matrix is less than the given epsilon.  If given multiple sequences, each
+  sequence is used to update the parameters in order, and the sum absolute 
+  change is calculated once after all the sequences are processed.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="QSTK-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >QSTK</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Mar  5 00:49:16 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
