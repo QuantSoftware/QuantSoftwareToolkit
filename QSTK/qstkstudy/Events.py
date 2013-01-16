@@ -11,12 +11,12 @@
 #
 
 import pandas 
-from qstkutil import DataAccess as da
+from qstk.qstkutil import DataAccess as da
 import numpy as np
 import math
-import qstkutil.qsdateutil as du
+import qstk.qstkutil.qsdateutil as du
 import datetime as dt
-import qstkutil.DataAccess as da
+import qstk.qstkutil.DataAccess as da
 
 """
 Accepts a list of symbols along with start and end date
@@ -33,13 +33,14 @@ Also, d1 = start date
 nan = no information about any event.
 1 = status bit(positively confirms the event occurence)
 """
-# Get the data from the data store
-storename = "Yahoo" # get data from our daily prices source
-# Available field names: open, close, high, low, close, actual_close, volume
-closefield = "close"
-volumefield = "volume"
-window = 10
+
 def findEvents(symbols, startday,endday,verbose=False):
+	# Get the data from the data store
+	storename = "Yahoo" # get data from our daily prices source
+	# Available field names: open, close, high, low, close, actual_close, volume
+	closefield = "close"
+	volumefield = "volume"
+	window = 10
 	timeofday=dt.timedelta(hours=16)
 	timestamps = du.getNYSEdays(startday,endday,timeofday)
 	dataobj = da.DataAccess('Yahoo')
