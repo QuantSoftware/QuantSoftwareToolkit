@@ -20,9 +20,9 @@ import numpy as np
 import datetime as dt
 
 #''' QSTK Imports '''
-import qstkutil.tsutil as tsu
-from qstkutil import DataAccess as da
-import qstkutil.qsdateutil as du
+import qstk.qstkutil.tsutil as tsu
+from qstk.qstkutil import DataAccess as da
+import qstk.qstkutil.qsdateutil as du
 
 def featMomentum(dData, lLookback=20, b_human=False ):
     '''

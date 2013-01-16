@@ -22,14 +22,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ''' Our Imports '''
-import qstklearn.kdtknn as kdt
-from qstkutil import DataAccess as da
-from qstkutil import DataEvolved as de
-from qstkutil import qsdateutil as du
-from qstkutil import tsutil as tsu
+import qstk.qstklearn.kdtknn as kdt
+from qstk.qstkutil import DataAccess as da
+from qstk.qstkutil import DataEvolved as de
+from qstk.qstkutil import qsdateutil as du
+from qstk.qstkutil import tsutil as tsu
 
-from qstkfeat.features import *
-from qstkfeat.classes import class_fut_ret
+from qstk.qstkfeat.features import *
+from qstk.qstkfeat.classes import class_fut_ret
 
 
 
@@ -325,7 +325,7 @@ def log500( sLog ):
     
     
     ''' Pull in current data '''
-    norObj = da.DataAccess('Norgate')
+    norObj = da.DataAccess('Yahoo')
     ''' Get 2 extra months for moving averages and future returns '''
     ldtTimestamps = du.getNYSEdays( dtStart - relativedelta(months=2), \
                                     dtEnd   + relativedelta(months=2), dt.timedelta(hours=16) )
@@ -381,7 +381,7 @@ def testFeature( fcFeature, dArgs ):
     dtEnd = dt.datetime(2011, 12, 31)
          
     ''' Pull in current training data and test data '''
-    norObj = de.DataAccess('mysql')
+    norObj = da.DataAccess('Yahoo')
     ''' Get 2 extra months for moving averages and future returns '''
     ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
     
@@ -434,7 +434,7 @@ def speedTest(lfcFeature,ldArgs):
     ''' 	
 
     '''pulling out 2 years data to run test'''
-    daData = de.DataAccess('mysql')
+    daData = da.DataAccess('Yahoo')
     dtStart = dt.datetime(2010, 1, 1)
     dtEnd = dt.datetime(2011, 12, 31)
     dtTimeofday = dt.timedelta(hours=16)
