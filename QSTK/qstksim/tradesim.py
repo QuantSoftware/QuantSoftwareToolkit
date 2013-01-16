@@ -22,7 +22,7 @@ import numpy as np
 from copy import deepcopy
 
 # QSTK imports
-from qstkutil import tsutil as tsu
+from qstk.qstkutil import tsutil as tsu
 
 def _calculate_leverage(values_by_stock, ts_leverage, ts_long_exposure, ts_short_exposure, ts_net_exposure):
     """
