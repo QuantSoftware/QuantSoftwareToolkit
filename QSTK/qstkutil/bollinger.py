@@ -19,8 +19,8 @@ from pandas import *
 import datetime as dt
 
 #qstk imports
-import qstkutil.DataAccess as da
-import qstkutil.qsdateutil as du
+import qstk.qstkutil.DataAccess as da
+import qstk.qstkutil.qsdateutil as du
 
 def calcavg(period):
 	sum = zeros(len(period.columns))
