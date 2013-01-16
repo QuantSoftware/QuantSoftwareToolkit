@@ -10,7 +10,8 @@ Created on Jun 1, 2010
 
 #Main begins
 #from DataAccess import *
-import DataAccessNew as da
+#import DataAccessNew as da
+import qstk.qstkutil.DataAccess as da
 import tables as pt
 import numpy as np
 from itertools import izip 
@@ -41,74 +42,65 @@ def getStocks(listOfPaths):
 
 
 
-
-
-print "Starting..."
-dataItemsList=[]
-
-dataItemsList.append('alphaValue')
-
-
-
-
-
-#for gekko
-#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NASDAQ/")
-#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/Delisted_US_Recent/")
-#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/OTC/")
-#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_AMEX/")
-#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_Delisted/")
-#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE/")
-#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE Arca/")
-#gekko paths end
-
-
-
-listOfStocks= list()
-#listOfStocks.append("AAPL")
-#listOfStocks.append("YHOO")
-#listOfStocks.append("AMZN")
-
-listOfPaths=list()
-listOfPaths.append("C:\\test\\temp\\")
-#listOfPaths.append("C:\\test\\hdf\\")
-
-listOfStocks= getStocks(listOfPaths)
-
-
-
-
-alpha= da.DataAccess (True, listOfPaths, "/StrategyData", "StrategyData", True, listOfStocks) # , 946702800 , 1262322000 
-
-#alpha= da.DataAccess (False, "C:\\test\\temp\\AAPL.h5", "/StrategyData", "StrategyData", True, None) # reading a single hdf5 file
-
-tslist= list(alpha.getTimestampArray())
-
-#for ts in tslist:
-#    for stock in listOfStocks:
-#        print str(stock)+"  "+ str(ts)+"   "+str(alpha.getStockDataItem(str(stock), 'volume', ts)) 
-
-
-
-
-#alpha= da.DataAccess (False, "curveFittingAlphaVals.h5", "/alphaData", "alphaData", True, listOfStocks, None, None, None, dataItemsList)
-
-
-listOfTS= alpha.getTimestampArray()
-for stock in ["AAPL"]:
-            alphaList= alpha.getStockDataList(stock, 'volume')
-            ctr=0
-            for val in alphaList:
-                print "stock: " + str(stock) + ", val: "+str(val) + ", ts: " + str(listOfTS[ctr])
-                ctr+=1
-                
-print "DONE!"                
-            
-            
-            
-            
-            
-            
-            
-            
-
+if __name__ == '__main__':
+	
+	print "Starting..."
+	dataItemsList=[]
+	
+	dataItemsList.append('alphaValue')
+	
+	
+	
+	
+	
+	#for gekko
+	#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NASDAQ/")
+	#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/Delisted_US_Recent/")
+	#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/OTC/")
+	#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_AMEX/")
+	#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_Delisted/")
+	#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE/")
+	#listOfPaths.append("/hzr71/research/QSData/Processed/Norgate/Equities/US_NYSE Arca/")
+	#gekko paths end
+	
+	
+	
+	listOfStocks= list()
+	#listOfStocks.append("AAPL")
+	#listOfStocks.append("YHOO")
+	#listOfStocks.append("AMZN")
+	
+	listOfPaths=list()
+	listOfPaths.append("C:\\test\\temp\\")
+	#listOfPaths.append("C:\\test\\hdf\\")
+	
+	listOfStocks= getStocks(listOfPaths)
+	
+	
+	
+	
+	alpha= da.DataAccess (True, listOfPaths, "/StrategyData", "StrategyData", True, listOfStocks) # , 946702800 , 1262322000 
+	
+	#alpha= da.DataAccess (False, "C:\\test\\temp\\AAPL.h5", "/StrategyData", "StrategyData", True, None) # reading a single hdf5 file
+	
+	tslist= list(alpha.getTimestampArray())
+	
+	#for ts in tslist:
+	#    for stock in listOfStocks:
+	#        print str(stock)+"  "+ str(ts)+"   "+str(alpha.getStockDataItem(str(stock), 'volume', ts)) 
+	
+	
+	
+	
+	#alpha= da.DataAccess (False, "curveFittingAlphaVals.h5", "/alphaData", "alphaData", True, listOfStocks, None, None, None, dataItemsList)
+	
+	
+	listOfTS= alpha.getTimestampArray()
+	for stock in ["AAPL"]:
+	            alphaList= alpha.getStockDataList(stock, 'volume')
+	            ctr=0
+	            for val in alphaList:
+	                print "stock: " + str(stock) + ", val: "+str(val) + ", ts: " + str(listOfTS[ctr])
+	                ctr+=1
+	                
+	print "DONE!"                
