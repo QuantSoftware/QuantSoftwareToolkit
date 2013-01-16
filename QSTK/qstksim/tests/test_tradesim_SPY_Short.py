@@ -20,9 +20,9 @@ import pandas as pand
 import numpy as np
 
 # QSTK imports
-import qstksim
-import qstkutil.DataAccess as da
-import qstkutil.qsdateutil as du
+import qstk.qstksim
+import qstk.qstkutil.DataAccess as da
+import qstk.qstkutil.qsdateutil as du
 
 
 class Test(unittest.TestCase):
