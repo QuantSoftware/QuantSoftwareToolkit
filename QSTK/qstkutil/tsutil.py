@@ -16,7 +16,7 @@ Created on Jan 1, 2011
 import math
 import datetime as dt
 import numpy as np
-from qstkutil import qsdateutil
+from qstk.qstkutil import qsdateutil
 from math import sqrt
 import pandas as pd
 from copy import deepcopy
@@ -24,8 +24,8 @@ from copy import deepcopy
 
 import random as rand
 
-from qstkutil import DataAccess as da
-from qstkutil import qsdateutil as du
+from qstk.qstkutil import DataAccess as da
+from qstk.qstkutil import qsdateutil as du
 import numpy as np
 
 def daily(lfFunds):
