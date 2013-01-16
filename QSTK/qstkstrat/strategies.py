@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pand
 
 ''' QSTK imports '''
-import qstkutil.tsutil as tsu
+import qstk.qstkutil.tsutil as tsu
 
 
 def stratGiven( dtStart, dtEnd, dFuncArgs ):
