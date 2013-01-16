@@ -1,4 +1,3 @@
-
 import datetime as dt
 import csv
 import copy
@@ -12,8 +11,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # QSTK imports
-from qstkutil import qsdateutil as du
-import qstkutil.DataEvolved as de
+from qstk.qstkutil import qsdateutil as du
+# import qstkutil.DataEvolved as de
 
 def write(ls_symbols, d_data, ldt_timestamps):
 
