@@ -22,9 +22,9 @@ Created on Jan 1, 2011
 #
 
 from pylab import *
-from qstkutil import DataAccess as da
-from qstkutil import tsutil as tsu
-from quicksim import quickSim
+from qstk.qstkutil import DataAccess as da
+from qstk.qstkutil import tsutil as tsu
+# from quicksim import quickSim
 from copy import deepcopy
 import math
 from pandas import *
