@@ -22,9 +22,9 @@ import pickle
 import datetime as dt
 import dateutil.parser as dp
 from Bin import report
-from qstksim import _calculate_leverage
-from qstkutil import qsdateutil as du
-from qstkutil import DataEvolved as de
+from qstk.qstksim import _calculate_leverage
+from qstk.qstkutil import qsdateutil as du
+from qstk.qstkutil import DataEvolved as de
 
 
 def calculate_efficiency(dt_start_date, dt_end_date, s_stock):
@@ -406,21 +406,15 @@ def share_table2fund(share_table):
     return [fund_ts, ts_leverage]
 
 if __name__ == "__main__":
-    filename = "./New-CSV/Stump.csv"
-    plot_name = "StumpGrinder"
+    filename = "Strat.csv"
+    plot_name = "Strategy"
     print "load csv"
     [share_table, commissions, i_start_cash] = csv2fund(filename)
     print share_table
-    # share_table.to_csv('test_stump.csv')
-    # share_table.to_csv('test.csv')
     [fund_ts, ts_leverage] = share_table2fund(share_table)
     print "print report"
     print fund_ts
-    # original_1 = pickle.load(open('Core.pkl', 'rb'))
-    # original_2 = pickle.load(open('Hedge.pkl', 'rb'))
-    # pickle.dump(fund_ts, open('Hedge.pkl', 'wb'))
-    report.print_stats(fund_ts, ["SPY"], "StumpGrinder", directory="./" + plot_name, commissions=commissions, i_start_cash=i_start_cash)
-        # original=[original_1, original_2], s_original_name=['EvenKeel-Core', 'EvenKeel-Hedge'])
+    report.print_stats(fund_ts, ["SPY"], plot_name, directory="./" + plot_name, commissions=commissions, i_start_cash=i_start_cash)
     print "analyze transactions"
     #Generate new plot based off transactions alone
     analyze_transactions(filename, plot_name, share_table, True)
