@@ -12,7 +12,6 @@ Created on Jan 1, 2011
 
 '''
 
-__version__ = "$Revision: 295 $"
 
 import datetime as dt
 from datetime import timedelta

@@ -11,13 +11,13 @@
 
 import pandas 
 import numpy as np
-import Events as ev
+import qstk.qstkstudy.Events as ev
 import matplotlib.pyplot as plt
 from pylab import *
-import qstkutil.qsdateutil as du
-import qstkutil.tsutil as tsu
+import qstk.qstkutil.qsdateutil as du
+import qstk.qstkutil.tsutil as tsu
 import datetime as dt
-import qstkutil.DataAccess as da
+import qstk.qstkutil.DataAccess as da
 
 class EventProfiler():
 
