@@ -11,7 +11,7 @@ Created on Jun 1, 2010
 #Main begins
 #from DataAccess import *
 #import DataAccessNew as da
-import qstk.qstkutil.DataAccess as da
+import QSTK.qstkutil.DataAccess as da
 import tables as pt
 import numpy as np
 from itertools import izip 

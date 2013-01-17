@@ -9,9 +9,9 @@
 # imports
 import matplotlib.pyplot as plt
 from pylab import *
-from qstk.qstkutil import DataAccess as da
-from qstk.qstkutil import timeutil as tu
-from qstk.qstkutil import timeseries as ts
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import timeutil as tu
+from QSTK.qstkutil import timeseries as ts
 
 # Set the list of stocks for us to look at
 symbols= list()
