@@ -11,9 +11,9 @@ Created on September, 12, 2011
 @summary: Example tutorial code.
 '''
 
-import qstkutil.qsdateutil as du
-import qstkutil.tsutil as tsu
-import qstkutil.DataAccess as da
+import qstk.qstkutil.qsdateutil as du
+import qstk.qstkutil.tsutil as tsu
+import qstk.qstkutil.DataAccess as da
 import datetime as dt
 import matplotlib.pyplot as plt
 from pylab import *
