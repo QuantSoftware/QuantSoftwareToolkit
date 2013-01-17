@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 import random
 
 #qstk imports
-from qstk.qstkutil import DataAccess as da
-from qstk.qstkutil import qsdateutil as du
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
 
 # Get first 20 S&P Symbols 
 symbols = list(np.loadtxt(os.environ['QS']+"/quicksim/strategies/S&P500.csv",dtype='str',delimiter=',',comments='#',skiprows=0))
