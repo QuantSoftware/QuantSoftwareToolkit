@@ -9,11 +9,11 @@ setup(
     long_description=open('README.md').read(),
     author_email='sourabhbajaj90@gmail.com',
     url='http://wiki.quantsoftware.org',
-    license='LICENSE.txt',
+    license=open('LICENSE.txt').read(),
     description='QuantSoftware Toolkit',
     install_requires=[
         "numpy >= 1.6.1",
-        "scipy >= 0.10.0",
+        "scipy >= 0.9.0",
         "matplotlib >= 1.1.0",
         "pandas==0.7.3",
         "dateutil >= 1.5",
