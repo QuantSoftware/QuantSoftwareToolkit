@@ -13,15 +13,15 @@ Created on March, 5, 2012
 
 
 import pandas 
-from qstkutil import DataAccess as da
+from qstk.qstkutil import DataAccess as da
 import numpy as np
 import math
 import copy
 import qstkutil.qsdateutil as du
 import datetime as dt
-import qstkutil.DataAccess as da
-import qstkutil.tsutil as tsu
-import qstkstudy.EventProfiler as ep
+import qstk.qstkutil.DataAccess as da
+import qstk.qstkutil.tsutil as tsu
+import qstk.qstkstudy.EventProfiler as ep
 
 """
 Accepts a list of symbols along with start and end date

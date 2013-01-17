@@ -1,6 +1,6 @@
-import qstkutil.qsdateutil as du
-import qstkutil.tsutil as tsu
-import qstkutil.DataAccess as da
+import qstk.qstkutil.qsdateutil as du
+import qstk.qstkutil.tsutil as tsu
+import qstk.qstkutil.DataAccess as da
 import datetime as dt
 import matplotlib.pyplot as plt
 import pandas

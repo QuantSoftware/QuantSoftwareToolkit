@@ -12,8 +12,8 @@ import time as t
 import numpy as np
 import matplotlib.pyplot as plt
 from pylab import *
-from qstkutil import DataAccess as da
-from qstkutil import timeutil as tu
+from qstk.qstkutil import DataAccess as da
+from qstk.qstkutil import timeutil as tu
 
 # Set the list of stocks for us to look at
 symbols= list()

@@ -31,9 +31,9 @@ import datetime as dt
 import random as rgen
 
 #qstk imports
-import qstksim
-import qstkutil.DataAccess as da
-import qstkutil.qsdateutil as du
+import qstk.qstksim
+import qstk.qstkutil.DataAccess as da
+import qstk.qstkutil.qsdateutil as du
 from Bin import report
 from Bin import csv2fund
         

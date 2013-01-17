@@ -11,9 +11,9 @@ Created on August 29, 2011
 @summary: Demonstrates the use of the NAG portfolio optimization call.
 '''
 
-import qstkutil.qsdateutil as du
-import qstkutil.tsutil as tsu
-import qstkutil.DataAccess as da
+import qstk.qstkutil.qsdateutil as du
+import qstk.qstkutil.tsutil as tsu
+import qstk.qstkutil.DataAccess as da
 import datetime as dt
 
 import matplotlib.pyplot as plt

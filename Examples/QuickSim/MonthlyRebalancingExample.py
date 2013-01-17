@@ -29,8 +29,8 @@ import datetime as dt
 import os
 
 # qstk imports
-from qstkutil import DataAccess as da
-from qstkutil import qsdateutil as du
+from qstk.qstkutil import DataAccess as da
+from qstk.qstkutil import qsdateutil as du
 from quicksim import quickSim as qs
 
 #sample_historic setup
