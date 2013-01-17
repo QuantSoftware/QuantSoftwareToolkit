@@ -11,12 +11,12 @@
 #
 
 import pandas 
-from qstk.qstkutil import DataAccess as da
+from QSTK.qstkutil import DataAccess as da
 import numpy as np
 import math
-import qstk.qstkutil.qsdateutil as du
+import QSTK.qstkutil.qsdateutil as du
 import datetime as dt
-import qstk.qstkutil.DataAccess as da
+import QSTK.qstkutil.DataAccess as da
 
 """
 Accepts a list of symbols along with start and end date

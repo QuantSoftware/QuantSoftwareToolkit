@@ -9,8 +9,8 @@
 # @contact: mailvishalshekhar@gmail.com
 # @summary: Utiltiy script to create list of symbols for study.
 
-import qstk.qstkutil.DataAccess as da
-import qstk.qstkutil.qsdateutil as du
+import QSTK.qstkutil.DataAccess as da
+import QSTK.qstkutil.qsdateutil as du
 import datetime as dt
 
 if __name__ == '__main__':

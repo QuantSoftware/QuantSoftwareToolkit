@@ -14,11 +14,11 @@ Created on Jan 1, 2011
 
 from os import path, makedirs
 from os import sys
-from qstk.qstkutil import DataEvolved as de
-from qstk.qstkutil import DataAccess as da
-from qstk.qstkutil import qsdateutil as du
-from qstk.qstkutil import tsutil as tsu
-from qstk.qstkutil import fundutil as fu
+from QSTK.qstkutil import DataEvolved as de
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
+from QSTK.qstkutil import tsutil as tsu
+from QSTK.qstkutil import fundutil as fu
 from dateutil.relativedelta import relativedelta
 import numpy as np
 from math import log10

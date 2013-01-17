@@ -1,9 +1,9 @@
 #
 # Example use of the event profiler
 #
-import qstk.qstkstudy.Events as ev
+import QSTK.qstkstudy.Events as ev
 import datetime as dt
-import qstk.qstkstudy.EventProfiler as ep
+import QSTK.qstkstudy.EventProfiler as ep
 import numpy as np
 
 if __name__ == '__main__':
