@@ -13,9 +13,9 @@ Created on September, 12, 2011
 
 import matplotlib.pyplot as plt
 from pylab import *
-from qstk.qstkutil import DataAccess as da
-from qstk.qstkutil import qsdateutil as du
-from qstk.qstkutil import tsutil as tsu
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
+from QSTK.qstkutil import tsutil as tsu
 import datetime as dt
 
 #
