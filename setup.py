@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='QSTK',
-    version='0.2.1',
+    version='0.2.2',
     author='Sourabh Bajaj',
     packages=['QSTK', 'QSTK.qstkfeat', 'QSTK.qstklearn', 'QSTK.qstksim',
 			  'QSTK.qstkstrat', 'QSTK.qstkstudy', 'QSTK.qstkutil', 'QSTK.qstktest'],
