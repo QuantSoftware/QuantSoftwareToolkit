@@ -22,9 +22,9 @@ import pickle
 import datetime as dt
 import dateutil.parser as dp
 from Bin import report
-from qstk.qstksim import _calculate_leverage
-from qstk.qstkutil import qsdateutil as du
-from qstk.qstkutil import DataEvolved as de
+from QSTK.qstksim import _calculate_leverage
+from QSTK.qstkutil import qsdateutil as du
+from QSTK.qstkutil import DataEvolved as de
 
 
 def calculate_efficiency(dt_start_date, dt_end_date, s_stock):
