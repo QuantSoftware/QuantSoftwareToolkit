@@ -20,7 +20,7 @@ import pandas as pand
 import numpy as np
 
 # QSTK imports
-import qstk.qstksim
+import QSTK.qstksim
 
 
 class Test(unittest.TestCase):

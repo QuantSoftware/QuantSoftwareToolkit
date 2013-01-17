@@ -22,8 +22,8 @@ Created on Jan 1, 2011
 #
 
 from pylab import *
-from qstk.qstkutil import DataAccess as da
-from qstk.qstkutil import tsutil as tsu
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import tsutil as tsu
 # from quicksim import quickSim
 from copy import deepcopy
 import math

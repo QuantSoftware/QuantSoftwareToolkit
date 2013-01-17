@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # QSTK imports
-from qstk.qstkutil import qsdateutil as du
+from QSTK.qstkutil import qsdateutil as du
 # import qstkutil.DataEvolved as de
 
 def write(ls_symbols, d_data, ldt_timestamps):

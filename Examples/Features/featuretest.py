@@ -20,12 +20,12 @@ import pandas as pand
 import matplotlib.pyplot as plt
 
 ''' QSTK imports '''
-from qstk.qstkutil import DataAccess as da
-from qstk.qstkutil import qsdateutil as du
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
 
-from qstk.qstkfeat.features import featMA, featRSI
-from qstk.qstkfeat.classes import class_fut_ret
-import qstk.qstkfeat.featutil as ftu
+from QSTK.qstkfeat.features import featMA, featRSI
+from QSTK.qstkfeat.classes import class_fut_ret
+import QSTK.qstkfeat.featutil as ftu
 
 
 def learnerTest( naTrain, naTest ):

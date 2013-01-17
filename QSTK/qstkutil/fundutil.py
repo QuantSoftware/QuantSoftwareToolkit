@@ -12,7 +12,7 @@ Created on Jan 1, 2011
 
 '''
 
-import qstk.qstkutil.tsutil as tsu
+import QSTK.qstkutil.tsutil as tsu
 
 def get_winning_days(fund_ts):
     """
