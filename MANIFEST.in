@@ -1,5 +1,6 @@
 include *.txt
 include *.md
+include *.sh
 recursive-include docs *
 recursive-include bin *
 recursive-include Examples *
