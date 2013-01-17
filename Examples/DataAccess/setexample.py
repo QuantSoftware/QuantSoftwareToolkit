@@ -13,7 +13,7 @@ import profile
 #    print sys.path[i]
 
 #from DataAccess import *
-import qstk.qstkutil.DataAccess as DA
+import QSTK.qstkutil.DataAccess as DA
 import numpy as np
 import time
 import datetime as dt

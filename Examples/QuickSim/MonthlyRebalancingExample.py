@@ -29,9 +29,9 @@ import datetime as dt
 import os
 
 # qstk imports
-from qstk.qstkutil import DataAccess as da
-from qstk.qstkutil import qsdateutil as du
-from quicksim import quickSim as qs
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
+from QSTK.quicksim import quickSim as qs
 
 #sample_historic setup
 # Get first 20 S&P Symbols 
