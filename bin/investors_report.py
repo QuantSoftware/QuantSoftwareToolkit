@@ -9,10 +9,10 @@
 
 from pylab import *
 import numpy
-from qstkutil import DataAccess as da
-from qstkutil import qsdateutil as du
-from qstkutil import tsutil as tsu
-from quicksim import quickSim as qs
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
+from QSTK.qstkutil import tsutil as tsu
+from QSTK.quicksim import quickSim as qs
 import converter
 import datetime as dt
 from pandas import *

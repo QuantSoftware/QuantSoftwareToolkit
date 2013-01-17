@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # QSTK imports
-from qstkutil import qsdateutil as du
-import qstkutil.DataEvolved as de
+from QSTK.qstkutil import qsdateutil as du
+import QSTK.qstkutil.DataEvolved as de
 
 def get_data(ls_symbols, ls_keys):
     '''
