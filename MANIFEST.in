@@ -1,4 +1,4 @@
-include *.txt
+recursive-include *.txt
 include *.md
 include *.sh
 recursive-include docs *
@@ -7,3 +7,6 @@ recursive-include Examples *
 recursive-include *.csv
 recursive-include *.png
 recursive-include QSData *
+recursive-incluse QSTK *
+include QSTK/qstkutil/*
+include QSTK/qstksim/*
