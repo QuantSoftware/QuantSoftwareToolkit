@@ -86,9 +86,9 @@ class DataAccess(object):
                 if s_scratchpath != None:
                     self.scratchdir = s_scratchpath
                 else:
-					self.scratchdir = '/tmp/QSScratch'
+                    self.scratchdir = '/tmp/QSScratch'
             else:
-                self.rootdir = os.path.dirname(__file__) + '/../../QSData'
+                self.rootdir = os.path.dirname(__file__) + '/../QSData'
                 self.scratchdir = '/tmp/QSScratch'
 
         print "Scratch Directory: ", self.scratchdir
