@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='QSTK',
-    version='0.2.3',
+    version='0.2.4',
     author='Sourabh Bajaj',
     # packages=['QSTK', 'QSTK/qstkfeat', 'QSTK/qstklearn', 'QSTK/qstksim',
     #           'QSTK.qstkstrat', 'QSTK.qstkstudy', 'QSTK/qstkutil',
