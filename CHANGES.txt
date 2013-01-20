@@ -1,10 +1,15 @@
-Changes in QSTK 2.0 
+Changes in QSTK
 ===================
 
-1. Cleaning up the repository for redundant code not used in its applications. 
+0.2.4
+=====
+* Moved from distutils to setuptools as data files were not getting added
+* ez_setup.py added to support setuptools
+* Changing DataAccess to read from the correct location 
 
-2. Better installation and setup capabilities. 
-
-3. Speed optimization for basic functions.
-
-4. Formatting the repository as a python library for better documentation and control.  
+0.2.3
+=====
+* Cleaning up the repository for redundant code not used in its applications. 
+* Better installation and setup capabilities. 
+* Speed optimization for basic functions.
+* Formatting the repository as a python library for better documentation and control.  
