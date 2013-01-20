@@ -1,6 +1,7 @@
 include *.txt
 include *.md
 include *.sh
+include *.py
 recursive-include docs *
 recursive-include bin *
 recursive-include Examples *
@@ -8,5 +9,9 @@ recursive-include *.csv
 recursive-include *.png
 recursive-include QSData *
 recursive-include QSTK *
-include QSTK/qstkutil/*
-include QSTK/qstksim/*
+include QSTK/qstkutil/NYSE_dates.txt
+include QSTK/QSData/Yahoo/*.csv'
+include QSTK/QSData/Yahoo/Lists/*.txt
+include QSTK/qstkutil/NYSE_dates.txt
+include QSTK/qstktest/*.csv
+include QSTK/qstkstudy/sp500.txt
