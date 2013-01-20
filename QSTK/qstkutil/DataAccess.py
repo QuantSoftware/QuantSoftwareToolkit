@@ -71,7 +71,7 @@ class DataAccess(object):
 
         self.folderList = list()
         self.folderSubList = list()
-        self.catchstalltime = cachestalltime
+        self.cachestalltime = cachestalltime
         self.fileExtensionToRemove=".pkl"
 
         try:
@@ -466,11 +466,11 @@ class DataAccess(object):
         #     catchstall=dt.timedelta(hours=int(os.environ['CACHESTALLTIME']))
         # except:
         #     catchstall=dt.timedelta(hours=1)
-        catchstall = self.catchstalltime
+        cachestall = dt.timedelta(hours=self.cachestalltime)
 
         # Check if the file is older than the cachestalltime
         if os.path.exists(cachefilename):
-            if ((dt.datetime.now() - dt.datetime.fromtimestamp(os.path.getmtime(cachefilename))) < catchstall):
+            if ((dt.datetime.now() - dt.datetime.fromtimestamp(os.path.getmtime(cachefilename))) < cachestall):
                 if verbose:
                     print "cache hit"
                 try:
