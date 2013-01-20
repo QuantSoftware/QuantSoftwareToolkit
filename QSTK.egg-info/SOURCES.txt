@@ -4,6 +4,8 @@ MANIFEST.in
 MacInstallation.sh
 README.md
 UbuntuInstallation.sh
+__init__.py
+ez_setup.py
 setup.py
 Examples/Basic/allsyms.csv
 Examples/Basic/dataexample.py
