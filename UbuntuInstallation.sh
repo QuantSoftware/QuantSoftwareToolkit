@@ -25,7 +25,7 @@ sudo apt-get install python-dev
 sudo apt-get install python-setuptools
 echo "Installing dependencies - scikits"
 sudo easy_install -U scikits.statsmodels
-sudo easy_install -U scikits-learn
+sudo easy_install -U scikit-learn
 sudo easy_install --upgrade pytz
 sudo apt-get install python-dateutil
 echo "Installing dependencies - pandas"
