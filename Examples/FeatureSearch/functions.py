@@ -7,12 +7,12 @@ import pandas as pand
 import matplotlib.pyplot as plt
 
 ''' QSTK imports '''
-from qstkutil import DataAccess as da
-from qstkutil import qsdateutil as du
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
 
-from qstkfeat.features import featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, featAroon
-from qstkfeat.classes import class_fut_ret
-import qstkfeat.featutil as ftu	
+from QSTK.qstkfeat.features import featMA, featRSI, featDrawDown, featRunUp, featVolumeDelta, featAroon
+from QSTK.qstkfeat.classes import class_fut_ret
+import QSTK.qstkfeat.featutil as ftu	
 	
 import sys
 

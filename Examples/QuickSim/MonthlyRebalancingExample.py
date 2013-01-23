@@ -31,7 +31,7 @@ import os
 # qstk imports
 from QSTK.qstkutil import DataAccess as da
 from QSTK.qstkutil import qsdateutil as du
-from QSTK.quicksim import quickSim as qs
+from QSTK.qstksim import tradesim as qs
 
 #sample_historic setup
 # Get first 20 S&P Symbols 
@@ -64,7 +64,7 @@ cPickle.dump(alloc, output)
 #test allocation with quicksim
 print alloc
 print historic
-funds=qs.quickSim(alloc,historic,1000)
+funds=qs.tradesim(alloc,historic,1000)
 
 #output to pickle file
 output2=open("funds2.pkl","wb")
