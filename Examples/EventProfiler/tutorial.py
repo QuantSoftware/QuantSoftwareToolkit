@@ -13,7 +13,6 @@ Created on March, 5, 2012
 
 
 import pandas 
-from QSTK.qstkutil import DataAccess as da
 import numpy as np
 import math
 import copy

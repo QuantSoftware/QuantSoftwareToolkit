@@ -26,7 +26,8 @@ from QSTK.qstkutil import DataAccess as da
 from QSTK.qstkutil import qsdateutil as du
 
 # Get first 20 S&P Symbols 
-symbols = list(np.loadtxt(os.environ['QS']+"/quicksim/strategies/S&P500.csv",dtype='str',delimiter=',',comments='#',skiprows=0))
+dataobj = da.DataAccess('Yahoo')
+symbols = dataobj.get_symbols_from_list("sp5002012")
 symbols = symbols[0:20]
 symbols.append('_CASH')
 
