@@ -21,7 +21,7 @@ sudo port install py27-matplotlib
 echo "Installing dependencies - developer tools"
 sudo port install py27-dateutil
 echo "Installing dependencies - scikits"
-sudo easy_install -U scikits-learn
+sudo easy_install -U scikit-learn
 echo "Installing dependencies - pandas"
 sudo easy_install pandas==0.7.3
 echo "Installing dependencies - Docs/Distribute"
