@@ -4,15 +4,15 @@ This source code is released under the New BSD license.  Please see
 http://wiki.quantsoftware.org/index.php?title=QSTK_License
 for license details.
 
-Created on March, 5, 2012
+Created on January, 23, 2013
 
 @author: Sourabh Bajaj
-@contact: sourabhbajaj90@gmail.com
+@contact: sourabhbajaj@gatech.edu
 @summary: Event Profiler Tutorial
 '''
 
 
-import pandas 
+import pandas as pd
 import numpy as np
 import math
 import copy
@@ -38,72 +38,39 @@ nan = no information about any event.
 1 = status bit(positively confirms the event occurence)
 """
 
-# Get the data from the data store
-storename = "Yahoo" # get data from our daily prices source
-# Available field names: open, close, high, low, close, actual_close, volume
-closefield = "close"
-volumefield = "volume"
-window = 10
 
-def findEvents(symbols, startday,endday, marketSymbol,verbose=False):
+def find_events(ls_symbols, d_data):
+    ''' Finding the event dataframe '''
+    df_close = d_data['close']
+    print "Finding Events"
 
-	# Reading the Data for the list of Symbols.	
-	timeofday=dt.timedelta(hours=16)
-	timestamps = du.getNYSEdays(startday,endday,timeofday)
-	dataobj = da.DataAccess('Yahoo')
-	if verbose:
-            print __name__ + " reading data"
-	# Reading the Data
-	close = dataobj.get_data(timestamps, symbols, closefield)
-	
-	# Completing the Data - Removing the NaN values from the Matrix
-	close = (close.fillna(method='ffill')).fillna(method='backfill')
+    # Creating an empty dataframe
+    df_events = copy.deepcopy(df_close)
+    df_events = df_events * np.NAN
 
-	
-	# Calculating Daily Returns for the Market
-	tsu.returnize0(close.values)
-	SPYValues=close[marketSymbol]
+    # Time stamps for the event range
+    ldt_timestamps = df_close.index
 
-	# Calculating the Returns of the Stock Relative to the Market 
-	# So if a Stock went up 5% and the Market rised 3%. The the return relative to market is 2% 
-	mktneutDM = close - close[marketSymbol]
-	np_eventmat = copy.deepcopy(mktneutDM)
-	for sym in symbols:
-		for time in timestamps:
-			np_eventmat[sym][time]=np.NAN
+    for s_sym in ls_symbols:
+        for i in range(len(ldt_timestamps)):
+            if df_close[s_sym].ix[ldt_timestamps[i - 1]] >= 5 and df_close[s_sym].ix[ldt_timestamps[i]] < 5:
+                df_events[s_sym].ix[ldt_timestamps[i]] = 1
 
-	if verbose:
-            print __name__ + " finding events"
-
-	# Generating the Event Matrix
-	# Event described is : Market falls more than 3% plus the stock falls 5% more than the Market
-	# Suppose : The market fell 3%, then the stock should fall more than 8% to mark the event.
-	# And if the market falls 5%, then the stock should fall more than 10% to mark the event.
-
-	for symbol in symbols:
-		
-	    for i in range(1,len(mktneutDM[symbol])):
-	        if SPYValues[i]<-0.03 and mktneutDM[symbol][i] < -0.05 : # When market fall is more than 3% and also the stock compared to market is also fell by more than 5%.
-             		np_eventmat[symbol][i] = 1.0  #overwriting by the bit, marking the event
-			
-	return np_eventmat
+    return df_events
 
 
-#################################################
-################ MAIN CODE ######################
-#################################################
+if __name__ == '__main__':
+    ls_symbols = np.loadtxt('SP500port.csv',dtype='S10',comments='#', skiprows=1)
+    dt_start = dt.datetime(2008, 1, 1)
+    dt_end = dt.datetime(2009, 12, 31)
+    ldt_timestamps = du.getNYSEdays( dt_start, dt_end, dt.timedelta(hours=16) )
 
+    dataobj = da.DataAccess('Yahoo')
+    ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
+    ldf_data = dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
+    d_data = dict(zip(ls_keys, ldf_data))
 
-symbols = np.loadtxt('SP500port.csv',dtype='S10',comments='#', skiprows=1)
-# You might get a message about some files being missing, don't worry about it.
-
-#symbols =['BFRE','ATCS','RSERF','GDNEF','LAST','ATTUF','JBFCF','CYVA','SPF','XPO','EHECF','TEMO','AOLS','CSNT','REMI','GLRP','AIFLY','BEE','DJRT','CHSTF','AICAF']
-startday = dt.datetime(2008,1,1)
-endday = dt.datetime(2010,12,31)
-eventMatrix = findEvents(symbols,startday,endday,marketSymbol='SPY',verbose=True)
-
-eventProfiler = ep.EventProfiler(eventMatrix,startday,endday,lookback_days=20,lookforward_days=20,verbose=True)
-
-eventProfiler.study(filename="MyEventStudy.pdf",plotErrorBars=True,plotMarketNeutral=True,plotEvents=False,marketSymbol='SPY')
-
-
+    df_events = find_events(ls_symbols, d_data)
+    ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                s_filename='MyEventStudy', b_market_neutral=True, b_errorbars=True,
+                s_market_sym='SPY')

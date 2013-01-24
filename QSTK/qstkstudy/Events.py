@@ -34,7 +34,7 @@ nan = no information about any event.
 1 = status bit(positively confirms the event occurence)
 """
 
-def findEvents(symbols, d_data, verbose=False):
+def find_events(symbols, d_data, verbose=False):
 	# Get the data from the data store
 	storename = "Yahoo" # get data from our daily prices source
 	# Available field names: open, close, high, low, close, actual_close, volume
