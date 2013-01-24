@@ -13,11 +13,12 @@ if __name__ == '__main__':
     dt_end = dt.datetime(2009,12,31)
     ldt_timestamps = du.getNYSEdays( dt_start, dt_end, dt.timedelta(hours=16) )
 
+    dataobj = da.DataAccess('Yahoo')
     ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
-    ldf_data = c_da.get_data(ldt_timestamps, ls_symbols, ls_keys)
+    ldf_data = dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
     d_data = dict(zip(ls_keys, ldf_data))
 
-    eventMatrix = ev.findEvents(ls_symbols,d_data,verbose=True)
-    ep.EventProfiler(eventMatrix, d_data,
+    eventMatrix = ev.find_events(ls_symbols,d_data,verbose=True)
+    ep.eventprofiler(eventMatrix, d_data,
             i_lookback=20,i_lookforward=20,
             s_filename="MyEventStudy")
