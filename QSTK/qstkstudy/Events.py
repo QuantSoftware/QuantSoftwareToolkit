@@ -34,20 +34,17 @@ nan = no information about any event.
 1 = status bit(positively confirms the event occurence)
 """
 
-def findEvents(symbols, startday,endday,verbose=False):
+def findEvents(symbols, d_data, verbose=False):
 	# Get the data from the data store
 	storename = "Yahoo" # get data from our daily prices source
 	# Available field names: open, close, high, low, close, actual_close, volume
 	closefield = "close"
 	volumefield = "volume"
 	window = 10
-	timeofday=dt.timedelta(hours=16)
-	timestamps = du.getNYSEdays(startday,endday,timeofday)
-	dataobj = da.DataAccess('Yahoo')
+
 	if verbose:
             print __name__ + " reading data"
-	close = dataobj.get_data(timestamps, symbols, closefield)
-	close = (close.fillna()).fillna(method='backfill')
+	close = d_data[closefield]
 	if verbose:
             print __name__ + " finding events"
 	for symbol in symbols:
