@@ -7,6 +7,8 @@ UbuntuInstallation.sh
 __init__.py
 ez_setup.py
 setup.py
+Examples/.DS_Store
+Examples/Basic/.DS_Store
 Examples/Basic/allsyms.csv
 Examples/Basic/dataexample.py
 Examples/Basic/example-data.csv
@@ -40,7 +42,6 @@ Examples/KNN/data-classification-prob.csv
 Examples/KNN/data-ripple-prob.csv
 Examples/KNN/data1.csv
 Examples/KNN/data2.csv
-Examples/QuickSim/MonthlyRebalancingExample.py
 QSTK/__init__.py
 QSTK/__init__.pyc
 QSTK.egg-info/PKG-INFO
@@ -671,6 +672,7 @@ QSTK/qstksim/tests/test_tradesim_SPY.py
 QSTK/qstksim/tests/test_tradesim_SPY_Short.py
 QSTK/qstkstrat/__init__.py
 QSTK/qstkstrat/strategies.py
+QSTK/qstkstudy/.DS_Store
 QSTK/qstkstudy/EventProfiler.py
 QSTK/qstkstudy/Events.py
 QSTK/qstkstudy/__init__.py
