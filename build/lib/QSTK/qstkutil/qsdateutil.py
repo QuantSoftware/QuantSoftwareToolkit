@@ -25,15 +25,14 @@ def _cache_dates():
     ''' Caches dates '''
     try:
         # filename = os.environ['QS'] + "/qstkutil/NYSE_dates.txt"
-		filename = os.path.join(os.path.dirname(__file__), 'NYSE_dates.txt')
+        filename = os.path.join(os.path.dirname(__file__), 'NYSE_dates.txt')
     except KeyError:
-        print "Please be sure to set the value for QS in config.sh or\n"
-        print "in local.sh and then \'source local.sh\'.\n"
+        print "Please be sure you have NYSE_dates.txt in the qstkutil directory"
 
-    datestxt = np.loadtxt(filename,dtype=str)
+    datestxt = np.loadtxt(filename, dtype=str)
     dates = []
     for i in datestxt:
-        dates.append(dt.datetime.strptime(i,"%m/%d/%Y"))
+        dates.append(dt.datetime.strptime(i, "%m/%d/%Y"))
     return pd.TimeSeries(index=dates, data=dates)
 
 GTS_DATES = _cache_dates()

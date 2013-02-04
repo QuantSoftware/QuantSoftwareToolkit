@@ -7,18 +7,18 @@ import QSTK.qstkstudy.EventProfiler as ep
 import numpy as np
 
 if __name__ == '__main__':
-    #symbols = ['BFRE','ATCS','RSERF','GDNEF','LAST','ATTUF','JBFCF','CYVA','SPF','XPO','EHECF','TEMO','AOLS','CSNT','REMI','GLRP','AIFLY','BEE','DJRT','CHSTF','AICAF']
-    #symbols = ['QQQ','AAPL','GOOG','ORCL','MSFT']
-    symbols = np.loadtxt('symbol-set1.txt',dtype='S10',comments='#')
-    #symbols = symbols[0:20]
-    startday = dt.datetime(2008,1,1)
-    endday = dt.datetime(2009,12,31)
-    eventMatrix = ev.findEvents(symbols,startday,endday,verbose=True)
-    eventProfiler = ep.EventProfiler(eventMatrix,startday,endday,
-            lookback_days=20,lookforward_days=20,verbose=True)
-    eventProfiler.study(filename="MyEventStudy.pdf",\
-        plotErrorBars=True,\
-        plotMarketNeutral=True,\
-            plotEvents=False,\
-        marketSymbol='$SPX')
-    
+
+    ls_symbols = np.loadtxt('symbol-set1.txt',dtype='S10',comments='#')
+    dt_start = dt.datetime(2008,1,1)
+    dt_end = dt.datetime(2009,12,31)
+    ldt_timestamps = du.getNYSEdays( dt_start, dt_end, dt.timedelta(hours=16) )
+
+    dataobj = da.DataAccess('Yahoo')
+    ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
+    ldf_data = dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
+    d_data = dict(zip(ls_keys, ldf_data))
+
+    eventMatrix = ev.find_events(ls_symbols,d_data,verbose=True)
+    ep.eventprofiler(eventMatrix, d_data,
+            i_lookback=20,i_lookforward=20,
+            s_filename="MyEventStudy")

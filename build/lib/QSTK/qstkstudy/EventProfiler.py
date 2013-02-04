@@ -1,169 +1,80 @@
-# (c) 2011, 2012 Georgia Tech Research Corporation
-# This source code is released under the New BSD license.  Please see
-# http://wiki.quantsoftware.org/index.php?title=QSTK_License
-# for license details.
-#
-# Created on October <day>,2011
-# @author: Vishal Shekhar, Tucker Balch
-# @contact: mailvishalshekhar@gmail.com
-# @summary: Event Profiler Application
-#
+'''
+(c) 2011, 2012 Georgia Tech Research Corporation
+This source code is released under the New BSD license.  Please see
+http://wiki.quantsoftware.org/index.php?title=QSTK_License
+for license details.
 
-import pandas 
+Created on Jan 16, 2013
+
+@author: Sourabh Bajaj
+@contact: sourabhbajaj90@gmail.com
+@summary: EventProfiler
+
+'''
+
 import numpy as np
-import QSTK.qstkstudy.Events as ev
 import matplotlib.pyplot as plt
-from pylab import *
-import QSTK.qstkutil.qsdateutil as du
-import QSTK.qstkutil.tsutil as tsu
-import datetime as dt
+
 import QSTK.qstkutil.DataAccess as da
+import QSTK.qstkutil.tsutil as tsu
+import QSTK.qstkutil.qsdateutil as du
 
-class EventProfiler():
 
-	def __init__(self,eventMatrix,startday,endday,\
-            lookback_days = 20, lookforward_days =20,\
-            verbose=False):
+def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                s_filename='study', b_market_neutral=True, b_errorbars=True,
+                s_market_sym='SPY'):
+    ''' Event Profiler for an event matix'''
+    df_close = d_data['close'].copy()
+    df_rets = tsu.returnize0(df_close.copy())
 
-	    """ Event Profiler class construtor 
-		Parameters : evenMatrix
-			   : startday
-			   : endday
-		(optional) : lookback_days ( default = 20)
-		(optional) : lookforward_days( default = 20)
+    if b_market_neutral == True:
+        df_rets = df_rets - df_rets[s_market_sym]
+        del df_rets[s_market_sym]
+        del df_events[s_market_sym]
 
-		eventMatrix is a pandas DataMatrix
-		eventMatrix must have the following structure:
-		    |IBM |GOOG|XOM |MSFT| GS | JP |
-		(d1)|nan |nan | 1  |nan |nan | 1  |
-		(d2)|nan | 1  |nan |nan |nan |nan |
-		(d3)| 1  |nan | 1  |nan | 1  |nan |
-		(d4)|nan |  1 |nan | 1  |nan |nan |
-		...................................
-		...................................
-		Also, d1 = start date
-		nan = no information about any event.
-		 = status bit(positively confirms the event occurence)
-	    """
+    df_close = df_close.reindex(columns=df_events.columns)
 
-	    self.eventMatrix = eventMatrix
-	    self.startday = startday
-	    self.endday = endday
-	    self.symbols = eventMatrix.columns
-	    self.lookback_days = lookback_days
-	    self.lookforward_days = lookforward_days
-	    self.total_days = lookback_days + lookforward_days + 1
-	    self.dataobj = da.DataAccess('Yahoo')
-	    self.timeofday = dt.timedelta(hours=16)
-	    self.timestamps = du.getNYSEdays(startday,endday,self.timeofday)
-            self.verbose = verbose
-            if verbose:
-                print __name__ + " reading historical data"
-	    self.close = self.dataobj.get_data(self.timestamps,\
-                self.symbols, "close", verbose=self.verbose)
-	    self.close = (self.close.fillna()).fillna(method='backfill')
-	
-	def study(self,filename,method="mean", \
-            plotMarketNeutral = True, \
-            plotErrorBars = False, \
-            plotEvents = False, \
-            marketSymbol='$SPX'):
-	    """ 
-	    Creates an event study plot
-            the marketSymbol must exist in the data if plotMarketNeutral 
-            is True This method plots the average of market neutral 
-            cumulative returns, along with error bars The X-axis is the 
-            relative time frame from -self.lookback_days to self.lookforward_days
-            Size of error bar on each side of the mean value on the i 
-            relative day = abs(mean @ i - standard dev @ i)
-            parameters : filename. Example filename="MyStudy.pdf"
-	    """
+    # Removing the starting and the end events
+    df_events.values[0:i_lookback, :] = np.NaN
+    df_events.values[-i_lookforward:, :] = np.NaN
 
-            #plt.clf()
-            #plt.plot(self.close.values)
-            #plt.legend(self.close.columns)
-            #plt.ylim(0,2)
-            #plt.draw()
-            #savefig('test1.pdf',format='pdf')
+    # Number of events
+    i_no_events = int(np.nansum(df_events))
+    na_event_rets = "False"
 
-            # compute 0 centered daily returns
-            self.dailyret = self.close.copy() 
-            tsu.returnize0(self.dailyret.values)
+    # Looking for the events and pushing them to a matrix
+    for i, s_sym in enumerate(df_events.columns):
+        for j, dt_date in enumerate(df_events.index):
+            if df_events[s_sym][dt_date] == 1:
+                na_ret = df_rets[s_sym][j - i_lookback:j + 1 + i_lookforward]
+                if type(na_event_rets) == type(""):
+                    na_event_rets = na_ret
+                else:
+                    na_event_rets = np.vstack(na_event_rets, na_ret)
 
-            # make it market neutral
-	    if plotMarketNeutral:
-                # assuming beta = 1 for all stocks --this is unrealistic.but easily fixable.
-        	self.mktneutDM = self.dailyret - self.dailyret[marketSymbol] 
-                # remove the market column from consideration
-	    	del(self.mktneutDM[marketSymbol])
-	    	del(self.eventMatrix[marketSymbol])
-	    else:
-		self.mktneutDM = self.dailyret
+    # Computing daily rets and retuns
+    na_event_rets = np.cumprod(na_event_rets + 1, axis=1)
+    na_event_rets = na_event_rets / na_event_rets[:, i_lookback]
 
-            # Wipe out events which are on the boundary.
-            self.eventMatrix.values[0:self.lookback_days,:] = NaN
-            self.eventMatrix.values[-self.lookforward_days:,:] = NaN
+    # Study Params
+    na_mean = np.mean(na_event_rets, axis=0)
+    na_std = np.std(na_event_rets, axis=0)
+    li_time = range(-i_lookback, i_lookforward + 1)
 
-            # prepare to build impact matrix
-            rets = self.mktneutDM.values
-            events = self.eventMatrix.values
-            numevents = nansum(events)
-            numcols = events.shape[1]
-            # create a blank impact matrix
-            impact = np.zeros((self.total_days,numevents))
-            currcol = 0
-            # step through each column in event matrix
-            for col in range(0,events.shape[1]):
-                if (self.verbose and col%20==0):
-                    print __name__ + " study: " + str(col) + " of " + str(numcols)
-                # search each column for events
-                for row in range(0,events.shape[0]):
-                    # when we find an event
-                    if events[row,col]==1.0:
-                        # copy the daily returns in to the impact matrix
-                        impact[:,currcol] = \
-                            rets[row-self.lookback_days:\
-                            row+self.lookforward_days+1,\
-                            col]
-                        currcol = currcol+1
-
-            # now compute cumulative daily returns
-            impact = cumprod(impact+1,axis=0)
-            impact = impact / impact[0,:]
-            # normalize everything to the time of the event
-            impact = impact / impact[self.lookback_days,:]
-
-            # prepare data for plot
-            studystat = mean(impact,axis=1)
-            studystd = std(impact,axis=1)
-            studyrange = range(-self.lookback_days,self.lookforward_days+1)
-
-            # plot baby
-            plt.clf()
-            if (plotEvents): # draw a line for each event
-                plt.plot(studyrange,\
-                    impact,alpha=0.1,color='#FF0000')
-            # draw a horizontal line at Y = 1.0
-            plt.axhline(y=1.0,xmin=-self.lookback_days,xmax=self.lookforward_days+1,\
-                color='#000000')
-            if plotErrorBars==True: # draw errorbars if user wants them
-                plt.errorbar(studyrange[self.lookback_days:],\
-                    studystat[self.lookback_days:],\
-                    yerr=studystd[self.lookback_days:],\
-                    ecolor='#AAAAFF',\
+    # Plotting the chart
+    plt.clf()
+    plt.axhline(y=1.0, xmin=-i_lookback, xmax=i_lookforward, color='k')
+    if b_errorbars == True:
+        plt.errorbar(li_time[i_lookback:], na_mean[i_lookback:],
+                    yerr=na_std[i_lookback:], ecolor='#AAAAFF',
                     alpha=0.1)
-            plt.plot(studyrange,studystat,color='#0000FF',linewidth=3,\
-                label='mean')
-            # set the limits of the axes to appropriate ranges
-            plt.ylim(min(min(studystat),0.5),max(max(studystat),1.2))
-            plt.xlim(min(studyrange)-1,max(studyrange)+1)
-            # draw titles and axes
-            if plotMarketNeutral:
-                plt.title(('market relative mean of '+ \
-                    str(int(numevents))+ ' events'))
-            else:
-                plt.title(('mean of '+ str(int(numevents))+ ' events'))
-            plt.xlabel('Days')
-            plt.ylabel('Cumulative Abnormal Returns')
-            plt.draw()
-            savefig(filename,format='pdf')
+    plt.plot(li_time, na_mean, linewidth=3, label='mean', color='b')
+    plt.xlim(-i_lookback - 1, i_lookforward + 1)
+    if b_market_neutral == True:
+        plt.title('Market Relative mean return of ' +\
+                str(i_no_events) + ' events')
+    else:
+        plt.title('Mean return of ' + str(i_no_events) + ' events')
+    plt.xlabel('Days')
+    plt.ylabel('Cumulative Returns')
+    plt.savefig(s_filename, format='png')
