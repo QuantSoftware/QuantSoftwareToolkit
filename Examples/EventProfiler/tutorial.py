@@ -60,10 +60,10 @@ def find_events(ls_symbols, d_data):
 
 
 if __name__ == '__main__':
-    ls_symbols = np.loadtxt('SP500port.csv',dtype='S10',comments='#', skiprows=1)
+    ls_symbols = np.loadtxt('SP500port.csv', dtype='S10', comments='#', skiprows=1)
     dt_start = dt.datetime(2008, 1, 1)
     dt_end = dt.datetime(2009, 12, 31)
-    ldt_timestamps = du.getNYSEdays( dt_start, dt_end, dt.timedelta(hours=16) )
+    ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt.timedelta(hours=16))
 
     dataobj = da.DataAccess('Yahoo')
     ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
