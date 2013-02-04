@@ -1,2 +1,8 @@
 
 *.pyc
+
+ez_setup.pyc
+
+build/lib/QSTK/__init__.pyc
+
+QSTK/__init__.pyc
