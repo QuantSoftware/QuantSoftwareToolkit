@@ -11,6 +11,8 @@ Created on June 1, 2011
 @summary: Demonstrates the retrieval and use of Compustat data from the DataAccess object.
 '''
 
+### You'll need compustat data license for this tutorial.
+
 import QSTK.qstkutil.qsdateutil as du
 import QSTK.qstkutil.tsutil as tsu
 import QSTK.qstkutil.DataAccess as da

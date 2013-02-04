@@ -11,6 +11,8 @@ Created on August 29, 2011
 @summary: Demonstrates the use of the NAG portfolio optimization call.
 '''
 
+# You'll need NAG license for this tutorial - Please use tutorial8 instead.
+
 import QSTK.qstkutil.qsdateutil as du
 import QSTK.qstkutil.tsutil as tsu
 import QSTK.qstkutil.DataAccess as da
