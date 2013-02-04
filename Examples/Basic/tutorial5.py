@@ -8,7 +8,7 @@ Created on January, 24, 2013
 
 @author: Sourabh Bajaj
 @contact: sourabhbajaj@gatech.edu
-@summary: Contains tutorial for backtester and report.
+@summary: Contains tutorial for backtester.
 '''
 
 # QSTK Imports
@@ -16,6 +16,7 @@ import QSTK.qstkutil.qsdateutil as du
 import QSTK.qstkutil.tsutil as tsu
 import QSTK.qstkutil.DataAccess as da
 import QSTK.qstktools.report as report
+import QSTK.qstksim as qstksim
 
 # Third Party Imports
 import datetime as dt
@@ -47,7 +48,7 @@ def main():
     df_close = c_dataobj.get_data(ldt_timestamps, ls_symbols, "close")
 
     # Creating the allocation dataframe
-    df_alloc = pd.DataFrame(np.array([0.5, 0.5]), index=[ldt_timestamps[0]],
+    df_alloc = pd.DataFrame(np.array([[0.5, 0.5]]), index=[ldt_timestamps[0]],
                                         columns=ls_symbols)
     dt_last_date = ldt_timestamps[0]
     # Looping through all dates and creating monthly allocations
@@ -69,9 +70,6 @@ def main():
     # Running the simulator on the allocation frame
     (ts_funds, ts_leverage, f_commission, f_slippage, f_borrow_cost) = qstksim.tradesim(df_alloc,
                     df_close, 10000.0, 1, True, 0.0005, 5.0, 0.0035, 1, 3.5, log="transaction.csv")
-
-    report.print_stats(ts_funds, ['SPY'], 'Fund', commissions=f_commission,
-            slippage=f_slippage, borrowcost=f_borrow_cost, f_start_cash=10000.0)
 
 if __name__ == '__main__':
     main()

@@ -14,15 +14,13 @@ Created on Jan 1, 2011
 
 from os import path, makedirs
 from os import sys
-from QSTK.qstkutil import DataEvolved as de
-from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import DataAccess as de
 from QSTK.qstkutil import qsdateutil as du
 from QSTK.qstkutil import tsutil as tsu
 from QSTK.qstkutil import fundutil as fu
 from dateutil.relativedelta import relativedelta
 import numpy as np
 from math import log10
-import converter
 import locale
 from pylab import savefig
 from matplotlib import pyplot
@@ -220,7 +218,7 @@ def print_industry_coer(fund_ts, ostream):
         if(i%2==0):
             ostream.write("\n")
         #load data
-        norObj = de.DataAccess('mysql')
+        norObj = de.DataAccess('Yahoo')
         ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
@@ -247,7 +245,7 @@ def print_other_coer(fund_ts, ostream):
         if(i%2==0):
             ostream.write("\n")
         #load data
-        norObj =de.DataAccess('mysql')
+        norObj =de.DataAccess('Yahoo')
         ldtTimestamps = du.getNYSEdays( fund_ts.index[0], fund_ts.index[-1], dt.timedelta(hours=16) )
         ldfData = norObj.get_data( ldtTimestamps, [industries[i][0]], ['close'] )
         #get corelation
@@ -481,7 +479,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
 
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
-    dataobj =de.DataAccess('mysql')
+    dataobj =de.DataAccess('Yahoo')
     years = du.getYears(fund_ts)
     benchmark_close = dataobj.get_data(timestamps, benchmark, ["close"], \
                                                      verbose = False)[0]
@@ -754,7 +752,7 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",
 
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(fund_ts.index[0], fund_ts.index[-1], timeofday)
-    dataobj =de.DataAccess('mysql')
+    dataobj =de.DataAccess('Yahoo')
     years = du.getYears(fund_ts)
     benchmark_close = dataobj.get_data(timestamps, benchmark, ["close"])
     benchmark_close=benchmark_close[0]
@@ -1010,7 +1008,7 @@ def print_plot(fund, benchmark, graph_name, filename, s_original_name="", lf_div
             i=i+1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
-    dataobj = de.DataAccess('mysql')
+    dataobj = de.DataAccess('Yahoo')
     benchmark_close = dataobj.get_data(timestamps, benchmark, ["close"])
     benchmark_close = benchmark_close[0]
     benchmark_close = benchmark_close.fillna(method='pad')
@@ -1115,7 +1113,7 @@ def generate_report(funds_list, graph_names, out_file, i_start_cash = 10000):
         i += 1
     timeofday = dt.timedelta(hours = 16)
     timestamps = du.getNYSEdays(start_date, end_date, timeofday)
-    dataobj = de.DataAccess('mysql')
+    dataobj = de.DataAccess('Yahoo')
     benchmark_close = dataobj.get_data(timestamps, symbol, ["close"], \
                                             verbose = False)[0]
     mult = i_start_cash/benchmark_close.values[0]
@@ -1142,9 +1140,9 @@ def generate_robust_report(fund_matrix, out_file):
     """
     html_file  =  open(out_file,"w")
     print_header(html_file, out_file)
-    converter.fundsToPNG(fund_matrix,'funds.png')
+    # converter.fundsToPNG(fund_matrix,'funds.png')
     html_file.write("<H2>QSTK Generated Report:" + out_file + "</H2>\n")
-    html_file.write("<IMG SRC = \'./funds.png\'/>\n")
+    # html_file.write("<IMG SRC = \'./funds.png\'/>\n")
     html_file.write("<IMG SRC = \'./analysis.png\'/>\n")
     html_file.write("<BR/>\n\n")
     print_stats(fund_matrix, "robust funds", html_file)

@@ -25,7 +25,8 @@ def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
                 s_market_sym='SPY'):
     ''' Event Profiler for an event matix'''
     df_close = d_data['close'].copy()
-    df_rets = tsu.returnize0(df_close.copy())
+    df_rets = df_close.copy()
+    tsu.returnize0(df_rets.values)
 
     if b_market_neutral == True:
         df_rets = df_rets - df_rets[s_market_sym]
@@ -39,7 +40,7 @@ def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
     df_events.values[-i_lookforward:, :] = np.NaN
 
     # Number of events
-    i_no_events = int(np.nansum(df_events))
+    i_no_events = int(np.nansum(df_events.values))
     na_event_rets = "False"
 
     # Looking for the events and pushing them to a matrix
@@ -50,11 +51,11 @@ def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
                 if type(na_event_rets) == type(""):
                     na_event_rets = na_ret
                 else:
-                    na_event_rets = np.vstack(na_event_rets, na_ret)
+                    na_event_rets = np.vstack((na_event_rets, na_ret))
 
     # Computing daily rets and retuns
     na_event_rets = np.cumprod(na_event_rets + 1, axis=1)
-    na_event_rets = na_event_rets / na_event_rets[:, i_lookback]
+    na_event_rets = (na_event_rets.T / na_event_rets[:, i_lookback]).T
 
     # Study Params
     na_mean = np.mean(na_event_rets, axis=0)

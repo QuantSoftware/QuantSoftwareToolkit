@@ -35,8 +35,11 @@ def main():
     print na_portfolio
 
     # Create two list for symbol names and allocation
-    ls_port_syms = list(na_portfolio[:, 0])
-    ls_port_alloc = list(na_portfolio[:, 1])
+    ls_port_syms = []
+    ls_port_alloc = []
+    for port in na_portfolio:
+        ls_port_syms.append(port[0])
+        ls_port_alloc.append(port[0])
 
     # Creating an object of the dataaccess class with Yahoo as the source.
     c_dataobj = da.DataAccess('Yahoo')

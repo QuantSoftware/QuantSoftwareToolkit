@@ -90,8 +90,8 @@ def main():
     # Filling the data for missing NAN values
     df_close = df_close.fillna(method='ffill')
     df_close = df_close.fillna(method='bfill')
-    df_close_test = df_close.fillna(method='ffill')
-    df_close_test = df_close.fillna(method='bfill')
+    df_close_test = df_close_test.fillna(method='ffill')
+    df_close_test = df_close_test.fillna(method='bfill')
 
     # Copying the data values to a numpy array to get returns
     na_data = df_close.values.copy()
@@ -124,10 +124,10 @@ def main():
     for i, f_ret in enumerate(na_avgrets):
         plt.plot(na_std[i], f_ret, 'g+')
 
-    # Plot some arrows showing transistion of efficient frontier
-    for i in range(0, 101, 10):
-        plt.arrow(lf_std[i], lf_returns[i], lf_std_port_test[i] - lf_std[i],
-                    lf_ret_port_test[i] - lf_returns[i], color='k')
+    # # Plot some arrows showing transistion of efficient frontier
+    # for i in range(0, 101, 10):
+    #     plt.arrow(lf_std[i], lf_returns[i], lf_std_port_test[i] - lf_std[i],
+    #                 lf_ret_port_test[i] - lf_returns[i], color='k')
 
     # Labels and Axis
     plt.legend(['2009 Frontier', '2010 Frontier',
