@@ -21,6 +21,7 @@ import pickle as pkl
 import time
 import datetime as dt
 import dircache
+import tempfile
 
 
 class Exchange (object):
@@ -79,17 +80,17 @@ class DataAccess(object):
             try:
                 self.scratchdir = os.environ['QSSCRATCH']
             except:
-                self.scratchdir = '/tmp/QSScratch'
+                self.scratchdir = tempfile.gettempdir() + '/QSScratch'
         except:
             if s_datapath != None:
                 self.rootdir = s_datapath
                 if s_scratchpath != None:
                     self.scratchdir = s_scratchpath
                 else:
-                    self.scratchdir = '/tmp/QSScratch'
+                    self.scratchdir = tempfile.gettempdir() + '/QSScratch'
             else:
                 self.rootdir = os.path.dirname(__file__) + '/../QSData'
-                self.scratchdir = '/tmp/QSScratch'
+                self.scratchdir = tempfile.gettempdir() + '/QSScratch'
 
         print "Scratch Directory: ", self.scratchdir
         print "Data Directory: ", self.rootdir
