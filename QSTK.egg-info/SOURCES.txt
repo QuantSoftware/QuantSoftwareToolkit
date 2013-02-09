@@ -28,7 +28,7 @@ Examples/Basic/tutorial6.py
 Examples/Basic/tutorial7.py
 Examples/Basic/tutorial8.py
 Examples/DataAccess/setexample.py
-Examples/EventProfiler/MyEventStudy.pdf
+Examples/EventProfiler/.DS_Store
 Examples/EventProfiler/SP500port.csv
 Examples/EventProfiler/tutorial.py
 Examples/FeatureSearch/2008Dow30.txt
