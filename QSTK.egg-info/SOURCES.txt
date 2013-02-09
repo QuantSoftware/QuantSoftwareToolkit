@@ -7,8 +7,6 @@ UbuntuInstallation.sh
 __init__.py
 ez_setup.py
 setup.py
-Examples/.DS_Store
-Examples/Basic/.DS_Store
 Examples/Basic/allsyms.csv
 Examples/Basic/dataexample.py
 Examples/Basic/example-data.csv
@@ -28,7 +26,6 @@ Examples/Basic/tutorial6.py
 Examples/Basic/tutorial7.py
 Examples/Basic/tutorial8.py
 Examples/DataAccess/setexample.py
-Examples/EventProfiler/.DS_Store
 Examples/EventProfiler/SP500port.csv
 Examples/EventProfiler/tutorial.py
 Examples/FeatureSearch/2008Dow30.txt
@@ -672,7 +669,6 @@ QSTK/qstksim/tests/test_tradesim_SPY.py
 QSTK/qstksim/tests/test_tradesim_SPY_Short.py
 QSTK/qstkstrat/__init__.py
 QSTK/qstkstrat/strategies.py
-QSTK/qstkstudy/.DS_Store
 QSTK/qstkstudy/EventProfiler.py
 QSTK/qstkstudy/Events.py
 QSTK/qstkstudy/__init__.py
