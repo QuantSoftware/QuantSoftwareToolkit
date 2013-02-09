@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
     dataobj = da.DataAccess('Yahoo')
     ls_symbols = dataobj.get_symbols_from_list('sp5002012')
+    ls_symbols.append('SPY')
     ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldf_data = dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
     d_data = dict(zip(ls_keys, ldf_data))
