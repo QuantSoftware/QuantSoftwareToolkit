@@ -26,6 +26,13 @@ import os
 print "Current Directory : ", os.path.abspath('.')
 print
 
+# Printing files in the current directory.
+print "Files in the current directory"
+ls_files = os.listdir('.')
+for s_file in ls_files:
+    print s_file
+print
+
 # Testing the dependencies
 # Testing numpy
 try:
@@ -175,5 +182,9 @@ print "Close price of MSFT on 2012/2/15 is : ", df_close['MSFT'].ix[dt_test]
 if df_close['MSFT'].ix[dt_test] == 29.66:
     print "Data looks correct as the close price in default data is 29.66"
 else:
-    print "Data has changed so does not match data used in Assignments"
+    print "Error : Data has changed so does not match data used in Assignments"
     print "Default data used in the assisgnments has close price as 29.66"
+    exit(1)
+print
+
+print "Everything works fine: You're all set."
