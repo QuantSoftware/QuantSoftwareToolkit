@@ -1,7 +1,12 @@
 QSTK
 ====
 
-QuantSoftware Toolkit 2.0
+QuantSoftware Toolkit 2.4.5
+
+Website
+====
+
+www.wiki.quantsoftware.org
 
 License
 =====
@@ -30,24 +35,20 @@ POSSIBILITY OF SUCH DAMAGE.
 
 Dependencies
 ====
-"numpy >= 1.6.1",
-"scipy >= 0.9.0",
-"matplotlib >= 1.1.0",
-"pandas==0.7.3",
-"python-dateutil >= 1.5",
-"cvxopt >= 1.1.3",
-"scikit-learn >= 0.11"
+numpy >= 1.6.1,
+scipy >= 0.9.0,
+matplotlib >= 1.1.0,
+pandas==0.7.3,
+python-dateutil >= 1.5,
+cvxopt >= 1.1.3,
+scikit-learn >= 0.11
 
 Author
 ====
 
-Dr. Tucker Balch 
+Prof. Tucker Balch 
 
 Sourabh Bajaj
 
 John Cornwell
 
-Website
-====
-
-www.wiki.quantsoftware.org
