@@ -1,6 +1,15 @@
 Changes in QSTK
 ===================
 
+0.2.5
+=====
+* Adding validation script
+* Removed dependencies from all environment variables
+* Use of tempfile in creating scratch location
+* Refractoring of all tutorials for cleaner code and documentation
+* Rewriting of the event profiler
+* Creating the egg and starting work towards the windows installation
+
 0.2.4
 =====
 * Moved from distutils to setuptools as data files were not getting added
