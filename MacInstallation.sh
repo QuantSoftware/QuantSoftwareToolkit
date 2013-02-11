@@ -11,9 +11,10 @@
 # @summary: Mac Installation script of QSTK
 #
 
+# Macports Python has already been installed.
+
 echo "Installing dependency - GIT"
 sudo port install git-core +svn
-sudo port install python27
 echo "Installing dependencies - Numpy Scipy matplotlib"
 sudo port install py27-numpy
 sudo port install py27-scipy
