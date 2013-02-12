@@ -60,8 +60,13 @@ try:
     print "Pandas is installed and the version used is : ", pandas.__version__
     print "Please make sure you're using version  == 0.7.3"
     print "IMPORTANT: No other pandas version is supported except 0.7.3"
+    s_pd_version = pandas.__version__
+    if s_pd_version[:5] != '0.7.3':
+        print "Error : Please use pandas 0.7.3"
+        exit(1)
 except:
     print "Error : Pandas can not be imported or not installed."
+    print "Error : Please install Pandas 0.7.3"
     exit(1)
 print
 
