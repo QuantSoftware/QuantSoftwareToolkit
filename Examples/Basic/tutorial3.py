@@ -39,7 +39,7 @@ def main():
     ls_port_alloc = []
     for port in na_portfolio:
         ls_port_syms.append(port[0])
-        ls_port_alloc.append(port[0])
+        ls_port_alloc.append(port[1])
 
     # Creating an object of the dataaccess class with Yahoo as the source.
     c_dataobj = da.DataAccess('Yahoo')
