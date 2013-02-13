@@ -78,4 +78,4 @@ def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
         plt.title('Mean return of ' + str(i_no_events) + ' events')
     plt.xlabel('Days')
     plt.ylabel('Cumulative Returns')
-    plt.savefig(s_filename, format='png')
+    plt.savefig(s_filename, format='pdf')
