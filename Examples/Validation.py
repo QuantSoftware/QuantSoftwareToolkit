@@ -40,8 +40,7 @@ try:
     print "Numpy is installed and the version used is : ", numpy.__version__
     print "Please make sure you're using version >= 1.6.1"
 except:
-    print "Error : Numpy can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : Numpy can not be imported or not installed.")
 print
 
 # Testing matplotlib
@@ -50,8 +49,7 @@ try:
     print "Matplotlib is installed and version is : ", matplotlib.__version__
     print "Please make sure you're using version >= 1.1.0"
 except:
-    print "Error : Matplotlib can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : Matplotlib can not be imported or not installed.")
 print
 
 # Testing Pandas
@@ -62,12 +60,10 @@ try:
     print "IMPORTANT: No other pandas version is supported except 0.7.3"
     s_pd_version = pandas.__version__
     if s_pd_version[:5] != '0.7.3':
-        print "Error : Please use pandas 0.7.3"
-        exit(1)
+        sys.exit("Error : Pandas version should be 0.7.3")
 except:
-    print "Error : Pandas can not be imported or not installed."
     print "Error : Please install Pandas 0.7.3"
-    exit(1)
+    sys.exit("Error : Pandas can not be imported or not installed.")
 print
 
 
@@ -77,8 +73,7 @@ try:
     print "Scipy is installed and the version used is : ", scipy.__version__
     print "Please make sure you're using version >= 0.9.0"
 except:
-    print "Error : Scipy can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : Scipy can not be imported or not installed.")
 print
 
 # Testing Dateutil
@@ -87,8 +82,7 @@ try:
     print "Dateutil is installed and the version used is : ", dateutil.__version__
     print "Please make sure you're using version == 1.5"
 except:
-    print "Error : Dateutil can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : Dateutil can not be imported or not installed.")
 print
 
 # Testing Setuptools
@@ -97,8 +91,7 @@ try:
     print "Setuptools is installed and the version used is : ", setuptools.__version__
     print "Please make sure you're using version >= 0.6"
 except:
-    print "Error : Setuptools can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : Setuptools can not be imported or not installed.")
 print
 
 # Testing CVXOPT
@@ -106,8 +99,7 @@ try:
     import cvxopt
     print "CVXOPT is installed and can be imported"
 except:
-    print "Error : CVXOPT can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : CVXOPT can not be imported or not installed.")
 print
 
 # Testing datetime
@@ -115,8 +107,7 @@ try:
     import datetime as dt
     print "datetime is installed and can be imported"
 except:
-    print "Error : datetime can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : datetime can not be imported or not installed.")
 print
 
 # All dependencies are installed and working
@@ -128,8 +119,7 @@ try:
     import QSTK
     print "QSTK is installed and can be imported"
 except:
-    print "Error : QSTK can not be imported or not installed."
-    exit(1)
+    sys.exit("Error : QSTK can not be imported or not installed.")
 print
 
 # Testing QSTK.qstkutil
@@ -139,8 +129,7 @@ try:
     import QSTK.qstkutil.DataAccess as da
     print "QSTK.qstkutil is installed and can be imported"
 except:
-    print "Error : QSTK.qstkutil can not be imported."
-    exit(1)
+    exit("Error : QSTK.qstkutil can not be imported.")
 print
 
 # Testing QSTK.qstkstudy
@@ -148,8 +137,7 @@ try:
     import QSTK.qstkstudy.EventProfiler
     print "QSTK.qstkstudy is installed and can be imported"
 except:
-    print "Error : QSTK.qstkstudy can not be imported."
-    exit(1)
+    exit("Error : QSTK.qstkstudy can not be imported.")
 print
 
 # Checking that the data installed is correct.
@@ -187,9 +175,8 @@ print "Close price of MSFT on 2012/2/15 is : ", df_close['MSFT'].ix[dt_test]
 if df_close['MSFT'].ix[dt_test] == 29.66:
     print "Data looks correct as the close price in default data is 29.66"
 else:
-    print "Error : Data has changed so does not match data used in Assignments"
     print "Default data used in the assisgnments has close price as 29.66"
-    exit(1)
+    sys.exit("Error : Data has changed so does not match data used in Assignments")
 print
 
 print "Everything works fine: You're all set."
