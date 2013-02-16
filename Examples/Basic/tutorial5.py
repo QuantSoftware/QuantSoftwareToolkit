@@ -69,7 +69,16 @@ def main():
 
     # Running the simulator on the allocation frame
     (ts_funds, ts_leverage, f_commission, f_slippage, f_borrow_cost) = qstksim.tradesim(df_alloc,
-                    df_close, 10000.0, 1, True, 0.0005, 5.0, 0.0035, 1, 3.5, log="transaction.csv")
+                    df_close, f_start_cash=10000.0, i_leastcount=1, b_followleastcount=True,
+                    f_slippage=0.0005, f_minimumcommision=5.0, f_commision_share=0.0035,
+                    i_target_leverage=1, f_rate_borrow=3.5, log="transaction.csv")
+
+    print "Simulated Fund Time Series : "
+    print ts_funds
+    print "Transaction Costs : "
+    print "Commissions : ", f_commission
+    print "Slippage : ", f_slippage
+    print "Borrowing Cost : ", f_borrow_cost
 
 if __name__ == '__main__':
     main()
