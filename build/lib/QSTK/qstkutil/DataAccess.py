@@ -73,24 +73,24 @@ class DataAccess(object):
         self.folderList = list()
         self.folderSubList = list()
         self.cachestalltime = cachestalltime
-        self.fileExtensionToRemove=".pkl"
+        self.fileExtensionToRemove = ".pkl"
 
         try:
             self.rootdir = os.environ['QSDATA']
             try:
                 self.scratchdir = os.environ['QSSCRATCH']
             except:
-                self.scratchdir = tempfile.gettempdir() + '/QSScratch'
+                self.scratchdir = os.path.joins(tempfile.gettempdir(), 'QSScratch')
         except:
             if s_datapath != None:
                 self.rootdir = s_datapath
                 if s_scratchpath != None:
                     self.scratchdir = s_scratchpath
                 else:
-                    self.scratchdir = tempfile.gettempdir() + '/QSScratch'
+                    self.scratchdir = os.path.joins(tempfile.gettempdir(), 'QSScratch')
             else:
-                self.rootdir = os.path.dirname(__file__) + '/../QSData'
-                self.scratchdir = tempfile.gettempdir() + '/QSScratch'
+                self.rootdir = os.path.joins(os.path.dirname(__file__), '..', 'QSData')
+                self.scratchdir = os.path.joins(tempfile.gettempdir(), 'QSScratch')
 
         print "Scratch Directory: ", self.scratchdir
         print "Data Directory: ", self.rootdir

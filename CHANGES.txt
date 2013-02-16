@@ -9,6 +9,8 @@ Changes in QSTK
 * Refractoring of all tutorials for cleaner code and documentation
 * Rewriting of the event profiler
 * Creating the egg and starting work towards the windows installation
+* Creating windows installation
+* Paths to be os independent
 
 0.2.4
 =====
