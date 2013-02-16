@@ -36,20 +36,24 @@ def main():
 
     # Create two list for symbol names and allocation
     ls_port_syms = []
-    ls_port_alloc = []
+    lf_port_alloc = []
     for port in na_portfolio:
         ls_port_syms.append(port[0])
-        ls_port_alloc.append(port[1])
+        lf_port_alloc.append(port[1])
 
     # Creating an object of the dataaccess class with Yahoo as the source.
     c_dataobj = da.DataAccess('Yahoo')
     ls_all_syms = c_dataobj.get_all_symbols()
     # Bad symbols are symbols present in portfolio but not in all syms
     ls_bad_syms = list(set(ls_port_syms) - set(ls_all_syms))
+
+    if len(ls_bad_syms) != 0:
+        print "Portfolio contains bad symbols : ", ls_bad_syms
+
     for s_sym in ls_bad_syms:
         i_index = ls_port_syms.index(s_sym)
         ls_port_syms.pop(i_index)
-        ls_port_alloc.pop(i_index)
+        lf_port_alloc.pop(i_index)
 
     # Reading the historical data.
     dt_end = dt.datetime(2011, 1, 1)
@@ -80,7 +84,7 @@ def main():
     tsu.returnize0(na_rets)
 
     # Estimate portfolio returns
-    na_portrets = np.sum(na_rets * ls_port_alloc, axis=1)
+    na_portrets = np.sum(na_rets * lf_port_alloc, axis=1)
     na_port_total = np.cumprod(na_portrets + 1)
     na_component_total = np.cumprod(na_rets + 1, axis=0)
 
