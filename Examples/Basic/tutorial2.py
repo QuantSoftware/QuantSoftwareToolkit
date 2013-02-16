@@ -35,6 +35,7 @@ def main():
     # Printing the first 5 rows
     print "First 5 rows of Price Data:"
     print na_price[:5, :]
+    print
     print "First 5 rows of Dates:"
     print na_dates[:5, :]
 
