@@ -7,6 +7,13 @@ UbuntuInstallation.sh
 __init__.py
 ez_setup.py
 setup.py
+Bin/DataGenerate_SineWave.py
+Bin/Data_CSV.py
+Bin/__init__.py
+Bin/converter.py
+Bin/csvformatter.py
+Bin/gen_nyse_dates.py
+Bin/investors_report.py
 Examples/Validation.py
 Examples/Basic/allsyms.csv
 Examples/Basic/dataexample.py

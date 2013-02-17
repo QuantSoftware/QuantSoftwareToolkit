@@ -673,7 +673,9 @@ def optimizePortfolio(df_rets, list_min, list_max, list_price_target,
         lf_return_new = lf_return_new[lf_return_new >= f_return]
         na_sharpe = lf_return_new / lf_std_new
 
-        fTarget = lf_return_new[na_sharpe.index(max(na_sharpe))]
+        i_index_max_sharpe, = np.where(na_sharpe == max(na_sharpe))
+        i_index_max_sharpe = i_index_max_sharpe[0]
+        fTarget = lf_return_new[i_index_max_sharpe]
         (naPortWeights, fPortDev, b_error) = OptPort(df_rets.values, fTarget, naLower, naUpper, naExpected, direction)
         allocations = _create_dict(df_rets, naPortWeights)
         return {'allocations': allocations, 'std_dev': fPortDev, 'expected_return': fTarget, 'error': b_error}
