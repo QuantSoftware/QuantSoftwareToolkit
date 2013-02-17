@@ -1,7 +1,7 @@
 QSTK
 ====
 
-QuantSoftware Toolkit 2.4.5
+QuantSoftware Toolkit 0.2.5
 
 Website
 ====
