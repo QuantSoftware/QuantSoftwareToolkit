@@ -48,8 +48,12 @@ def main():
     df_close = c_dataobj.get_data(ldt_timestamps, ls_symbols, "close")
 
     # Creating the allocation dataframe
-    df_alloc = pd.DataFrame(np.array([[0.5, 0.5]]), index=[ldt_timestamps[0]],
-                                        columns=ls_symbols)
+    # We offset the time for the simulator to have atleast one
+    # datavalue before the allocation.
+    df_alloc = pd.DataFrame(np.array([[0.5, 0.5]]),
+                index=[ldt_timestamps[0] + dt.timedelta(hours=5)],
+                columns=ls_symbols)
+
     dt_last_date = ldt_timestamps[0]
     # Looping through all dates and creating monthly allocations
     for dt_date in ldt_timestamps[1:]:
