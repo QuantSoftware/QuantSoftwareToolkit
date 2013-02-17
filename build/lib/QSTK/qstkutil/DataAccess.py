@@ -80,17 +80,17 @@ class DataAccess(object):
             try:
                 self.scratchdir = os.environ['QSSCRATCH']
             except:
-                self.scratchdir = os.path.joins(tempfile.gettempdir(), 'QSScratch')
+                self.scratchdir = os.path.join(tempfile.gettempdir(), 'QSScratch')
         except:
             if s_datapath != None:
                 self.rootdir = s_datapath
                 if s_scratchpath != None:
                     self.scratchdir = s_scratchpath
                 else:
-                    self.scratchdir = os.path.joins(tempfile.gettempdir(), 'QSScratch')
+                    self.scratchdir = os.path.join(tempfile.gettempdir(), 'QSScratch')
             else:
-                self.rootdir = os.path.joins(os.path.dirname(__file__), '..', 'QSData')
-                self.scratchdir = os.path.joins(tempfile.gettempdir(), 'QSScratch')
+                self.rootdir = os.path.join(os.path.dirname(__file__), '..', 'QSData')
+                self.scratchdir = os.path.join(tempfile.gettempdir(), 'QSScratch')
 
         print "Scratch Directory: ", self.scratchdir
         print "Data Directory: ", self.rootdir
