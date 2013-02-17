@@ -19,6 +19,7 @@ import sqlite3
 import numpy
 import datetime
 import MySQLdb
+import qsdateutil as du
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
 
@@ -181,12 +182,12 @@ class _MySQL(DriverInterface):
         s_pass = open(os.path.join(s_filepath,'pass.txt')).read().rstrip()
         
         try:
-            self.db = MySQLdb.connect("127.0.0.1", "finance", s_pass, "premiumdata")
+            self.db = MySQLdb.connect("127.0.0.1", "finance", s_pass, "premiumdata", port=3307)
         except:
             s_filepath = os.path.dirname(os.path.abspath(__file__))
             # Read password from a file (does not support whitespace)
             s_pass = open(os.path.join(s_filepath,'pass2.txt')).read().rstrip()
-            self.db = MySQLdb.connect("127.0.0.1", "finance", s_pass, "premiumdata")
+            self.db = MySQLdb.connect("127.0.0.1", "finance", s_pass, "premiumdata", port=3307)
 
         self.cursor = self.db.cursor()
 
@@ -320,28 +321,34 @@ class _MySQL(DriverInterface):
             
             # Retrieve Results
             results_fund = self.cursor.fetchall()
+            #print results_fund[2]
             # Create Data frames
             for i in range(len(data_fund)):
                 columns_fund.append(pandas.DataFrame(index=ts_list, columns=symbol_list))
 
-
             # Loop through rows
             dt_time = datetime.time(hour=16)
             for row in results_fund:
+  
                 #format of row is (sym, date, item1, item2, ...)
                 dt_date = datetime.datetime.combine(row[1], dt_time)
                 if dt_date not in columns_fund[i].index:
                     continue
                 # Add all columns to respective data-frames
                 for i in range(len(data_fund)):
-                    columns_fund[i][d_id_sym[row[0]]][dt_date] = row[i+2]
-        
+                    #print type(row[i+2])
+                    #print (type(row[i+2]) == datetime.date)        
+                    if (type(row[i+2])!=datetime.date):
+                       columns_fund[i][d_id_sym[row[0]]][dt_date] = row[i+2]
+                    else:
+                       columns_fund[i][d_id_sym[row[0]]][dt_date] = int((row[
+                              i+2]-datetime.date(1970,1,1)).total_seconds())
         columns = [numpy.NaN]*len(data_item)    
         for i,item in enumerate(li_tech_index):
             columns[item]=columns_tech[i]
         for i,item in enumerate(li_fund_index):
             columns[item]=columns_fund[i]
-   
+        
         return columns 
   
 
@@ -575,10 +582,10 @@ class DataAccess(object):
 if __name__ == "__main__":
     db = DataAccess('mysql')
 
-    date1 = datetime.datetime(2012, 2, 27, 16)
-    date2 = datetime.datetime(2012, 2, 29, 16)
+    date1 = datetime.datetime(2011, 1, 1, 16)
+    date2 = datetime.datetime(2011, 1, 31, 16)
     date3 = datetime.datetime(2012, 9, 29, 16)
-
+    ts_list = du.getNYSEdays(date1,date2, datetime.timedelta(hours=16))
     #print db.get_shares(['GOOG', 'AAPL'])
 
     #print db.get_all_lists()
@@ -589,4 +596,4 @@ if __name__ == "__main__":
     #print db.get_dividends([date1 + datetime.timedelta(days=x) for x in range(100)],
     #                        ["MSFT", "PGF", "GOOG", "A"])
 
-    print db.get_data_hard_read([date1, date2], ["AAPL", "IBM", "GOOG", "A"], ["open","ebitda","close","actual_close","pe"])
+    db.get_data_hard_read(ts_list, ["AAPL"], ["close","open","latestavailableannual","pe"])

@@ -14,6 +14,7 @@ Created on Nov 7, 2011
 ''' Python imports '''
 import math
 import pickle
+import inspect
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 
@@ -21,15 +22,16 @@ from dateutil.relativedelta import relativedelta
 import numpy as np
 import matplotlib.pyplot as plt
 
-''' Our Imports '''
-import QSTK.qstklearn.kdtknn as kdt
-from QSTK.qstkutil import DataAccess as da
-from QSTK.qstkutil import DataEvolved as de
-from QSTK.qstkutil import qsdateutil as du
-from QSTK.qstkutil import tsutil as tsu
 
-from QSTK.qstkfeat.features import *
-from QSTK.qstkfeat.classes import class_fut_ret
+''' Our Imports '''
+import qstklearn.kdtknn as kdt
+from qstkutil import DataAccess as da
+from qstkutil import DataEvolved as de
+from qstkutil import qsdateutil as du
+from qstkutil import tsutil as tsu
+
+from qstkfeat.features import *
+from qstkfeat.classes import class_fut_ret
 
 
 
@@ -123,16 +125,52 @@ def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None, bMin=
                 # bMin means only calculate the LAST row of the stock
                 dTmp = {}
                 for sKey in dDataRelative:
-                    dTmp[sKey] = dDataRelative[sKey].ix[ -(ldArgs[i]['lLookback'] + 1):]
+                    if 'i_bars' in ldArgs[i]:
+                        dTmp[sKey] = dDataRelative[sKey].ix[ 
+                                     -(ldArgs[i]['lLookback'] + 
+                                     ldArgs[i]['i_bars']+1):]
+                    else:  
+                        if 'lLookback' not in ldArgs[i]:
+                            d_defaults = inspect.getargspec(fcFeature).defaults
+                            d_args = inspect.getargspec(fcFeature).args
+                            i_diff = len(d_args) - len(d_defaults)
+                            i_index = d_args.index('lLookback') - i_diff
+                            i_cut = -(d_defaults[i_index]+1)
+                            dTmp[sKey] = dDataRelative[sKey].ix[i_cut:]
+                            #print fcFeature.__name__ + ":" + str(i_cut)
+                            
+                        else:   
+                            dTmp[sKey] = dDataRelative[sKey].ix[ 
+                                         -(ldArgs[i]['lLookback'] + 1):]  
                 ldfRet.append( fcFeature( dTmp, **ldArgs[i] ).ix[-1:] )
             else:
                 ldfRet.append( fcFeature( dDataRelative, **ldArgs[i] ) )
+        
+
+                
         else:
             if bMin:
                 # bMin means only calculate the LAST row of the stock
                 dTmp = {}
                 for sKey in dData:
-                    dTmp[sKey] = dData[sKey].ix[ -(ldArgs[i]['lLookback'] + 1):]
+                    if 'i_bars' in ldArgs[i]:
+                        dTmp[sKey] = dData[sKey].ix[ 
+                                     -(ldArgs[i]['lLookback'] + 
+                                     ldArgs[i]['i_bars']+1):]
+                       
+                    else:    
+                        if 'lLookback' not in ldArgs[i]:
+                            d_defaults = inspect.getargspec(fcFeature).defaults
+                            d_args = inspect.getargspec(fcFeature).args
+                            i_diff = len(d_args) - len(d_defaults)
+                            i_index = d_args.index('lLookback') - i_diff
+                            i_cut = -(d_defaults[i_index]+1)
+                            dTmp[sKey] = dData[sKey].ix[i_cut:]
+                            #print fcFeature.__name__ + ":" + str(i_cut)
+                        else:   
+                            dTmp[sKey] = dData[sKey].ix[ 
+                                     -(ldArgs[i]['lLookback'] + 1):]
+                   
                 ldfRet.append( fcFeature( dTmp, **ldArgs[i] ).ix[-1:] )
             else:
                 ldfRet.append( fcFeature( dData, **ldArgs[i] ) )
@@ -325,7 +363,7 @@ def log500( sLog ):
     
     
     ''' Pull in current data '''
-    norObj = da.DataAccess('Yahoo')
+    norObj = da.DataAccess('Norgate')
     ''' Get 2 extra months for moving averages and future returns '''
     ldtTimestamps = du.getNYSEdays( dtStart - relativedelta(months=2), \
                                     dtEnd   + relativedelta(months=2), dt.timedelta(hours=16) )
@@ -381,7 +419,7 @@ def testFeature( fcFeature, dArgs ):
     dtEnd = dt.datetime(2011, 12, 31)
          
     ''' Pull in current training data and test data '''
-    norObj = da.DataAccess('Yahoo')
+    norObj = de.DataAccess('mysql')
     ''' Get 2 extra months for moving averages and future returns '''
     ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dt.timedelta(hours=16) )
     
@@ -431,10 +469,10 @@ def speedTest(lfcFeature,ldArgs):
     @param lfcFeature: a list of features that will be sorted by runtime
     @param dArgs: Arguments to pass into feature function
     @return: A list of sorted tuples of format (time, function name/param string)
-    ''' 	
+    '''     
 
     '''pulling out 2 years data to run test'''
-    daData = da.DataAccess('Yahoo')
+    daData = de.DataAccess('mysql')
     dtStart = dt.datetime(2010, 1, 1)
     dtEnd = dt.datetime(2011, 12, 31)
     dtTimeofday = dt.timedelta(hours=16)
@@ -465,7 +503,7 @@ def speedTest(lfcFeature,ldArgs):
     return ltResults
 
 if __name__ == '__main__':
-
+   
    speedTest([featMA, featRSI, featAroon, featBeta, featCorrelation, 
               featBollinger, featStochastic], [{'lLookback':30}] * 7) 
    #testFeature( class_fut_ret, {'MR':True})
