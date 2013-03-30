@@ -1,16 +1,20 @@
 QSTK
 ====
-
 QuantSoftware Toolkit 0.2.5
+
 
 Website
 ====
-
 www.wiki.quantsoftware.org
+
+
+Source Repository
+====
+https://github.com/tucker777/QuantSoftwareToolkit
+
 
 License
 =====
-
 The QuantSoftware ToolKit (QSTK) is released under the New BSD License as follows:
 
 Copyright (c) 2011, 2012, Georgia Tech Research Corporation (GTRC) All rights reserved.
@@ -33,6 +37,7 @@ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABIL
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 POSSIBILITY OF SUCH DAMAGE. 
 
+
 Dependencies
 ====
 numpy >= 1.6.1,
@@ -43,9 +48,9 @@ python-dateutil >= 1.5,
 cvxopt >= 1.1.3,
 scikit-learn >= 0.11
 
+
 Author
 ====
-
 Prof. Tucker Balch 
 
 Sourabh Bajaj
