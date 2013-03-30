@@ -27,7 +27,7 @@ echo "Installing dependencies - scikits"
 sudo easy_install -U scikits.statsmodels
 sudo easy_install -U scikit-learn
 sudo easy_install --upgrade pytz
-sudo apt-get install python-dateutil
+sudo easy_install python-dateutil==1.5
 echo "Installing dependencies - pandas"
 sudo easy_install pandas==0.7.3
 echo "Installing dependencies - PYQT4"
