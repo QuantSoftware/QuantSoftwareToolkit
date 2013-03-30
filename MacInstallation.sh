@@ -21,7 +21,7 @@ sudo port install py27-numpy
 sudo port install py27-scipy
 sudo port install py27-matplotlib
 echo "Installing dependencies - developer tools"
-sudo port install py27-dateutil
+sudo easy_install python-dateutil==1.5
 echo "Installing dependencies - scikits"
 sudo easy_install -U scikit-learn
 echo "Installing dependencies - pandas"
@@ -30,6 +30,4 @@ echo "Installing dependencies - Docs"
 sudo port install py27-epydoc
 echo "Installing dependencies - PYQT4"
 sudo port install py27-pyqt4
-echo "Installing dependencies - CVXOPT"
-sudo port install py27-cvxopt
 echo "Installing dependencies complete"

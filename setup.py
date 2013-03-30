@@ -42,7 +42,6 @@ setup(
         "matplotlib >= 1.1.0",
         "pandas==0.7.3",
         "python-dateutil >= 1.5",
-        "cvxopt >= 1.1.3",
         "scikit-learn >= 0.11",
     ],
 )

@@ -94,13 +94,13 @@ except:
     sys.exit("Error : Setuptools can not be imported or not installed.")
 print
 
-# Testing CVXOPT
-try:
-    import cvxopt
-    print "CVXOPT is installed and can be imported"
-except:
-    sys.exit("Error : CVXOPT can not be imported or not installed.")
-print
+# # Testing CVXOPT
+# try:
+#     import cvxopt
+#     print "CVXOPT is installed and can be imported"
+# except:
+#     sys.exit("Error : CVXOPT can not be imported or not installed.")
+# print
 
 # Testing datetime
 try:

@@ -1,6 +1,10 @@
 Changes in QSTK
 ===================
 
+0.2.6
+=====
+* Remove CVXOPT from the hard requirements.
+
 0.2.5
 =====
 * Adding validation script
