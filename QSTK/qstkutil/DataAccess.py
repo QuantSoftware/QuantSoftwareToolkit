@@ -776,7 +776,11 @@ class DataAccess(object):
         if ls_columns is not None:
             df_symbol = df_symbol[ls_columns]
         if ls_dates is not None:
-            df_symbol = df_symbol.ix[ls_dates]
+            d_dates = dict()
+            for item in ls_dates:
+                d_dates[item.replace(hour=0)] = item
+            df_symbol = df_symbol.ix[d_dates.keys()]
+            df_symbol = df_symbol.rename(index=d_dates, copy=False) # copy=False doesn't seem to do anything
         df_symbol.Name = symbol
         return df_symbol
         # get_daily_dataframe ends
