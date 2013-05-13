@@ -585,6 +585,29 @@ class DataAccess(object):
         return listOfStocks
         #get_all_symbols ends
 
+    def check_symbol(self, symbol, s_list=None):
+        '''
+        @summary: Returns True if given symbol is present in the s_list.
+        @param symbol: Symbol to be checked for.
+        @param s_list: Optionally symbol sub-set listing can be given.
+                        if not provided, all listings are searched.
+        @return:  True if symbol is present in specified list, else False.
+        '''
+        
+        all_symbols = list()
+        
+        # Create a super-set of symbols.
+        if s_list is not None:
+            all_symbols = self.get_symbols_from_list(s_list)
+        else:
+            all_symbols = self.get_all_symbols()
+        
+        # Check if the symbols is present.
+        if ( symbol in all_symbols ):
+            return True
+        else:
+            return False
+
     def get_symbols_from_list(self, s_list):
         ''' Reads all symbols from a list '''
         ls_symbols = []
@@ -699,3 +722,24 @@ class DataAccess(object):
 
 
     #class DataAccess ends
+if __name__ == '__main__':
+    # Setup DataAccess object
+    c_dataobj = DataAccess('Yahoo')
+    
+    # Check if GOOG is a valid symbol.
+    val = c_dataobj.check_symbol('GOOG')
+    print "Is GOOG a valid symbol? :" , val
+    
+    # Check if QWERTY is a valid symbol.
+    val = c_dataobj.check_symbol('QWERTY')
+    print "Is QWERTY a valid symbol? :" , val
+
+    # Check if EBAY is part of SP5002012 list.
+    val = c_dataobj.check_symbol('EBAY', s_list='sp5002012')
+    print "Is EBAY a valid symbol in SP5002012 list? :", val
+
+    # Check if GLD is part of SP5002012 after checking if GLD is a valid symbol.
+    val = c_dataobj.check_symbol('GLD')
+    print "Is GLD a valid symbol? : ", val
+    val = c_dataobj.check_symbol('GLD', 'sp5002012')
+    print "Is GLD a valid symbol in sp5002012 list? :", val

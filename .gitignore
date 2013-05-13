@@ -1,3 +1,5 @@
+# Ignoring the swp files created by vim
+*.swp
 
 *.pyc
 
