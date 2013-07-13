@@ -22,7 +22,7 @@ import time
 import datetime as dt
 import dircache
 import tempfile
-
+import copy
 
 class Exchange (object):
     AMEX = 1
@@ -433,6 +433,8 @@ class DataAccess(object):
         # We then check to see if the filename exists already, meaning that
         # the data has already been created and we can just read that file.
 
+        ls_syms_copy = copy.deepcopy(symbol_list)
+
         # Create the hash for the symbols
         hashsyms = 0
         for i in symbol_list:
@@ -514,6 +516,12 @@ class DataAccess(object):
                 print "end saving to cache"
             if verbose:
                 print "reading took " + str(elapsed) + " seconds"
+
+        if type(retval) == type([]):
+            for i, df_single in enumerate(retval):
+                retval[i] = df_single.reindex(columns=ls_syms_copy)
+        else:
+            retval = retval.reindex(columns=ls_syms_copy)
         return retval
 
     def getPathOfFile(self, symbol_name, bDelisted=False):
