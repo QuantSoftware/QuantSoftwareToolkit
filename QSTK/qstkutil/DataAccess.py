@@ -46,15 +46,22 @@ class DataItem (object):
     COMPUSTAT = ['gvkey', 'fyearq', 'fqtr', 'fyr', 'ACCTSTDQ', 'ADRRQ', 'AJEXQ', 'AJPQ', 'CURRTRQ', 'CURUSCNQ', 'PDQ', 'PDSA', 'PDYTD', 'SCFQ', 'SRCQ', 'UPDQ', 'ACCDQ', 'ACCHGQ', 'ACCOQ', 'ACOMINCQ', 'ACOQ', 'ACOXQ', 'ACTQ', 'ADPACQ', 'ALTOQ', 'AMQ', 'ANCQ', 'ANOQ', 'AOCIDERGLQ', 'AOCIOTHERQ', 'AOCIPENQ', 'AOCISECGLQ', 'AOL2Q', 'AOQ', 'AOTQ', 'APOQ', 'APQ', 'AQAQ', 'AQDQ', 'AQEPSQ', 'AQPL1Q', 'AQPQ', 'ARCED12', 'ARCEDQ', 'ARCEEPS12', 'ARCEEPSQ', 'ARCEQ', 'ARTFSQ', 'ATQ', 'AUL3Q', 'AUTXRQ', 'BCEFQ', 'BCTQ', 'BDIQ', 'CAPCSTQ', 'CAPR1Q', 'CAPR2Q', 'CAPR3Q', 'CAPRTQ', 'CAPSQ', 'CAQ', 'CEQQ', 'CFBDQ', 'CFEREQ', 'CFOQ', 'CFPDOQ', 'CHEQ', 'CHQ', 'CHSQ', 'CIBEGNIQ', 'CICURRQ', 'CIDERGLQ', 'CIMIIQ', 'CIOTHERQ', 'CIPENQ', 'CIQ', 'CISECGLQ', 'CITOTALQ', 'CLTQ', 'COGSQ', 'CSH12Q', 'CSHFDQ', 'CSHIQ', 'CSHOPQ', 'CSHOQ', 'CSHPRQ', 'CSTKEQ', 'CSTKQ', 'DCOMQ', 'DFPACQ', 'DFXAQ', 'DILADQ', 'DILAVQ', 'DITQ', 'DLCQ', 'DLTTQ', 'DOQ', 'DPACREQ', 'DPACTQ', 'DPQ', 'DPRETQ', 'DPTBQ', 'DPTCQ', 'DRCQ', 'DRLTQ', 'DTEAQ', 'DTEDQ', 'DTEEPSQ', 'DTEPQ', 'DVPDPQ', 'DVPQ', 'DVRREQ', 'DVTQ', 'EPSF12', 'EPSFIQ', 'EPSFXQ', 'EPSPIQ', 'EPSPXQ', 'EPSX12', 'EQRTQ', 'EROQ', 'ESOPCTQ', 'ESOPNRQ', 'ESOPRQ', 'ESOPTQ', 'ESUBQ', 'FCAQ', 'FEAQ', 'FELQ', 'FFOQ', 'GDWLAMQ', 'GDWLIA12', 'GDWLIAQ', 'GDWLID12', 'GDWLIDQ', 'GDWLIEPS12', 'GDWLIEPSQ', 'GDWLIPQ', 'GDWLQ', 'GLAQ', 'GLCEA12', 'GLCEAQ', 'GLCED12', 'GLCEDQ', 'GLCEEPS12', 'GLCEEPSQ', 'GLCEPQ', 'GLDQ', 'GLEPSQ', 'GLPQ', 'GPQ', 'HEDGEGLQ', 'IATIQ', 'IBADJ12', 'IBADJQ', 'IBCOMQ', 'IBKIQ', 'IBMIIQ', 'IBQ', 'ICAPTQ', 'IDITQ', 'IIREQ', 'IITQ', 'INTACCQ', 'INTANOQ', 'INTANQ', 'INTCQ', 'INVFGQ', 'INVOQ', 'INVRMQ', 'INVTQ', 'INVWIPQ', 'IOBDQ', 'IOIQ', 'IOREQ', 'IPQ', 'IPTIQ', 'ISGTQ', 'ISTQ', 'IVAEQQ', 'IVAOQ', 'IVIQ', 'IVLTQ', 'IVPTQ', 'IVSTQ', 'IVTFSQ', 'LCABGQ', 'LCACUQ', 'LCOQ', 'LCOXQ', 'LCTQ', 'LLTQ', 'LNOQ', 'LOL2Q', 'LOQ', 'LOXDRQ', 'LQPL1Q', 'LSEQ', 'LSQ', 'LTMIBQ', 'LTQ', 'LUL3Q', 'MIBNQ', 'MIBQ', 'MIBTQ', 'MIIQ', 'MSAQ', 'MTLQ', 'NCOQ', 'NIITQ', 'NIMQ', 'NIQ', 'NITQ', 'NOPIOQ', 'NOPIQ', 'NPATQ', 'NRTXTDQ', 'NRTXTEPSQ', 'NRTXTQ', 'OEPF12', 'OEPS12', 'OEPSXQ', 'OIADPQ', 'OIBDPQ', 'OPEPSQ', 'OPROQ', 'OPTDRQ', 'OPTFVGRQ', 'OPTLIFEQ', 'OPTRFRQ', 'OPTVOLQ', 'PCLQ', 'PIQ', 'PLLQ', 'PNC12', 'PNCD12', 'PNCDQ', 'PNCEPS12', 'PNCEPSQ', 'PNCIAPQ', 'PNCIAQ', 'PNCIDPQ', 'PNCIDQ', 'PNCIEPSPQ', 'PNCIEPSQ', 'PNCIPPQ', 'PNCIPQ', 'PNCPD12', 'PNCPDQ', 'PNCPEPS12', 'PNCPEPSQ', 'PNCPQ', 'PNCQ', 'PNCWIAPQ', 'PNCWIAQ', 'PNCWIDPQ', 'PNCWIDQ', 'PNCWIEPQ', 'PNCWIEPSQ', 'PNCWIPPQ', 'PNCWIPQ', 'PNRSHOQ', 'PPEGTQ', 'PPENTQ', 'PRCAQ', 'PRCD12', 'PRCDQ', 'PRCE12', 'PRCEPS12', 'PRCEPSQ', 'PRCPD12', 'PRCPDQ', 'PRCPEPS12', 'PRCPEPSQ', 'PRCPQ', 'PRCQ', 'PRCRAQ', 'PRSHOQ', 'PSTKNQ', 'PSTKQ', 'PSTKRQ', 'PTRANQ', 'PVOQ', 'PVTQ', 'RATIQ', 'RAWMSMQ', 'RCAQ', 'RCDQ', 'RCEPSQ', 'RCPQ', 'RDIPAQ', 'RDIPDQ', 'RDIPEPSQ', 'RDIPQ', 'RECCOQ', 'RECDQ', 'RECTAQ', 'RECTOQ', 'RECTQ', 'RECTRQ', 'RECUBQ', 'REITQ', 'REQ', 'RETQ', 'REUNAQ', 'REVTQ', 'RISQ', 'RLLQ', 'RLTQ', 'RRA12', 'RRAQ', 'RRD12', 'RRDQ', 'RREPS12', 'RREPSQ', 'RRPQ', 'RVLRVQ', 'RVTIQ', 'RVUTXQ', 'SAAQ', 'SALEQ', 'SALQ', 'SBDCQ', 'SCOQ', 'SCQ', 'SCTQ', 'SEQOQ', 'SEQQ', 'SETA12', 'SETAQ', 'SETD12', 'SETDQ', 'SETEPS12', 'SETEPSQ', 'SETPQ', 'SPCE12', 'SPCED12', 'SPCEDPQ', 'SPCEDQ', 'SPCEEPS12', 'SPCEEPSP12', 'SPCEEPSPQ', 'SPCEEPSQ', 'SPCEP12', 'SPCEPD12', 'SPCEPQ', 'SPCEQ', 'SPIDQ', 'SPIEPSQ', 'SPIOAQ', 'SPIOPQ', 'SPIQ', 'SRETQ', 'SSNPQ', 'STKCHQ', 'STKCOQ', 'STKCPAQ', 'TDSGQ', 'TDSTQ', 'TEQQ', 'TFVAQ', 'TFVCEQ', 'TFVLQ', 'TIEQ', 'TIIQ', 'TRANSAQ', 'TSTKNQ', 'TSTKQ', 'TXDBAQ', 'TXDBQ', 'TXDIQ', 'TXDITCQ', 'TXPQ', 'TXTQ', 'TXWQ', 'UACOQ', 'UAOQ', 'UAPTQ', 'UCAPSQ', 'UCCONSQ', 'UCEQQ', 'UDDQ', 'UDMBQ', 'UDOLTQ', 'UDPCOQ', 'UDVPQ', 'UGIQ', 'UINVQ', 'ULCOQ', 'UNIAMIQ', 'UNNPQ', 'UNOPINCQ', 'UOPIQ', 'UPDVPQ', 'UPMCSTKQ', 'UPMPFQ', 'UPMPFSQ', 'UPMSUBPQ', 'UPSTKCQ', 'UPSTKQ', 'URECTQ', 'USPIQ', 'USUBDVPQ', 'USUBPCVQ', 'UTEMQ', 'WCAPQ', 'WDAQ', 'WDDQ', 'WDEPSQ', 'WDPQ', 'XAGTQ', 'XBDTQ', 'XCOMIQ', 'XCOMQ', 'XDVREQ', 'XIDOQ', 'XINTQ', 'XIOQ', 'XIQ', 'XIVIQ', 'XIVREQ', 'XOBDQ', 'XOIQ', 'XOPROQ', 'XOPRQ', 'XOPT12', 'XOPTD12', 'XOPTD12P', 'XOPTDQ', 'XOPTDQP', 'XOPTEPS12', 'XOPTEPSP12', 'XOPTEPSQ', 'XOPTEPSQP', 'XOPTQ', 'XOPTQP', 'XOREQ', 'XPPQ', 'XRDQ', 'XRETQ', 'XSGAQ', 'XSQ', 'XSTOQ', 'XSTQ', 'XTQ', 'ACCHGY', 'ACCLIY', 'ACQDISNY', 'ACQDISOY', 'ADPACY', 'AFUDCCY', 'AFUDCIY', 'AMCY', 'AMY', 'AOLOCHY', 'APALCHY', 'APCHY', 'AQAY', 'AQCY', 'AQDY', 'AQEPSY', 'AQPY', 'ARCEDY', 'ARCEEPSY', 'ARCEY', 'ASDISY', 'ASINVY', 'ATOCHY', 'AUTXRY', 'BCEFY', 'BCTY', 'BDIY', 'CAPCSTY', 'CAPFLY', 'CAPXFIY', 'CAPXY', 'CDVCY', 'CFBDY', 'CFEREY', 'CFLAOTHY', 'CFOY', 'CFPDOY', 'CHECHY', 'CHENFDY', 'CIBEGNIY', 'CICURRY', 'CIDERGLY', 'CIMIIY', 'CIOTHERY', 'CIPENY', 'CISECGLY', 'CITOTALY', 'CIY', 'COGSY', 'CSHFDY', 'CSHPRY', 'CSTKEY', 'DCSFDY', 'DCUFDY', 'DEPCY', 'DFXAY', 'DILADY', 'DILAVY', 'DISPOCHY', 'DITY', 'DLCCHY', 'DLTISY', 'DLTRY', 'DOCY', 'DOY', 'DPCY', 'DPRETY', 'DPY', 'DTEAY', 'DTEDY', 'DTEEPSY', 'DTEPY', 'DVPDPY', 'DVPY', 'DVRECY', 'DVRREY', 'DVTY', 'DVY', 'EIEACY', 'EPSFIY', 'EPSFXY', 'EPSPIY', 'EPSPXY', 'EQDIVPY', 'ESUBCY', 'ESUBY', 'EXRESY', 'EXREUY', 'EXREY', 'FCAY', 'FFOY', 'FIAOY', 'FINCFY', 'FININCY', 'FINLEY', 'FINREY', 'FINVAOY', 'FOPOXY', 'FOPOY', 'FOPTY', 'FSRCOPOY', 'FSRCOPTY', 'FSRCOY', 'FSRCTY', 'FUSEOY', 'FUSETY', 'GDWLAMY', 'GDWLIAY', 'GDWLIDY', 'GDWLIEPSY', 'GDWLIPY', 'GLAY', 'GLCEAY', 'GLCEDY', 'GLCEEPSY', 'GLCEPY', 'GLDY', 'GLEPSY', 'GLPY', 'GPY', 'HEDGEGLY', 'IBADJY', 'IBCOMY', 'IBCY', 'IBKIY', 'IBMIIY', 'IBY', 'IDITY', 'IIREY', 'IITY', 'INTANDY', 'INTANPY', 'INTCY', 'INTFACTY', 'INTFLY', 'INTIACTY', 'INTOACTY', 'INTPDY', 'INTPNY', 'INTRCY', 'INVCHY', 'INVDSPY', 'INVSVCY', 'IOBDY', 'IOIY', 'IOREY', 'IPTIY', 'ISGTY', 'ITCCY', 'IVACOY', 'IVCHY', 'IVIY', 'IVNCFY', 'IVSTCHY', 'LIQRESNY', 'LIQRESOY', 'LNDEPY', 'LNINCY', 'LNMDY', 'LNREPY', 'LTDCHY', 'LTDLCHY', 'LTLOY', 'MICY', 'MIIY', 'MISEQY', 'NCFLIQY', 'NCOY', 'NEQMIY', 'NIITY', 'NIMY', 'NITY', 'NIY', 'NOASUBY', 'NOPIOY', 'NOPIY', 'NRTXTDY', 'NRTXTEPSY', 'NRTXTY', 'OANCFCY', 'OANCFDY', 'OANCFY', 'OEPSXY', 'OIADPY', 'OIBDPY', 'OPEPSY', 'OPPRFTY', 'OPROY', 'OPTDRY', 'OPTFVGRY', 'OPTLIFEY', 'OPTRFRY', 'OPTVOLY', 'PCLY', 'PDVCY', 'PIY', 'PLIACHY', 'PLLY', 'PNCDY', 'PNCEPSY', 'PNCIAPY', 'PNCIAY', 'PNCIDPY', 'PNCIDY', 'PNCIEPSPY', 'PNCIEPSY', 'PNCIPPY', 'PNCIPY', 'PNCPDY', 'PNCPEPSY', 'PNCPY', 'PNCWIAPY', 'PNCWIAY', 'PNCWIDPY', 'PNCWIDY', 'PNCWIEPSY', 'PNCWIEPY', 'PNCWIPPY', 'PNCWIPY', 'PNCY', 'PRCAY', 'PRCDY', 'PRCEPSY', 'PRCPDY', 'PRCPEPSY', 'PRCPY', 'PROSAIY', 'PRSTKCCY', 'PRSTKCY', 'PRSTKPCY', 'PRVY', 'PSFIXY', 'PTRANY', 'PURTSHRY', 'PVOY', 'RAWMSMY', 'RCAY', 'RCDY', 'RCEPSY', 'RCPY', 'RDIPAY', 'RDIPDY', 'RDIPEPSY', 'RDIPY', 'RECCHY', 'REITY', 'REVTY', 'RISY', 'RRAY', 'RRDY', 'RREPSY', 'RRPY', 'RVY', 'SALEY', 'SCSTKCY', 'SETAY', 'SETDY', 'SETEPSY', 'SETPY', 'SHRCAPY', 'SIVY', 'SPCEDPY', 'SPCEDY', 'SPCEEPSPY', 'SPCEEPSY', 'SPCEPY', 'SPCEY', 'SPIDY', 'SPIEPSY', 'SPIOAY', 'SPIOPY', 'SPIY', 'SPPCHY', 'SPPEY', 'SPPIVY', 'SPSTKCY', 'SRETY', 'SSTKY', 'STFIXAY', 'STINVY', 'STKCHY', 'STKCOY', 'STKCPAY', 'SUBDISY', 'SUBPURY', 'TDCY', 'TDSGY', 'TFVCEY', 'TIEY', 'TIIY', 'TSAFCY', 'TXACHY', 'TXBCOFY', 'TXBCOY', 'TXDCY', 'TXDIY', 'TXOPY', 'TXPDY', 'TXTY', 'TXWY', 'TXY', 'UAOLOCHY', 'UDFCCY', 'UDVPY', 'UFRETSDY', 'UGIY', 'UNIAMIY', 'UNOPINCY', 'UNWCCY', 'UOISY', 'UPDVPY', 'UPTACY', 'USPIY', 'USTDNCY', 'USUBDVPY', 'UTFDOCY', 'UTFOSCY', 'UTMEY', 'UWKCAPCY', 'WCAPCHCY', 'WCAPCHY', 'WCAPCY', 'WCAPOPCY', 'WCAPSAY', 'WCAPSUY', 'WCAPSY', 'WCAPTY', 'WCAPUY', 'WDAY', 'WDDY', 'WDEPSY', 'WDPY', 'XAGTY', 'XBDTY', 'XCOMIY', 'XCOMY', 'XDVREY', 'XIDOCY', 'XIDOY', 'XINTY', 'XIOY', 'XIVIY', 'XIVREY', 'XIY', 'XOBDY', 'XOIY', 'XOPROY', 'XOPRY', 'XOPTDQPY', 'XOPTDY', 'XOPTEPSQPY', 'XOPTEPSY', 'XOPTQPY', 'XOPTY', 'XOREY', 'XRDY', 'XRETY', 'XSGAY', 'XSTOY', 'XSTY', 'XSY', 'XTY', 'DLRSN', 'FYRC', 'GGROUP', 'GIND', 'GSECTOR', 'GSUBIND', 'NAICS', 'PRIUSA', 'SIC', 'SPCINDCD', 'SPCSECCD', 'STKO']
 
 
-class DataSource(object):
-    NORGATE = "Norgate"
-    YAHOO = "Yahoo"
-    YAHOOold = "YahooOld"
-    COMPUSTAT = "Compustat"
-    CUSTOM = "Custom"
-    MLT = "ML4Trading"
-    #class DataSource ends
+class DataSource(object):    
+    def __init__(self, name="Yahoo", d_columns = []):
+        self.Name = name
+        self.d_columns = d_columns
+    def __str__(self):
+        return self.Name
+    def __repr__(self):
+        return self.__str__()
+    # class DataSource ends
 
+DataSource.NORGATE = DataSource("Norgate")
+DataSource.YAHOO = DataSource("Yahoo", {"Open":"open", "High":"high", "Low":"low", "Close":"actual_close", "Volume":"volume", "Adj Close":"close", "Adj Close ":"close"})
+DataSource.YAHOOold = DataSource("YahooOld")
+DataSource.COMPUSTAT = DataSource("Compustat")
+DataSource.CUSTOM = DataSource("Custom")
+DataSource.MLT = DataSource("ML4Trading")
 
 class DataAccess(object):
     '''
@@ -720,6 +727,163 @@ class DataAccess(object):
         return retstr
         #get_sublists
 
+    def get_daily_dataframe(self, symbol, ls_dates, ls_columns, verbose = False):
+        df_symbol = None
+        filePath = self.getPathOfFile(symbol)
+        if filePath == None:
+            # no file found for the symbol
+            return
+        # Check if there is a pickled version
+        if filePath.endswith(".pkl"):
+            cachePath = filePath
+            csvPath = self.getPathOfCSVFile(symbol)
+            # Make sure the csv file hasn't changed since it was last pickled
+            if os.path.getmtime(cachePath) > os.path.getmtime(csvPath):
+                if verbose:
+                    print "Reading symbol cache: ", cachePath
+                start = time.time()
+                try:
+                    # read in the pickled version
+                    cachefile = open(cachePath, "rb")
+                    df_symbol = pkl.load(cachefile)
+                except IOError:
+                    df_symbol = None
+                    if verbose:
+                        print "error reading symbol cache: " + cachePath
+                        print "recovering..."
+                except EOFError:
+                    df_symbol = None
+                    if verbose:
+                        print "error reading symbol cache: " + cachePath
+                        print "recovering..."
+                finally:
+                    # always close the file even if there is an error
+                    cachefile.close()
+                end = time.time()
+                elapsed = end - start
+                if verbose:
+                    print "reading from symbol cache took ", elapsed, " seconds"
+            
+            # end os.path.getmtime(filePath) > os.path.getmtime(csvPath)
+        # end endswith(filePath, ".pkl")
+        else:
+            csvPath = filePath
+            cachePath = filePath.replace('.csv', '.pkl')
+    
+        if df_symbol is None:
+            # read in the dataframe from the csv
+            start = time.time()
+            df_symbol = pa.read_csv(csvPath, parse_dates=[0], index_col=0)
+            #self.source
+            end = time.time()
+            elapsed = end - start
+            if verbose:
+                print "reading from symbol csv took ", elapsed, " seconds"
+            # try to cache the file
+            try:
+                # read in the pickled version
+                cachefile = open(cachePath, "wb")
+                pkl.dump(df_symbol, cachefile, -1)
+                os.chmod(cachePath,0666)
+            except IOError:
+                print "error writing cache: " + cachePath
+            finally:
+                # always close the file even if there is an error
+                cachefile.close()
+        # end df_symbol is None
+    
+        # reindex to use the QSTK column names
+        df_symbol = df_symbol.rename(columns=self.source.d_columns, copy=False) # copy=False doesn't seem to do anything
+    
+        # strip out unwanted data
+        if ls_columns is not None:
+            df_symbol = df_symbol[ls_columns]
+        if ls_dates is not None:
+            d_dates = dict()
+            for item in ls_dates:
+                d_dates[item.replace(hour=0)] = item
+            df_symbol = df_symbol.ix[d_dates.keys()]
+            df_symbol = df_symbol.rename(index=d_dates, copy=False) # copy=False doesn't seem to do anything
+        df_symbol.Name = symbol
+        return df_symbol
+        # get_daily_dataframe ends
+
+    def _get_daily_panel_cache_file_spec(self, ls_symbols, ls_dates, ls_dataElements, verbose = False):
+        symbolHash = abs(hash(tuple(ls_symbols)))
+        dateHash = abs(hash(tuple(ls_dates)))
+        elementHash = abs(hash(tuple(ls_dataElements)))
+        return self.scratchdir + '/' + 'qstk-' + str(self.source) + '-' + str(symbolHash) + '-' \
+                + str(dateHash) + '-' + str(elementHash) + ".pkl"
+        # _get_daily_panel_cache_file_spec ends
+
+    def _get_cached_daily_panel(self, ls_symbols, ls_dates = None, ls_dataElements = None, verbose = False):
+        panel = None
+        cacheFileSpec = self._get_daily_panel_cache_file_spec(ls_dates, ls_symbols, ls_dataElements)
+        if verbose:
+            print "Cache file: " + cacheFileSpec
+        if os.path.exists(cacheFileSpec):
+            if verbose:
+                print "Cache file found"
+            cachestall = dt.timedelta(hours=self.cachestalltime)
+            if ((dt.datetime.now() - dt.datetime.fromtimestamp(os.path.getmtime(cacheFileSpec))) < cachestall):
+                if verbose:
+                    print "Cache file NOT stale"
+                try:
+                    cachefile = open(cacheFileSpec, "rb")
+                    panel = pkl.load(cachefile)
+                except IOError:
+                    if verbose:
+                        print "error reading cache: " + cachefilename
+                        print "recovering..."
+                except EOFError:
+                    if verbose:
+                        print "error reading cache: " + cachefilename
+                        print "recovering..."
+                finally:
+                    cachefile.close()
+        return panel, cacheFileSpec
+        # _get_cached_daily_panel ends
+
+    def get_daily_panel (self, ls_symbols, ls_dates, ls_dataElements, verbose = False):
+        # If the user only passed n a single item rather than a list, convert it to a list
+        if ls_dates is dt.datetime:
+            ts_dates = [ls_dates]
+        if ls_symbols is str:
+            ls_symbols = [ls_symbols]
+        if ls_dataElements is str:
+            ls_dataElements = [ls_dataElements]
+    
+        p_results, cachePath = self._get_cached_daily_panel(ls_dates, ls_symbols, ls_dataElements, verbose)
+        if  p_results != None:
+            return p_results
+        p_symbols = pa.Panel(items=ls_symbols, major_axis=ls_dates, minor_axis=ls_dataElements)
+        for symbol in ls_symbols:
+            df_symbol = self.get_daily_dataframe(symbol, ls_dates, ls_dataElements, verbose)
+            if df_symbol is not None:
+                p_symbols[symbol] = df_symbol
+    
+        # end for symbol in ls_symbols
+    
+        # Panel.transpose is not available in Pandas 0.7.3
+        # p_results = p_symbols.transpose(2,1,0)
+        # Instead tanspose manually
+        p_results = pa.Panel(items=ls_dataElements, major_axis=ls_dates, minor_axis=ls_symbols)
+        for dataElement in ls_dataElements :
+            p_results[dataElement] = p_symbols.minor_xs(dataElement)
+
+        # try to cache the results
+        try:
+            cachefile = open(cachePath, "wb")
+            pkl.dump(p_results, cachefile, -1)
+            os.chmod(cachePath,0666)
+        except IOError:
+            print "error writing cache: " + cachePath
+        finally:
+            # always close the file even if there is an error
+            cachefile.close()
+    
+        return p_results
+        # get_daily_panel ends
 
     #class DataAccess ends
 if __name__ == '__main__':
