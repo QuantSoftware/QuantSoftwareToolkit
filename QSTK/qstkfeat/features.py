@@ -341,7 +341,8 @@ def featVolumeDelta( dData, lLookback=30, b_human=False ):
 
 def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
     '''
-    @summary: Calculate Aroon - indicator indicating days since a 25-day high/low, weighted between 0 and 100
+    @summary: Calculate Aroon - indicator indicating days since a 25-day 
+              high/low, weighted between 0 and 100
     @param dData: Dictionary of data to use
     @param bDown: If false, calculates aroonUp (high), else aroonDown (lows)
     @param lLookback: Days to lookback to calculate high/low from
@@ -351,19 +352,21 @@ def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
     
     dfPrice = dData['close']
 
-    #''' Feature DataFrame will be 1:1, we can use the price as a template '''
-    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, 
+    #Feature DataFrame will be 1:1, we can use the price as a template
+    dfRet = pd.DataFrame( index=dfPrice.index, columns=dfPrice.columns, 
                             data=np.zeros(dfPrice.shape) )
     
-    #''' Loop through time '''
+    #Loop through time
     for i in range(dfPrice.shape[0]):
-        if( (i-lLookback)+1 < 0 ):
+        if( (i-lLookback) < 0 ):
             dfRet.ix[i,:] = np.NAN
         else:
             if bDown:
-                dfRet.ix[i,:] = dfPrice.values[i+1:(i-lLookback)+1:-1,:].argmin(axis=0)
+                dfRet.ix[i,:] = dfPrice.values[i:(i-lLookback):-1,:].argmin(
+                                axis=0)
             else:
-                dfRet.ix[i,:] = dfPrice.values[i+1:(i-lLookback)+1:-1,:].argmax(axis=0)
+                dfRet.ix[i,:] = dfPrice.values[i:(i-lLookback):-1,:].argmax(
+                                axis=0)
     
     dfRet = ((lLookback - 1.) - dfRet) / (lLookback - 1.) * 100.
 
