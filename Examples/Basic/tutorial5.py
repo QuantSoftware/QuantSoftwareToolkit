@@ -46,6 +46,9 @@ def main():
 
     # Reading just the close prices
     df_close = c_dataobj.get_data(ldt_timestamps, ls_symbols, "close")
+    df_close = df_close.fillna(method='ffill')
+    df_close = df_close.fillna(method='bfill')
+    df_close = df_close.fillna(1.0)
 
     # Creating the allocation dataframe
     # We offset the time for the simulator to have atleast one
