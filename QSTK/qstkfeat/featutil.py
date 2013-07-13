@@ -24,14 +24,13 @@ import matplotlib.pyplot as plt
 
 
 ''' Our Imports '''
-import qstklearn.kdtknn as kdt
-from qstkutil import DataAccess as da
-from qstkutil import DataEvolved as de
-from qstkutil import qsdateutil as du
-from qstkutil import tsutil as tsu
+import QSTK.qstklearn.kdtknn as kdt
+from QSTK.qstkutil import DataAccess as da
+from QSTK.qstkutil import qsdateutil as du
+from QSTK.qstkutil import tsutil as tsu
 
-from qstkfeat.features import *
-from qstkfeat.classes import class_fut_ret
+from QSTK.qstkfeat.features import *
+from QSTK.qstkfeat.classes import class_fut_ret
 
 
 
