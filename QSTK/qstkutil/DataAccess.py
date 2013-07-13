@@ -63,7 +63,7 @@ class DataAccess(object):
     @note: The earliest time for which this works is platform dependent because the python date functionality is platform dependent.
     '''
     def __init__(self, sourcein=DataSource.YAHOO, s_datapath=None,
-                 s_scratchpath=None, cachestalltime=12):
+                 s_scratchpath=None, cachestalltime=12, verbose=False):
         '''
         @param sourcestr: Specifies the source of the data. Initializes paths based on source.
         @note: No data is actually read in the constructor. Only paths for the source are initialized
@@ -92,8 +92,9 @@ class DataAccess(object):
                 self.rootdir = os.path.join(os.path.dirname(__file__), '..', 'QSData')
                 self.scratchdir = os.path.join(tempfile.gettempdir(), 'QSScratch')
 
-        print "Scratch Directory: ", self.scratchdir
-        print "Data Directory: ", self.rootdir
+        if verbose:
+            print "Scratch Directory: ", self.scratchdir
+            print "Data Directory: ", self.rootdir
 
         if not os.path.isdir(self.rootdir):
             print "Data path provided is invalid"
