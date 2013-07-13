@@ -77,6 +77,7 @@ def main():
     # Filling the data.
     df_rets = df_rets.fillna(method='ffill')
     df_rets = df_rets.fillna(method='bfill')
+    df_rets = df_rets.fillna(1.0)
 
     # Numpy matrix of filled data values
     na_rets = df_rets.values

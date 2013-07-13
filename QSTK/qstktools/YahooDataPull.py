@@ -8,8 +8,11 @@ import datetime
 import os
 
 
-def get_data(data_path, ls_symbols):
-
+def get_yahoo_data(data_path, ls_symbols):
+    '''Read data from Yahoo
+    @data_path : string for where to place the output files
+    @ls_symbols: list of symbols to read from yahoo
+    '''
     # Create path if it doesn't exist
     if not (os.access(data_path, os.F_OK)):
         os.makedirs(data_path)
@@ -60,7 +63,7 @@ def get_data(data_path, ls_symbols):
     print "All done. Got {0} stocks. Could not get {1}".format(len(ls_symbols) - miss_ctr, miss_ctr)
 
 def read_symbols(s_symbols_file):
-
+    '''Read a list of symbols'''
     ls_symbols=[]
     file = open(s_symbols_file, 'r')
     for line in file.readlines():
@@ -72,9 +75,10 @@ def read_symbols(s_symbols_file):
     return ls_symbols  
 
 def main():
+    '''Main Function'''
     path = './'
     ls_symbols = read_symbols('symbols.txt')
-    get_data(path, ls_symbols)
+    get_yahoo_data(path, ls_symbols)
 
 if __name__ == '__main__':
     main()

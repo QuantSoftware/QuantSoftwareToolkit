@@ -22,7 +22,7 @@ import time
 import datetime as dt
 import dircache
 import tempfile
-
+import copy
 
 class Exchange (object):
     AMEX = 1
@@ -63,7 +63,7 @@ class DataAccess(object):
     @note: The earliest time for which this works is platform dependent because the python date functionality is platform dependent.
     '''
     def __init__(self, sourcein=DataSource.YAHOO, s_datapath=None,
-                 s_scratchpath=None, cachestalltime=12):
+                 s_scratchpath=None, cachestalltime=12, verbose=False):
         '''
         @param sourcestr: Specifies the source of the data. Initializes paths based on source.
         @note: No data is actually read in the constructor. Only paths for the source are initialized
@@ -92,8 +92,9 @@ class DataAccess(object):
                 self.rootdir = os.path.join(os.path.dirname(__file__), '..', 'QSData')
                 self.scratchdir = os.path.join(tempfile.gettempdir(), 'QSScratch')
 
-        print "Scratch Directory: ", self.scratchdir
-        print "Data Directory: ", self.rootdir
+        if verbose:
+            print "Scratch Directory: ", self.scratchdir
+            print "Data Directory: ", self.rootdir
 
         if not os.path.isdir(self.rootdir):
             print "Data path provided is invalid"
@@ -432,6 +433,8 @@ class DataAccess(object):
         # We then check to see if the filename exists already, meaning that
         # the data has already been created and we can just read that file.
 
+        ls_syms_copy = copy.deepcopy(symbol_list)
+
         # Create the hash for the symbols
         hashsyms = 0
         for i in symbol_list:
@@ -513,6 +516,12 @@ class DataAccess(object):
                 print "end saving to cache"
             if verbose:
                 print "reading took " + str(elapsed) + " seconds"
+
+        if type(retval) == type([]):
+            for i, df_single in enumerate(retval):
+                retval[i] = df_single.reindex(columns=ls_syms_copy)
+        else:
+            retval = retval.reindex(columns=ls_syms_copy)
         return retval
 
     def getPathOfFile(self, symbol_name, bDelisted=False):

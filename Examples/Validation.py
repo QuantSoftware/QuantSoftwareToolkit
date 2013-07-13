@@ -151,7 +151,7 @@ ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt_timeofday)
 ls_symbols = ['MSFT', 'GOOG']
 
 # Creating an object of the dataaccess class with Yahoo as the source.
-c_dataobj = da.DataAccess('Yahoo')
+c_dataobj = da.DataAccess('Yahoo', verbose=True)
 # Reading adjusted_close prices
 df_close = c_dataobj.get_data(ldt_timestamps, ls_symbols, "close")
 print df_close
