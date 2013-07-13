@@ -20,12 +20,15 @@ import QSTK.qstkutil.tsutil as tsu
 import QSTK.qstkutil.qsdateutil as du
 
 
-def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+def eventprofiler(df_events_arg, d_data, i_lookback=20, i_lookforward=20,
                 s_filename='study', b_market_neutral=True, b_errorbars=True,
                 s_market_sym='SPY'):
     ''' Event Profiler for an event matix'''
     df_close = d_data['close'].copy()
     df_rets = df_close.copy()
+
+    # Do not modify the original event dataframe.
+    df_events = df_events_arg.copy()
     tsu.returnize0(df_rets.values)
 
     if b_market_neutral == True:
@@ -40,7 +43,8 @@ def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
     df_events.values[-i_lookforward:, :] = np.NaN
 
     # Number of events
-    i_no_events = int(np.nansum(df_events.values))
+    i_no_events = int(np.logical_not(np.isnan(df_events.values)).sum())
+    assert i_no_events > 0, "Zero events in the event matrix"
     na_event_rets = "False"
 
     # Looking for the events and pushing them to a matrix
@@ -52,6 +56,9 @@ def eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
                     na_event_rets = na_ret
                 else:
                     na_event_rets = np.vstack((na_event_rets, na_ret))
+
+    if len(na_event_rets.shape) == 1:
+        na_event_rets = np.expand_dims(na_event_rets, axis=0)
 
     # Computing daily rets and retuns
     na_event_rets = np.cumprod(na_event_rets + 1, axis=1)
