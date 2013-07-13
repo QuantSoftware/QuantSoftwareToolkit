@@ -15,3 +15,4 @@ include QSTK/QSData/Yahoo/Lists/*.txt
 include QSTK/qstkutil/NYSE_dates.txt
 include QSTK/qstktest/*.csv
 include QSTK/qstkstudy/sp500.txt
+include QSTK/__init__.py
