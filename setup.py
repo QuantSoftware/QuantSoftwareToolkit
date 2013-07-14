@@ -1,41 +1,20 @@
-# from distutils.core import setup
+'''Author: Sourabh Bajaj'''
 import ez_setup
 ez_setup.use_setuptools()
 from setuptools import setup, find_packages
-# import os
-
-# def gen_data_files(*dirs):
-#     results = []
-#     for src_dir in dirs:
-#         for root,dirs,files in os.walk(src_dir):
-#             results.append((root, map(lambda f:root + "/" + f, files)))
-#     return results
 
 setup(
     name='QSTK',
-    version='0.2.6',
+    version='0.2.6a1',
     author='Sourabh Bajaj',
-    # packages=['QSTK', 'QSTK/qstkfeat', 'QSTK/qstklearn', 'QSTK/qstksim',
-    #           'QSTK.qstkstrat', 'QSTK.qstkstudy', 'QSTK/qstkutil',
-    #           'QSTK.qstktools', 'QSTK.qstktest'],
-    # package_dir={'': ''},
-    # packages_data={'QSTK': ['QSData/Yahoo/*',
-    #                         'QSData/Yahoo/Lists/*.txt'],
-    #                'QSTK.qstkutil': ['qstkutil/NYSE_dates.txt'],
-    #                'QSTK.qstktest': ['qstktest/*.csv'],
-    #                'QSTK.qstkstudy': ['qstkstudy/sp500.txt']},
     packages=find_packages(),
     namespace_packages=['QSTK'],
     include_package_data=True,
     long_description=open('README.md').read(),
     author_email='sourabhbajaj90@gmail.com',
-    url='http://wiki.quantsoftware.org',
+    url='https://github.com/tucker777/QuantSoftwareToolkit',
     license=open('LICENSE.txt').read(),
     description='QuantSoftware Toolkit',
-    # data_files=[('QSData', ['QSData/Yahoo/*.csv',
-    #                         'QSData/Yahoo/Lists/*.txt']),
-    #             ('qstkutil', ['qstkutil/NYSE_dates.txt'])],
-    # data_files=gen_data_files("bin", "Examples", "QSTK"),
     install_requires=[
         "numpy >= 1.6.1",
         "scipy >= 0.9.0",
@@ -44,4 +23,19 @@ setup(
         "python-dateutil == 1.5",
         "scikit-learn >= 0.11",
     ],
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: Financial and Insurance Industry',
+        'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Utilities',
+      ],
 )

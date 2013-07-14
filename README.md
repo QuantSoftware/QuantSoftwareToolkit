@@ -2,10 +2,10 @@
 QuantSoftware Toolkit 0.2.6
 
 ##Website
-www.wiki.quantsoftware.org
+[www.wiki.quantsoftware.org](www.wiki.quantsoftware.org)
 
 ##Source Repository
-https://github.com/tucker777/QuantSoftwareToolkit
+[https://github.com/tucker777/QuantSoftwareToolkit](https://github.com/tucker777/QuantSoftwareToolkit)
 
 ##License
 The QuantSoftware ToolKit (QSTK) is released under the New BSD License as follows:
@@ -40,7 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 - scikit-learn >= 0.11
 
 ##Author
-- Prof. Tucker Balch 
-- Sourabh Bajaj
-- John Cornwell
+- [Prof. Tucker Balch](http://www.cc.gatech.edu/~tucker/)
+- [Sourabh Bajaj](http://sb2nov.github.io)
+- [John Cornwell](https://github.com/JWCornV)
 
