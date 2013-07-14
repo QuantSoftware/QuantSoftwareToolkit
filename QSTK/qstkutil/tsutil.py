@@ -126,17 +126,25 @@ def fillbackward(nds):
             if math.isnan(nds[row, col]):
                 nds[row, col] = nds[row+1, col]
 
+
 def returnize0(nds):
     """
     @summary Computes stepwise (usually daily) returns relative to 0, where
     0 implies no change in value.
     @return the array is revised in place
     """
+    if type(nds) == type(pd.DataFrame()):
+        nds = (nds / nds.shift(1)) - 1.0
+        nds = nds.fillna(0.0)
+        return nds
+
     s= np.shape(nds)
     if len(s)==1:
         nds=np.expand_dims(nds,1)
     nds[1:, :] = (nds[1:, :] / nds[0:-1]) - 1
     nds[0, :] = np.zeros(nds.shape[1])
+    return nds
+
 
 def returnize1(nds):
     """
@@ -145,12 +153,19 @@ def returnize1(nds):
     @param nds: the array to fill backward
     @return the array is revised in place
     """
+    if type(nds) == type(pd.DataFrame()):
+        nds = nds / nds.shift(1)
+        nds = nds.fillna(1.0)
+        return nds
+
     s= np.shape(nds)
     if len(s)==1:
         nds=np.expand_dims(nds,1)
     nds[1:, :] = (nds[1:, :]/nds[0:-1])
     nds[0, :] = np.ones(nds.shape[1])
-    
+    return nds
+
+
 def priceize1(nds):
     """
     @summary Computes stepwise (usually daily) returns relative to 1, where
@@ -388,7 +403,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
 
     except ImportError:
         print 'Could not import CVX library'
-        return ([],0, True)
+        raise
     
     ''' Get number of stocks '''
     length = naData.shape[1]

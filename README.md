@@ -1,20 +1,13 @@
-QSTK
-====
+##QSTK
 QuantSoftware Toolkit 0.2.6
 
-
-Website
-====
+##Website
 www.wiki.quantsoftware.org
 
-
-Source Repository
-====
+##Source Repository
 https://github.com/tucker777/QuantSoftwareToolkit
 
-
-License
-=====
+##License
 The QuantSoftware ToolKit (QSTK) is released under the New BSD License as follows:
 
 Copyright (c) 2011, 2012, Georgia Tech Research Corporation (GTRC) All rights reserved.
@@ -37,23 +30,17 @@ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABIL
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 POSSIBILITY OF SUCH DAMAGE. 
 
+##Dependencies
+- numpy >= 1.6.1,
+- scipy >= 0.9.0,
+- matplotlib >= 1.1.0,
+- pandas >= 0.7.3,
+- python-dateutil==1.5,
+- cvxopt >= 1.1.3,
+- scikit-learn >= 0.11
 
-Dependencies
-====
-numpy >= 1.6.1,
-scipy >= 0.9.0,
-matplotlib >= 1.1.0,
-pandas==0.7.3,
-python-dateutil >= 1.5,
-cvxopt >= 1.1.3,
-scikit-learn >= 0.11
-
-
-Author
-====
-Prof. Tucker Balch 
-
-Sourabh Bajaj
-
-John Cornwell
+##Author
+- Prof. Tucker Balch 
+- Sourabh Bajaj
+- John Cornwell
 
