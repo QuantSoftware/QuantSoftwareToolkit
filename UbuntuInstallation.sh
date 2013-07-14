@@ -13,9 +13,9 @@
 
 echo "Updating apt-get"
 sudo apt-get update
-sudo apt-get upgrade
-echo "Installing dependency - GIT"
-sudo apt-get install git-core
+# sudo apt-get upgrade
+# echo "Installing dependency - GIT"
+# sudo apt-get install git-core
 echo "Installing dependencies - Numpy Scipy matplotlib"
 sudo apt-get install python-numpy
 sudo apt-get install python-scipy
@@ -23,15 +23,14 @@ sudo apt-get install python-matplotlib
 echo "Installing dependencies - developer tools"
 sudo apt-get install python-dev
 sudo apt-get install python-setuptools
+sudo apt-get install python-pip
 echo "Installing dependencies - scikits"
-sudo easy_install -U scikits.statsmodels
-sudo easy_install -U scikit-learn
-sudo easy_install --upgrade pytz
-sudo easy_install python-dateutil==1.5
+sudo pip install scikits.statsmodels
+sudo pip install scikit-learn
 echo "Installing dependencies - pandas"
-sudo easy_install pandas==0.7.3
-echo "Installing dependencies - PYQT4"
-sudo apt-get install python-qt4
+sudo pip install pandas
+# echo "Installing dependencies - PYQT4"
+# sudo apt-get install python-qt4
 echo "Installing dependencies - CVXOPT"
 sudo apt-get build-dep python-cvxopt
 sudo apt-get install python-cvxopt
