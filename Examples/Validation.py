@@ -39,7 +39,7 @@ try:
     import numpy
     print "Numpy is installed and the version used is : ", numpy.__version__
     print "Please make sure you're using version >= 1.6.1"
-except:
+except ImportError:
     sys.exit("Error : Numpy can not be imported or not installed.")
 print
 
@@ -48,7 +48,7 @@ try:
     import matplotlib
     print "Matplotlib is installed and version is : ", matplotlib.__version__
     print "Please make sure you're using version >= 1.1.0"
-except:
+except ImportError:
     sys.exit("Error : Matplotlib can not be imported or not installed.")
 print
 
@@ -56,13 +56,8 @@ print
 try:
     import pandas
     print "Pandas is installed and the version used is : ", pandas.__version__
-    print "Please make sure you're using version  == 0.7.3"
-    print "IMPORTANT: No other pandas version is supported except 0.7.3"
-    s_pd_version = pandas.__version__
-    if s_pd_version[:5] != '0.7.3':
-        sys.exit("Error : Pandas version should be 0.7.3")
-except:
-    print "Error : Please install Pandas 0.7.3"
+    print "Please make sure you're using version >= 0.7.3"
+except ImportError:
     sys.exit("Error : Pandas can not be imported or not installed.")
 print
 
@@ -72,7 +67,7 @@ try:
     import scipy
     print "Scipy is installed and the version used is : ", scipy.__version__
     print "Please make sure you're using version >= 0.9.0"
-except:
+except ImportError:
     sys.exit("Error : Scipy can not be imported or not installed.")
 print
 
@@ -81,7 +76,7 @@ try:
     import dateutil
     print "Dateutil is installed and the version used is : ", dateutil.__version__
     print "Please make sure you're using version == 1.5"
-except:
+except ImportError:
     sys.exit("Error : Dateutil can not be imported or not installed.")
 print
 
@@ -90,7 +85,7 @@ try:
     import setuptools
     print "Setuptools is installed and the version used is : ", setuptools.__version__
     print "Please make sure you're using version >= 0.6"
-except:
+except ImportError:
     sys.exit("Error : Setuptools can not be imported or not installed.")
 print
 
@@ -98,7 +93,7 @@ print
 # try:
 #     import cvxopt
 #     print "CVXOPT is installed and can be imported"
-# except:
+# except ImportError:
 #     sys.exit("Error : CVXOPT can not be imported or not installed.")
 # print
 
@@ -106,7 +101,7 @@ print
 try:
     import datetime as dt
     print "datetime is installed and can be imported"
-except:
+except ImportError:
     sys.exit("Error : datetime can not be imported or not installed.")
 print
 
@@ -118,7 +113,7 @@ print "All dependencies are installed and working\n"
 try:
     import QSTK
     print "QSTK is installed and can be imported"
-except:
+except ImportError:
     sys.exit("Error : QSTK can not be imported or not installed.")
 print
 
@@ -128,7 +123,7 @@ try:
     import QSTK.qstkutil.qsdateutil as du
     import QSTK.qstkutil.DataAccess as da
     print "QSTK.qstkutil is installed and can be imported"
-except:
+except ImportError:
     exit("Error : QSTK.qstkutil can not be imported.")
 print
 
@@ -136,7 +131,7 @@ print
 try:
     import QSTK.qstkstudy.EventProfiler
     print "QSTK.qstkstudy is installed and can be imported"
-except:
+except ImportError:
     exit("Error : QSTK.qstkstudy can not be imported.")
 print
 
