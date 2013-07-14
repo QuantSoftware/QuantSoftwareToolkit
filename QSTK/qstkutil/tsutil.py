@@ -403,7 +403,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
 
     except ImportError:
         print 'Could not import CVX library'
-        return ([],0, True)
+        raise
     
     ''' Get number of stocks '''
     length = naData.shape[1]
