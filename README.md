@@ -1,11 +1,25 @@
 ##QSTK
 QuantSoftware Toolkit 0.2.6
 
-##Website
+##Website & Documentation
 [www.wiki.quantsoftware.org](www.wiki.quantsoftware.org)
 
 ##Source Repository
-[https://github.com/tucker777/QuantSoftwareToolkit](https://github.com/tucker777/QuantSoftwareToolkit)
+[https://github.com/tucker777/QuantSoftwareToolkit](https://github.com/tucker777/QuantSoftwareToolkit) 
+
+##Dependencies
+- numpy >= 1.6.1,
+- scipy >= 0.9.0,
+- matplotlib >= 1.1.0,
+- pandas >= 0.7.3,
+- python-dateutil==1.5,
+- cvxopt >= 1.1.3,
+- scikit-learn >= 0.11
+
+##Author
+- [Prof. Tucker Balch](http://www.cc.gatech.edu/~tucker/)
+- [Sourabh Bajaj](http://sb2nov.github.io)
+- [John Cornwell](https://github.com/JWCornV)
 
 ##License
 The QuantSoftware ToolKit (QSTK) is released under the New BSD License as follows:
@@ -28,19 +42,4 @@ IN NO EVENT SHALL THE GEORGIA TECH RESEARCH CORPORATION BE LIABLE FOR ANY DIRECT
 OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
 OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-POSSIBILITY OF SUCH DAMAGE. 
-
-##Dependencies
-- numpy >= 1.6.1,
-- scipy >= 0.9.0,
-- matplotlib >= 1.1.0,
-- pandas >= 0.7.3,
-- python-dateutil==1.5,
-- cvxopt >= 1.1.3,
-- scikit-learn >= 0.11
-
-##Author
-- [Prof. Tucker Balch](http://www.cc.gatech.edu/~tucker/)
-- [Sourabh Bajaj](http://sb2nov.github.io)
-- [John Cornwell](https://github.com/JWCornV)
-
+POSSIBILITY OF SUCH DAMAGE.
