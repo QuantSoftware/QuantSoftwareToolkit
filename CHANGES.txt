@@ -4,6 +4,16 @@ Changes in QSTK
 0.2.6
 =====
 * Remove CVXOPT from the hard requirements.
+* Pandas upgrade to support 0.11
+* Setup.py metadata update
+* Ubuntu Installation Optimization
+* Bug fix in Aroon feature
+* Remove missing symbols from lists
+* Event profiler bugs for 1/0 events
+* Tutorials updated
+* Bug fix in DataAccess
+* Remove dead files and tutorials
+* Update mac installation to use virtual environments
 
 0.2.5
 =====
