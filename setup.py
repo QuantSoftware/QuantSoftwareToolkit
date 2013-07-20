@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='QSTK',
-    version='0.2.6a1',
+    version='0.2.6',
     author='Sourabh Bajaj',
     packages=find_packages(),
     namespace_packages=['QSTK'],
@@ -24,7 +24,7 @@ setup(
         "scikit-learn >= 0.11",
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
