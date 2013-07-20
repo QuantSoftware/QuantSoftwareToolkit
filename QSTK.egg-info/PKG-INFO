@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: QSTK
-Version: 0.2.6a1
+Version: 0.2.6
 Summary: QuantSoftware Toolkit
 Home-page: https://github.com/tucker777/QuantSoftwareToolkit
 Author: Sourabh Bajaj
@@ -74,7 +74,7 @@ Description: ##QSTK
         POSSIBILITY OF SUCH DAMAGE.
         
 Platform: UNKNOWN
-Classifier: Development Status :: 3 - Alpha
+Classifier: Development Status :: 5 - Production/Stable
 Classifier: Environment :: Console
 Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: Education

@@ -710,4 +710,4 @@ bin/converter.py
 bin/csvformatter.py
 bin/gen_nyse_dates.py
 bin/investors_report.py
-docs/README.txt
+docs/README.md
