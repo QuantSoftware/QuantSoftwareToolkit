@@ -11,23 +11,35 @@
 # @summary: Mac Installation script of QSTK
 #
 
-# Macports Python has already been installed.
+# Homebrew has already been installed.
 
-echo "Installing dependency - GIT"
-sudo port install git-core +svn
-sudo port install py27-distribute
-echo "Installing dependencies - Numpy Scipy matplotlib"
-sudo port install py27-numpy
-sudo port install py27-scipy
-sudo port install py27-matplotlib
-echo "Installing dependencies - developer tools"
-sudo easy_install python-dateutil==1.5
-echo "Installing dependencies - scikits"
-sudo easy_install -U scikit-learn
-echo "Installing dependencies - pandas"
-sudo easy_install pandas==0.7.3
-echo "Installing dependencies - Docs"
-sudo port install py27-epydoc
-echo "Installing dependencies - PYQT4"
-sudo port install py27-pyqt4
-echo "Installing dependencies complete"
+echo "Installing python"
+brew install python
+
+brew tap samueljohn/python
+brew tap homebrew/science
+
+echo "virtualenv"
+pip install virtualenv
+pip install nose
+
+echo "Installing gfortran"
+brew install gfortran
+
+echo "Installing numpy, scipy, matplotlib"
+brew install numpy
+brew install scipy
+brew install matplotlib
+
+echo "Create a virtual env"
+mkdir QSTK
+cd QSTK
+virtualenv env --distribute --system-site-packages
+source env/bin/activate
+
+echo "Install pandas, scikits"
+pip install pandas
+pip install scikits.statsmodels
+pip install scikit-learn
+pip install QSTK
+
