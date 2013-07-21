@@ -1,7 +1,7 @@
 #
 # (c) 2011, 2012 Georgia Tech Research Corporation
-# This source code is released under the New BSD license.  Please see
-# http://wiki.quantsoftware.org/index.php?title=QSTK_License
+# This source code is released under the New BSD license.
+# Please see http://wiki.quantsoftware.org/index.php?title=QSTK_License
 # for license details.
 
 # Created on Jan 16, 2013
