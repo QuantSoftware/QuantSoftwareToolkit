@@ -1,5 +1,5 @@
 ##QSTK
-QuantSoftware Toolkit 0.2.6
+QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http://badge.fury.io/py/QSTK)
 
 ##Website & Documentation
 [www.wiki.quantsoftware.org](www.wiki.quantsoftware.org)
