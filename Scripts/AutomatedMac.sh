@@ -36,11 +36,11 @@ brew install numpy
 brew install scipy
 brew install matplotlib
 
-echo "Create a virtual env"
+echo "Create QSTK directory"
 mkdir ~/QSTK
 cd ~/QSTK
-virtualenv env --distribute --system-site-packages
-source ~/QSTK/env/bin/activate
+# virtualenv env --distribute --system-site-packages
+# source ~/QSTK/env/bin/activate
 
 echo "Install pandas, scikits"
 pip install pandas
@@ -54,5 +54,5 @@ curl -O https://spark-public.s3.amazonaws.com/compinvesting1/QSTK-Setups/Example
 unzip Examples.zip
 python Validation.py
 
-echo "Deactivating"
-deactivate
+# echo "Deactivating"
+# deactivate

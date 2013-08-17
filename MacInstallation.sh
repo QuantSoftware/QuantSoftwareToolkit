@@ -31,11 +31,11 @@ brew install numpy
 brew install scipy
 brew install matplotlib
 
-echo "Create a virtual env"
+echo "Create QSTK directory"
 mkdir ~/QSTK
 cd ~/QSTK
-virtualenv env --distribute --system-site-packages
-source ~/QSTK/env/bin/activate
+# virtualenv env --distribute --system-site-packages
+# source ~/QSTK/env/bin/activate
 
 echo "Install pandas, scikits"
 pip install pandas
