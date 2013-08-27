@@ -28,7 +28,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 POSSIBILITY OF SUCH DAMAGE. 
 
 Description: ##QSTK
-        QuantSoftware Toolkit 0.2.6
+        QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http://badge.fury.io/py/QSTK)
         
         ##Website & Documentation
         [www.wiki.quantsoftware.org](www.wiki.quantsoftware.org)

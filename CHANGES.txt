@@ -13,7 +13,7 @@ Changes in QSTK
 * Tutorials updated
 * Bug fix in DataAccess
 * Remove dead files and tutorials
-* Update mac installation to use virtual environments
+* Update mac installation
 
 0.2.5
 =====
