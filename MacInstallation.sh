@@ -15,6 +15,7 @@
 
 echo "Installing python"
 brew install python
+brew install pip
 
 brew tap samueljohn/python
 brew tap homebrew/science
