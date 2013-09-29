@@ -2,7 +2,7 @@
 QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http://badge.fury.io/py/QSTK)
 
 ##Website & Documentation
-[www.wiki.quantsoftware.org](www.wiki.quantsoftware.org)
+[www.wiki.quantsoftware.org](http://www.wiki.quantsoftware.org)
 
 ##Source Repository
 [https://github.com/tucker777/QuantSoftwareToolkit](https://github.com/tucker777/QuantSoftwareToolkit) 
