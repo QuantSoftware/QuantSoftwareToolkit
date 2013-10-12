@@ -353,7 +353,7 @@ def featAroon( dData, bDown=False, lLookback=25, b_human=False ):
     dfPrice = dData['close']
 
     #Feature DataFrame will be 1:1, we can use the price as a template
-    dfRet = pd.DataFrame( index=dfPrice.index, columns=dfPrice.columns, 
+    dfRet = pand.DataFrame( index=dfPrice.index, columns=dfPrice.columns, 
                             data=np.zeros(dfPrice.shape) )
     
     #Loop through time

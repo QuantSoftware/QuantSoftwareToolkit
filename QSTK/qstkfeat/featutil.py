@@ -503,7 +503,7 @@ def speedTest(lfcFeature,ldArgs):
 
 if __name__ == '__main__':
    
-   speedTest([featMA, featRSI, featAroon, featBeta, featCorrelation, 
-              featBollinger, featStochastic], [{'lLookback':30}] * 7) 
-   #testFeature( class_fut_ret, {'MR':True})
+   # speedTest([featMA, featRSI, featAroon, featBeta, featCorrelation, 
+   #            featBollinger, featStochastic], [{'lLookback':30}] * 7) 
+   testFeature( featHiLow, {})
    pass
