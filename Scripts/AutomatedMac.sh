@@ -52,6 +52,7 @@ echo "Test QSTK"
 cd ~/QSTK
 curl -O https://spark-public.s3.amazonaws.com/compinvesting1/QSTK-Setups/Examples.zip
 unzip Examples.zip
+cd Examples
 python Validation.py
 
 # echo "Deactivating"
