@@ -5,7 +5,7 @@ QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http:
 [www.wiki.quantsoftware.org](http://www.wiki.quantsoftware.org)
 
 ##Source Repository
-[https://github.com/tucker777/QuantSoftwareToolkit](https://github.com/tucker777/QuantSoftwareToolkit) 
+[https://github.com/QuantSoftwareToolkit/QuantSoftwareToolkit](https://github.com/QuantSoftwareToolkit /QuantSoftwareToolkit) 
 
 ##Dependencies
 - numpy >= 1.6.1,
@@ -18,7 +18,7 @@ QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http:
 
 ##Author
 - [Prof. Tucker Balch](http://www.cc.gatech.edu/~tucker/)
-- [Sourabh Bajaj](http://sb2nov.github.io)
+- [Sourabh Bajaj](http://www.sourabhbajaj.com/)
 - [John Cornwell](https://github.com/JWCornV)
 
 ##License
