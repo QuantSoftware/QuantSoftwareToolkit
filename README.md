@@ -5,7 +5,7 @@ QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http:
 [www.wiki.quantsoftware.org](http://www.wiki.quantsoftware.org)
 
 ##Source Repository
-[https://github.com/QuantSoftwareToolkit/QuantSoftwareToolkit](https://github.com/QuantSoftwareToolkit/QuantSoftwareToolkit)
+[https://github.com/QuantSoftware/QuantSoftwareToolkit](https://github.com/QuantSoftware/QuantSoftwareToolkit)
 
 ##Dependencies
 - numpy >= 1.6.1,
