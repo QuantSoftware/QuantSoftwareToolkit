@@ -5,13 +5,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='QSTK',
-    version='0.2.6',
+    version='0.2.8',
     author='Sourabh Bajaj',
     packages=find_packages(),
     namespace_packages=['QSTK'],
     include_package_data=True,
     long_description=open('README.md').read(),
-    author_email='sourabhbajaj90@gmail.com',
+    author_email='sourabh@sourabhbajaj.com',
     url='https://github.com/tucker777/QuantSoftwareToolkit',
     license=open('LICENSE.txt').read(),
     description='QuantSoftware Toolkit',

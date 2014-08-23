@@ -7,7 +7,7 @@ for license details.
 Created on May 14, 2012
 
 @author: Sourabh Bajaj
-@contact: sourabhbajaj90@gmail.com
+@contact: sourabh@sourabhbajaj.com
 @summary: Backtester
 
 '''

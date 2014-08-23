@@ -7,7 +7,7 @@ for license details.
 Created on May 19, 2012
 
 @author: Sourabh Bajaj
-@contact: sourabhbajaj90@gmail.com
+@contact: sourabh@sourabhbajaj.com
 @summary: Test cases for tradeSim - Monthly Rebalancing of $SPX
 '''
 

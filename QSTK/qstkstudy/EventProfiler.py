@@ -7,7 +7,7 @@ for license details.
 Created on Jan 16, 2013
 
 @author: Sourabh Bajaj
-@contact: sourabhbajaj90@gmail.com
+@contact: sourabh@sourabhbajaj.com
 @summary: EventProfiler
 
 '''

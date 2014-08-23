@@ -7,7 +7,7 @@
 # Created on Jan 16, 2013
 
 # @author: Sourabh Bajaj
-# @contact: sourabhbajaj90@gmail.com
+# @contact: sourabh@sourabhbajaj.com
 # @summary: Mac Installation script of QSTK
 #
 
@@ -23,6 +23,8 @@ brew tap homebrew/science
 echo "virtualenv"
 pip install virtualenv
 pip install nose
+pip install pyparsing
+pip install python-dateutil
 
 echo "Installing gfortran"
 brew install gfortran

@@ -1,2 +1,2 @@
-__version__ = '0.2.6'
-declare_namespace('QSTK')
+__version__ = '0.2.8'
+__import__('pkg_resources').declare_namespace('QSTK')
