@@ -15,7 +15,6 @@
 
 echo "Installing python"
 brew install python
-brew install pip
 
 brew tap samueljohn/python
 brew tap homebrew/science
@@ -26,8 +25,8 @@ pip install nose
 pip install pyparsing
 pip install python-dateutil
 
-echo "Installing gfortran"
-brew install gfortran
+echo "Installing gcc which includes gfortran"
+brew install gcc
 
 echo "Installing numpy, scipy, matplotlib"
 brew install numpy
