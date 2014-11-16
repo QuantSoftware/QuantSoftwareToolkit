@@ -75,7 +75,7 @@ def eventprofiler(df_events_arg, d_data, i_lookback=20, i_lookforward=20,
     if b_errorbars == True:
         plt.errorbar(li_time[i_lookback:], na_mean[i_lookback:],
                     yerr=na_std[i_lookback:], ecolor='#AAAAFF',
-                    alpha=0.1)
+                    alpha=0.7)
     plt.plot(li_time, na_mean, linewidth=3, label='mean', color='b')
     plt.xlim(-i_lookback - 1, i_lookforward + 1)
     if b_market_neutral == True:

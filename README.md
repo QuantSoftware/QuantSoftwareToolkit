@@ -16,6 +16,9 @@ QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http:
 - cvxopt >= 1.1.3,
 - scikit-learn >= 0.11
 
+### Vagrant Image
+Vagrant image with QSTK installed can be found at [https://github.com/Wesseldr/vagrant-QSTK](https://github.com/Wesseldr/vagrant-QSTK)
+
 ##Author
 - [Prof. Tucker Balch](http://www.cc.gatech.edu/~tucker/)
 - [Sourabh Bajaj](http://www.sourabhbajaj.com/)
