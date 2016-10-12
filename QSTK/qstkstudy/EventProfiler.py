@@ -32,7 +32,7 @@ def eventprofiler(df_events_arg, d_data, i_lookback=20, i_lookforward=20,
     tsu.returnize0(df_rets.values)
 
     if b_market_neutral == True:
-        df_rets = df_rets - df_rets[s_market_sym]
+        df_rets = df_rets.subtract(df_rets[s_market_sym], axis='index')
         del df_rets[s_market_sym]
         del df_events[s_market_sym]
 
