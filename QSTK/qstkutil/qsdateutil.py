@@ -33,7 +33,7 @@ def _cache_dates():
     dates = []
     for i in datestxt:
         dates.append(dt.datetime.strptime(i, "%m/%d/%Y"))
-    return pd.TimeSeries(index=dates, data=dates)
+    return pd.Series(index=dates, data=dates)
 
 GTS_DATES = _cache_dates()
 
@@ -254,7 +254,7 @@ def _trade_dates(dt_start, dt_end, s_period):
     # Note, dates are index as well as values, we select based on index
     # but return values since it is a numpy array of datetimes instead of
     # pandas specific.
-    ts_dates = pd.TimeSeries(index=ldt_timestamps, data=ldt_timestamps)
+    ts_dates = pd.Series(index=ldt_timestamps, data=ldt_timestamps)
 
     # These are the dates we want
     if s_period[:2] == 'BW':
