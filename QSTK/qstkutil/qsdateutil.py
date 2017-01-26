@@ -33,7 +33,7 @@ def _cache_dates():
     dates = []
     for i in datestxt:
         dates.append(dt.datetime.strptime(i, "%m/%d/%Y"))
-    return pd.TimeSeries(index=dates, data=dates)
+    return pd.Series(index=dates, data=dates)
 
 GTS_DATES = _cache_dates()
 
@@ -121,12 +121,12 @@ def getLastOptionClose(day, trade_days):
 def getNYSEoffset(mark, offset):
     ''' Returns NYSE date offset by number of days '''
     mark = mark.replace(hour=0, minute=0, second=0, microsecond=0)
-    
+
     i = GTS_DATES.index.searchsorted(mark, side='right')
     # If there is no exact match, take first date in past
     if GTS_DATES[i] != mark:
         i -= 1
-        
+
     ret = GTS_DATES[i + offset]
 
     ret = ret.replace(hour=16)
