@@ -55,13 +55,13 @@ def genData(startday, endday, datadirectory, symbols):
 	all_symbols = dataobj.get_all_symbols()
 	badsymbols=set(symbols)-set(all_symbols)
 	if len(list(badsymbols))>0:
-		print "Some Symbols are not valid" + str(badsymbols)
+		print("Some Symbols are not valid" + str(badsymbols))
 	symbols=list(set(symbols)-badsymbols)
 
 	lsKeys = ['open', 'high', 'low', 'close', 'volume']
 
 	ldfData = dataobj.get_data( timestamps, symbols, lsKeys )
-	dData = dict(zip(lsKeys, ldfData))
+	dData = dict(list(zip(lsKeys, ldfData)))
 	
 	
 	# Creating the 3D Matrix

@@ -132,13 +132,13 @@ def main():
 	#
 	# Compare to ground truth
 	#
-	print 'trainsize ' + str(trainsize)
+	print('trainsize ' + str(trainsize))
 	Ytruth = Y[-trainsize:]
-	print 'Ytruth.shape ' + str(Ytruth.shape)
+	print('Ytruth.shape ' + str(Ytruth.shape))
 	Xtest = dataX[-trainsize:,:]
-	print 'Xtest.shape ' + str(Xtest.shape)
+	print('Xtest.shape ' + str(Xtest.shape))
 	Ytest = learner.query(Xtest) # to check every point
-	print 'Ytest.shape ' + str(Ytest.shape)
+	print('Ytest.shape ' + str(Ytest.shape))
 	
 	plt.clf()
 	plt.scatter(Ytruth,Ytest,edgecolors='none')
@@ -148,7 +148,7 @@ def main():
 	plt.ylabel('Estimated')
 	savefig("scatterdata.png", format='png')
 	
-	print corrcoef(Ytruth,Ytest)
+	print(corrcoef(Ytruth,Ytest))
 
 if __name__ == '__main__':
 	main()

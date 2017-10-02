@@ -31,14 +31,14 @@ same format as the CLI).
 __docformat__ = 'epytext en'
 
 import sys, os.path, re, glob
-from Tkinter import *
-from tkFileDialog import askopenfilename, asksaveasfilename
-from thread import start_new_thread, exit_thread
+from tkinter import *
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+from _thread import start_new_thread, exit_thread
 from pickle import dump, load
 
 # askdirectory is only defined in python 2.2+; fall back on
 # asksaveasfilename if it's not available.
-try: from tkFileDialog import askdirectory
+try: from tkinter.filedialog import askdirectory
 except: askdirectory = None
 
 # Include support for Zope, if it's available.
@@ -238,7 +238,7 @@ def document(options, cancel, done):
         log.error('Cancelled!')
         done[0] ='cancel'
         raise
-    except Exception, e:
+    except Exception as e:
         # We failed.
         log.error('Internal error: %s' % e)
         done[0] ='cancel'
@@ -270,7 +270,7 @@ class EpydocGUI:
         # *not* reload the modules that are present when the EpydocGUI
         # is created, but that should only contain some builtins, some
         # epydoc modules, Tkinter, pickle, and thread..
-        self._old_modules = sys.modules.keys()
+        self._old_modules = list(sys.modules.keys())
 
         # Create the main window.
         self._root = Tk()
@@ -662,7 +662,7 @@ class EpydocGUI:
         self._help_browse.grid(row=row, column=3, sticky='ew', padx=2)
         
         from epydoc.docwriter.html_css import STYLESHEETS
-        items = STYLESHEETS.items()
+        items = list(STYLESHEETS.items())
         def _css_sort(css1, css2):
             if css1[0] == 'default': return -1
             elif css2[0] == 'default': return 1
@@ -805,7 +805,7 @@ class EpydocGUI:
         if self._root is None: return
 
         # Unload any modules that we've imported
-        for m in sys.modules.keys():
+        for m in list(sys.modules.keys()):
             if m not in self._old_modules: del sys.modules[m]
         self._root.destroy()
         self._root = None
@@ -825,7 +825,7 @@ class EpydocGUI:
                         get_value_from_scriptname(name)
                     else:
                         get_value_from_name(name)
-                except ImportError, e:
+                except ImportError as e:
                     log.error(e)
                     self._update_messages()
                     self._root.bell()
@@ -891,7 +891,7 @@ class EpydocGUI:
 
         # Restore the module list.  This will force re-loading of
         # anything that we're documenting.
-        for m in sys.modules.keys():
+        for m in list(sys.modules.keys()):
             if m not in self._old_modules:
                 del sys.modules[m]
 
@@ -1044,7 +1044,7 @@ class EpydocGUI:
             self._imports_var.set(opts.get('show_imports', 0))
             
             self._css_entry.delete(0, 'end')
-            if opts.get('css', 'default') in STYLESHEETS.keys():
+            if opts.get('css', 'default') in list(STYLESHEETS.keys()):
                 self._css_var.set(opts.get('css', 'default'))
             else:
                 self._css_var.set('-other-')
@@ -1056,7 +1056,7 @@ class EpydocGUI:
             #    self._private_css_var.set('-other-')
             #    self._css_entry.insert(0, opts.get('private_css', 'default'))
                                                    
-        except Exception, e:
+        except Exception as e:
             log.error('Error opening %s: %s' % (prjfile, e))
             self._root.bell()
         
@@ -1065,7 +1065,7 @@ class EpydocGUI:
         try:
             opts = self._getopts()
             dump(opts, open(self._filename, 'w'))
-        except Exception, e:
+        except Exception as e:
             if self._filename is None:
                 log.error('Error saving: %s' %  e)
             else:
@@ -1087,22 +1087,22 @@ def _version():
     @rtype: C{None}
     """
     import epydoc
-    print "Epydoc version %s" % epydoc.__version__
+    print("Epydoc version %s" % epydoc.__version__)
     sys.exit(0)
 
 # At some point I could add:
 #   --show-messages, --hide-messages
 #   --show-options, --hide-options
 def _usage():
-    print
-    print 'Usage: epydocgui [OPTIONS] [FILE.prj | MODULES...]'
-    print
-    print '    FILE.prj                  An epydoc GUI project file.'
-    print '    MODULES...                A list of Python modules to document.'
-    print '    -V, --version             Print the version of epydoc.'
-    print '    -h, -?, --help, --usage   Display this usage message'
-    print '    --debug                   Do not suppress error messages'
-    print
+    print()
+    print('Usage: epydocgui [OPTIONS] [FILE.prj | MODULES...]')
+    print()
+    print('    FILE.prj                  An epydoc GUI project file.')
+    print('    MODULES...                A list of Python modules to document.')
+    print('    -V, --version             Print the version of epydoc.')
+    print('    -h, -?, --help, --usage   Display this usage message')
+    print('    --debug                   Do not suppress error messages')
+    print()
     sys.exit(0)
 
 def _error(s):
@@ -1110,7 +1110,7 @@ def _error(s):
     if len(s) > 80:
         i = s.rfind(' ', 0, 80)
         if i>0: s = s[:i]+'\n'+s[i+1:]
-    print >>sys.stderr, s
+    print(s, file=sys.stderr)
     sys.exit(1)
     
 def gui():

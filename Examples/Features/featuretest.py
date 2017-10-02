@@ -33,7 +33,7 @@ def learnerTest( naTrain, naTest ):
     @summary: Takes testing and training data and computes average error over the test set
               This is compared to a baseline guess which is just the average of the training set
     '''
-    llRange = range(5,51,5)
+    llRange = list(range(5,51,5))
     
     lfRes = []
     for lK in llRange:
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     #lsSym = ['XOM']
     
     ''' Get data for 2009-2010 '''
-    dtStart = dt.datetime(2010,8,01)
+    dtStart = dt.datetime(2010,8,0o1)
     dtEnd = dt.datetime(2010,12,31)
     
     norObj = da.DataAccess('Yahoo')      
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     
     lsKeys = ['open', 'high', 'low', 'close', 'volume']
     ldfData = norObj.get_data( ldtTimestamps, lsSym, lsKeys )
-    dData = dict(zip(lsKeys, ldfData))
+    dData = dict(list(zip(lsKeys, ldfData)))
     
     ''' Imported functions from qstkfeat.features, NOTE: last function is classification '''
     lfcFeatures = [ featMA, featRSI, class_fut_ret ]

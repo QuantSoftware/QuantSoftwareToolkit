@@ -12,8 +12,12 @@ Created on Apr 22, 2011
 '''
 
 
-import dircache
 import os
+from functools import lru_cache
+
+@lru_cache()
+def cached_listdir(d):
+ return os.listdir(d)
 
 def clean_paths (paths_to_clean):
  '''
@@ -28,7 +32,7 @@ def clean_paths (paths_to_clean):
     
  
  for path in paths_to_clean:
-    files_at_this_path = dircache.listdir(str(path))
+    files_at_this_path = cached_listdir(str(path))
     for _file in files_at_this_path:
         if (os.path.isfile(path + _file)):
             os.remove(path + _file)

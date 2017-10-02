@@ -21,9 +21,9 @@ class Optimizer(object):
         dataItemsList=list()
         dataItemsList.append("alphaValue")
         self.alphaData= DataAccess.DataAccess(False, "AAPLonlybollingerBandsAlphaVals.h5", "/alphaData", "alphaData", True, listOfStocks, None, None, None, dataItemsList)
-        print "Timestamps are: " 
+        print("Timestamps are: ") 
         for ts in self.alphaData.timestamps:
-            print ts
+            print(ts)
         #__init__ done
         
         
@@ -34,7 +34,7 @@ class Optimizer(object):
             alphaVal= self.alphaData.getStockDataItem(stock, "alphaValue", timestamp)
             
             
-            print "alphaVal: "+ str (alphaVal)+ ", stock: "+ str(stock)+", ts: " + str(timestamp)
+            print("alphaVal: "+ str (alphaVal)+ ", stock: "+ str(stock)+", ts: " + str(timestamp))
             
             if not (numpy.isnan(alphaVal)):
                 #alphaVal is not Nan
@@ -51,7 +51,7 @@ class Optimizer(object):
                     if newOrder != None:
                          output.append(newOrder)
                     else:
-                         print "ERROR! ERROR! ERROR!"                    
+                         print("ERROR! ERROR! ERROR!")                    
                 else:
                     pass
                     #print "alhpaVal for "+str(stock)+" is: " + str(alphaVal)
@@ -76,7 +76,7 @@ class Optimizer(object):
                     if newOrder != None:
                         output.append(newOrder)
                     else:
-                        print "ERROR! ERROR! ERROR!"
+                        print("ERROR! ERROR! ERROR!")
         return output                
                                             
                 

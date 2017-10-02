@@ -26,7 +26,7 @@ from pylab import savefig
 from matplotlib import pyplot
 from matplotlib import gridspec
 import matplotlib.dates as mdates
-import cPickle
+import pickle
 import datetime as dt
 import pandas
 import numpy as np
@@ -433,7 +433,7 @@ def print_stats(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",s_fu
         splot_dir =  path.join(directory, splot)
         ostream = open(sfile, "wb")
         ostream.write("<pre>")
-        print "writing to ", sfile
+        print("writing to ", sfile)
 
         if type(original)==type("str"):
             if type(leverage)!=type(False):
@@ -706,7 +706,7 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",
         splot = "plot-%s.png" % name
         splot_dir =  path.join(directory, splot)
         ostream = open(sfile, "wb")
-        print "writing to ", sfile
+        print("writing to ", sfile)
 
         if type(original)==type("str"):
             if type(leverage)!=type(False):
@@ -842,8 +842,8 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",
         lf_vals.append(get_annual_return(benchmark_close[bench_sym], years))
         ls_labels.append(bench_sym)
 
-    print lf_vals
-    print ls_labels
+    print(lf_vals)
+    print(ls_labels)
     ls_year_labels=[]
     for i in range(0,len(years)):
         ls_year_labels.append(str(years[i]))
@@ -915,7 +915,7 @@ def print_html(fund_ts, benchmark, name, lf_dividend_rets=0.0, original="",
 def print_bar_chart(llf_vals, ls_fund_labels, ls_year_labels, s_filename):
     llf_vals=((1,2,3),(3,2,1),(2,2,2))
     amin=min(min(llf_vals))
-    print amin
+    print(amin)
     min_lim=0
     if amin<0:
         min_lim = amin
@@ -1167,7 +1167,7 @@ if __name__  ==  '__main__':
 
     if(ROBUST == 1):
         ANINPUT = open(sys.argv[2],"r")
-        FUNDS = cPickle.load(ANINPUT)
+        FUNDS = pickle.load(ANINPUT)
         generate_robust_report(FUNDS, FILENAME)
     else:
         FILES = sys.argv
@@ -1175,7 +1175,7 @@ if __name__  ==  '__main__':
         FUNDS = []
         for AFILE in FILES:
             ANINPUT = open(AFILE,"r")
-            FUND = cPickle.load(ANINPUT)
+            FUND = pickle.load(ANINPUT)
             FUNDS.append(FUND)
         generate_report(FUNDS, FILES, FILENAME)
 

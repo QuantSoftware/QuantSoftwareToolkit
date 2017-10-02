@@ -28,7 +28,7 @@ def parse_docstring(docstring, errors, **options):
 class ParsedPlaintextDocstring(ParsedDocstring):
     def __init__(self, text, **options):
         self._verbatim = options.get('verbatim', 1)
-        if text is None: raise ValueError, 'Bad text value (expected a str)'
+        if text is None: raise ValueError('Bad text value (expected a str)')
         self._text = text
 
     def to_html(self, docstring_linker, **options):

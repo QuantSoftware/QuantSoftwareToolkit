@@ -115,7 +115,7 @@ class DotGraph:
         have the same uid."""
 
         # Encode the title, if necessary.
-        if isinstance(self.title, unicode):
+        if isinstance(self.title, str):
             self.title = self.title.encode('ascii', 'xmlcharrefreplace')
 
         # Make sure the UID isn't too long.
@@ -247,7 +247,7 @@ class DotGraph:
             result, err = run_subprocess((DOT_COMMAND,)+options,
                                          self.to_dotfile())
             if err: log.warning("Graphviz dot warning(s):\n%s" % err)
-        except OSError, e:
+        except OSError as e:
             log.warning("Unable to render Graphviz dot graph:\n%s" % e)
             #log.debug(self.to_dotfile())
             return None
@@ -261,9 +261,9 @@ class DotGraph:
         """
         lines = ['digraph %s {' % self.uid,
                  'node [%s]' % ','.join(['%s="%s"' % (k,v) for (k,v)
-                                         in self.node_defaults.items()]),
+                                         in list(self.node_defaults.items())]),
                  'edge [%s]' % ','.join(['%s="%s"' % (k,v) for (k,v)
-                                         in self.edge_defaults.items()])]
+                                         in list(self.edge_defaults.items())])]
         if self.body:
             lines.append(self.body)
         lines.append('/* Nodes */')
@@ -275,7 +275,7 @@ class DotGraph:
         lines.append('}')
 
         # Default dot input encoding is UTF-8
-        return u'\n'.join(lines).encode('utf-8')
+        return '\n'.join(lines).encode('utf-8')
 
 class DotGraphNode:
     _next_id = 0
@@ -304,7 +304,7 @@ class DotGraphNode:
         """
         Return the dot commands that should be used to render this node.
         """
-        attribs = ['%s="%s"' % (k,v) for (k,v) in self._attribs.items()
+        attribs = ['%s="%s"' % (k,v) for (k,v) in list(self._attribs.items())
                    if v is not None]
         if self._html_label:
             attribs.insert(0, 'label=<%s>' % (self._html_label,))
@@ -341,7 +341,7 @@ class DotGraphEdge:
         if (self.end.port is not None and 'tailport' not in attribs):
             attribs['tailport'] = self.end.port
         # Convert attribs to a string
-        attribs = ','.join(['%s="%s"' % (k,v) for (k,v) in attribs.items()
+        attribs = ','.join(['%s="%s"' % (k,v) for (k,v) in list(attribs.items())
                             if v is not None])
         if attribs: attribs = ' [%s]' % attribs
         # Return the dotfile edge.
@@ -791,7 +791,7 @@ class DotGraphUmlClassNode(DotGraphNode):
                               attributes, operations, qualifiers)
 
     def to_dotfile(self):
-        attribs = ['%s="%s"' % (k,v) for (k,v) in self._attribs.items()]
+        attribs = ['%s="%s"' % (k,v) for (k,v) in list(self._attribs.items())]
         attribs.append('label=<%s>' % self._get_html_label())
         s = 'node%d%s' % (self.id, ' [%s]' % (','.join(attribs)))
         if not self.collapsed:
@@ -929,7 +929,7 @@ class DotGraphUmlModuleNode(DotGraphNode):
             return '#%06x' % ((red<<16)+(green<<8)+blue)
         
     def to_dotfile(self):
-        attribs = ['%s="%s"' % (k,v) for (k,v) in self._attribs.items()]
+        attribs = ['%s="%s"' % (k,v) for (k,v) in list(self._attribs.items())]
         label, depth, width = self._get_html_label(self.module_doc)
         attribs.append('label=<%s>' % label)
         return 'node%d%s' % (self.id, ' [%s]' % (','.join(attribs)))
@@ -1100,7 +1100,7 @@ def uml_class_tree_graph(class_doc, linker, context=None, **options):
     # Only show variables in the class where they're defined for
     # *class_doc*.
     mro = class_doc.mro()
-    for name, var in class_doc.variables.items():
+    for name, var in list(class_doc.variables.items()):
         i = mro.index(var.container)
         for base in mro[i+1:]:
             if base.pyval is object: continue # don't include `object`.
@@ -1120,7 +1120,7 @@ def uml_class_tree_graph(class_doc, linker, context=None, **options):
         
     # Turn attributes into links.
     if options.get('link_attributes', True):
-        for node in nodes.values():
+        for node in list(nodes.values()):
             node.link_attributes(nodes)
             # Make sure that none of the new attribute edges break the
             # rank ordering assigned by inheritance.
@@ -1131,7 +1131,7 @@ def uml_class_tree_graph(class_doc, linker, context=None, **options):
     # Construct the graph.
     graph = DotGraph('UML class diagram for %s' % class_doc.canonical_name,
                      body='ranksep=.2\n;nodesep=.3\n')
-    graph.nodes = nodes.values()
+    graph.nodes = list(nodes.values())
     
     # Add inheritance edges.
     for node in inheritance_nodes:
@@ -1200,7 +1200,7 @@ def call_graph(api_docs, docindex, linker, context=None, **options):
         if isinstance(api_doc, RoutineDoc):
             functions.append(api_doc)
         elif isinstance(api_doc, NamespaceDoc):
-            for vardoc in api_doc.variables.values():
+            for vardoc in list(api_doc.variables.values()):
                 if isinstance(vardoc.value, RoutineDoc):
                     functions.append(vardoc.value)
 
@@ -1258,7 +1258,7 @@ def get_dot_version():
                 _dot_version = [int(x) for x in m.group(1).split('.')]
             else:
                 _dot_version = (0,)
-        except OSError, e:
+        except OSError as e:
             _dot_version = (0,)
         log.info('Detected dot version %s' % _dot_version)
     return _dot_version

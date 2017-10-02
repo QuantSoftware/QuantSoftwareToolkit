@@ -122,7 +122,7 @@ class SimpleLogger(Logger):
     def __init__(self, threshold=WARNING):
         self.threshold = threshold
     def log(self, level, message):
-        if level >= self.threshold: print message
+        if level >= self.threshold: print(message)
         
 ######################################################################
 # Logger Registry

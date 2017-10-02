@@ -11,7 +11,7 @@ import time
 import random
 #from AlphaDataModel import *
 
-import AlphaDataModel as adm
+from . import AlphaDataModel as adm
 #Main begins
 
 #alpha val writing begins
@@ -55,11 +55,11 @@ while (tsStart <= tsEnd):
     tsStart+=86400
     #While ends
     
-print "Finished adding all data"
+print("Finished adding all data")
 
 #print "Reading it in now..."
 #adm.readAllData()
 adm.closeFile()
-print "All done"
+print("All done")
 #Main ends
         

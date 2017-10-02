@@ -30,7 +30,7 @@ def csv_Dataconverter(datadirectory, ip_path):
 
 	f = open(ip_path)
 	data = csv.reader(f)
-	fields = data.next()
+	fields = next(data)
 
 	featureslist = fields[2:]
 	timestamps=[]
@@ -56,7 +56,7 @@ def csv_Dataconverter(datadirectory, ip_path):
 	f.close()	
 
 	data = csv.reader(open(ip_path))
-	data.next()
+	next(data)
 
 	for row in data:
 		timestamp = dt.datetime.strptime(row[0], "%Y-%m-%d")
@@ -103,7 +103,7 @@ def csv_Dataconverter(datadirectory, ip_path):
 
 	pickle.dump(Numpyarray_Final,open(op_folderpath +'ALLDATA.pkl', 'wb' ),-1)
 
-	print 'All data has been converted'
+	print('All data has been converted')
 
 def main():
 	datadirectory = 'TestCSV'

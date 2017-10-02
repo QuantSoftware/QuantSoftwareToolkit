@@ -30,11 +30,11 @@ def main():
     # Getting a list of symbols from Lists
     # Lists : S&P5002012, S&P5002008, Index
     ls_symbols = c_dataobj.get_symbols_from_list('sp5002012')
-    print "Symbols from the list : ", ls_symbols
+    print("Symbols from the list : ", ls_symbols)
 
     # All symbols possible
     ls_all_syms = c_dataobj.get_all_symbols()
-    print "All symbols : ", ls_all_syms
+    print("All symbols : ", ls_all_syms)
 
     ls_syms_toread = ['AAPL', 'GOOG']
 
@@ -58,7 +58,7 @@ def main():
     # But a path can be provided using either an environment variable or
     # as a prarameter.
     df_close = c_dataobj.get_data(ldt_timestamps, ls_syms_toread, "close")
-    print df_close
+    print(df_close)
 
 
 if __name__ == '__main__':

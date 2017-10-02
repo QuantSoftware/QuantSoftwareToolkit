@@ -31,7 +31,7 @@ def _dumpFiles( dData, lSets, lsOutPaths ):
     @param lSets: List of symbol sets, each corresponds to a directory, e.g. NYSE, NASDAQ.
     @param lsOutPaths: List of path strings, same indexes as lSets.
     '''
-    lKeys = dData.keys()
+    lKeys = list(dData.keys())
      
     for key in lKeys:
         for i, symSet in enumerate( lSets ):
@@ -51,7 +51,7 @@ def _analyze():
     try:
         rootdir = os.environ['QSDATA']
     except KeyError:
-        print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"    
+        print("Please be sure to set the value for QSDATA in config.sh or local.sh\n")    
         
     ''' Create lists of input and output paths '''
     fFile = ( rootdir + "/Raw/Compustat/Compustat.csv")
@@ -82,17 +82,17 @@ def _analyze():
                 used[j] = 1
         
         if( i % 10000 == 0 ):
-            print (i / 1378625.0)*100, '%'   
+            print((i / 1378625.0)*100, '%')   
     
-    print 'Bad (non float) labels:'
-    print badSet   
+    print('Bad (non float) labels:')
+    print(badSet)   
     
     for i,label in enumerate(lsLabels):
         if label in badSet:
             del lsLabels[i]
     
-    print '\n\nGood (float) labels:'
-    print lsLabels
+    print('\n\nGood (float) labels:')
+    print(lsLabels)
     
     return  
     
@@ -102,7 +102,7 @@ def convert ():
     @summary: Converts a Compustat CSV file to pickle files of numpy arrays.
     '''
     
-    print "Starting..."+ str(time.strftime("%H:%M:%S"))
+    print("Starting..."+ str(time.strftime("%H:%M:%S")))
     
     ''' Write every so often to save memory, 20k lines is usually < .5GB '''
     lSaveMem = 20000
@@ -110,7 +110,7 @@ def convert ():
     try:
         rootdir = os.environ['QSDATA']
     except KeyError:
-        print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"    
+        print("Please be sure to set the value for QSDATA in config.sh or local.sh\n")    
     
     ''' Create lists of input and output paths '''
     fFile = ( rootdir + "/Raw/Compustat/Compustat.csv")
@@ -148,10 +148,10 @@ def convert ():
     setAmex = set( Access.get_symbols_in_sublist("/US/AMEX") )
     
     ''' If stock appears in more than one index, remove to avoid ambiguity '''
-    print 'Ignoring duplicate stocks:',
+    print('Ignoring duplicate stocks:', end=' ')
     dup1 =  setNyse.intersection( setNasdaq.union(setAmex))
     dup2 =  setNasdaq.intersection( setAmex )
-    print dup1.union(dup2)
+    print(dup1.union(dup2))
 
     setNyse   = setNyse - dup1.union(dup2)
     setAmex   = setAmex - dup1.union(dup2)
@@ -193,7 +193,7 @@ def convert ():
         
     ''' Dict of ticker->numpy array mapping '''
     dData = dict()
-    print ''
+    print('')
     
     
     ''' Main loop, iterate over the rows in the csv file '''
@@ -214,8 +214,8 @@ def convert ():
         
         ''' If the file exists (temporary memory saving measure), read it in and delete file from disk '''
         if( os.path.isfile(sFilename)):
-            if dData.has_key(sTic):
-               print 'File should not be both on disk and in dict'
+            if sTic in dData:
+               print('File should not be both on disk and in dict')
                sys.exit("FAILURE")
             
             fIn = open( sFilename, 'rb' )
@@ -231,19 +231,19 @@ def convert ():
                 row[i] = 'nan'
         
         ''' Add row if data exists, if not, create new array '''
-        if dData.has_key(sTic):       
+        if sTic in dData:       
             dData[sTic] = np.vstack( (dData[sTic], np.array([fDate] + [row[i] for i in llUseCols], dtype=np.float)) )
         else:
             dData[sTic]= np.array( [fDate] + [row[i] for i in llUseCols], dtype=np.float )
         
         if( (j+1) % 1000 == 0):
             fDone = (j / 1378625.0) * 100
-            print '\rApprox %.2lf%%'%((j / 1378625.0) * 100),
+            print('\rApprox %.2lf%%'%((j / 1378625.0) * 100), end=' ')
             
         if( (j+1) % lSaveMem == 0):
             ''' Write all the pickle files we currently have '''
             
-            print '\nWriting %i lines to pickle files to save memory\n'%(lSaveMem)
+            print('\nWriting %i lines to pickle files to save memory\n'%(lSaveMem))
             _dumpFiles( dData, lSets, lsOutPaths)
             ''' Remember to delete! '''
             del dData
@@ -252,12 +252,12 @@ def convert ():
         # Done writing files
     # Done with main loop
 
-    print ''
-    print 'Writing final pickle files\n'       
+    print('')
+    print('Writing final pickle files\n')       
     _dumpFiles( dData, lSets, lsOutPaths)
     del dData
     
-    print "Finished..."+ str(time.strftime("%H:%M:%S"))
+    print("Finished..."+ str(time.strftime("%H:%M:%S")))
     
     return
     

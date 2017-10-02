@@ -59,7 +59,7 @@ class EventProfiler():
 	    self.timestamps = du.getNYSEdays(startday,endday,self.timeofday)
             self.verbose = verbose
             if verbose:
-                print __name__ + " reading historical data"
+                print(__name__ + " reading historical data")
 	    self.close = self.dataobj.get_data(self.timestamps,\
                 self.symbols, "close", verbose=self.verbose)
 	    self.close = (self.close.fillna()).fillna(method='backfill')
@@ -116,7 +116,7 @@ class EventProfiler():
             # step through each column in event matrix
             for col in range(0,events.shape[1]):
                 if (self.verbose and col%20==0):
-                    print __name__ + " study: " + str(col) + " of " + str(numcols)
+                    print(__name__ + " study: " + str(col) + " of " + str(numcols))
                 # search each column for events
                 for row in range(0,events.shape[0]):
                     # when we find an event
@@ -137,7 +137,7 @@ class EventProfiler():
             # prepare data for plot
             studystat = mean(impact,axis=1)
             studystd = std(impact,axis=1)
-            studyrange = range(-self.lookback_days,self.lookforward_days+1)
+            studyrange = list(range(-self.lookback_days,self.lookforward_days+1))
 
             # plot baby
             plt.clf()

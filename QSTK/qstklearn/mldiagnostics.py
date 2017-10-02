@@ -50,7 +50,7 @@ class MLDiagnostics:
 		savefig(filename,format='pdf')
 
 	def runDiagnostics(self,filename):
-		for i,lambdaVal in zip(range(len(self.lambdaArray)),self.lambdaArray):
+		for i,lambdaVal in zip(list(range(len(self.lambdaArray))),self.lambdaArray):
 			learner = copy.copy(self.learner())# is deep copy required
 			# setLambda needs to be a supported function for all ML strategies.
 			learner.setLambda(lambdaVal)

@@ -73,7 +73,7 @@ from epydoc.util import wordwrap, run_subprocess, RunSubprocessError
 from epydoc.util import plaintext_to_html
 from epydoc.apidoc import UNKNOWN
 from epydoc.compat import *
-import ConfigParser
+import configparser
 from epydoc.docwriter.html_css import STYLESHEETS as CSS_STYLESHEETS
 
 # This module is only available if Docutils are in the system
@@ -113,7 +113,7 @@ HELP_TOPICS = {
         'The following built-in CSS stylesheets are available:\n' +
         '\n'.join(['  %10s: %s' % (key, descr)
                    for (key, (sheet, descr))
-                   in CSS_STYLESHEETS.items()])),
+                   in list(CSS_STYLESHEETS.items())])),
     #'checks': textwrap.dedent('''\
     #
     #    '''),
@@ -122,7 +122,7 @@ HELP_TOPICS = {
 
 HELP_TOPICS['topics'] = wordwrap(
     'Epydoc can provide additional help for the following topics: ' +
-    ', '.join(['%r' % topic for topic in HELP_TOPICS.keys()]))
+    ', '.join(['%r' % topic for topic in list(HELP_TOPICS.keys())]))
     
 ######################################################################
 #{ Argument & Config File Parsing
@@ -423,16 +423,16 @@ def parse_arguments():
     # --help [topic]
     if options.action == 'help':
         names = set([n.lower() for n in names])
-        for (topic, msg) in HELP_TOPICS.items():
+        for (topic, msg) in list(HELP_TOPICS.items()):
             if topic.lower() in names:
-                print '\n' + msg.rstrip() + '\n'
+                print('\n' + msg.rstrip() + '\n')
                 sys.exit(0)
         optparser.print_help()
         sys.exit(0)
 
     # Print version message, if requested.
     if options.action == 'version':
-        print version
+        print(version)
         sys.exit(0)
     
     # Process any config files.
@@ -440,7 +440,7 @@ def parse_arguments():
         try:
             parse_configfiles(options.configfiles, options, names)
         except (KeyboardInterrupt,SystemExit): raise
-        except Exception, e:
+        except Exception as e:
             if len(options.configfiles) == 1:
                 cf_name = 'config file %s' % options.configfiles[0]
             else:
@@ -504,7 +504,7 @@ def parse_arguments():
     return options, names
 
 def parse_configfiles(configfiles, options, names):
-    configparser = ConfigParser.ConfigParser()
+    configparser = configparser.ConfigParser()
     # ConfigParser.read() silently ignores errors, so open the files
     # manually (since we want to notify the user of any errors).
     for configfile in configfiles:
@@ -681,7 +681,7 @@ def main(options, names):
         elif options.action == 'pdf': stages += [60,50]
         elif options.action == 'check': stages += [10]
         elif options.action == 'pickle': stages += [10]
-        else: raise ValueError, '%r not supported' % options.action
+        else: raise ValueError('%r not supported' % options.action)
         if options.parse and not options.introspect:
             del stages[1] # no merging
         if options.introspect and not options.parse:
@@ -712,7 +712,7 @@ def main(options, names):
     if xlink is not None:
         try:
             xlink.ApiLinkReader.read_configuration(options, problematic=False)
-        except Exception, exc:
+        except Exception as exc:
             log.error("Error while configuring external API linking: %s: %s"
                 % (exc.__class__.__name__, exc))
 
@@ -772,7 +772,7 @@ def main(options, names):
             for filename in options.pstat_files[1:]:
                 profile_stats.add(filename)
         except KeyboardInterrupt: raise
-        except Exception, e:
+        except Exception as e:
             log.error("Error reading pstat file: %s" % e)
             profile_stats = None
         if profile_stats is not None:
@@ -790,7 +790,7 @@ def main(options, names):
     elif options.action == 'pickle':
         write_pickle(docindex, options)
     else:
-        print >>sys.stderr, '\nUnsupported action %s!' % options.action
+        print('\nUnsupported action %s!' % options.action, file=sys.stderr)
 
     # If we suppressed docstring warnings, then let the user know.
     if logger is not None and logger.suppressed_docstring_warning:
@@ -852,7 +852,7 @@ def pickle_persistent_load(identifier):
     """Helper for pickling, which allows us to save and restore UNKNOWN,
     which is required to be identical to apidoc.UNKNOWN."""
     if identifier == 'UNKNOWN': return UNKNOWN
-    else: raise pickle.UnpicklingError, 'Invalid persistent id'
+    else: raise pickle.UnpicklingError('Invalid persistent id')
 
 _RERUN_LATEX_RE = re.compile(r'(?im)^LaTeX\s+Warning:\s+Label\(s\)\s+may'
                              r'\s+have\s+changed.\s+Rerun')
@@ -925,13 +925,13 @@ def write_latex(docindex, options, format):
                     'ps2pdf -sPAPERSIZE#letter -dMaxSubsetPct#100 '
                     '-dSubsetFonts#true -dCompatibilityLevel#1.2 '
                     '-dEmbedAllFonts#true api.ps api.pdf')
-        except RunSubprocessError, e:
+        except RunSubprocessError as e:
             if running == 'latex':
                 e.out = re.sub(r'(?sm)\A.*?!( LaTeX Error:)?', r'', e.out)
                 e.out = re.sub(r'(?sm)\s*Type X to quit.*', '', e.out)
                 e.out = re.sub(r'(?sm)^! Emergency stop.*', '', e.out)
             log.error("%s failed: %s" % (running, (e.out+e.err).lstrip()))
-        except OSError, e:
+        except OSError as e:
             log.error("%s failed: %s" % (running, e))
     finally:
         os.chdir(oldpath)
@@ -945,9 +945,9 @@ def write_text(docindex, options):
     for apidoc in docindex.root:
         s += plaintext_writer.write(apidoc)
     log.end_progress()
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         s = s.encode('ascii', 'backslashreplace')
-    print s
+    print(s)
 
 def check_docs(docindex, options):
     from epydoc.checker import DocChecker
@@ -968,17 +968,17 @@ def cli():
     except SystemExit:
         raise
     except KeyboardInterrupt:
-        print '\n\n'
-        print >>sys.stderr, 'Keyboard interrupt.'
+        print('\n\n')
+        print('Keyboard interrupt.', file=sys.stderr)
     except:
         if options.debug: raise
-        print '\n\n'
+        print('\n\n')
         exc_info = sys.exc_info()
-        if isinstance(exc_info[0], basestring): e = exc_info[0]
+        if isinstance(exc_info[0], str): e = exc_info[0]
         else: e = exc_info[1]
-        print >>sys.stderr, ('\nUNEXPECTED ERROR:\n'
-                             '%s\n' % (str(e) or e.__class__.__name__))
-        print >>sys.stderr, 'Use --debug to see trace information.'
+        print(('\nUNEXPECTED ERROR:\n'
+                             '%s\n' % (str(e) or e.__class__.__name__)), file=sys.stderr)
+        print('Use --debug to see trace information.', file=sys.stderr)
         sys.exit(3)
     
 def _profile():
@@ -986,7 +986,7 @@ def _profile():
     if PROFILER == 'hotshot':
         try: import hotshot, hotshot.stats
         except ImportError:
-            print >>sys.stderr, "Could not import profile module!"
+            print("Could not import profile module!", file=sys.stderr)
             return
         try:
             prof = hotshot.Profile('hotshot.out')
@@ -995,7 +995,7 @@ def _profile():
             pass
         prof.close()
         # Convert profile.hotshot -> profile.out
-        print 'Consolidating hotshot profiling info...'
+        print('Consolidating hotshot profiling info...')
         hotshot.stats.load('hotshot.out').dump_stats('profile.out')
 
     # Standard 'profile' profiler.
@@ -1006,7 +1006,7 @@ def _profile():
         except ImportError:
             try: from profile import Profile
             except ImportError:
-                print >>sys.stderr, "Could not import profile module!"
+                print("Could not import profile module!", file=sys.stderr)
                 return
 
         # There was a bug in Python 2.4's profiler.  Check if it's
@@ -1015,8 +1015,8 @@ def _profile():
         #                         2005-September/047099.html>)
         if (hasattr(Profile, 'dispatch') and
             Profile.dispatch['c_exception'] is
-            Profile.trace_dispatch_exception.im_func):
-            trace_dispatch_return = Profile.trace_dispatch_return.im_func
+            Profile.trace_dispatch_exception.__func__):
+            trace_dispatch_return = Profile.trace_dispatch_return.__func__
             Profile.dispatch['c_exception'] = trace_dispatch_return
         try:
             prof = Profile()
@@ -1026,7 +1026,7 @@ def _profile():
         prof.dump_stats('profile.out')
 
     else:
-        print >>sys.stderr, 'Unknown profiler %s' % PROFILER
+        print('Unknown profiler %s' % PROFILER, file=sys.stderr)
         return
     
 ######################################################################
@@ -1094,11 +1094,11 @@ class TerminalController:
         # Colors
         set_fg = self._tigetstr('setf')
         if set_fg:
-            for i,color in zip(range(len(self._COLORS)), self._COLORS):
+            for i,color in zip(list(range(len(self._COLORS))), self._COLORS):
                 setattr(self, color, curses.tparm(set_fg, i) or '')
         set_fg_ansi = self._tigetstr('setaf')
         if set_fg_ansi:
-            for i,color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
+            for i,color in zip(list(range(len(self._ANSICOLORS))), self._ANSICOLORS):
                 setattr(self, color, curses.tparm(set_fg_ansi, i) or '')
 
     def _tigetstr(self, cap_name):
@@ -1217,7 +1217,7 @@ class ConsoleLogger(log.Logger):
             # then make room for the message.
             if self._progress_mode == 'simple-bar':
                 if self._progress is not None:
-                    print
+                    print()
                     self._progress = None
             if self._progress_mode == 'bar':
                 sys.stdout.write(self.term.CLEAR_LINE)
@@ -1235,7 +1235,7 @@ class ConsoleLogger(log.Logger):
         
         if self._progress_mode == 'list':
             if message:
-                print '[%3d%%] %s' % (100*percent, message)
+                print('[%3d%%] %s' % (100*percent, message))
                 sys.stdout.flush()
                 
         elif self._progress_mode == 'bar':
@@ -1307,7 +1307,7 @@ class ConsoleLogger(log.Logger):
         self._progress_start_time = time.time()
         self._progress_header = header
         if self._progress_mode != 'hide' and header:
-            print self.term.BOLD + header + self.term.NORMAL
+            print(self.term.BOLD + header + self.term.NORMAL)
 
     def end_progress(self):
         self.progress(1.)
@@ -1317,24 +1317,24 @@ class ConsoleLogger(log.Logger):
                 sys.stdout.write((self.term.CLEAR_EOL + '\n')*2 +
                                  self.term.CLEAR_EOL + self.term.UP*2)
         if self._progress_mode == 'simple-bar':
-            print ']'
+            print(']')
         self._progress = None
         self._task_times.append( (time.time()-self._progress_start_time,
                                   self._progress_header) )
 
     def print_times(self):
-        print
-        print 'Timing summary:'
+        print()
+        print('Timing summary:')
         total = sum([time for (time, task) in self._task_times])
         max_t = max([time for (time, task) in self._task_times])
         for (time, task) in self._task_times:
             task = task[:31]
-            print '  %s%s %7.1fs' % (task, '.'*(35-len(task)), time),
+            print('  %s%s %7.1fs' % (task, '.'*(35-len(task)), time), end=' ')
             if self.term.COLS > 55:
-                print '|'+'=' * int((self.term.COLS-53) * time / max_t)
+                print('|'+'=' * int((self.term.COLS-53) * time / max_t))
             else:
-                print
-        print
+                print()
+        print()
 
 class UnifiedProgressConsoleLogger(ConsoleLogger):
     def __init__(self, verbosity, stages, progress_mode=None):

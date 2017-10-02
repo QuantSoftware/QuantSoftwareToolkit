@@ -28,11 +28,11 @@ def main():
     # Reading the portfolio
     na_portfolio = np.loadtxt('tutorial3portfolio.csv', dtype='S5,f4',
                         delimiter=',', comments="#", skiprows=1)
-    print na_portfolio
+    print(na_portfolio)
 
     # Sorting the portfolio by symbol name
     na_portfolio = sorted(na_portfolio, key=lambda x: x[0])
-    print na_portfolio
+    print(na_portfolio)
 
     # Create two list for symbol names and allocation
     ls_port_syms = []
@@ -48,7 +48,7 @@ def main():
     ls_bad_syms = list(set(ls_port_syms) - set(ls_all_syms))
 
     if len(ls_bad_syms) != 0:
-        print "Portfolio contains bad symbols : ", ls_bad_syms
+        print("Portfolio contains bad symbols : ", ls_bad_syms)
 
     for s_sym in ls_bad_syms:
         i_index = ls_port_syms.index(s_sym)
@@ -70,7 +70,7 @@ def main():
     # Reading the data, now d_data is a dictionary with the keys above.
     # Timestamps and symbols are the ones that were specified before.
     ldf_data = c_dataobj.get_data(ldt_timestamps, ls_port_syms, ls_keys)
-    d_data = dict(zip(ls_keys, ldf_data))
+    d_data = dict(list(zip(ls_keys, ldf_data)))
 
     # Copying close price into separate dataframe to find rets
     df_rets = d_data['close'].copy()

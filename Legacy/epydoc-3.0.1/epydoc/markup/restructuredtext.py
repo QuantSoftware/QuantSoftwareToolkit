@@ -402,12 +402,12 @@ class _SplitFieldsTranslator(NodeVisitor):
         # Handle special fields:
         fbody = node[1]
         if arg is None:
-            for (list_tag, entry_tag) in CONSOLIDATED_FIELDS.items():
+            for (list_tag, entry_tag) in list(CONSOLIDATED_FIELDS.items()):
                 if tagname.lower() == list_tag:
                     try:
                         self.handle_consolidated_field(fbody, entry_tag)
                         return
-                    except ValueError, e:
+                    except ValueError as e:
                         estr = 'Unable to split consolidated field '
                         estr += '"%s" - %s' % (tagname, e)
                         self._errors.append(ParseError(estr, node.line,
@@ -632,7 +632,7 @@ class _EpydocHTMLTranslator(HTMLTranslator):
         # iterate through attributes one at a time because some
         # versions of docutils don't case-normalize attributes.
         for attr_dict in attr_dicts:
-            for (key, val) in attr_dict.items():
+            for (key, val) in list(attr_dict.items()):
                 # Prefix all CSS classes with "rst-"; and prefix all
                 # names with "rst-" to avoid conflicts.
                 if key.lower() in ('class', 'id', 'name'):

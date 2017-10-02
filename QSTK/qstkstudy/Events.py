@@ -43,10 +43,10 @@ def find_events(symbols, d_data, verbose=False):
 	window = 10
 
 	if verbose:
-            print __name__ + " reading data"
+            print(__name__ + " reading data")
 	close = d_data[closefield]
 	if verbose:
-            print __name__ + " finding events"
+            print(__name__ + " finding events")
 	for symbol in symbols:
 	    close[symbol][close[symbol]>= 1.0] = np.NAN
 	    for i in range(1,len(close[symbol])):

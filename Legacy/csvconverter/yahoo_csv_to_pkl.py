@@ -19,13 +19,13 @@ import sys
 
 def main ():
     
-    print "Starting..."+ str(time.strftime("%H:%M:%S"))
+    print("Starting..."+ str(time.strftime("%H:%M:%S")))
     
     try:
         rootdir = os.environ['QSDATA']
     except KeyError:
         #rootdir = "/hzr71/research/QSData"
-        print "Please be sure to set the value for QSDATA in config.sh or local.sh\n"    
+        print("Please be sure to set the value for QSDATA in config.sh or local.sh\n")    
     
     fileExtensionToRemove = ".csv"
     
@@ -61,23 +61,23 @@ def main ():
     
     
     if (len(listOfInputPaths)!= len(listOfOutputPaths)):
-        print "No. of input paths not equal to the number of output paths.. quitting"
+        print("No. of input paths not equal to the number of output paths.. quitting")
         sys.exit("FAILURE")
         #if ends
     
     path_ctr = -1;
-    use_cols = range (1, 7 + 1) # will now use cols 1 to 7
+    use_cols = list(range(1, 7 + 1)) # will now use cols 1 to 7
     for path in listOfInputPaths:
         path_ctr =  path_ctr + 1;
         stocks_at_this_path = dircache.listdir(str(path))
         #Next, throw away everything that is not a .csv And these are our stocks! Example: this should throw away the '$' folder in the NYSE folder
-        filtered_names= filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocks_at_this_path)
+        filtered_names= [x for x in stocks_at_this_path if (str(x).find(str(fileExtensionToRemove)) > -1)]
         #Now, we remove the .csv to get the name of the stock
-        filtered_names = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),filtered_names)
+        filtered_names = [(x.partition(str(fileExtensionToRemove))[0]) for x in filtered_names]
         stock_ctr = -1
         for stock in filtered_names:
             stock_ctr = stock_ctr + 1
-            print "Reading file: " + str (path + stock)
+            print("Reading file: " + str (path + stock))
             #read in the stock date from the CSV file
             stock_data= np.loadtxt (path + stock+".csv", np.float, None, ",", None, 1, use_cols)
             
@@ -94,7 +94,7 @@ def main ():
             f.close()
         #for stock in stocks_at_this_path ends
     #for path in listOfInputPaths ends
-    print "Finished..."+ str(time.strftime("%H:%M:%S"))
+    print("Finished..."+ str(time.strftime("%H:%M:%S")))
     
     #main ends
     

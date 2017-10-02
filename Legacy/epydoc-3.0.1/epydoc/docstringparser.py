@@ -37,7 +37,7 @@ from epydoc.docintrospecter import introspect_docstring_lineno
 from epydoc.util import py_src_filename
 from epydoc import log
 import epydoc.docparser
-import __builtin__, exceptions
+import builtins, exceptions
 
 ######################################################################
 # Docstring Fields
@@ -242,14 +242,14 @@ def parse_docstring(api_doc, docindex, suppress_warnings=[]):
                 try:
                     process_field(init_api_doc, docindex, field.tag(),
                                     field.arg(), field.body())
-                except ValueError, e: field_warnings.append(str(e))
+                except ValueError as e: field_warnings.append(str(e))
 
     # Process fields
     for field in fields:
         try:
             process_field(api_doc, docindex, field.tag(),
                                field.arg(), field.body())
-        except ValueError, e: field_warnings.append(str(e))
+        except ValueError as e: field_warnings.append(str(e))
 
     # Check to make sure that all type parameters correspond to
     # some documented parameter.
@@ -303,7 +303,7 @@ def add_metadata_from_var(api_doc, field):
         value = []
 
         # Try extracting the value from the pyval.
-        ok_types = (basestring, int, float, bool, type(None))
+        ok_types = (str, int, float, bool, type(None))
         if val_doc.pyval is not UNKNOWN:
             if isinstance(val_doc.pyval, ok_types):
                 value = [val_doc.pyval]
@@ -329,7 +329,7 @@ def add_metadata_from_var(api_doc, field):
             if isinstance(elt, str):
                 elt = decode_with_backslashreplace(elt)
             else:
-                elt = unicode(elt)
+                elt = str(elt)
             elt = epytext.ParsedEpytextDocstring(
                 epytext.parse_as_para(elt), inline=True)
 
@@ -480,7 +480,7 @@ def report_errors(api_doc, docindex, parse_errors, field_warnings):
     if isinstance(api_doc, ValueDoc) and api_doc != module:
         if module not in (None, UNKNOWN) and module.pyval is exceptions:
             return
-        for builtin_val in __builtin__.__dict__.values():
+        for builtin_val in list(builtins.__dict__.values()):
             if builtin_val is api_doc.pyval:
                 return
         
@@ -516,7 +516,7 @@ def report_errors(api_doc, docindex, parse_errors, field_warnings):
             error.set_linenum_offset(startline)
             message = error.descr()
             messages.setdefault(message, []).append(error.linenum())
-        message_items = messages.items()
+        message_items = list(messages.items())
         message_items.sort(lambda a,b:cmp(min(a[1]), min(b[1])))
         for message, linenums in message_items:
             linenums = [n for n in linenums if n is not None]
@@ -667,7 +667,7 @@ def process_undocumented_field(api_doc, docindex, tag, arg, descr):
     _check(api_doc, tag, arg, context=NamespaceDoc, expect_arg=False)
     for ident in _descr_to_identifiers(descr):
         var_name_re = re.compile('^%s$' % ident.replace('*', '(.*)'))
-        for var_name, var_doc in api_doc.variables.items():
+        for var_name, var_doc in list(api_doc.variables.items()):
             if var_name_re.match(var_name):
                 # Remove the variable from `variables`.
                 api_doc.variables.pop(var_name, None)
@@ -707,7 +707,7 @@ def process_deffield_field(api_doc, docindex, tag, arg, descr):
         docstring_field = _descr_to_docstring_field(arg, descr)
         docstring_field.varnames.append("__%s__" % arg)
         api_doc.extra_docstring_fields.append(docstring_field)
-    except ValueError, e:
+    except ValueError as e:
         raise ValueError('Bad %s: %s' % (tag, e))
 
 def process_raise_field(api_doc, docindex, tag, arg, descr):
@@ -936,7 +936,7 @@ def unindent_docstring(docstring):
     lines = docstring.expandtabs().split('\n')
 
     # Find minimum indentation of any non-blank lines after first line.
-    margin = sys.maxint
+    margin = sys.maxsize
     for line in lines[1:]:
         content = len(line.lstrip())
         if content:
@@ -945,7 +945,7 @@ def unindent_docstring(docstring):
     # Remove indentation.
     if lines:
         lines[0] = lines[0].lstrip()
-    if margin < sys.maxint:
+    if margin < sys.maxsize:
         for i in range(1, len(lines)): lines[i] = lines[i][margin:]
     # Remove any trailing (but not leading!) blank lines.
     while lines and not lines[-1]:
@@ -976,7 +976,7 @@ def _descr_to_identifiers(descr):
     idents = descr.to_plaintext(None).strip()
     idents = re.sub(r'\s+', ' ', idents)
     if not _IDENTIFIER_LIST_REGEXP.match(idents):
-        raise ValueError, 'Bad Identifier list: %r' % idents
+        raise ValueError('Bad Identifier list: %r' % idents)
     rval = re.split('[:;, ] *', idents)
     return rval
     
@@ -985,7 +985,7 @@ def _descr_to_docstring_field(arg, descr):
     descr = descr.to_plaintext(None).strip()
     args = re.split('[:;,] *', descr)
     if len(args) == 0 or len(args) > 3:
-        raise ValueError, 'Wrong number of arguments'
+        raise ValueError('Wrong number of arguments')
     singular = args[0]
     if len(args) >= 2: plural = args[1]
     else: plural = None

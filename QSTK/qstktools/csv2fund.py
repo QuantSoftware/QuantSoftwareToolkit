@@ -78,7 +78,7 @@ def analyze_transactions(filename, plot_name, share_table, show_transactions=Fal
 
     #first pass
     reader=csv.reader(open(filename,'rU'), delimiter=',')
-    reader.next()
+    next(reader)
     prev=0
     first=1
     diffs=[]
@@ -256,7 +256,7 @@ def csv2fund(filename):
     @return commissions : value of slippage over the csv time
     """
     reader=csv.reader(open(filename,'rU'), delimiter=',')
-    reader.next()
+    next(reader)
     symbols=[]
     dates=[]
     for row in reader:
@@ -265,9 +265,9 @@ def csv2fund(filename):
                 symbols.append(row[0])
         if not(dp.parse(row[3]) in dates):
             dates.append(dp.parse(row[3]))
-    print symbols
+    print(symbols)
     reader=csv.reader(open(filename,'rU'), delimiter=',')
-    reader.next()
+    next(reader)
     if not("_CASH" in symbols):
         symbols.append("_CASH")
     vals=numpy.zeros([len(dates),len(symbols)])
@@ -309,7 +309,7 @@ def csv2fund(filename):
     column_index = sorted(share_table.columns)
     share_table = share_table.reindex(index=time_index, columns=column_index)
     i_start_cash = share_table["_CASH"].ix[0]
-    print i_start_cash
+    print(i_start_cash)
     return [share_table, commissions, i_start_cash]
 
 # def ofx2fund(filename, start_val):
@@ -408,14 +408,14 @@ def share_table2fund(share_table):
 if __name__ == "__main__":
     filename = "Strat.csv"
     plot_name = "Strategy"
-    print "load csv"
+    print("load csv")
     [share_table, commissions, i_start_cash] = csv2fund(filename)
-    print share_table
+    print(share_table)
     [fund_ts, ts_leverage] = share_table2fund(share_table)
-    print "print report"
-    print fund_ts
+    print("print report")
+    print(fund_ts)
     report.print_stats(fund_ts, ["SPY"], plot_name, directory="./" + plot_name, commissions=commissions, i_start_cash=i_start_cash)
-    print "analyze transactions"
+    print("analyze transactions")
     #Generate new plot based off transactions alone
     analyze_transactions(filename, plot_name, share_table, True)
-    print "done"
+    print("done")

@@ -2,8 +2,8 @@
 Pulling Yahoo CSV Data
 '''
 
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import datetime
 import os
 import QSTK.qstkutil.DataAccess as da
@@ -35,9 +35,9 @@ def get_yahoo_data(data_path, ls_symbols):
         # print "Getting {0}".format(symbol)
 
         try:
-            params = urllib.urlencode ({'a':0, 'b':1, 'c':2000, 'd':_now.month-1, 'e':_now.day, 'f':_now.year, 's': symbol})
+            params = urllib.parse.urlencode ({'a':0, 'b':1, 'c':2000, 'd':_now.month-1, 'e':_now.day, 'f':_now.year, 's': symbol})
             url = "http://ichart.finance.yahoo.com/table.csv?%s" % params
-            url_get = urllib2.urlopen(url)
+            url_get = urllib.request.urlopen(url)
             
             header = url_get.readline()
             symbol_data.append (url_get.readline())
@@ -58,16 +58,16 @@ def get_yahoo_data(data_path, ls_symbols):
 
             f.close()
 
-        except urllib2.HTTPError:
+        except urllib.error.HTTPError:
             miss_ctr += 1
             ls_missed_syms.append(symbol_name)
-            print "Unable to fetch data for stock: {0} at {1}".format(symbol_name, url)
-        except urllib2.URLError:
+            print("Unable to fetch data for stock: {0} at {1}".format(symbol_name, url))
+        except urllib.error.URLError:
             miss_ctr += 1
             ls_missed_syms.append(symbol_name)
-            print "URL Error for stock: {0} at {1}".format(symbol_name, url)
+            print("URL Error for stock: {0} at {1}".format(symbol_name, url))
 
-    print "All done. Got {0} stocks. Could not get {1}".format(len(ls_symbols) - miss_ctr, miss_ctr)
+    print("All done. Got {0} stocks. Could not get {1}".format(len(ls_symbols) - miss_ctr, miss_ctr))
     return ls_missed_syms
 
 

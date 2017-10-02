@@ -64,7 +64,7 @@ class FastKNN:
 		picks the first 'num_anchors' as new anchors.
 		"""
 		if selection_type == 'random':
-			self.anchors = range(len(self.training_data))
+			self.anchors = list(range(len(self.training_data)))
 			random.shuffle(self.anchors)
 			self.anchors = self.anchors[0:self.num_anchors]
 			self.kdt = scipy.spatial.kdtree.KDTree(numpy.array(self.training_data)[self.anchors,:])
@@ -92,7 +92,7 @@ class FastKNN:
 					dist = self.distfun(data,self.training_data[a])
 					bisect.insort(self.data_by_anchors[a],(dist,new_idx))
 		elif len(data.shape)>1:
-			for i in xrange(len(data)):
+			for i in range(len(data)):
 				thing = data[i]
 				new_idx = len(self.training_data)
 				self.training_data.append(thing)
@@ -138,7 +138,7 @@ class FastKNN:
 		neighbors = list()
 		maxd = None
 		maxd_idx = 0
-		for i in xrange(0,len(anchor_list)):
+		for i in range(0,len(anchor_list)):
 			nextpnt_dist = self.distfun(point,self.training_data[anchor_list[i][1]])
 			self.num_checks += 1
 			nextthing = (nextpnt_dist,anchor_list[i][1])
@@ -177,10 +177,10 @@ class FastKNN:
 				else:
 					tmp = 0
 				class_count[clss] = tmp+1
-			bleh = max(class_count.iteritems(),key=lambda item:item[1])
+			bleh = max(iter(class_count.items()),key=lambda item:item[1])
 			if dumdumcheck and bleh[1] == 1:
-				print "aHAH!"
-				print point
+				print("aHAH!")
+				print(point)
 			rv = bleh[0]
 		elif method == 'mean':
 			return sum([self.data_classes[n[1]] for n in neighbors])/float(k)
@@ -195,7 +195,7 @@ def dataifywine(fname):
 	#first line is the name of the attributes, strip it off
 	bar = bar[1:]
 	#trim, split, and cast the data. seperator is ';'
-	return [map(float,thing.strip().split(';')) for thing in bar]
+	return [list(map(float,thing.strip().split(';'))) for thing in bar]
 
 def testwine():
 	wqred = dataifywine('wine/winequality-red.csv') + dataifywine('wine/winequality-white.csv')
@@ -203,14 +203,14 @@ def testwine():
 	leftout = int(len(wqred)*leftoutperc)
 	testing = wqred[:leftout]
 	training = wqred[leftout:]
-	print "Training:",len(training)
-	print "Testing:",len(testing)
+	print("Training:",len(training))
+	print("Testing:",len(testing))
 	foo = FastKNN(10)
 	foo.addEvidence(numpy.array([thing[:-1] for thing in training]), [thing[-1] for thing in training])
 	knn.addEvidence(numpy.array(training))
 	total = 0
 	correct = 0
-	for x in xrange(len(testing)):
+	for x in range(len(testing)):
 		thing = testing[x]
 		guess = foo.query(numpy.array(thing[:-1]),3)
 		#realknn = knn.query(numpy.array([thing[:-1],]),3,method='mean')
@@ -221,15 +221,15 @@ def testwine():
 			correct += 1
 		total += 1
 		if total % 50 == 0:
-			print total,'/',len(testing)
-	print correct,"/",total,":",float(correct)/float(total)
-	print "Average checks per query:", float(foo.num_checks)/float(total)
+			print(total,'/',len(testing))
+	print(correct,"/",total,":",float(correct)/float(total))
+	print("Average checks per query:", float(foo.num_checks)/float(total))
 	
 def testspiral():
-	for leftout in xrange(1,11):
-		print "Fold",leftout
+	for leftout in range(1,11):
+		print("Fold",leftout)
 		foo = FastKNN(10)
-		for x in xrange(1,11):
+		for x in range(1,11):
 			if x != leftout:
 				somedata = open("spiral/spiralfold%d.txt" % x)
 				pnts = list()
@@ -256,13 +256,13 @@ def testspiral():
 			if guess == pbbbt:
 				correct += 1
 			total += 1
-		print correct,"/",total,":",float(correct)/float(total)
-		print "Average number of checks per query:", 
-		print float(foo.num_checks)/float(total)
+		print(correct,"/",total,":",float(correct)/float(total))
+		print("Average number of checks per query:", end=' ') 
+		print(float(foo.num_checks)/float(total))
 
 def getflatcsv(fname):
 	inf = open(fname)
-	return numpy.array([map(float,s.strip().split(',')) for s in inf.readlines()])
+	return numpy.array([list(map(float,s.strip().split(','))) for s in inf.readlines()])
 
 def testgendata():
 	anchors = 200
@@ -276,13 +276,13 @@ def testgendata():
 	data = getflatcsv(fname)
 	foo.addEvidence(data[:,:-1],data[:,-1])
 	foo.num_checks = 0
-	for x in xrange(querys):
+	for x in range(querys):
 		pnt = numpy.array(gendata.gensingle(d,bnds,clsses))
 		foo.query(pnt[:-1])
 		if x % 50 == 0:
-			print float(foo.num_checks)/float(x+1),
-			print x,"/",querys
-	print "Average # queries:", float(foo.num_checks)/float(querys)
+			print(float(foo.num_checks)/float(x+1), end=' ')
+			print(x,"/",querys)
+	print("Average # queries:", float(foo.num_checks)/float(querys))
 	
 	
 

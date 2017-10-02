@@ -15,7 +15,7 @@ Created on Jan 1, 2011
 
 # Python imports
 import os
-import cPickle
+import pickle
 import sys
 import datetime as dt
 
@@ -54,8 +54,8 @@ def quickSim( alloc, historic, start_cash ):
     #check each row in alloc
     for row in range( 0, len(alloc.values[:, 0]) ):
         if( abs(alloc.values[row, :].sum() - 1) > .0001 ):
-            print "warning, alloc row " + str(row) + \
-            "does not sum to one, rebalancing"
+            print("warning, alloc row " + str(row) + \
+            "does not sum to one, rebalancing")
             #if no allocation, all in cash
             if(alloc.values[row, :].sum()==0):
                 alloc.values[row, -1] = 1
@@ -142,8 +142,8 @@ def shortingQuickSim(alloc, historic, start_cash, leverage):
         #TODO Find out what to use for fundvall below...
         this_leverage = _compute_leverage( alloc.values[0, :], start_cash )
         if this_leverage > leverage:
-            print 'Warning, leverage of ', this_leverage, \
-                  ' reached, exceeds leverage limit of ', leverage, '\n'
+            print('Warning, leverage of ', this_leverage, \
+                  ' reached, exceeds leverage limit of ', leverage, '\n')
         #get closest date(previous date)
         closest = historic[ historic.index <= alloc.index[i] ]
         #for loop to calculate fund daily (without rebalancing)
@@ -185,7 +185,7 @@ def alloc_backtest(alloc, start):
     
     #read in alloc table from command line arguements
     alloc_input_file = open(alloc, "r")
-    alloc = cPickle.load(alloc_input_file)
+    alloc = pickle.load(alloc_input_file)
     
     # Get the data from the data store
     dataobj = da.DataAccess('Norgate')
@@ -284,33 +284,33 @@ def run_main():
     if(sys.argv[1] == '-a'):
         funds = alloc_backtest(sys.argv[2], sys.argv[3])
         output = open(sys.argv[4], "w")
-        cPickle.dump(funds, output)
+        pickle.dump(funds, output)
     elif(sys.argv[1] == '-s'):
-        t = map(int,  sys.argv[3].split('-'))
+        t = list(map(int,  sys.argv[3].split('-')))
         startday = dt.datetime(t[2], t[0], t[1])
-        t = map(int,  sys.argv[4].split('-'))
+        t = list(map(int,  sys.argv[4].split('-')))
         endday = dt.datetime(t[2], t[0], t[1])  
         fundsmatrix = strat_backtest1(sys.argv[2], startday, endday, 1, 0, 
                                     int(sys.argv[5]))
         output = open(sys.argv[6], "w")
-        cPickle.dump(fundsmatrix, output) 
+        pickle.dump(fundsmatrix, output) 
     elif(sys.argv[1] == '-r'):
-        t = map(int, sys.argv[3].split('-'))
+        t = list(map(int, sys.argv[3].split('-')))
         startday = dt.datetime(t[2], t[0], t[1])
-        t = map(int, sys.argv[4].split('-'))
+        t = list(map(int, sys.argv[4].split('-')))
         endday = dt.datetime(t[2], t[0], t[1])
         fundsmatrix = strat_backtest2(sys.argv[2], startday, endday,
                                     int(sys.argv[5]), int(sys.argv[6]),
                                     int(sys.argv[7]))
         output = open(sys.argv[8], "w")
-        cPickle.dump(fundsmatrix, output)
+        pickle.dump(fundsmatrix, output)
     else:
-        print 'invalid command line call'
-        print 'use python quickSim.py -a alloc_pkl start_value output_pkl'
-        print 'or python quickSim.py -s strategy start_date end_date' + \
-              'start_value output_pkl'
-        print 'or python quickSim.py -r strategy start_date end_date' + \
-              ' test_offset_in_days duration start_value output_pkl'
+        print('invalid command line call')
+        print('use python quickSim.py -a alloc_pkl start_value output_pkl')
+        print('or python quickSim.py -s strategy start_date end_date' + \
+              'start_value output_pkl')
+        print('or python quickSim.py -r strategy start_date end_date' + \
+              ' test_offset_in_days duration start_value output_pkl')
 
 if __name__ == "__main__":
     run_main()

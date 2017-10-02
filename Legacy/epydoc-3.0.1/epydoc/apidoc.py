@@ -41,7 +41,7 @@ __docformat__ = 'epytext en'
 import types, re, os.path, pickle
 from epydoc import log
 import epydoc
-import __builtin__
+import builtins
 from epydoc.compat import * # Backwards compatibility
 from epydoc.util import decode_with_backslashreplace, py_src_filename
 import epydoc.markup.pyval_repr
@@ -111,7 +111,7 @@ class DottedName:
         for piece in pieces:
             if isinstance(piece, DottedName):
                 self._identifiers += piece._identifiers
-            elif isinstance(piece, basestring):
+            elif isinstance(piece, str):
                 for subpiece in piece.split('.'):
                     if piece not in self._ok_identifiers:
                         if not self._IDENTIFIER_RE.match(subpiece):
@@ -129,7 +129,7 @@ class DottedName:
         self._identifiers = tuple(self._identifiers)
 
     def __repr__(self):
-        idents = [`ident` for ident in self._identifiers]
+        idents = [repr(ident) for ident in self._identifiers]
         return 'DottedName(' + ', '.join(idents) + ')'
 
     def __str__(self):
@@ -147,7 +147,7 @@ class DottedName:
         Return a new C{DottedName} whose identifier sequence is formed
         by adding C{other}'s identifier sequence to C{self}'s.
         """
-        if isinstance(other, (basestring, DottedName)):
+        if isinstance(other, (str, DottedName)):
             return DottedName(self, other)
         else:
             return DottedName(self, *other)
@@ -157,7 +157,7 @@ class DottedName:
         Return a new C{DottedName} whose identifier sequence is formed
         by adding C{self}'s identifier sequence to C{other}'s.
         """
-        if isinstance(other, (basestring, DottedName)):
+        if isinstance(other, (str, DottedName)):
             return DottedName(other, self)
         else:
             return DottedName(*(list(other)+[self]))
@@ -169,7 +169,7 @@ class DottedName:
         identifiers selected by the slice.  If C{i} is an empty slice,
         return an empty list (since empty C{DottedName}s are not valid).
         """
-        if isinstance(i, types.SliceType):
+        if isinstance(i, slice):
             pieces = self._identifiers[i.start:i.stop]
             if pieces: return DottedName(pieces)
             else: return []
@@ -277,7 +277,7 @@ class _Sentinel:
         self.name = name
     def __repr__(self):
         return '<%s>' % self.name
-    def __nonzero__(self):
+    def __bool__(self):
         raise ValueError('Sentinel value <%s> can not be used as a boolean' %
                          self.name)
 
@@ -974,17 +974,17 @@ class NamespaceDoc(ValueDoc):
         imports = filters.get('imports', True)
         private = filters.get('private', True)
         if variables and imports and private:
-            return self.variables.values() # list the common case first.
+            return list(self.variables.values()) # list the common case first.
         elif not variables:
             return []
         elif not imports and not private:
-            return [v for v in self.variables.values() if
+            return [v for v in list(self.variables.values()) if
                     v.is_imported != True and v.is_public != False]
         elif not private:
-            return [v for v in self.variables.values() if
+            return [v for v in list(self.variables.values()) if
                     v.is_public != False]
         elif not imports:
-            return [v for v in self.variables.values() if
+            return [v for v in list(self.variables.values()) if
                     v.is_imported != True]
         assert 0, 'this line should be unreachable'
 
@@ -1008,7 +1008,7 @@ class NamespaceDoc(ValueDoc):
                 elif '*' in ident:
                     regexp = re.compile('^%s$' % ident.replace('*', '(.*)'))
                     # sort within matching group?
-                    for name, var_doc in unsorted.items():
+                    for name, var_doc in list(unsorted.items()):
                         if regexp.match(name):
                             self.sorted_variables.append(unsorted.pop(name))
                             unused_idents.discard(ident)
@@ -1019,7 +1019,7 @@ class NamespaceDoc(ValueDoc):
                     
     
         # Add any remaining variables in alphabetical order.
-        var_docs = unsorted.items()
+        var_docs = list(unsorted.items())
         var_docs.sort()
         for name, var_doc in var_docs:
             self.sorted_variables.append(var_doc)
@@ -1096,7 +1096,7 @@ class NamespaceDoc(ValueDoc):
         Issue a warning for any @group items that were not used by
         L{_init_grouping()}.
         """
-        for (group, unused_idents) in self._unused_groups.items():
+        for (group, unused_idents) in list(self._unused_groups.items()):
             for ident in unused_idents:
                 log.warning("@group %s: %s.%s not found" %
                             (group, self.canonical_name, ident))
@@ -1322,7 +1322,7 @@ class ClassDoc(NamespaceDoc):
                     base.proxy_for is not None):
                     self._report_bad_base(base)
         w = [warn_about_bad_bases]*len(bases)
-        return self._c3_merge([[self]] + map(ClassDoc._c3_mro, bases, w) +
+        return self._c3_merge([[self]] + list(map(ClassDoc._c3_mro, bases, w)) +
                               [list(bases)])
 
     def _report_bad_base(self, base):
@@ -1866,7 +1866,7 @@ class DocIndex:
         @type name: C{str} or L{DottedName}
         @type context: L{APIDoc}
         """
-        if isinstance(name, basestring):
+        if isinstance(name, str):
             name = re.sub(r'\(.*\)$', '', name.strip())
             if re.match('^([a-zA-Z_]\w*)(\.[a-zA-Z_]\w*)*$', name):
                 name = DottedName(name)
@@ -1942,7 +1942,7 @@ class DocIndex:
             if not isinstance(doc, ModuleDoc):
                 continue
 
-            for var in doc.variables.values():
+            for var in list(doc.variables.values()):
                 if not isinstance(var.value, ClassDoc):
                     continue
 
@@ -2026,7 +2026,7 @@ class DocIndex:
         # from these `funcid`s to `RoutineDoc`s.
         self._update_funcid_to_doc(profile_stats)
         
-        for callee, (cc, nc, tt, ct, callers) in profile_stats.stats.items():
+        for callee, (cc, nc, tt, ct, callers) in list(profile_stats.stats.items()):
             callee = self._funcid_to_doc.get(callee)
             if callee is None: continue
             for caller in callers:
@@ -2106,7 +2106,7 @@ def pp_apidoc(api_doc, doublespace=0, depth=5, exclude=(), include=(),
     s = '%s [%s]' % (name, backpointers[pyid])
 
     # Only print non-empty fields:
-    fields = [field for field in api_doc.__dict__.keys()
+    fields = [field for field in list(api_doc.__dict__.keys())
               if (field in include or
                   (getattr(api_doc, field) is not UNKNOWN
                    and field not in exclude))]
@@ -2114,7 +2114,7 @@ def pp_apidoc(api_doc, doublespace=0, depth=5, exclude=(), include=(),
         fields = [field for field in dir(api_doc)
                   if field in include]
     else:
-        fields = [field for field in api_doc.__dict__.keys()
+        fields = [field for field in list(api_doc.__dict__.keys())
                   if (getattr(api_doc, field) is not UNKNOWN
                       and field not in exclude)]
     fields.sort()
@@ -2124,15 +2124,15 @@ def pp_apidoc(api_doc, doublespace=0, depth=5, exclude=(), include=(),
         if doublespace: s += '\n |'
         s += '\n +- %s' % field
 
-        if (isinstance(fieldval, types.ListType) and
+        if (isinstance(fieldval, list) and
             len(fieldval)>0 and
             isinstance(fieldval[0], APIDoc)):
             s += _pp_list(api_doc, fieldval, doublespace, depth,
                           exclude, include, backpointers,
                           (field is fields[-1]))
-        elif (isinstance(fieldval, types.DictType) and
+        elif (isinstance(fieldval, dict) and
               len(fieldval)>0 and 
-              isinstance(fieldval.values()[0], APIDoc)):
+              isinstance(list(fieldval.values())[0], APIDoc)):
             s += _pp_dict(api_doc, fieldval, doublespace, 
                           depth, exclude, include, backpointers,
                           (field is fields[-1]))
@@ -2162,7 +2162,7 @@ def _pp_list(api_doc, items, doublespace, depth, exclude, include,
 
 def _pp_dict(api_doc, dict, doublespace, depth, exclude, include,
               backpointers, is_last):
-    items = dict.items()
+    items = list(dict.items())
     items.sort()
     line1 = (is_last and ' ') or '|'
     s = ''
@@ -2193,7 +2193,7 @@ def _pp_val(api_doc, val, doublespace, depth, exclude, include, backpointers):
         return pp_apidoc(val, doublespace, depth-1, exclude,
                          include, backpointers)
     elif isinstance(val, markup.ParsedDocstring):
-        valrepr = `val.to_plaintext(None)`
+        valrepr = repr(val.to_plaintext(None))
         if len(valrepr) < 40: return valrepr
         else: return valrepr[:37]+'...'
     else:

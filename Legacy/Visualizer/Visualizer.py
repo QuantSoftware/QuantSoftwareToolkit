@@ -1680,7 +1680,7 @@ class Visualizer(QtGui.QMainWindow):
 		text, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 'Enter name of movie:')
 		if ok:
 			if len(text)<1:
-				print "Movie name Invalid"
+				print("Movie name Invalid")
 				return 
 			folderpath= folderpath + str(text)
 		else:

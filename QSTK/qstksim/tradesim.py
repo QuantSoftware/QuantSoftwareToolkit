@@ -153,20 +153,20 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
     @param f_commision_share: Commision per share
     @param b_followleastcount: False will allow fractional shares
     @param log: CSV file to log transactions to
-    @return funds: TimeSeries with fund values for each day in the back test
-    @return leverage: TimeSeries with Leverage values for each day in the back test
+    @return funds: Series with fund values for each day in the back test
+    @return leverage: Series with Leverage values for each day in the back test
     @return Commision costs : Total commision costs in the whole backtester
     @return Slippage costs : Total slippage costs in the whole backtester
-    @rtype TimeSeries
+    @rtype Series
     """
 
     if alloc.index[-1] > df_historic.index[-1]:
-        print "Historical Data not sufficient"
+        print("Historical Data not sufficient")
         indices, = np.where(alloc.index <= df_historic.index[-1])
         alloc = alloc.reindex(index = alloc.index[indices])
 
     if alloc.index[0] < df_historic.index[0]:
-        print "Historical Data not sufficient"
+        print("Historical Data not sufficient")
         indices, = np.where(alloc.index >= df_historic.index[0])
         alloc = alloc.reindex(index = alloc.index[indices])
 
@@ -176,7 +176,7 @@ def tradesim( alloc, df_historic, f_start_cash, i_leastcount=1,
 
     #write column headings
     if log!="false":
-        print "writing transaction log to "+log
+        print("writing transaction log to "+log)
         log_file.write("Symbol,Company Name,Txn Type,Txn Date/Time, Gross Leverage, Net Leverage,# Shares,Price,Txn Value,Portfolio # Shares,Portfolio Value,Commission,Slippage(10BPS),Comments\n")
 
     #a dollar is always worth a dollar
@@ -451,11 +451,11 @@ def tradesim_comb( df_alloc, d_data, f_start_cash, i_leastcount=1,
     @param f_minimumcommision: Minimum commision cost per transaction
     @param f_commision_share: Commision per share
     @param b_followleastcount: False will allow fractional shares
-    @return funds: TimeSeries with fund values for each day in the back test
-    @return leverage: TimeSeries with Leverage values for each day in the back test
+    @return funds: Series with fund values for each day in the back test
+    @return leverage: Series with Leverage values for each day in the back test
     @return Commision costs : Total commision costs in the whole backtester
     @return Slippage costs : Total slippage costs in the whole backtester
-    @rtype TimeSeries
+    @rtype Series
     """
 
     df_close = d_data['close']
@@ -474,4 +474,4 @@ def tradesim_comb( df_alloc, d_data, f_start_cash, i_leastcount=1,
                    f_commision_share, i_target_leverage, f_rate_borrow, log, b_exposure)
 
 if __name__ == '__main__':
-    print "Done"
+    print("Done")

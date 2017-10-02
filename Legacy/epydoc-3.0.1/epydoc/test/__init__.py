@@ -87,8 +87,8 @@ def check_requirements(filename):
         try:
             __import__(module)
         except ImportError:
-            print ('Skipping %r (required module %r not found)' %
-                   (os.path.split(filename)[-1], module))
+            print(('Skipping %r (required module %r not found)' %
+                   (os.path.split(filename)[-1], module)))
             return False
     return True
             

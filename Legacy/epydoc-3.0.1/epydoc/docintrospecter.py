@@ -37,7 +37,7 @@ from epydoc.util import *
 # For extracting encoding for docstrings:
 import epydoc.docparser
 # Builtin values
-import __builtin__
+import builtins
 # Backwards compatibility
 from epydoc.compat import * 
 
@@ -196,11 +196,11 @@ def introspect_module(module, module_doc, module_name=None, preliminary=False):
 
     # Record the module's docformat
     if hasattr(module, '__docformat__'):
-        module_doc.docformat = unicode(module.__docformat__)
+        module_doc.docformat = str(module.__docformat__)
                                   
     # Record the module's filename
     if hasattr(module, '__file__'):
-        try: module_doc.filename = unicode(module.__file__)
+        try: module_doc.filename = str(module.__file__)
         except KeyboardInterrupt: raise
         except: pass
         if module_doc.filename is not UNKNOWN:
@@ -222,7 +222,7 @@ def introspect_module(module, module_doc, module_name=None, preliminary=False):
     # package; so set is_package=True and record its __path__.
     if hasattr(module, '__path__'):
         module_doc.is_package = True
-        try: module_doc.path = [unicode(p) for p in module.__path__]
+        try: module_doc.path = [str(p) for p in module.__path__]
         except KeyboardInterrupt: raise
         except: pass
     else:
@@ -388,7 +388,7 @@ def introspect_class(cls, class_doc, module_name=None):
     class_doc.variables = {}
     if hasattr(cls, '__dict__'):
         private_prefix = '_%s__' % getattr(cls, '__name__', '<none>')
-        for child_name, child in cls.__dict__.items():
+        for child_name, child in list(cls.__dict__.items()):
             if (child_name in base_children
                 and base_children[child_name] == child):
                 continue
@@ -418,11 +418,11 @@ def introspect_routine(routine, routine_doc, module_name=None):
     
     # Extract the underying function
     if isinstance(routine, MethodType):
-        func = routine.im_func
+        func = routine.__func__
     elif isinstance(routine, staticmethod):
         func = routine.__get__(0)
     elif isinstance(routine, classmethod):
-        func = routine.__get__(0).im_func
+        func = routine.__get__(0).__func__
     else:
         func = routine
 
@@ -447,13 +447,13 @@ def introspect_routine(routine, routine_doc, module_name=None):
                 routine_doc.posarg_defaults[i+offset] = default_val
 
         # If it's a bound method, then strip off the first argument.
-        if isinstance(routine, MethodType) and routine.im_self is not None:
+        if isinstance(routine, MethodType) and routine.__self__ is not None:
             routine_doc.posargs = routine_doc.posargs[1:]
             routine_doc.posarg_defaults = routine_doc.posarg_defaults[1:]
 
         # Set the routine's line number.
         if hasattr(func, 'func_code'):
-            routine_doc.lineno = func.func_code.co_firstlineno
+            routine_doc.lineno = func.__code__.co_firstlineno
 
     else:
         # [XX] I should probably use UNKNOWN here??
@@ -561,10 +561,10 @@ def get_docstring(value, module_name=None):
     docstring = getattr(value, '__doc__', None)
     if docstring is None:
         return None
-    elif isinstance(docstring, unicode):
+    elif isinstance(docstring, str):
         return docstring
     elif isinstance(docstring, str):
-        try: return unicode(docstring, 'ascii')
+        try: return str(docstring, 'ascii')
         except UnicodeDecodeError:
             if module_name is None:
                 module_name = get_containing_module(value)
@@ -573,7 +573,7 @@ def get_docstring(value, module_name=None):
                     module = get_value_from_name(module_name)
                     filename = py_src_filename(module.__file__)
                     encoding = epydoc.docparser.get_module_encoding(filename)
-                    return unicode(docstring, encoding)
+                    return str(docstring, encoding)
                 except KeyboardInterrupt: raise
                 except Exception: pass
             if hasattr(value, '__name__'): name = value.__name__
@@ -581,7 +581,7 @@ def get_docstring(value, module_name=None):
             log.warning("%s's docstring is not a unicode string, but it "
                         "contains non-ascii data -- treating it as "
                         "latin-1." % name)
-            return unicode(docstring, 'latin-1')
+            return str(docstring, 'latin-1')
         return None
     elif value is BuiltinMethodType:
         # Don't issue a warning for this special case.
@@ -630,15 +630,15 @@ def get_canonical_name(value, strict=False):
             dotted_name = DottedName(value.__module__, value.__name__,
                                      strict=strict)
             
-    elif (inspect.ismethod(value) and value.im_self is not None and
-          value.im_class is ClassType and
+    elif (inspect.ismethod(value) and value.__self__ is not None and
+          value.__self__.__class__ is ClassType and
           not value.__name__.startswith('<')): # class method.
-        class_name = get_canonical_name(value.im_self)
+        class_name = get_canonical_name(value.__self__)
         if class_name is UNKNOWN: return UNKNOWN
         dotted_name = DottedName(class_name, value.__name__, strict=strict)
     elif (inspect.ismethod(value) and
           not value.__name__.startswith('<')):
-        class_name = get_canonical_name(value.im_class)
+        class_name = get_canonical_name(value.__self__.__class__)
         if class_name is UNKNOWN: return UNKNOWN
         dotted_name = DottedName(class_name, value.__name__, strict=strict)
     elif (isinstance(value, FunctionType) and
@@ -689,11 +689,11 @@ def get_containing_module(value):
         return DottedName(value.__name__)
     elif isclass(value):
         return DottedName(value.__module__)
-    elif (inspect.ismethod(value) and value.im_self is not None and
-          value.im_class is ClassType): # class method.
-        return DottedName(value.im_self.__module__)
+    elif (inspect.ismethod(value) and value.__self__ is not None and
+          value.__self__.__class__ is ClassType): # class method.
+        return DottedName(value.__self__.__module__)
     elif inspect.ismethod(value):
-        return DottedName(value.im_class.__module__)
+        return DottedName(value.__self__.__class__.__module__)
     elif inspect.isroutine(value):
         module = _find_function_module(value)
         if module is None: return None
@@ -720,10 +720,10 @@ def _find_function_module(func):
     # a couple special cases (including using epydoc to document
     # itself).  In particular, if a module gets loaded twice, using
     # two different names for the same file, then this helps.
-    for module in sys.modules.values():
+    for module in list(sys.modules.values()):
         if (hasattr(module, '__dict__') and
             hasattr(func, 'func_globals') and
-            func.func_globals is module.__dict__):
+            func.__globals__ is module.__dict__):
             return module.__name__
     return None
 
@@ -863,8 +863,8 @@ def get_value_from_name(name, globs=None):
     # the requested name refers to a builtin.
     try:
         module = _import(name[0])
-    except ImportError, e:
-        if globs is None: globs = __builtin__.__dict__
+    except ImportError as e:
+        if globs is None: globs = builtins.__dict__
         if name[0] in globs:
             try: return _lookup(globs[name[0]], name[1:])
             except: raise e
@@ -900,7 +900,7 @@ def _import(name, filename=None):
     # explicitly store sys.path.
     old_sys = sys.__dict__.copy()
     old_sys_path = sys.path[:]
-    old_builtins = __builtin__.__dict__.copy()
+    old_builtins = builtins.__dict__.copy()
 
     # Add the current directory to sys.path, in case they're trying to
     # import a module by name that resides in the current directory.
@@ -935,8 +935,8 @@ def _import(name, filename=None):
             raise ImportError(estr)
     finally:
         # Restore the important values that we saved.
-        __builtin__.__dict__.clear()
-        __builtin__.__dict__.update(old_builtins)
+        builtins.__dict__.clear()
+        builtins.__dict__.update(old_builtins)
         sys.__dict__.clear()
         sys.__dict__.update(old_sys)
         sys.path = old_sys_path
@@ -983,7 +983,7 @@ class _DevNull:
     def readline(self, size=0): return ''
     def readlines(self, sizehint=0): return []
     def seek(self, offset, whence=0): pass
-    def tell(self): return 0L
+    def tell(self): return 0
     def truncate(self, size=0): pass
     def write(self, str): pass
     def writelines(self, sequence): pass

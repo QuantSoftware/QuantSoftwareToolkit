@@ -53,7 +53,7 @@ def runbuilder(s, attribs='', build=None, exclude=''):
     if build: val_doc = val_doc.variables[build].value
     # Display it.
     if isinstance(val_doc, ClassDoc):
-        for val in val_doc.variables.values():
+        for val in list(val_doc.variables.values()):
             if isinstance(val.value, RoutineDoc):
                 fun_to_plain(val.value)
     s = val_doc.pp(include=attribs.split(),exclude=exclude.split())
@@ -61,7 +61,7 @@ def runbuilder(s, attribs='', build=None, exclude=''):
     s = re.sub(r"(<module 'epydoc_test' from ).*", r'\1...', s)
     s = re.sub(r"(<function \w+ at )0x\w+>", r"\1...>", s)
     s = re.sub(r"(<\w+ object at )0x\w+>", r"\1...>", s)
-    print s
+    print(s)
     # Clean up.
     cleanup_tmp_dir(tmp_dir)
 
@@ -89,7 +89,7 @@ def runparser(s, attribs='', show=None, exclude=''):
     # Display it.
     s = val_doc.pp(include=attribs.split(), exclude=exclude.split())
     s = re.sub(r"filename = .*", "filename = ...", s)
-    print s
+    print(s)
     # Clean up.
     cleanup_tmp_dir(tmp_dir)
 
@@ -121,7 +121,7 @@ def runintrospecter(s, attribs='', introspect=None, exclude=''):
     s = re.sub(r"(<module 'epydoc_test' from ).*", r'\1...', s)
     s = re.sub(r"(<function \w+ at )0x\w+>", r"\1...>", s)
     s = re.sub(r"(<\w+ object at )0x\w+>", r"\1...>", s)
-    print s
+    print(s)
     # Clean up.
     cleanup_tmp_dir(tmp_dir)
 
@@ -192,7 +192,7 @@ def to_plain(docstring):
 
 def fun_to_plain(val_doc):
     """Convert parsed docstrings in text from a RoutineDoc"""
-    for k, v in val_doc.arg_types.items():
+    for k, v in list(val_doc.arg_types.items()):
         val_doc.arg_types[k] = to_plain(v)
     for i, (k, v) in enumerate(val_doc.arg_descrs):
         val_doc.arg_descrs[i] = (k, to_plain(v))
@@ -206,7 +206,7 @@ def print_docstring_as_html(self, parsed_docstring, *varargs, **kwargs):
     s = parsed_docstring.to_html(None).strip()
     s = s.encode('ascii', 'xmlcharrefreplace')
     s = remove_surrogates(s)
-    print s
+    print(s)
     return ''
 
 def remove_surrogates(s):

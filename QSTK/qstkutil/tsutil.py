@@ -72,7 +72,7 @@ def monthly(funds):
             last_this_month = qsdateutil.getLastDay(funds, year, month)
             if last_last_month == -1 :
                 last_last_month=qsdateutil.getFirstDay(funds, year, month)
-            if type(funds).__name__=='TimeSeries':
+            if type(funds).__name__=='Series':
                 funds2.append(funds[last_this_month]/funds[last_last_month]-1)
             else:
                 funds2.append(funds.xs(last_this_month)/funds.xs(last_last_month)-1)
@@ -324,8 +324,8 @@ def getOptPort(rets, f_target, l_period=1, naLower=None, naUpper=None, lNagDebug
         pass
         import nagint as nag
     except ImportError:
-        print 'Could not import NAG library'
-        print 'make sure nagint.so is in your python path'
+        print('Could not import NAG library')
+        print('make sure nagint.so is in your python path')
         return ([], 0, 0)
     
     # Get number of stocks """
@@ -367,7 +367,7 @@ def getOptPort(rets, f_target, l_period=1, naLower=None, naUpper=None, lNagDebug
         naReturn = nag.optPort( naConstraints, naLower, naUpper, \
                                       naCov, naInitial, lNagDebug )
     except RuntimeError:
-        print 'NAG Runtime error with target: %.02lf'%(f_target)
+        print('NAG Runtime error with target: %.02lf'%(f_target))
         return ( naInitial, sqrt( naCov[0][0] ) )  
     #return semi-junk to not mess up the rest of the plot
 
@@ -402,7 +402,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
         from cvxopt.solvers import qp, options
 
     except ImportError:
-        print 'Could not import CVX library'
+        print('Could not import CVX library')
         raise
     
     ''' Get number of stocks '''
@@ -481,7 +481,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
     (fMin, fMax) = getRetRange(False, naLower, naUpper, naExpected, "long") 
     #print (fTarget, fMin, fMax)
     if fTarget<fMin or fTarget>fMax:
-        print "Target not possible", fTarget, fMin, fMax
+        print("Target not possible", fTarget, fMin, fMax)
         b_error = True
 
     naLower = naLower*(-1)
@@ -519,7 +519,7 @@ def OptPort( naData, fTarget, naLower=None, naUpper=None, naExpected=None, s_typ
         b_error = True
 
     if b_error == True:
-        print "Optimization not Possible"
+        print("Optimization not Possible")
         na_port = naLower*-1
         if sum(na_port) < 1:
             if sum(naUpper) == 1:
@@ -765,7 +765,7 @@ def stockFilter( dmPrice, dmVolume, fNonNan=0.95, fPriceVolume=100*1000 ):
 
     for sStock in dmPrice.columns:
         fValid = 0.0
-        print sStock
+        print(sStock)
         # loop through all dates """
         for dtDate in dmPrice.index:
             # Count null (nan/inf/etc) values """
@@ -830,7 +830,7 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None,\
     lsRetStocks = []
 
     # Loop until we have enough randomly selected stocks """
-    llRemainingIndexes = range(0,len(lsStocks))
+    llRemainingIndexes = list(range(0,len(lsStocks)))
     lsValid = None
     while( len(lsRetStocks) != lNum ):
 
@@ -838,7 +838,7 @@ def getRandPort( lNum, dtStart=None, dtEnd=None, lsStocks=None,\
         for i in range( lNum - len(lsRetStocks) ):
             lRemaining = len(llRemainingIndexes)
             if( lRemaining == 0 ):
-                print 'Error in getRandPort: ran out of stocks'
+                print('Error in getRandPort: ran out of stocks')
                 return lsRetStocks
             
             # Pick a stock and remove it from the list of remaining stocks """

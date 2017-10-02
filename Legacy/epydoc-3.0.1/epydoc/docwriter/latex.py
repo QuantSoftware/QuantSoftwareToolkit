@@ -217,7 +217,7 @@ class LatexWriter:
         else:
             result = []
             write_func(result.append, *args)
-            s = u''.join(result)
+            s = ''.join(result)
             try:
                 s = s.encode(self._encoding)
             except UnicodeError:
@@ -846,7 +846,7 @@ class LatexWriter:
         return s
     
     def _arg_name(self, arg):
-        if isinstance(arg, basestring):
+        if isinstance(arg, str):
             return arg
         elif len(arg) == 1:
             return '(%s,)' % self._arg_name(arg[0])
@@ -1040,7 +1040,7 @@ class LatexWriter:
 
         for field in fields:
             if field.takes_arg:
-                for arg, descrs in field_values[field].items():
+                for arg, descrs in list(field_values[field].items()):
                     self.write_standard_field(out, doc, field, descrs, arg)
                                               
             else:

@@ -13,11 +13,11 @@ from QSTK.qstkutil import DataAccess as da
 from QSTK.qstkutil import qsdateutil as du
 from QSTK.qstkutil import tsutil as tsu
 from QSTK.quicksim import quickSim as qs
-import converter
+from . import converter
 import datetime as dt
 from pandas import *
 import matplotlib.pyplot as plt
-import cPickle
+import pickle
 
 def readableDate(date):
 	return str(date.month)+"/"+str(date.day)+"/"+str(date.year)
@@ -133,7 +133,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 	for year in years:
 		retur=getYearReturn(funds,year)
 		html_file.write("<TD>\n")
-		print >>html_file, "%.2f\n" % (retur*100) 
+		print("%.2f\n" % (retur*100), file=html_file) 
 		html_file.write("%</TD>\n")
 	html_file.write("</TR>\n")
 
@@ -145,7 +145,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 		if(arg2!=0):
 			win=getWinningDays(funds,funds2,year)
 			html_file.write("<TD>\n")
-			print >>html_file, "%.2f\n" % (win*100)
+			print("%.2f\n" % (win*100), file=html_file)
 			html_file.write("%</TD>\n")
 		else:
 			html_file.write("<TD>No comparison.</TD>\n")
@@ -157,7 +157,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 	for year in years:
 		drop=getYearMaxDrop(funds,year)
 		html_file.write("<TD>\n")
-		print >>html_file, "%.2f" % (drop*100)
+		print("%.2f" % (drop*100), file=html_file)
 		html_file.write("%</TD>\n")
 	html_file.write("</TR>\n")
 
@@ -167,7 +167,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 	for year in years:
 		ratio=tsu.getYearRatio(funds,year)
 		html_file.write("<TD>\n")
-		print >>html_file, "%.2f\n" % ratio
+		print("%.2f\n" % ratio, file=html_file)
 		html_file.write("</TD>\n")
 	html_file.write("</TR>\n")
 
@@ -178,7 +178,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 	for year in years:
 		ratio=getYearRatioUsingMonth(funds,year)
 		html_file.write("<TD>\n")
-		print >>html_file, "%.2f\n" % ratio
+		print("%.2f\n" % ratio, file=html_file)
 		html_file.write("</TD>\n")
 	html_file.write("</TR>\n")
 	
@@ -195,7 +195,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 
 	corrcoef=numpy.corrcoef(funds.values[0:-1],funds2.values)
 	html_file.write("<H3>Correlation=")
-	print >>html_file, "%.2f\n" % corrcoef[0][1]
+	print("%.2f\n" % corrcoef[0][1], file=html_file)
 	html_file.write("<H3>\n")
 	html_file.write("<BR/>\n\n")
 
@@ -218,7 +218,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 		months=du.getMonths(funds,year)
 		for month in months:
 			html_file.write("<TD>\n")
-			print >>html_file, "%.2f\n" % (mrets[i]*100)
+			print("%.2f\n" % (mrets[i]*100), file=html_file)
 			html_file.write("%</TD>\n")
 			i+=1
 		html_file.write("</TR>\n")
@@ -241,7 +241,7 @@ def reportFunctionality(funds, symbols,filename=sys.stdout):
 
 if __name__ == '__main__':
 	input=open(sys.argv[1],"r")
-	funds=cPickle.load(input)
+	funds=pickle.load(input)
 
 	if(len(sys.argv)>2):
 		input2=sys.argv[2]

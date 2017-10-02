@@ -7,8 +7,8 @@ def csv_converter(inputfile, outputfile):
     actualheader = ['Symbol', 'Name', 'Type', 'Date', 'Shares', 'Price', 'Cash value', 'Commission', 'Notes']
 
     reader = csv.reader(open(inputfile, 'r'), delimiter=',')
-    header = reader.next()
-    print "Header : ", header
+    header = next(reader)
+    print("Header : ", header)
     input_str = []
     for row in reader:
         input_str.append(row)
@@ -101,4 +101,4 @@ if __name__ == "__main__":
     inputfile = "./Settled.csv"
     outputfile = 'trans.csv'
     csv_converter(inputfile, outputfile)
-    print "Done"
+    print("Done")

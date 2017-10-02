@@ -189,7 +189,7 @@ class DocChecker:
             self._check(checks)
         log.end_progress()
 
-        for (warning, docs) in self._warnings.items():
+        for (warning, docs) in list(self._warnings.items()):
             docs = sorted(docs)
             docnames = '\n'.join(['  - %s' % self._name(d) for d in docs])
             log.warning('%s:\n%s' % (warning, docnames))
@@ -206,7 +206,7 @@ class DocChecker:
             if not isinstance(d, GenericValueDoc): docs.add(d)
         for doc in valdocs:
             if isinstance(doc, NamespaceDoc):
-                for d in doc.variables.values():
+                for d in list(doc.variables.values()):
                     if isinstance(d.value, GenericValueDoc): docs.add(d)
 
         for i, doc in enumerate(sorted(docs)):
@@ -333,7 +333,7 @@ class DocChecker:
             else:
                 args_with_descr = []
                 for arg, descr in doc.arg_descrs:
-                    if isinstance(arg, basestring):
+                    if isinstance(arg, str):
                         args_with_descr.append(arg)
                     else:
                         args_with_descr += arg

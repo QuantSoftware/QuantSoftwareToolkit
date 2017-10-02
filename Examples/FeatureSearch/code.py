@@ -37,7 +37,7 @@ if __name__ == '__main__':
 	
 	lsSym = list(set(lsSymTrain).union(set(lsSymTest)))
 	
-	dtStart = dt.datetime(2008,01,01)
+	dtStart = dt.datetime(2008,0o1,0o1)
 	dtEnd = dt.datetime(2010,12,31)
 	
 	norObj = da.DataAccess('Norgate')	  
@@ -59,8 +59,8 @@ if __name__ == '__main__':
 	for temp in ldfDataTest:
 		temp.fillna(method="ffill").fillna(method="bfill")
 	
-	dDataTrain = dict(zip(lsKeys, ldfDataTrain))
-	dDataTest = dict(zip(lsKeys, ldfDataTest))
+	dDataTrain = dict(list(zip(lsKeys, ldfDataTrain)))
+	dDataTest = dict(list(zip(lsKeys, ldfDataTest)))
 	
 	''' Imported functions from qstkfeat.features, NOTE: last function is classification '''
 	lfcFeatures = [ featMA, featMA, featMA, featMA, featMA, featMA, \
@@ -98,9 +98,9 @@ if __name__ == '__main__':
 	ldfFeaturesTest = ftu.applyFeatures( dDataTest, lfcFeatures, ldArgs, '$SPX')
 
 	''' Pick Test and Training Points '''		
-	dtStartTrain = dt.datetime(2008,01,01)
+	dtStartTrain = dt.datetime(2008,0o1,0o1)
 	dtEndTrain = dt.datetime(2009,12,31)
-	dtStartTest = dt.datetime(2010,01,01)
+	dtStartTest = dt.datetime(2010,0o1,0o1)
 	dtEndTest = dt.datetime(2010,12,31)
 	
 	''' Stack all information into one Numpy array ''' 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 	ftu.normQuery( naFeatTest[:,:-1], ltWeights )	
 	
 
-	lFeatures = range(0,len(lfcFeatures)-1)
+	lFeatures = list(range(0,len(lfcFeatures)-1))
 	classLabelIndex = len(lfcFeatures) - 1
 	
 	funccall = sys.argv[1] + '(naFeatTrain,naFeatTest,lFeatures,classLabelIndex)'

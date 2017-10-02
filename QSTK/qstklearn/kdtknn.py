@@ -96,15 +96,15 @@ class kdtknn(object):
         
         na_dist, na_neighbors =  self.kdt.query(points,k)
         
-        n_clsses = map(lambda rslt: map(lambda p: p[-1], self.data[rslt]), na_neighbors)
+        n_clsses = [[p[-1] for p in self.data[rslt]] for rslt in na_neighbors]
         #print n_clsses
 
         if method=='mode':
             return map(lambda x: scipy.stats.stats.mode(x)[0],n_clsses)[0]
         elif method=='mean':
-            return numpy.array(map(lambda x: numpy.mean(x),n_clsses))
+            return numpy.array([numpy.mean(x) for x in n_clsses])
         elif method=='median':
-            return numpy.array(map(lambda x: numpy.median(x),n_clsses))
+            return numpy.array([numpy.median(x) for x in n_clsses])
         elif method=='raw':
             return numpy.array(n_clsses)
         elif method=='all':
@@ -112,7 +112,7 @@ class kdtknn(object):
 
 def getflatcsv(fname):
     inf = open(fname)
-    return numpy.array([map(float,s.strip().split(',')) for s in inf.readlines()])
+    return numpy.array([list(map(float,s.strip().split(','))) for s in inf.readlines()])
 
 def testgendata():
     fname = 'test2.dat'
@@ -126,12 +126,12 @@ def testgendata():
     kdt.addEvidence(data)
     kdt.rebuildKDT()
     stime = time.time()
-    for x in xrange(querys):
+    for x in range(querys):
         pnt = numpy.array(gendata.gensingle(d,bnds,clsses))
         reslt = kdt.query(numpy.array([pnt[:-1]]))
-        print pnt,"->",reslt
+        print(pnt,"->",reslt)
     etime = time.time()
-    print etime-stime,'/',querys,'=',(etime-stime)/float(querys),'avg wallclock time per query'
+    print(etime-stime,'/',querys,'=',(etime-stime)/float(querys),'avg wallclock time per query')
     #foo.addEvidence(data[:,:-1],data[:,-1])
     #foo.num_checks = 0
     #for x in xrange(querys):

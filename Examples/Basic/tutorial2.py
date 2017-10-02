@@ -33,11 +33,11 @@ def main():
     ls_symbols = ['$SPX', 'XOM', 'GOOG', 'GLD']
 
     # Printing the first 5 rows
-    print "First 5 rows of Price Data:"
-    print na_price[:5, :]
-    print
-    print "First 5 rows of Dates:"
-    print na_dates[:5, :]
+    print("First 5 rows of Price Data:")
+    print(na_price[:5, :])
+    print()
+    print("First 5 rows of Dates:")
+    print(na_dates[:5, :])
 
     # Creating the timestamps from dates read
     ldt_timestamps = []

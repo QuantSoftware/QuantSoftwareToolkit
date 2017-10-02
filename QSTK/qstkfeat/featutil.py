@@ -60,7 +60,7 @@ def getMarketRel( dData, sRel='$SPX' ):
     
     #print dfCloseMark
     #Make all data market relative, except for volume
-    for sKey in dData.keys():
+    for sKey in list(dData.keys()):
         
         # Don't calculate market relative volume, but still copy it over 
         if sKey == 'volume':
@@ -114,8 +114,8 @@ def applyFeatures( dData, lfcFeatures, ldArgs, sMarketRel=None, sLog=None, bMin=
         if 'MR' in ldArgs[i]:
             
             if ldArgs[i]['MR'] == False:
-                print 'Warning, setting MR to false will still be Market Relative',\
-                      'simply do not include MR key in args'
+                print('Warning, setting MR to false will still be Market Relative',\
+                      'simply do not include MR key in args')
         
             if sMarketRel == None:
                 raise AssertionError('Functions require market relative stock but sMarketRel=None')
@@ -244,7 +244,7 @@ def stackSyms( ldfFeatures, dtStart=None, dtEnd=None, lsSym=None, sDelNan='ALL',
                   'FEAT' == sDelNan and not math.isnan( np.sum(naStkData[i,:-1]) ):
                     llValidRows.append(i)
                 elif  bShowRemoved:
-                    print 'Removed', sStock, naStkData[i,:]
+                    print('Removed', sStock, naStkData[i,:])
                         
             naStkData = naStkData[llValidRows,:]
             
@@ -295,7 +295,7 @@ def normFeatures( naFeatures, fMin, fMax, bAbsolute, bIgnoreLast=True ):
         fRange = fFeatMax - fFeatMin
         
         if fRange == 0:
-            print 'Warning, bad query data range'
+            print('Warning, bad query data range')
             fMult = 1.
             fShigt = 0.
         else:
@@ -430,7 +430,7 @@ def testFeature( fcFeature, dArgs ):
     
     lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldfData = norObj.get_data( ldtTimestamps, lsSym, lsKeys )
-    dData = dict(zip(lsKeys, ldfData))
+    dData = dict(list(zip(lsKeys, ldfData)))
     dfPrice = dData['close']
 
 
@@ -439,13 +439,13 @@ def testFeature( fcFeature, dArgs ):
     ''' Generate a list of DataFrames, one for each feature, with the same index/column structure as price data '''
     dtStart = dt.datetime.now()
     ldfFeatures = applyFeatures( dData, [fcFeature], [dArgs], sMarketRel='$SPX' )
-    print 'Runtime:', dt.datetime.now() - dtStart
+    print('Runtime:', dt.datetime.now() - dtStart)
     
     ''' Use last 3 months of index, to avoid lookback nans '''
 
     dfPrint = ldfFeatures[0]['GOOG']
-    print 'GOOG values:', dfPrint.values
-    print 'GOOG Sum:', dfPrint.ix[dfPrint.notnull()].sum()
+    print('GOOG values:', dfPrint.values)
+    print('GOOG Sum:', dfPrint.ix[dfPrint.notnull()].sum())
     
     for sSym in lsSym:
         plt.subplot( 211 )
@@ -483,7 +483,7 @@ def speedTest(lfcFeature,ldArgs):
     lsKeys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldtTimestamps = du.getNYSEdays( dtStart, dtEnd, dtTimeofday)
     ldfData = daData.get_data( ldtTimestamps, lsSym, lsKeys)
-    dData = dict(zip(lsKeys, ldfData))
+    dData = dict(list(zip(lsKeys, ldfData)))
     
     '''loop through features'''
     ltResults = []
@@ -497,7 +497,7 @@ def speedTest(lfcFeature,ldArgs):
     
     '''print out result'''
     for tResult in ltResults:
-        print tResult[1], ':', tResult[0]
+        print(tResult[1], ':', tResult[0])
     
     return ltResults
 

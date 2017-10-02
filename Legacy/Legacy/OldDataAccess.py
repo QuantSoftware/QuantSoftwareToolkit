@@ -41,13 +41,13 @@ class DataAccess:
          try:
           dataItemsList.index("symbol")
          except ValueError:
-           print "adding SYMBOL"   
+           print("adding SYMBOL")   
            dataItemsList.append(self.SYMBOL)
           
          try:
           dataItemsList.index("timestamp")
          except ValueError:  
-           print "adding TIMESTAMP"
+           print("adding TIMESTAMP")
            dataItemsList.append(self.TIMESTAMP)  
           
         else:
@@ -91,7 +91,7 @@ class DataAccess:
         if (stockList is not None):
          if (type(stockList) is not list):
             if (type (stockList) is not str):
-                print "Stocks must either be a string (if you want only 1 stock) or a list of strings"
+                print("Stocks must either be a string (if you want only 1 stock) or a list of strings")
                 raise TypeError
             else:
                 #its not a list but its a string
@@ -106,7 +106,7 @@ class DataAccess:
         if (dataList is not None):
          if (type(dataList) is not list):
             if (type (dataList) is not str):
-                print "data items you want must either be a string (of you want only one data item) or a list of strings"
+                print("data items you want must either be a string (of you want only one data item) or a list of strings")
                 raise TypeError
             else:
                 #its not a list but its a string
@@ -167,7 +167,7 @@ class DataAccess:
         
         if (len (tempFilteredList)==0):
             if self.noisy is True:
-             print "Warning: no data found"
+             print("Warning: no data found")
 #            sys.stdout.flush()
         
         
@@ -191,11 +191,11 @@ class DataAccess:
      '''   
     
      if (type(stockName) is not str):
-         print "stock name must be a string"
+         print("stock name must be a string")
          raise TypeError
      
      if (type(dataItemName) is not str):
-         print "data item must be a string"
+         print("data item must be a string")
          raise TypeError
      
      tempList=[]
@@ -215,7 +215,7 @@ class DataAccess:
      
      if (len (tempList)==0):
          if self.noisy is True:
-           print "Warning: no data found"
+           print("Warning: no data found")
 #         sys.stdout.flush()
                  
      return tempList              
@@ -236,11 +236,11 @@ class DataAccess:
      '''   
         
      if (type(stockName) is not str):
-         print "stock name must be a string"
+         print("stock name must be a string")
          raise TypeError
      
      if (type(dataItemName) is not str):
-         print "data item must be a string"
+         print("data item must be a string")
          raise TypeError
      
 #       tempStr=str("")
@@ -251,7 +251,7 @@ class DataAccess:
                    return item[dataItemName]            
        
      if self.noisy is True:
-      print "Warning: no data found"
+      print("Warning: no data found")
 #     sys.stdout.flush()
      return None
     #getDataitem ends    
@@ -264,6 +264,6 @@ class DataAccess:
             try:
              dct[str(dataItem)]= row[str(dataItem)] 
             except KeyError:
-             print "Error: "+str(dataItem)+" not available"
+             print("Error: "+str(dataItem)+" not available")
              raise KeyError
         return dct

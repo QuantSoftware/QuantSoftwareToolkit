@@ -31,7 +31,7 @@ def genData():
 	
 	if not os.path.exists(op_folderpath):
 		os.mkdir(op_folderpath)
-		print "Data was missing"
+		print("Data was missing")
 		return
 	op_folderpath = op_folderpath + '/'	
 

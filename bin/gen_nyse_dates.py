@@ -267,7 +267,7 @@ newdays = sorted(list(newdays)) # convert back to sorted list
 log = []
 # print it out
 for i in newdays:
-    print i.strftime("%m/%d/%Y")
+    print(i.strftime("%m/%d/%Y"))
     log.append(i.strftime("%m/%d/%Y"))
 
 np.savetxt('NYSE_dates.csv', log, fmt='%s', delimiter=',') 

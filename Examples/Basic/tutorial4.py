@@ -21,7 +21,7 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import cPickle
+import pickle
 
 
 def main():
@@ -72,7 +72,7 @@ def main():
 
     # Create the outpul pickle file for the dataframe.
     output = open('allocation.pkl', 'wb')
-    cPickle.dump(df_alloc, output)
+    pickle.dump(df_alloc, output)
 
 if __name__ == '__main__':
     main()

@@ -22,8 +22,8 @@ class Portfolio:
         # Subtract the impact cost - it cost more because you inflated the price buying so much
         # cashChange is NEGATIVE when passed in 
         self.currCash += float(-order['fill/commission'] + (order['fill/cashChange'] * order['fill/quantity']) - order['fill/impactCost'])
-        print "Cash adjusted for buy txn is: " + str(self.currCash)
-        if order['symbol'] in self.currStocks.keys():
+        print("Cash adjusted for buy txn is: " + str(self.currCash))
+        if order['symbol'] in list(self.currStocks.keys()):
             self.currStocks[order['symbol']] += order['fill/quantity']
         else:
             self.currStocks[order['symbol']] = order['fill/quantity']
@@ -38,7 +38,7 @@ class Portfolio:
         # Subtract effect - gain less money
         # cashChange is POSITIVE when passed in 
         self.currCash += float(-order['fill/commission'] + (order['fill/cashChange'] * order['fill/quantity']) - order['fill/impactCost'])
-        print "Cash adjusted for sell  txn is: " + str(self.currCash)
+        print("Cash adjusted for sell  txn is: " + str(self.currCash))
         if order['symbol'] in self.currStocks:
             self.currStocks[order['symbol']] -= order['fill/quantity']
             if self.currStocks[order['symbol']] == 0:
@@ -81,7 +81,7 @@ class Portfolio:
         #calcPortfolioValue done        
         
     def getHeldQty(self, stock):
-        if stock in self.currStocks.keys():
+        if stock in list(self.currStocks.keys()):
             return self.currStocks[stock]
         else:
             return np.NaN
@@ -90,7 +90,7 @@ class Portfolio:
         '''
         @return: A list of all cureently held stocks (in arbitrary order?)
         '''
-        return self.currStocks.keys()    
+        return list(self.currStocks.keys())    
             
     
     def close(self):

@@ -143,13 +143,13 @@ class Element:
         notation.
         @bug: Doesn't escape '<' or '&' or '>'.
         """
-        attribs = ''.join([' %s=%r' % t for t in self.attribs.items()])
+        attribs = ''.join([' %s=%r' % t for t in list(self.attribs.items())])
         return ('<%s%s>' % (self.tag, attribs) +
                 ''.join([str(child) for child in self.children]) +
                 '</%s>' % self.tag)
 
     def __repr__(self):
-        attribs = ''.join([', %s=%r' % t for t in self.attribs.items()])
+        attribs = ''.join([', %s=%r' % t for t in list(self.attribs.items())])
         args = ''.join([', %r' % c for c in self.children])
         return 'Element(%s%s%s)' % (self.tag, args, attribs)
 
@@ -1085,7 +1085,7 @@ def _colorize(doc, token, errors, tagName='para'):
             # Special handling for symbols:
             if stack[-1].tag == 'symbol':
                 if (len(stack[-1].children) != 1 or
-                    not isinstance(stack[-1].children[0], basestring)):
+                    not isinstance(stack[-1].children[0], str)):
                     estr = "Invalid symbol code."
                     errors.append(ColorizingError(estr, token, end))
                 else:
@@ -1100,7 +1100,7 @@ def _colorize(doc, token, errors, tagName='para'):
             # Special handling for escape elements:
             if stack[-1].tag == 'escape':
                 if (len(stack[-1].children) != 1 or
-                    not isinstance(stack[-1].children[0], basestring)):
+                    not isinstance(stack[-1].children[0], str)):
                     estr = "Invalid escape code."
                     errors.append(ColorizingError(estr, token, end))
                 else:
@@ -1157,7 +1157,7 @@ def _colorize_graph(doc, graph, token, end, errors):
     children = graph.children[:]
     graph.children = []
 
-    if len(children) != 1 or not isinstance(children[0], basestring):
+    if len(children) != 1 or not isinstance(children[0], str):
         bad_graph_spec = "Bad graph specification"
     else:
         pieces = children[0].split(None, 1)
@@ -1188,7 +1188,7 @@ def _colorize_link(doc, link, token, end, errors):
     variables = link.children[:]
 
     # If the last child isn't text, we know it's bad.
-    if len(variables)==0 or not isinstance(variables[-1], basestring):
+    if len(variables)==0 or not isinstance(variables[-1], str):
         estr = "Bad %s target." % link.tag
         errors.append(ColorizingError(estr, token, end))
         return
@@ -1259,7 +1259,7 @@ def to_epytext(tree, indent=0, seclevel=0):
     @return: The epytext string corresponding to C{tree}.
     @rtype: C{string}
     """
-    if isinstance(tree, basestring):
+    if isinstance(tree, str):
         str = re.sub(r'\{', '\0', tree)
         str = re.sub(r'\}', '\1', str)
         return str
@@ -1318,7 +1318,7 @@ def to_epytext(tree, indent=0, seclevel=0):
     elif tree.tag == 'graph':
         return 'G{%s}' % ' '.join(variables)
     else:
-        for (tag, name) in _COLORIZING_TAGS.items():
+        for (tag, name) in list(_COLORIZING_TAGS.items()):
             if name == tree.tag:
                 return '%s{%s}' % (tag, childstr)
     raise ValueError('Unknown DOM element %r' % tree.tag)
@@ -1346,7 +1346,7 @@ def to_plaintext(tree, indent=0, seclevel=0):
     @return: The epytext string corresponding to C{tree}.
     @rtype: C{string}
     """
-    if isinstance(tree, basestring): return tree
+    if isinstance(tree, str): return tree
 
     if tree.tag == 'section': seclevel += 1
 
@@ -1427,7 +1427,7 @@ def to_debug(tree, indent=4, seclevel=0):
     @return: The epytext string corresponding to C{tree}.
     @rtype: C{string}
     """
-    if isinstance(tree, basestring):
+    if isinstance(tree, str):
         str = re.sub(r'\{', '\0', tree)
         str = re.sub(r'\}', '\1', str)
         return str
@@ -1460,7 +1460,7 @@ def to_debug(tree, indent=4, seclevel=0):
         str = re.sub('\0', 'E{lb}', childstr)
         str = re.sub('\1', 'E{rb}', str)
         uline = len(childstr)*_HEADING_CHARS[seclevel-1]
-        return ('SEC'+`seclevel`+'>|'+(indent-8)*' ' + str + '\n' +
+        return ('SEC'+repr(seclevel)+'>|'+(indent-8)*' ' + str + '\n' +
                 '     |'+(indent-8)*' ' + uline + '\n')
     elif tree.tag == 'doctestblock':
         str = re.sub('\0', '{', childstr)
@@ -1493,7 +1493,7 @@ def to_debug(tree, indent=4, seclevel=0):
     elif tree.tag == 'graph':
         return 'G{%s}' % ' '.join(variables)
     else:
-        for (tag, name) in _COLORIZING_TAGS.items():
+        for (tag, name) in list(_COLORIZING_TAGS.items()):
             if name == tree.tag:
                 return '%s{%s}' % (tag, childstr)
     raise ValueError('Unknown DOM element %r' % tree.tag)
@@ -1535,19 +1535,19 @@ def pparse(str, show_warnings=1, show_errors=1, stream=sys.stderr):
     warnings.sort()
     errors.sort()
     if warnings:
-        print >>stream, '='*SCRWIDTH
-        print >>stream, "WARNINGS"
-        print >>stream, '-'*SCRWIDTH
+        print('='*SCRWIDTH, file=stream)
+        print("WARNINGS", file=stream)
+        print('-'*SCRWIDTH, file=stream)
         for warning in warnings:
-            print >>stream, warning.as_warning()
-        print >>stream, '='*SCRWIDTH
+            print(warning.as_warning(), file=stream)
+        print('='*SCRWIDTH, file=stream)
     if errors and show_errors:
-        if not warnings: print >>stream, '='*SCRWIDTH
-        print >>stream, "ERRORS"
-        print >>stream, '-'*SCRWIDTH
+        if not warnings: print('='*SCRWIDTH, file=stream)
+        print("ERRORS", file=stream)
+        print('-'*SCRWIDTH, file=stream)
         for error in errors:
-            print >>stream, error
-        print >>stream, '='*SCRWIDTH
+            print(error, file=stream)
+        print('='*SCRWIDTH, file=stream)
 
     if confused: raise
     elif errors: raise SyntaxError('Encountered Errors')
@@ -1808,7 +1808,7 @@ class ParsedEpytextDocstring(ParsedDocstring):
 
     def _to_html(self, tree, linker, directory, docindex, context,
                  indent=0, seclevel=0):
-        if isinstance(tree, basestring):
+        if isinstance(tree, str):
             return plaintext_to_html(tree)
 
         if tree.tag == 'epytext': indent -= 2
@@ -1933,7 +1933,7 @@ class ParsedEpytextDocstring(ParsedDocstring):
             
     
     def _to_latex(self, tree, linker, indent=0, seclevel=0, breakany=0):
-        if isinstance(tree, basestring):
+        if isinstance(tree, str):
             return plaintext_to_latex(tree, breakany=breakany)
 
         if tree.tag == 'section': seclevel += 1
@@ -2048,7 +2048,7 @@ class ParsedEpytextDocstring(ParsedDocstring):
         para = Element('para', inline=True)
         doc.children.append(para)
         for parachild in parachildren:
-            if isinstance(parachild, basestring):
+            if isinstance(parachild, str):
                 m = self._SUMMARY_RE.match(parachild)
                 if m:
                     para.children.append(m.group(1))
@@ -2104,7 +2104,7 @@ class ParsedEpytextDocstring(ParsedDocstring):
         return self._terms
 
     def _index_terms(self, tree, terms):
-        if tree is None or isinstance(tree, basestring):
+        if tree is None or isinstance(tree, str):
             return
         
         if tree.tag == 'indexed':

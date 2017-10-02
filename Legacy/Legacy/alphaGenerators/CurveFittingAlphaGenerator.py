@@ -15,7 +15,7 @@ def getStocks(listOfPaths):
         
             listOfStocks=list()
             #Path does not exist
-            print "Reading in all stock names..."
+            print("Reading in all stock names...")
             fileExtensionToRemove=".h5"   
             
             for path in listOfPaths:
@@ -23,9 +23,9 @@ def getStocks(listOfPaths):
                
                stocksAtThisPath= dircache.listdir(str(path))
                #Next, throw away everything that is not a .h5 And these are our stocks!
-               stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
+               stocksAtThisPath = [x for x in stocksAtThisPath if (str(x).find(str(fileExtensionToRemove)) > -1)]
                #Now, we remove the .h5 to get the name of the stock
-               stocksAtThisPath = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),stocksAtThisPath)
+               stocksAtThisPath = [(x.partition(str(fileExtensionToRemove))[0]) for x in stocksAtThisPath]
                
                for stock in stocksAtThisPath:
                    listOfStocks.append(stock)
@@ -44,14 +44,14 @@ listOfStocks= getStocks(folderList)
 beginTS= 473490000 #2 Jan 1985 0500 hrs GMT
 endTS=  1262235600 #31 DEc 2009 0500 hrs GMT
 
-print "list of stocks is: " + str(listOfStocks)
+print("list of stocks is: " + str(listOfStocks))
 dataAccess= DataAccess.DataAccess(True, folderList, "/StrategyData", "StrategyData", True, listOfStocks, beginTS, endTS)
 timestamps= list(dataAccess.getTimestampArray())
 
-print "Printing all timestamps: "
+print("Printing all timestamps: ")
 for ts in timestamps:
-    print ts
-print "Printing ts done"
+    print(ts)
+print("Printing ts done")
 
 
 #alpha= alphaGenerator.AlphaDataModel.AlphaDataModelClass()
@@ -68,7 +68,7 @@ try:
   beginIndex= timestamps.index(beginTS)
   endIndex= timestamps.index(endTS) 
 except ValueError:
-    print "beginTS or endTS not found!"
+    print("beginTS or endTS not found!")
     raise ValueError
 
 
@@ -79,10 +79,10 @@ beginIndex+=noOfDaysToUse
 while (beginIndex<=endIndex):
     #closeData= dataAccess.getMatrixFromTS(listOfStocks, 'adj_close', beginTS, -noOfDaysToUse)
     closeData= dataAccess.getMatrixBetweenIndex(listOfStocks, 'adj_close', beginIndex- noOfDaysToUse, beginIndex)
-    print "At ts: " + str (timestamps[beginIndex])
+    print("At ts: " + str (timestamps[beginIndex]))
     
     if (closeData is not None):
-        print "closeData is not none"
+        print("closeData is not none")
         stockCtr=0
         while (stockCtr < len (listOfStocks)):
             nanPresent=False
@@ -124,7 +124,7 @@ while (beginIndex<=endIndex):
             #while ends
     else:
         #closeData is None
-        print "closeData is None"
+        print("closeData is None")
 #        for stock in listOfStocks:
 #            adm.addRow(stock, "blah", 0.0, beginTS)
 #            zeroDueToNoneCtr+=1

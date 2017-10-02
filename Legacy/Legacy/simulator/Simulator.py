@@ -67,7 +67,7 @@ class Simulator():
         
         listOfStocks=list()
         if (os.path.exists(pathToFile)):
-           print "Reading in stock names from file..." 
+           print("Reading in stock names from file...") 
            f= open(pathToFile)
            lines= f.readlines()
            f.close()
@@ -76,7 +76,7 @@ class Simulator():
              #for done
         else:
             #Path does not exist
-            print "Reading in all stock names..."
+            print("Reading in all stock names...")
             fileExtensionToRemove=".h5"   
             
             for path in listOfPaths:
@@ -84,9 +84,9 @@ class Simulator():
                
                stocksAtThisPath= dircache.listdir(str(path))
                #Next, throw away everything that is not a .h5 And these are our stocks!
-               stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
+               stocksAtThisPath = [x for x in stocksAtThisPath if (str(x).find(str(fileExtensionToRemove)) > -1)]
                #Now, we remove the .h5 to get the name of the stock
-               stocksAtThisPath = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),stocksAtThisPath)
+               stocksAtThisPath = [(x.partition(str(fileExtensionToRemove))[0]) for x in stocksAtThisPath]
                
                for stock in stocksAtThisPath:
                    listOfStocks.append(stock)
@@ -101,7 +101,7 @@ class Simulator():
         temp = []
 
         if timersActive:
-            print 'Generating valid timestamps'
+            print('Generating valid timestamps')
             cnt = 0
             cycTime = time.time()
 #        for i in self.strategyData.strategyData.iterrows():
@@ -110,10 +110,10 @@ class Simulator():
                 temp.append(ts)
             if timersActive:
                 if(cnt%1000000==0):
-                    print '%i rows finished: %i secs elapsed'%(cnt,time.time()-cycTime)
+                    print('%i rows finished: %i secs elapsed'%(cnt,time.time()-cycTime))
                 cnt+=1
         if timersActive:
-            print 'all rows added: %i secs elapsed'%(time.time()-cycTime)      
+            print('all rows added: %i secs elapsed'%(time.time()-cycTime))      
         #Put the list in order, convert it to a NumPy array  
         temp.sort()
         temp = np.array(temp)
@@ -180,21 +180,21 @@ class Simulator():
             price = self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_open', ts) 
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
+                    print("Price data unavailable for ts:",ts,'stock:',newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])
                 return None
             else:
-                print "Checking cash..."
+                print("Checking cash...")
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 # New is cost the original total price (price * shares) + effect*Total Price
                 # Basically, you raise the cost as you buy
                 cost = (checkAmount * price[0]['adj_open'] + (checkAmount * price[0]['adj_open'] * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
-                    print "Not enough cash to buy stock."
+                    print("Not enough cash to buy stock.")
                     #print "Apparently not enough cash. I don't believe this. Current cash: " + str (self.portfolio.currCash) + " total cost: "+ str (cost)+ ", cost of one share: "+str (self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_open', ts))
                     
                     return None
@@ -225,11 +225,11 @@ class Simulator():
             price = self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_close', ts)
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
+                    print("Price data unavailable for ts:",ts,'stock:',newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])
                 return None
             else: 
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
@@ -239,7 +239,7 @@ class Simulator():
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash):
                     #Not enough cash to buy stock
-                    print "Not enough cash. Current cash: " + str (self.portfolio.currCash) + " total cost: "+ str (cost)+ ", cost of one share: "+str (self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_close', ts))
+                    print("Not enough cash. Current cash: " + str (self.portfolio.currCash) + " total cost: "+ str (cost)+ ", cost of one share: "+str (self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_close', ts)))
                     
                     return None
                 if abs(newOrder['shares']) > maxVol4Day:
@@ -263,11 +263,11 @@ class Simulator():
             price = newOrder['limit_price']
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
+                    print("Price data unavailable for ts:",ts,'stock:',newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])
                 return None
             else:
 #                if ((newOrder['limit_price'] > self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')) or ( newOrder['limit_price'] < self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_low'))):
@@ -306,11 +306,11 @@ class Simulator():
             price = self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_open', ts)
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for ts:",ts,'stock:',newOrder['symbol']
+                    print("Price data unavailable for ts:",ts,'stock:',newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])
                 return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
@@ -364,28 +364,28 @@ class Simulator():
             price = self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_open', ts)#[0]['adj_open'] #self.strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print("Price data unavailable for",ts,newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])
                 return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['task'].upper() == 'SELL':
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "Not enough shares owned to sell the requested amount"
+                        print("Not enough shares owned to sell the requested amount")
                         return None
                 else:
                     if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "Not enough shares owned to sell the requested amount"
+                        print("Not enough shares owned to sell the requested amount")
                         return None
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
                     #Not enough cash to cover stock
-                    print "Not enough cash to cover stock"
+                    print("Not enough cash to cover stock")
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -410,28 +410,28 @@ class Simulator():
             price = self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_close', ts)#[0]['adj_close'] #strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print("Price data unavailable for",ts,newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']        
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])        
                 return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['shares'] > 0:
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "Not enough shares owned to sell the requested amount"
+                        print("Not enough shares owned to sell the requested amount")
                         return None
                 else:
                     if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "Not enough shares owned to sell the requested amount"
+                        print("Not enough shares owned to sell the requested amount")
                         return None
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
                     #Not enough cash to cover stock
-                    print "Not enough cash to cover stock"
+                    print("Not enough cash to cover stock")
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -456,18 +456,18 @@ class Simulator():
             price = newOrder['limit_price']
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print("Price data unavailable for",ts,newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])
                 return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['shares'] > 0:
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "Not enough shares owned to sell the requested amount"
+                        print("Not enough shares owned to sell the requested amount")
                         return None
                 else:
                     if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
@@ -476,7 +476,7 @@ class Simulator():
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
                     #Not enough cash to cover stock
-                    print "Not enough cash to cover stock"
+                    print("Not enough cash to cover stock")
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -507,23 +507,23 @@ class Simulator():
             price = self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_open', ts)#[0]['adj_open'] #strategyData.getPrice(ts, newOrder['symbol'], 'adj_open')
             if price == None or np.isnan (price):
                 if noisy:
-                    print "Price data unavailable for",ts,newOrder['symbol']
+                    print("Price data unavailable for",ts,newOrder['symbol'])
                 return None
             elif maxVol4Day == None or np.isnan(maxVol4Day):
                 if noisy:
-                    print "Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol']
+                    print("Volume Data Not Available for ts:", ts, 'stock:', newOrder['symbol'])
                 return None
             else:
                 checkAmount = min(abs(newOrder['shares']),maxVol4Day)
                 if newOrder['shares'] > 0:
                     if not (self.portfolio.hasStock(newOrder['symbol'],checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "Not enough shares owned to sell the requested amount"
+                        print("Not enough shares owned to sell the requested amount")
                         return None
                 else:
                     if not (self.portfolio.hasStock(newOrder['symbol'],-checkAmount)): # NEW
                         #Not enough shares owned to sell requested amount
-                        print "Not enough shares owned to sell the requested amount"
+                        print("Not enough shares owned to sell the requested amount")
                         return None
                 price += self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_close', ts)#[0]['adj_close'] #strategyData.getPrice(ts, newOrder['symbol'], 'adj_close')
                 price += self.dataAccess.getStockDataItem(newOrder['symbol'], 'adj_high', ts)#[0]['adj_high'] #strategyData.getPrice(ts, newOrder['symbol'], 'adj_high')
@@ -532,7 +532,7 @@ class Simulator():
                 cost = (checkAmount * price + (checkAmount * price * self.calcEffect(maxVol4Day, checkAmount))) + self.calcCommission(checkAmount)
                 if(cost>self.portfolio.currCash) and (newOrder['shares'] < 0):
                     #Not enough cash to cover stock
-                    print "Not enough cash to cover stock"
+                    print("Not enough cash to cover stock")
                     return None
                 #__execute trade__
                 #populate fill field in order
@@ -576,34 +576,34 @@ class Simulator():
                                     result = self.buyStock(order)
                                     if noisy:
                                         if result is not None:
-                                            print "Succeeded in buying %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                            print("Succeeded in buying %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count))
                                         #else:
                                             #print "THIS IS MOST LIKELY WRONG- Did not succeed in buying %d shares of %s as %s; not enough cash.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
                                 else:
                                     if noisy:
-                                        print "Did not succeed in buying %d shares of %s as %s; negative values are not valid buy amounts.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                        print("Did not succeed in buying %d shares of %s as %s; negative values are not valid buy amounts.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count))
                             elif self.portfolio.hasStock(order['symbol'],-1):
                                 if noisy:
-                                    print "Did not succeed in buying %d shares of %s as %s; you must cover your shortsell before you can buy.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                    print("Did not succeed in buying %d shares of %s as %s; you must cover your shortsell before you can buy.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count))
                             else:
                                 result = self.buyStock(order)
                                 if noisy:
                                     if result:
-                                        print "Succeeded in buying %d shares of %s for %.2f as %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['timestamp'], self.currTimestamp, count)
+                                        print("Succeeded in buying %d shares of %s for %.2f as %s. Placed at: %d.  Current timestamp: %d, order #%d" % (order['shares'], order['symbol'], result, order['order_type'], order['timestamp'], self.currTimestamp, count))
                                     else:
-                                        print "Did not succeed in buying %d shares of %s as %s.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                        print("Did not succeed in buying %d shares of %s as %s.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count))
                         elif order['task'].upper() == "SELL":
                             # is a sell
                             if order['shares']>0:
                                 result = self.sellStock(order)
                                 if noisy:
                                     if result:
-                                        print "Succeeded in selling %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                                        print("Succeeded in selling %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp))
                                     #else:
                                         #print "Did not succeed in selling %d shares of %s as %s; not enough owned.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
                             else:
                                 if noisy:
-                                    print "Did not succeed in selling %d shares of %s as %s; you cannot sell a non-positive amount.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                                    print("Did not succeed in selling %d shares of %s as %s; you cannot sell a non-positive amount.  Order valid until %d.  Current timestamp: %d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp))
                         elif order['task'].upper() == "SHORT":
                             #is a short sell
                             if self.portfolio.hasStock(order['symbol'],-1):
@@ -611,37 +611,37 @@ class Simulator():
                                     result = self.buyStock(order)
                                     if noisy:
                                         if result:
-                                            print "Succeeded in short selling %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (-order['shares'], order['symbol'], -result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                            print("Succeeded in short selling %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (-order['shares'], order['symbol'], -result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count))
                                         else:
-                                            print "Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                            print("Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count))
                                 else:
                                     if noisy:
-                                        print "Did not succeed in short selling %d shares of %s as %s; negative values are not valid short sell amounts.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                        print("Did not succeed in short selling %d shares of %s as %s; negative values are not valid short sell amounts.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count))
                             elif self.portfolio.hasStock(order['symbol'],1):
                                 if noisy:
-                                    print "Did not succeed in short selling %d shares of %s as %s; you cannot short sell a stock you already own.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                    print("Did not succeed in short selling %d shares of %s as %s; you cannot short sell a stock you already own.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count))
                             else:
                                 result = self.buyStock(order)
                                 if noisy:
                                     if result:
-                                        print "Succeeded in short selling %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count)
+                                        print("Succeeded in short selling %d shares of %s for %.2f as %s, with close type %s. Placed at: %d.  Current timestamp: %d, order #%d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], order['timestamp'], self.currTimestamp, count))
                                     else:
-                                        print "Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count)
+                                        print("Did not succeed in short selling %d shares of %s as %s; not enough cash???  How do you not have enough cash for a short sell?.  Order valid until %d. Placed at: %d.  Current timestamp: %d, order #%d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], order['timestamp'], self.currTimestamp, count))
                         elif order['task'].upper() == "COVER":
                             # is a cover
                             if order['shares']>0:
                                 result = self.sellStock(order)
                                 if noisy:
                                     if result:
-                                        print "Succeeded in covering %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp)
+                                        print("Succeeded in covering %d shares of %s for %.2f as %s, with close type %s.  Current timestamp: %d" % (-order['shares'], order['symbol'], result, order['order_type'], order['close_type'], self.currTimestamp))
                                     else:
-                                        print "Did not succeed in covering %d shares of %s as %s; not short enough or not enough cash.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                                        print("Did not succeed in covering %d shares of %s as %s; not short enough or not enough cash.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp))
                             else:
                                 if noisy:
-                                    print "Did not succeed in covering %d shares of %s as %s; you cannot cover a non-positive amount.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp)
+                                    print("Did not succeed in covering %d shares of %s as %s; you cannot cover a non-positive amount.  Order valid until %d.  Current timestamp: %d" %(-order['shares'], order['symbol'], order['order_type'], order['duration'] + order['timestamp'], self.currTimestamp))
                         else:
                             if noisy:
-                                print "'%s' is not a valid task.  Order valid until %d.  Current timestamp: %d" % (order['task'].upper(), order['duration'] + order['timestamp'], self.currTimestamp)
+                                print("'%s' is not a valid task.  Order valid until %d.  Current timestamp: %d" % (order['task'].upper(), order['duration'] + order['timestamp'], self.currTimestamp))
             count += 1
         
         
@@ -691,7 +691,7 @@ class Simulator():
             self.endTime= timestamps[ctr2]    
         
         if timersActive:
-            print "Simulation timer started at "+ str(self.currTimestamp)
+            print("Simulation timer started at "+ str(self.currTimestamp))
             totalTime = time.time()
             cycTime = time.clock()
             
@@ -713,38 +713,38 @@ class Simulator():
             afterAddOrders= time.clock()
             
             if noisy or timersActive:
-                print '' #newline                
+                print('') #newline                
             if mtm:
                 #portValue = self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 portValue= float (0.0)
-                print "| %i %.2f |"%(self.currTimestamp,portValue) + "  Value from portfolio class: " +  str (self.portfolio.calcPortfolioValue(self.currTimestamp, self.dataAccess))
+                print("| %i %.2f |"%(self.currTimestamp,portValue) + "  Value from portfolio class: " +  str (self.portfolio.calcPortfolioValue(self.currTimestamp, self.dataAccess)))
             if timersActive and not noisy:
-                print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
+                print("Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime)))
                 i+=1
                 cycTime = time.clock()
             if noisy and not timersActive:
                 portValue = (self.portfolio.calcPortfolioValue(self.currTimestamp, self.dataAccess)) #self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 portfolioValList.append(portValue)
                 
-                print "Strategy at %d completed successfully." % self.currTimestamp
-                print "Current cash: " + str(self.portfolio.currCash)
-                print "Current stocks: %s."%self.portfolio.currStocks
-                print "Current portfolio value: "+ str(portValue)+"\n\n"
+                print("Strategy at %d completed successfully." % self.currTimestamp)
+                print("Current cash: " + str(self.portfolio.currCash))
+                print("Current stocks: %s."%self.portfolio.currStocks)
+                print("Current portfolio value: "+ str(portValue)+"\n\n")
                 #print "Current portfolio value: %.2f.\n\n"%(portValue)
             if noisy and timersActive:
                 portValue =  float (self.portfolio.calcPortfolioValue(self.currTimestamp, self.dataAccess)) #self.portfolio.currCash + self.strategyData.calculatePortValue(self.portfolio.currStocks,self.currTimestamp)
                 portfolioValList.append(portValue)
                 
-                print "Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime))
-                print "Exec function took: " + str(afterExec - beforeExec)
-                print "Time for addorders: " + str(afterAddOrders - beforeAddOrders)
+                print("Strategy at %i took %.4f secs"%(self.currTimestamp,(time.clock()-cycTime)))
+                print("Exec function took: " + str(afterExec - beforeExec))
+                print("Time for addorders: " + str(afterAddOrders - beforeAddOrders))
                 
-                print "Strategy at %d completed successfully." % self.currTimestamp
+                print("Strategy at %d completed successfully." % self.currTimestamp)
                 #print "Current cash: %.2f."%(self.portfolio.currCash)
-                print "Current cash: " + str(self.portfolio.currCash)
-                print "Current stocks: %s."%self.portfolio.currStocks
+                print("Current cash: " + str(self.portfolio.currCash))
+                print("Current stocks: %s."%self.portfolio.currStocks)
                 #print "Current portfolio value: %.2f.\n\n"%(portValue)
-                print "Current portfolio value: "+ str(portValue)+"\n\n"
+                print("Current portfolio value: "+ str(portValue)+"\n\n")
                 i+=1
                 cycTime = time.clock() 
 
@@ -755,9 +755,9 @@ class Simulator():
             self.currTimestamp= timestamps[ctr] 
             #self.strategyData.currTimestamp = self.currTimestamp
         if noisy:
-            print "Simulation complete."
+            print("Simulation complete.")
         if timersActive:
-            print "Simulation complete in %i seconds."%(time.time() - totalTime)
+            print("Simulation complete in %i seconds."%(time.time() - totalTime))
         
         self.portfolio.close()
         self.position.close()
@@ -798,7 +798,7 @@ def main():
 #        print "FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING."
 #        return
     if len(args) != 1:
-        print "FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING."
+        print("FAILURE TO INCLUDE THE CORRECT NUMBER OF ARGUMENTS; TERMINATING.")
         return
 
 
@@ -808,10 +808,10 @@ def main():
 #    else:
 #        stratName = "strategyMain"
     if noisy:
-        print "About to parse configuration files.  Any invalid fields found in the user-specified file will use the relevant value from the default file instead."
+        print("About to parse configuration files.  Any invalid fields found in the user-specified file will use the relevant value from the default file instead.")
     for fileName in ["configfiles/default.ini",configFile]:
         if noisy:
-            print "Parsing %s now..." % filename[12:]
+            print("Parsing %s now..." % filename[12:])
         thisFile = open(fileName,'r')
         for line in thisFile.readlines():
             # Separate the command in the config file from the arguments
@@ -831,12 +831,12 @@ def main():
                 # Parse commands, look for correct number of arguments, do rudimentary error checking, apply to simulator as appropriate
                 if command == 'CASH':
                     if len(vals) != 1:
-                        print "WRONG NUMBER OF ARGUMENTS FOR CASH!"
+                        print("WRONG NUMBER OF ARGUMENTS FOR CASH!")
                     else:
                         try:
                             cash = float(vals[0])
                         except ValueError:
-                            print "ARGUMENT FOR CASH IS NOT A FLOAT!"
+                            print("ARGUMENT FOR CASH IS NOT A FLOAT!")
                 
                 # Code for handling stocks in a starting portfolio.  Implementation not correct; removing for the time being.
 #                elif command == "STOCK":
@@ -849,86 +849,86 @@ def main():
 #                            print "STOCK TAKES IN A STOCK NAME AND AN INT!  AND DON'T YOU FORGET IT!"
                 elif command == "COMPERSHARE":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR COMMISSIONS PER SHARE."
+                        print("NEED EXACTLY ONE PARAMETER FOR COMMISSIONS PER SHARE.")
                     else:
                         try:
                             comPerShare = float(vals[0])
                         except ValueError:
-                            print "COMMISSIONS PER SHARE REQUIRES A FLOAT INPUT"
+                            print("COMMISSIONS PER SHARE REQUIRES A FLOAT INPUT")
                 elif command == "MINCOM":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR MINIMUM COMMISSION."
+                        print("NEED EXACTLY ONE PARAMETER FOR MINIMUM COMMISSION.")
                     else:
                         try:
                             minCom = float(vals[0])
                         except ValueError:
-                            print "MINIMUM COMMISSIONS REQUIRES A FLOAT INPUT"
+                            print("MINIMUM COMMISSIONS REQUIRES A FLOAT INPUT")
                 elif command == "STARTTIME":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR START TIME."
+                        print("NEED EXACTLY ONE PARAMETER FOR START TIME.")
                     else:
                         try:
-                            startTime = long(vals[0])
+                            startTime = int(vals[0])
                         except ValueError:
-                            print "START TIME REQUIRES A LONG INPUT"
+                            print("START TIME REQUIRES A LONG INPUT")
                 elif command == "ENDTIME":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR END TIME."
+                        print("NEED EXACTLY ONE PARAMETER FOR END TIME.")
                     else:
                         try:
-                            endTime = long(vals[0])
+                            endTime = int(vals[0])
                         except ValueError:
-                            print "END TIME REQUIRES A LONG INPUT"
+                            print("END TIME REQUIRES A LONG INPUT")
                 elif command == "TIMESTEP":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR TIME STEP."
+                        print("NEED EXACTLY ONE PARAMETER FOR TIME STEP.")
                     else:
                         try:
-                            timeStep = long(vals[0])
+                            timeStep = int(vals[0])
                         except ValueError:
-                            print "TIME STEP REQUIRES A LONG INPUT"
+                            print("TIME STEP REQUIRES A LONG INPUT")
                 elif command == "MAXMARKETEFFECT":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR MAX MARKET EFFECT."
+                        print("NEED EXACTLY ONE PARAMETER FOR MAX MARKET EFFECT.")
                     else:
                         try:
                             maxEffect = float(vals[0])
                         except ValueError:
-                            print "MAX MARKET EFFECT REQUIRES A FLOAT INPUT"
+                            print("MAX MARKET EFFECT REQUIRES A FLOAT INPUT")
                 elif command == "DECAYCYCLES":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR DECAY CYCLES."
+                        print("NEED EXACTLY ONE PARAMETER FOR DECAY CYCLES.")
                     else:
                         try:
                             decayCycles = int(vals[0])
                         except ValueError:
-                            print "DECAY CYCLES REQUIRES AN INTEGER INPUT"
+                            print("DECAY CYCLES REQUIRES AN INTEGER INPUT")
                 elif command == "DATATYPE":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR DATATYPE."
+                        print("NEED EXACTLY ONE PARAMETER FOR DATATYPE.")
                     else:
                         if vals[0] == "TABLE":
                             isTable = True
                         elif vals[0] == "ARRAY":
                             isTable = False
                         else:
-                            print "%s IS NOT A VALID PARAMETER FOR DATATYPE." % vals[0]  
+                            print("%s IS NOT A VALID PARAMETER FOR DATATYPE." % vals[0])  
                 elif command == "ARRAYFILE":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR ARRAYFILE."
+                        print("NEED EXACTLY ONE PARAMETER FOR ARRAYFILE.")
                     else:
                         try:
                             arrayFile = str(vals[0])
                         except ValueError:
-                            print "ARRAYFILE REQUIRES A STRING INPUT"
+                            print("ARRAYFILE REQUIRES A STRING INPUT")
                 elif command == "PYTABLESFILE":
                     if len(vals) != 1:
-                        print "NEED EXACTLY ONE PARAMETER FOR PYTABLESFILE."
+                        print("NEED EXACTLY ONE PARAMETER FOR PYTABLESFILE.")
                     else:
                         try:
                             pytablesFile = str(vals[0])
                         except ValueError:
-                            print "PYTABLESFILE REQUIRES A STRING INPUT"
+                            print("PYTABLESFILE REQUIRES A STRING INPUT")
                 elif command == "NOISY":
                     noisy = True
                 elif command == "TIMER":
@@ -938,14 +938,14 @@ def main():
                 elif command == "LISTOFSTOCKSFILE":
                     listOfStocksFile= str (vals[0])
                     if not (os.path.exists(listOfStocksFile)):
-                       print "File containing list of stocks does not exist. Will read in all files at specified paths."
+                       print("File containing list of stocks does not exist. Will read in all files at specified paths.")
 #                       raise ValueError
                    
                 elif command != '':
-                        print "Unrecognized command '%s'." % command
+                        print("Unrecognized command '%s'." % command)
         thisFile.close()
     if noisy:
-        print "Config files finished parsing.  Starting simulation."
+        print("Config files finished parsing.  Starting simulation.")
     
     
     # Add the strategies subdirectory to the system path so Python can find the module

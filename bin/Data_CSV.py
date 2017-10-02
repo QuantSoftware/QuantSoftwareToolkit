@@ -26,7 +26,7 @@ def get_data(ls_symbols, ls_keys):
            valid data on the start/enddates which requires lookback/forward
     @return: data dictionry
     '''
-    print "Getting Data from MySQL"
+    print("Getting Data from MySQL")
     # Modify dates to ensure enough data for all features
     dt_start = dt.datetime(2005,1,1)
     dt_end = dt.datetime(2012, 8, 31)
@@ -36,7 +36,7 @@ def get_data(ls_symbols, ls_keys):
 
     ldf_data = c_da.get_data(ldt_timestamps, ls_symbols, ls_keys)
 
-    d_data = dict(zip(ls_keys, ldf_data))
+    d_data = dict(list(zip(ls_keys, ldf_data)))
 
     return d_data
 
@@ -89,13 +89,13 @@ def main(s_directory, s_symbols_file):
     ls_keys = ['actual_open', 'actual_high', 'actual_low', 'actual_close', 'volume', 'close']
     d_data = get_data(ls_symbols, ls_keys)
     # print d_data
-    print "Creating CSV files now"
+    print("Creating CSV files now")
 
     for sym in ls_symbols:
-        print sym
+        print(sym)
         csv_sym(sym,d_data, ls_keys, s_directory)
 
-    print "Created all CSV files"
+    print("Created all CSV files")
 
 
 if __name__ == '__main__' :

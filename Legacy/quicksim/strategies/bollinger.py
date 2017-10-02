@@ -21,7 +21,7 @@ Created on Jan 1, 2011
 #
 
 #python imports
-import cPickle
+import pickle
 from pylab import *
 from pandas import *
 import matplotlib.pyplot as plt
@@ -85,14 +85,14 @@ def create(adjclose, timestamps, lookback, spread, high, low, bet, duration):
 
 if __name__ == "__main__":
 	#Usage: python bollinger.py '1-1-2004' '1-1-2009' 'alloc.pkl'
-	print "Running Bollinger strategy starting "+sys.argv[1]+" and ending "+sys.argv[2]+"."
+	print("Running Bollinger strategy starting "+sys.argv[1]+" and ending "+sys.argv[2]+".")
 	
 	#Run S&P500 for thresholds 1 and -1 in simple version for lookback of 10 days
 	symbols = list(np.loadtxt(os.environ['QS']+'/quicksim/strategies/S&P500.csv',dtype='str',delimiter=',',comments='#',skiprows=0))
 	
-	t=map(int,sys.argv[1].split('-'))
+	t=list(map(int,sys.argv[1].split('-')))
 	startday = dt.datetime(t[2],t[0],t[1])
-	t=map(int,sys.argv[2].split('-'))
+	t=list(map(int,sys.argv[2].split('-')))
 	endday = dt.datetime(t[2],t[0],t[1])
 	
 	timeofday=dt.timedelta(hours=16)
@@ -104,8 +104,8 @@ if __name__ == "__main__":
 	badsyms=[]
 	if size(intersectsyms)<size(symbols):
 		badsyms=list(set(symbols)-set(intersectsyms))
-		print "bad symms:"
-		print badsyms
+		print("bad symms:")
+		print(badsyms)
 	for i in badsyms:
 		index=symbols.index(i)
 		symbols.pop(index)
@@ -114,5 +114,5 @@ if __name__ == "__main__":
 	alloc=createStatelessStrat(historic,timestamps,10,1,-1)
 	
 	output=open(sys.argv[3],"wb")
-	cPickle.dump(alloc,output)
+	pickle.dump(alloc,output)
 	output.close()

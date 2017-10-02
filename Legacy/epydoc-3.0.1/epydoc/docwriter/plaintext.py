@@ -30,9 +30,9 @@ class PlaintextWriter:
                 self.write_function(out, api_doc)
             else:
                 assert 0, ('%s not handled yet' % api_doc.__class__)
-        except Exception, e:
-            print '\n\n'
-            print ''.join(result)
+        except Exception as e:
+            print('\n\n')
+            print(''.join(result))
             raise
 
         return ''.join(result)

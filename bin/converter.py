@@ -29,7 +29,7 @@ from copy import deepcopy
 import math
 from pandas import *
 import matplotlib.pyplot as plt
-import cPickle
+import pickle
 
 def fundsToPNG(funds,output_file):
 	plt.clf()
@@ -47,7 +47,7 @@ def fundsToPNG(funds,output_file):
 def fundsAnalysisToPNG(funds,output_file):
 	plt.clf()
 	if(type(funds)!=type(list())):
-		print 'fundsmatrix only contains one timeseries, not able to analyze.'
+		print('fundsmatrix only contains one timeseries, not able to analyze.')
 	#convert to daily returns
 	count=list()
 	dates=list()

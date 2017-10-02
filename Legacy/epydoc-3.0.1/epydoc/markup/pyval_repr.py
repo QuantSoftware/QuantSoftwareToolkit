@@ -127,9 +127,9 @@ class PyvalColorizer:
     RE_OP_TAG = 're-op'
     RE_FLAGS_TAG = 're-flags'
 
-    ELLIPSIS = Element('code', u'...', style='variable-ellipsis')
-    LINEWRAP = Element('symbol', u'crarr')
-    UNKNOWN_REPR = Element('code', u'??', style='variable-unknown')
+    ELLIPSIS = Element('code', '...', style='variable-ellipsis')
+    LINEWRAP = Element('symbol', 'crarr')
+    UNKNOWN_REPR = Element('code', '??', style='variable-unknown')
     
     GENERIC_OBJECT_RE = re.compile(r'^<.* at 0x[0-9a-f]+>$', re.IGNORECASE)
 
@@ -180,12 +180,12 @@ class PyvalColorizer:
         state.score += 1
         
         if pyval is None or pyval is True or pyval is False:
-            self._output(unicode(pyval), self.CONST_TAG, state)
-        elif pyval_type in (int, float, long, types.ComplexType):
-            self._output(unicode(pyval), self.NUMBER_TAG, state)
+            self._output(str(pyval), self.CONST_TAG, state)
+        elif pyval_type in (int, float, int, complex):
+            self._output(str(pyval), self.NUMBER_TAG, state)
         elif pyval_type is str:
             self._colorize_str(pyval, state, '', 'string-escape')
-        elif pyval_type is unicode:
+        elif pyval_type is str:
             if self.ESCAPE_UNICODE:
                 self._colorize_str(pyval, state, 'u', 'unicode-escape')
             else:
@@ -201,15 +201,15 @@ class PyvalColorizer:
             self._multiline(self._colorize_iter, self._sort(pyval),
                             state, 'frozenset([', '])')
         elif pyval_type is dict:
-            self._multiline(self._colorize_dict, self._sort(pyval.items()),
+            self._multiline(self._colorize_dict, self._sort(list(pyval.items())),
                             state, '{', '}')
         elif is_re_pattern(pyval):
             self._colorize_re(pyval, state)
         else:
             try:
                 pyval_repr = repr(pyval)
-                if not isinstance(pyval_repr, (str, unicode)):
-                    pyval_repr = unicode(pyval_repr)
+                if not isinstance(pyval_repr, str):
+                    pyval_repr = str(pyval_repr)
                 pyval_repr_ok = True
             except KeyboardInterrupt:
                 raise
@@ -325,7 +325,7 @@ class PyvalColorizer:
         # Parse the regexp pattern.
         tree = sre_parse.parse(pat, flags)
         groups = dict([(num,name) for (name,num) in
-                       tree.pattern.groupdict.items()])
+                       list(tree.pattern.groupdict.items())])
         # Colorize it!
         self._output("re.compile(r'", None, state)
         self._colorize_re_flags(tree.pattern.flags, state)
@@ -348,7 +348,7 @@ class PyvalColorizer:
             args = elt[1]
     
             if op == sre_constants.LITERAL:
-                c = unichr(args)
+                c = chr(args)
                 # Add any appropriate escaping.
                 if c in '.^$\\*+?{}[]|()\'': c = '\\'+c
                 elif c == '\t': c = '\\t'
@@ -428,7 +428,7 @@ class PyvalColorizer:
                     self._output('(?P<', self.RE_GROUP_TAG, state)
                     self._output(groups[args[0]], self.RE_REF_TAG, state)
                     self._output('>', self.RE_GROUP_TAG, state)
-                elif isinstance(args[0], (int, long)):
+                elif isinstance(args[0], int):
                     # This is cheating:
                     self._output('(', self.RE_GROUP_TAG, state)
                 else:
@@ -505,7 +505,7 @@ class PyvalColorizer:
                     raise _Maxlines()
                 if not state.linebreakok:
                     raise _Linebreak()
-                state.result.append(u'\n')
+                state.result.append('\n')
                 state.lineno += 1
                 state.charpos = 0
 

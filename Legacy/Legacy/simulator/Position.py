@@ -45,10 +45,10 @@ class Position:
         else:
             short = False
         if debug:
-            print 'REMOVING POSITIONS'
-            print 'REMOVE:',symbol,shares,closeType
+            print('REMOVING POSITIONS')
+            print('REMOVE:',symbol,shares,closeType)
             for row in self.position:
-                print 'CURRROWS:', row
+                print('CURRROWS:', row)
         #get all rows for the correct stock
         idx = 0
         for row in self.position:
@@ -57,12 +57,12 @@ class Position:
                 rows.append(row)
             idx+=1
         if debug:
-            print 'POSSIBLE ROWS TO REMOVE: ',rows
+            print('POSSIBLE ROWS TO REMOVE: ',rows)
         if(closeType=='fifo'):
             i = 0
             row = rows[i] #get first row
             if debug:
-                print 'FIFO', row
+                print('FIFO', row)
             posShares = row['shares'] #get shares
             posShares = abs(posShares) #account for shorts (make positive) 
             #determines the number of positions to remove
@@ -81,7 +81,7 @@ class Position:
             newShares = posShares-shares
             newRow['shares'] = newShares
             if debug:
-                print 'UPDATEDROW(FIFO):', newRow            
+                print('UPDATEDROW(FIFO):', newRow)            
             #removes old rows
             removes = []
             #remove updated row if it has 0 shares now
@@ -95,7 +95,7 @@ class Position:
                 cnt+=1
             if debug:
                 for idx in removes:
-                    print 'ROWREMOVED:', self.position[idx]
+                    print('ROWREMOVED:', self.position[idx])
             self.position = np.delete(self.position,removes)
             #remove the keyIndex field from the data
             for row in rows:
@@ -106,7 +106,7 @@ class Position:
             i = len(rows)-1 #sets i to last row
             row = rows[i]
             if debug:
-                print "LIFO",row
+                print("LIFO",row)
             #gets info from last row's position
             posShares = row['shares']
             posShares = abs(posShares) #account for shorts (make positive) 
@@ -126,7 +126,7 @@ class Position:
             newShares = posShares-shares
             newRow['shares'] = newShares
             if debug:
-                print 'UPDATEDROW(LIFO):', newRow            
+                print('UPDATEDROW(LIFO):', newRow)            
             #removes old rows
             removes = []
             #remove updated row if it has 0 shares now
@@ -140,7 +140,7 @@ class Position:
                 cnt-=1
             if debug:
                 for idx in removes:
-                    print 'ROWREMOVED:', self.position[idx]
+                    print('ROWREMOVED:', self.position[idx])
             self.position = np.delete(self.position,removes)
             for row in rows:
                del row['keyIndex']

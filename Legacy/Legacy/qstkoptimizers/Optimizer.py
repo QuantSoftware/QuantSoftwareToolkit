@@ -71,11 +71,11 @@ class Optimizer(object):
              if newOrder != None:
                 output.append(newOrder)
              else:
-                 print "ERROR! ERROR! ERROR!"
+                 print("ERROR! ERROR! ERROR!")
              #if (currentBiggestLoserIndex != -1): ends
          #if adjOpenData is not None: ends
      else:
-         print "adjOpenData is None!"
+         print("adjOpenData is None!")
          #else ends    
      #Now to decide which stocks to sell
      currentPositions= positions.getPositions()
@@ -98,7 +98,7 @@ class Optimizer(object):
                  if newOrder != None:
                    output.append(newOrder)
                  else:
-                   print "ERROR! ERROR! ERROR!"
+                   print("ERROR! ERROR! ERROR!")
         #for pos in currentPositions: ends         
      return output  
         
@@ -139,7 +139,7 @@ class Optimizer(object):
                                 # Ergo- we sell
                                 #sell
                                 #if ((pos['purchase_price'] + (pos['shares']*self.ComPerShare))< temp): #rig it to make money
-                                  print str(pos['symbol'])+" finally lost value for "+ str(self.noOfDaysStockHasBeenLoosingValue[index2])+" days. Selling it"
+                                  print(str(pos['symbol'])+" finally lost value for "+ str(self.noOfDaysStockHasBeenLoosingValue[index2])+" days. Selling it")
                                   order= stockInfo.OutputOrder()
                                   order.symbol= pos['symbol']
                                   order.volume= pos['shares']
@@ -152,7 +152,7 @@ class Optimizer(object):
                                   if newOrder != None:
                                     output.append(newOrder)
                                   else:
-                                    print "ERROR! ERROR! ERROR!"
+                                    print("ERROR! ERROR! ERROR!")
                         except ValueError:
                             pass #index not found 
                     #for pos in currentPositions
@@ -180,7 +180,7 @@ class Optimizer(object):
                             if newOrder != None:
                                  output.append(newOrder)
                             else:
-                                 print "ERROR! ERROR! ERROR!"
+                                 print("ERROR! ERROR! ERROR!")
             
                           #The stock was loosing value for <=3 days  but now gained value- so off with the head
                       self.listOfLoosingStocks.pop(index1)

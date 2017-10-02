@@ -90,15 +90,15 @@ def query(allQueries, k, method='mean'):
     temp2= np.zeros (data.shape[0])
     
     if (allQueries.shape[1] != (data.shape[1] -1) ):
-        print "ERROR: Data and query points are not of the same dimension"
+        print("ERROR: Data and query points are not of the same dimension")
         raise ValueError
         #if ends
     if (k < 1):
-        print "ERROR: K should be >= 1"
+        print("ERROR: K should be >= 1")
         raise ValueError
         #if ends    
     if (k > data.shape[0]):
-        print "ERROR: K is greater than the total number of data points."
+        print("ERROR: K is greater than the total number of data points.")
         raise ValueError
         #if ends
     
@@ -151,8 +151,8 @@ def addEvidence (newData):
         try:
             data= np.vstack ((data, newData))
         except Exception as ex:
-            print "Type of exception: "+ str(type (ex))
-            print "args: " + str(ex.args)
+            print("Type of exception: "+ str(type (ex)))
+            print("args: " + str(ex.args))
             #except ends   
     #addEvidence ends
 
@@ -171,11 +171,11 @@ def main(args):
     #answer = query(a, 5, 'mean')
     
     for i in range (0, answer.shape[0]):
-        print answer[i]
+        print(answer[i])
     #end for    
     
     
-    print "The answer is: "
+    print("The answer is: ")
 
 if __name__ == '__main__':
     main (sys.argv)

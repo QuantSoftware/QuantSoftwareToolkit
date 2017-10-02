@@ -17,7 +17,7 @@ def getStocks(listOfPaths):
         
             listOfStocks=list()
             #Path does not exist
-            print "Reading in all stock names..."
+            print("Reading in all stock names...")
             fileExtensionToRemove=".h5"   
             
             for path in listOfPaths:
@@ -25,9 +25,9 @@ def getStocks(listOfPaths):
                
                stocksAtThisPath= dircache.listdir(str(path))
                #Next, throw away everything that is not a .h5 And these are our stocks!
-               stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
+               stocksAtThisPath = [x for x in stocksAtThisPath if (str(x).find(str(fileExtensionToRemove)) > -1)]
                #Now, we remove the .h5 to get the name of the stock
-               stocksAtThisPath = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),stocksAtThisPath)
+               stocksAtThisPath = [(x.partition(str(fileExtensionToRemove))[0]) for x in stocksAtThisPath]
                
                for stock in stocksAtThisPath:
                    listOfStocks.append(stock)
@@ -98,7 +98,7 @@ def main():
         
     
     for stock in listOfStocks:
-        print "Processing: " + str(stock)
+        print("Processing: " + str(stock))
         #adj_close= dataAccess.getStockDataList(str(stock), 'adj_close')
         adj_close= dataAccess.getStockDataList(stock, 'adj_close', timestamps[0], timestamps[noOfDays-1])
         
@@ -113,7 +113,7 @@ def main():
                upperBand[ctr]= centerband[ctr] + (stdMultiplier* stdDev)
                lowerBand[ctr]= centerband[ctr] - (stdMultiplier* stdDev)
             except IndexError:
-                print "ctr is: " + str(ctr)
+                print("ctr is: " + str(ctr))
         
         #writing alpha values to file
         for ctr in range (0, noOfDays):

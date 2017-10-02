@@ -21,7 +21,7 @@ class AlphaDataModelClass(pt.IsDescription):
     
     
     def __init__(self):
-        print "In the AlphaDataModelClass constructor"
+        print("In the AlphaDataModelClass constructor")
         
     #constructor done
 #class ends!
@@ -37,12 +37,12 @@ def openFile (newFileName):
         ctr=float (0.0)
         
         if newFileName is None:
-            print "Using default name for alpha file"
+            print("Using default name for alpha file")
         else:
            if (len(newFileName)>0):
                fileName= str(newFileName)
            else:
-             print "Using default name for alpha file"
+             print("Using default name for alpha file")
             
         #Opening the file now...
         if not opened:
@@ -51,7 +51,7 @@ def openFile (newFileName):
          table = h5f.createTable(group, 'alphaData', AlphaDataModelClass)   
          opened=True 
         else:
-         print "File already opened. Doing nothing"      
+         print("File already opened. Doing nothing")      
     
     # File opened    
     
@@ -82,7 +82,7 @@ def addRow (currSymbol, currExchange, currAlphaVal, currTS):
     
     
     else:
-       print "ERROR: File not open. Can not add row."  
+       print("ERROR: File not open. Can not add row.")  
        raise IOError   
 #    addRow done
 
@@ -102,5 +102,5 @@ def closeFile():
         
         table.flush()
         h5f.close()
-        print str(fileName)+ " closed."
+        print(str(fileName)+ " closed.")
         opened= False

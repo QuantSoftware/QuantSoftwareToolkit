@@ -41,9 +41,9 @@ class StockPriceData:
             stocksAtThisPath=list ()
             stocksAtThisPath= dircache.listdir(str(path))
             #Next, throw away everything that is not a .csv And these are our stocks!
-            stocksAtThisPath = filter (lambda x:(str(x).find(str(fileExtensionToRemove)) > -1), stocksAtThisPath)
+            stocksAtThisPath = [x for x in stocksAtThisPath if (str(x).find(str(fileExtensionToRemove)) > -1)]
             #Now, we remove the .csv to get the name of the stock
-            stocksAtThisPath = map(lambda x:(x.partition(str(fileExtensionToRemove))[0]),stocksAtThisPath)
+            stocksAtThisPath = [(x.partition(str(fileExtensionToRemove))[0]) for x in stocksAtThisPath]
             
             #Then add that list to listOflistOfStocks
             listOflistOfStocks.append(stocksAtThisPath)       
@@ -65,8 +65,8 @@ class StockPriceData:
             #for stock in stock_list:
                 #print str(stock)
         
-        print "No. of stocks: " + str(noOfStocks)
-        print "No. of timestamps: " +  str(len(self.timestamps))
+        print("No. of stocks: " + str(noOfStocks))
+        print("No. of timestamps: " +  str(len(self.timestamps)))
 
         
         listIndex=-1
@@ -76,7 +76,7 @@ class StockPriceData:
           outputFileFolder= str(listOfOutputPaths[listIndex])
           stocks_list= listOfListOfStocks[listIndex]
           for i in range(0, len(stocks_list)): # - self.count_of_non_existent_stocks):
-                print str(stocks_list[i]) +"   "+str(ctr)+" of "+ str(noOfStocks)+"  "+ str(time.strftime("%H:%M:%S"))
+                print(str(stocks_list[i]) +"   "+str(ctr)+" of "+ str(noOfStocks)+"  "+ str(time.strftime("%H:%M:%S")))
                 ctr= ctr+1
                 
                 beginTS= startDate
@@ -86,12 +86,12 @@ class StockPriceData:
                     
                      #Checking the last timestamp in the hdf file               
                     h5f=pt.openFile(outputFileFolder + str(stocks_list[i]+".h5"), mode = "a")
-                    print "Updating " +str(outputFileFolder + str(stocks_list[i]+".h5"))
+                    print("Updating " +str(outputFileFolder + str(stocks_list[i]+".h5")))
                     table= h5f.getNode('/StrategyData', 'StrategyData')
                     beginTS= int(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']))) #+ 1 #POSSIBLE BUG?
                     if (str(beginTS) >= self.timestamps[len(self.timestamps)-1]): #if (os.path.getmtime(str(outputFileFolder)+str(stocks_list[i])+".h5") > os.path.getmtime(str(self.dirname+ "/"+ str(stocks_list[i]+".CSV")))):
                         #The hdf5 file for this stock has been modified after the CSV file was modified. Ergo- no changes need to be made to it now..
-                        print str(stocks_list[i])+".h5 already is up to date. "+ str(time.strftime("%H:%M:%S"))
+                        print(str(stocks_list[i])+".h5 already is up to date. "+ str(time.strftime("%H:%M:%S")))
                         h5f.close()
                         continue
                     else:
@@ -99,7 +99,7 @@ class StockPriceData:
                          beginTS= int(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']))) 
                 else:
                     #The only foreseeable reason why there might be an exception here is that the hdf file does not exist. So, creating it.
-                    print "Creating file: " + str(outputFileFolder) + str(stocks_list[i]+".h5")+"  "+ str(time.strftime("%H:%M:%S"))
+                    print("Creating file: " + str(outputFileFolder) + str(stocks_list[i]+".h5")+"  "+ str(time.strftime("%H:%M:%S")))
                     
                     h5f = pt.openFile(str(outputFileFolder) + str(stocks_list[i]+".h5"), mode = "w")
                     group = h5f.createGroup("/", 'StrategyData')
@@ -113,9 +113,9 @@ class StockPriceData:
                 jk.pop(0)
                 
                 self.filt_list=list()
-                filt_list_temp=filter(lambda x: (int(x.split(',')[1])> int(beginTS)) ,jk) #Because we only want timestamps strictly greater than the last timestamp currently in the file.
-                filt_list_temp=filter(lambda x: (int(x.split(',')[1])<= int(endDate)) ,filt_list_temp)
-                filt_list_temp=map(lambda x:(x.split(',')[0],x.split(',')[1],x.split(',')[2],x.split(',')[3],x.split(',')[4],x.split(',')[5],x.split(',')[6],(x.split(',')[7]).strip()),filt_list_temp)
+                filt_list_temp=[x for x in jk if (int(x.split(',')[1])> int(beginTS))] #Because we only want timestamps strictly greater than the last timestamp currently in the file.
+                filt_list_temp=[x for x in filt_list_temp if (int(x.split(',')[1])<= int(endDate))]
+                filt_list_temp=[(x.split(',')[0],x.split(',')[1],x.split(',')[2],x.split(',')[3],x.split(',')[4],x.split(',')[5],x.split(',')[6],(x.split(',')[7]).strip()) for x in filt_list_temp]
                 
                 self.filt_list.append(filt_list_temp)
 
@@ -165,8 +165,8 @@ class StockPriceData:
 
                         k=k+1 
                      else:
-                         print"###############Something has gone wrong. A stock had a timestamp which was not in the timestamp list..."
-                         print "TS: " + str(self.timestamps[j]) + ", Stock: " + str (self.filt_list[0][k][1]) 
+                         print("###############Something has gone wrong. A stock had a timestamp which was not in the timestamp list...")
+                         print("TS: " + str(self.timestamps[j]) + ", Stock: " + str (self.filt_list[0][k][1])) 
                          k=k+1
                          #should stop executing here? Naah
 #                         sys.exit()
@@ -192,7 +192,7 @@ class StockPriceData:
                 h5f.close()   
             #for i in range(0, stocks.size) done
         
-        print "Writing data done. "+ str(time.strftime("%H:%M:%S"))
+        print("Writing data done. "+ str(time.strftime("%H:%M:%S")))
         
 
     def makeOrUpdateTimestampsFile(self, fileName, listOflistOfStocks, listOfInputPaths, startDate, endDate):
@@ -204,7 +204,7 @@ class StockPriceData:
         DAY=86400
         
         if (os.path.exists(fileName)):
-           print "Updating timestamps"
+           print("Updating timestamps")
            h5f = pt.openFile(str(fileName), mode = "a")
            table=h5f.getNode('/timestamps','timestamps')
                       
@@ -214,12 +214,12 @@ class StockPriceData:
                startDate=str(time.strftime("%Y%m%d", time.gmtime(table[table.nrows-1]['timestamp']))) # TO FIX DST BUG
                
         else:
-           print "Creating new timestamp file"
+           print("Creating new timestamp file")
            h5f = pt.openFile(str(fileName), mode = "w")
            group = h5f.createGroup("/", 'timestamps')
            table = h5f.createTable(group, 'timestamps', TimestampsModel)
            
-        print "start: " + str(startDate)+", end: "+ str(endDate)
+        print("start: " + str(startDate)+", end: "+ str(endDate))
         
         tslist=list()    
         ctr=1
@@ -236,17 +236,17 @@ class StockPriceData:
                 j.pop(0) #To remove the "header" row
                 f.close()
                 
-                filt_list_temp=filter(lambda x: (int(x.split(',')[1])> int(startDate)) ,j) # To fix DST bug
-                filt_list_temp=filter(lambda x: (int(x.split(',')[1])<= int(endDate)) ,filt_list_temp)
+                filt_list_temp=[x for x in j if (int(x.split(',')[1])> int(startDate))] # To fix DST bug
+                filt_list_temp=[x for x in filt_list_temp if (int(x.split(',')[1])<= int(endDate))]
 
                 if not (filt_list_temp):
-                    print str(stock.split('.')[0]) + " didn't exist in this period\n"
+                    print(str(stock.split('.')[0]) + " didn't exist in this period\n")
                     #ENHANCEMENT- CAN ALSO REMOVE STOCK FROM THE STOCKLIST
                     #This can not be done right now- because if a stock did not exist- but another stock did exist then NaNs have to be added to the stock that did not exist.
                 else:
                      #it existed and now we need the timestamps
-                     filt_list_temp=map(lambda x:(x.split(',')[1]),filt_list_temp)
-                     filt_list_temp= map(lambda item:(time.mktime(time.strptime(item,'%Y%m%d'))), filt_list_temp)
+                     filt_list_temp=[(x.split(',')[1]) for x in filt_list_temp]
+                     filt_list_temp= [(time.mktime(time.strptime(item,'%Y%m%d'))) for item in filt_list_temp]
 
                      for item in filt_list_temp:
                         try:
@@ -318,7 +318,7 @@ class StockPriceData:
             tempTS+=DAY
             #while (tempTS- tsList[len(tsList)-1] > DAY) ends
         
-        print "Smartly figured out that we don't need to continue"
+        print("Smartly figured out that we don't need to continue")
         return False #stop looking for more timestamps because all the timestamps that can be in the list are now there..
                      #we will not get any more timestamps by looking for more..because there just aren't any left... cool huh?    
         #continueChecking ends    
@@ -347,7 +347,7 @@ class StockPriceData:
         '''
         @summary: This function removes HDF files that correspond to CSV files that existed in the past- but don't exist anymore. Possibly because the stock was delisted or something like that. 
         '''
-        print "Removing HDF files for which there is no corresponding CSV file"
+        print("Removing HDF files for which there is no corresponding CSV file")
         listOfListOfHdfFiles=self.getSymbols(listOfOutputPaths, ".h5")
         listOfListOfCsvFiles=self.getSymbols(listOfInputPaths, ".csv") #I guess this isn't really necessary, we could just reuse the stock list or something
                                                            #but let's just keep things "proper"
@@ -359,13 +359,13 @@ class StockPriceData:
                     #Check if the HDF file exists...
                     listOfListOfCsvFiles[ctr].index(hdfFile)
                   except:   
-                      print "Removing "+str(listOfOutputPaths[ctr]) + str(hdfFile)+".h5"
+                      print("Removing "+str(listOfOutputPaths[ctr]) + str(hdfFile)+".h5")
                       os.remove(str(listOfOutputPaths[ctr]) + str(hdfFile)+".h5")
                       #if ends
                   #for hdfFile in listOfListOfHdfFiles ends
               #for listofHDFFiles in listOfListOfHdfFiles ends
         
-        print "Done removing HDF files (if any)"
+        print("Done removing HDF files (if any)")
         #keepHDFFilesInSyncWithCSV done
                 
 
@@ -375,12 +375,12 @@ if __name__ == "__main__":
     @attention: The HDF file containing the timestamps should not be in any of the output paths because, if it is, then it will be deleted at the end.
     '''
     
-    print "Starting..."+ str(time.strftime("%H:%M:%S"))
+    print("Starting..."+ str(time.strftime("%H:%M:%S")))
     
     parser = OptionParser()
     args = parser.parse_args()[1]
     endDate= args[0]
-    print "End date is: " + str (endDate)
+    print("End date is: " + str (endDate))
     
     
     #Date to start reading data Format: YYYYMMDD
@@ -422,13 +422,13 @@ if __name__ == "__main__":
     #done making all output paths!        
     
     if (len(listOfInputPaths)!= len(listOfOutputPaths)):
-        print "No. of input paths not equal to the number of output paths.. quitting"
+        print("No. of input paths not equal to the number of output paths.. quitting")
         sys.exit("FAILURE")
     listOfListOfStocks=spd.getSymbols(listOfInputPaths, ".csv")
     
     
     if(endDate<startDate):
-        print "Error: enddate earlier than startdate"
+        print("Error: enddate earlier than startdate")
         sys.exit(0)
         
     spd.makeOrUpdateTimestampsFile(timestampsFile, listOfListOfStocks, listOfInputPaths, startDate, endDate)
@@ -436,4 +436,4 @@ if __name__ == "__main__":
     spd.getData(listOfListOfStocks, listOfInputPaths, startDate, endDate, listOfOutputPaths)
     spd.keepHDFFilesInSyncWithCSV(listOfInputPaths, listOfOutputPaths)
     
-    print "All Done. Conversion from CSV to HDF5 is complete."
+    print("All Done. Conversion from CSV to HDF5 is complete.")

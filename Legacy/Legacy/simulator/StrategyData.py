@@ -308,38 +308,38 @@ class StrategyData:
             
         def getOutput(self):
             if self.symbol == "" or type(self.symbol) != str:
-                print "Invalid symbol %s in output." % str(self.symbol)
+                print("Invalid symbol %s in output." % str(self.symbol))
                 return None
             if self.volume == 0 or type(self.volume) != int:
-                print "Invalid volume %s in output." % str(self.volume)
+                print("Invalid volume %s in output." % str(self.volume))
                 return None
             if self.task == "" or type(self.task) != str:
-                print "Invalid task %s in output." % str(self.task)
+                print("Invalid task %s in output." % str(self.task))
                 return None
             if self.duration <= 0 or type(self.duration) != int:
-                print "Invalid duration %s in output." % str(self.duration)
+                print("Invalid duration %s in output." % str(self.duration))
                 return None
             if self.orderType == "" or type(self.orderType) != str:
-                print "Invalid orderType %s in output." % str(self.orderType)
+                print("Invalid orderType %s in output." % str(self.orderType))
                 return None
             if type(self.task) != str:
-                print "Invalid closeType %s specified." % str(self.task)
+                print("Invalid closeType %s specified." % str(self.task))
                 return None
             if self.task.upper() == "SELL" or self.task.upper() == "COVER":
                 if self.closeType == "" or type(self.closeType) != str:
-                    print "Invalid closeType %s specified for %s." % (str(self.closeType),self.task)
+                    print("Invalid closeType %s specified for %s." % (str(self.closeType),self.task))
                     return None
             if type(self.orderType) != str:
-                print "Invalid orderType %s specified." % str(self.orderType)
+                print("Invalid orderType %s specified." % str(self.orderType))
             if self.orderType.upper() == "LIMIT":
                 if self.limitPrice == 0 or type(self.limitPrice) != int:
-                    print "Invalid limitPrice specified."
+                    print("Invalid limitPrice specified.")
                     return None
             if self.task.upper() not in ["BUY","SELL","SHORT","COVER"]:
-                print "Invalid task %s specified." %self.task
+                print("Invalid task %s specified." %self.task)
                 return None
             if self.orderType.upper() not in ["LIMIT","MOC","MOO","VWAP"]:
-                print "Invalid orderType %s specified." % self.orderType
+                print("Invalid orderType %s specified." % self.orderType)
                 return None
             return (self.task,self.volume,self.symbol,self.orderType,self.duration,self.closeType,self.limitPrice)
         
@@ -414,10 +414,10 @@ def generateRandomArray():
                 row['interval'] = 86400
             priceArray[i,j] = row 
         if i%10==0:
-            print i,
+            print(i, end=' ')
         if i%100==0:
-            print ''
-    print ''
+            print('')
+    print('')
     '''
     pickle_output = open('randomArrayFile.pkl','w')
     pickler = pickle.dump(timestamps,pickle_output)
@@ -429,7 +429,7 @@ def generateRandomArray():
 
 def methodTest():
     strat = StrategyData('models/PriceTestData.h5')
-    print strat.getStocks(startTime=0, ticker='KO')
+    print(strat.getStocks(startTime=0, ticker='KO'))
     
 def classTest():
     '''
@@ -438,10 +438,10 @@ def classTest():
     rows = getStocks(ticker = 'KO')
     rows = getStocks(1020, 1050)
     for row in rows:
-        print row['symbol'], row['exchange'], row['timestamp'],\
-            row['when_available'], row['interval'], row['data']
+        print(row['symbol'], row['exchange'], row['timestamp'],\
+            row['when_available'], row['interval'], row['data'])
     
     price = getPrice('adj_high', 1020, 'KO')
-    print price
+    print(price)
     prices = getPrices('adj_high',ticker='KO')
-    print prices
+    print(prices)

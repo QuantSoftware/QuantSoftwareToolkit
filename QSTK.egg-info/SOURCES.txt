@@ -6,13 +6,6 @@ README.md
 UbuntuInstallation.sh
 ez_setup.py
 setup.py
-Bin/DataGenerate_SineWave.py
-Bin/Data_CSV.py
-Bin/__init__.py
-Bin/converter.py
-Bin/csvformatter.py
-Bin/gen_nyse_dates.py
-Bin/investors_report.py
 Examples/Validation.py
 Examples/Basic/allsyms.csv
 Examples/Basic/example-data.csv
@@ -41,7 +34,6 @@ Examples/KNN/data-ripple-prob.csv
 Examples/KNN/data1.csv
 Examples/KNN/data2.csv
 QSTK/__init__.py
-QSTK/__init__.pyc
 QSTK.egg-info/PKG-INFO
 QSTK.egg-info/SOURCES.txt
 QSTK.egg-info/dependency_links.txt

@@ -73,8 +73,8 @@ def DataParameter(PandasObject, featureslist, symbols, timestamps):
 		MinFeat.append(np.amin(np.min(PandasObject[feature], axis=0)))
 		MaxFeat.append(np.amax(np.max(PandasObject[feature], axis=0)))
 
-	dMinFeat=dict(zip(featureslist, MinFeat))
-	dMaxFeat=dict(zip(featureslist, MaxFeat))
+	dMinFeat=dict(list(zip(featureslist, MinFeat)))
+	dMaxFeat=dict(list(zip(featureslist, MaxFeat)))
 	
 	return(dMinFeat, dMaxFeat, startday, endday)
 
@@ -94,4 +94,4 @@ def GetData(directorylocation):
 if __name__ == '__main__':
 	directorylocation = os.environ['QS']+'/Tools/Visualizer/Data/Dow_2009-01-01_2010-12-31/'
 	GetData(directorylocation)
-	print "The access functions are working"
+	print("The access functions are working")

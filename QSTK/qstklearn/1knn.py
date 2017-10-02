@@ -91,7 +91,7 @@ def _plotResults( naDist1, naDist2, lfOneKnn, lf5Knn ):
     
     plt.subplot(312)
     
-    plt.plot( range( len(lfOneKnn) ), lfOneKnn )
+    plt.plot( list(range( len(lfOneKnn))), lfOneKnn )
 
     plt.ylabel( '1-KNN Value' )    
     #plt.xlabel( 'Distribution Merge' )
@@ -100,7 +100,7 @@ def _plotResults( naDist1, naDist2, lfOneKnn, lf5Knn ):
 
     plt.subplot(313)
     
-    plt.plot( range( len(lf5Knn) ), lf5Knn )
+    plt.plot( list(range( len(lf5Knn))), lf5Knn )
 
     plt.ylabel( '% Correct Classification' )    
     #plt.xlabel( 'Distribution Merge' )
@@ -201,8 +201,8 @@ def _test1():
             
             naBoth[500:,0] = naBoth[500:,0] - .1
 
-        print 'Runtime OneKnn:', cOneRuntime
-        print 'Runtime 5-KNN:', cKnnRuntime   
+        print('Runtime OneKnn:', cOneRuntime)
+        print('Runtime 5-KNN:', cKnnRuntime)   
         _plotResults( naTest1, naTest2, lfResults, lfKnnResults )
 
 ''' Tests performance of 1-KNN '''

@@ -44,7 +44,7 @@ def find_events(ls_symbols, d_data):
     df_close = d_data['close']
     ts_market = df_close['SPY']
 
-    print "Finding Events"
+    print("Finding Events")
 
     # Creating an empty dataframe
     df_events = copy.deepcopy(df_close)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldf_data = dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
-    d_data = dict(zip(ls_keys, ldf_data))
+    d_data = dict(list(zip(ls_keys, ldf_data)))
 
     for s_key in ls_keys:
         d_data[s_key] = d_data[s_key].fillna(method='ffill')
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         d_data[s_key] = d_data[s_key].fillna(1.0)
 
     df_events = find_events(ls_symbols, d_data)
-    print "Creating Study"
+    print("Creating Study")
     ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
                 s_filename='MyEventStudy.pdf', b_market_neutral=True, b_errorbars=True,
                 s_market_sym='SPY')

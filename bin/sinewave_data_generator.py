@@ -1,6 +1,6 @@
 import datetime
 import QSTK.qstkutil.qsdateutil
-import StringIO
+import io
 import math
 import random
 
@@ -17,12 +17,12 @@ def genfile(fname,dt_start,dt_end):
 	amp =  20.0*random.random()
 	period = 10.0+(random.random()*100.0)
 	sin_gen = lambda x: (mean+(amp*math.sin(((math.pi*2)/period)*x)))
-	print fname,"parameters"
-	print "Mean:",mean
-	print "Amplitude:",amp
-	print "Period:", period
+	print(fname,"parameters")
+	print("Mean:",mean)
+	print("Amplitude:",amp)
+	print("Period:", period)
 	dllen = len(datelist)
-	for t in xrange(dllen):
+	for t in range(dllen):
 		date = datelist[(dllen-1)-t]
 		val = sin_gen(t)
 		line = (date.date().isoformat(),)+((val,)*5)
@@ -30,6 +30,6 @@ def genfile(fname,dt_start,dt_end):
 	#print write_to.getvalue()
 	write_to.close()
 
-for i in xrange(NUMFILES):
+for i in range(NUMFILES):
 	genfile("ML4T-%03d.csv"%i,START,END)
 #genfile("foo.txt",datetime.datetime(2011,9,13),datetime.datetime(2012,9,13))

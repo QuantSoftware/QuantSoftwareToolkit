@@ -26,11 +26,11 @@ def calcalpha(stateprior,transition,emission,observations,numstates,elem_size=nu
 	first t symbols.
 	"""
 	alpha = numpy.zeros((len(observations),numstates),dtype=elem_size)
-	for x in xrange(numstates):
+	for x in range(numstates):
 		alpha[0][x] = stateprior[x]*emission[x][observations[0]]
-	for t in xrange(1,len(observations)):
-		for j in xrange(numstates):
-			for i in xrange(numstates):
+	for t in range(1,len(observations)):
+		for j in range(numstates):
+			for i in range(numstates):
 				alpha[t][j] += alpha[t-1][i]*transition[i][j]
 			alpha[t][j] *= emission[j][observations[t]]
 	return alpha
@@ -51,11 +51,11 @@ def calcbeta(transition,emission,observations,numstates,elem_size=numpy.longdoub
 	symbols from t+1 to the end (T).
 	"""
 	beta = numpy.zeros((len(observations),numstates),dtype=elem_size)
-	for s in xrange(numstates):
+	for s in range(numstates):
 		beta[len(observations)-1][s] = 1.
-	for t in xrange(len(observations)-2,-1,-1):
-		for i in xrange(numstates):
-			for j in xrange(numstates):
+	for t in range(len(observations)-2,-1,-1):
+		for i in range(numstates):
+			for j in range(numstates):
 				beta[t][i] += transition[i][j]*emission[j][observations[t+1]]*beta[t+1][j]
 	return beta
 
@@ -72,18 +72,18 @@ def calcxi(stateprior,transition,emission,observations,numstates,alpha=None,beta
 	if beta is None:
 		beta = calcbeta(transition,emission,observations,numstates,elem_size)
 	xi = numpy.zeros((len(observations),numstates,numstates),dtype=elem_size)
-	for t in xrange(len(observations)-1):
+	for t in range(len(observations)-1):
 		denom = 0.0
-		for i in xrange(numstates):
-			for j in xrange(numstates):
+		for i in range(numstates):
+			for j in range(numstates):
 				thing = 1.0
 				thing *= alpha[t][i]
 				thing *= transition[i][j]
 				thing *= emission[j][observations[t+1]]
 				thing *= beta[t+1][j]
 				denom += thing
-		for i in xrange(numstates):
-			for j in xrange(numstates):
+		for i in range(numstates):
+			for j in range(numstates):
 				numer = 1.0
 				numer *= alpha[t][i]
 				numer *= transition[i][j]
@@ -100,8 +100,8 @@ def calcgamma(xi,seqlen,numstates, elem_size=numpy.longdouble):
 	in state 'i' at time 't' given the full observation sequence.
 	"""
 	gamma = numpy.zeros((seqlen,numstates),dtype=elem_size)
-	for t in xrange(seqlen):
-		for i in xrange(numstates):
+	for t in range(seqlen):
+		for i in range(numstates):
 			gamma[t][i] = sum(xi[t][i])
 	return gamma
 
@@ -114,20 +114,20 @@ def baumwelchstep(stateprior,transition,emission,observations,numstates,numsym,e
 	gamma = calcgamma(xi,len(observations),numstates,elem_size)
 	newprior = gamma[0]
 	newtrans = numpy.zeros((numstates,numstates),dtype=elem_size)
-	for i in xrange(numstates):
-		for j in xrange(numstates):
+	for i in range(numstates):
+		for j in range(numstates):
 			numer = 0.0
 			denom = 0.0
-			for t in xrange(len(observations)-1):
+			for t in range(len(observations)-1):
 				numer += xi[t][i][j]
 				denom += gamma[t][i]
 			newtrans[i][j] = numer/denom
 	newemiss = numpy.zeros( (numstates,numsym) ,dtype=elem_size)
-	for j in xrange(numstates):
-		for k in xrange(numsym):
+	for j in range(numstates):
+		for k in range(numsym):
 			numer = 0.0
 			denom = 0.0
-			for t in xrange(len(observations)):
+			for t in range(len(observations)):
 				if observations[t] == k:
 					numer += gamma[t][j]
 				denom += gamma[t][j]
@@ -219,7 +219,7 @@ class HMMLearner:
 		processed.
 		"""
 		if len(newData.shape) == 1:
-			for i in xrange(iterations):
+			for i in range(iterations):
 				newp,newt,newe = baumwelchstep(	self.prior, \
 												self.transition_matrix, \
 												self.emission_matrix, \
@@ -236,7 +236,7 @@ class HMMLearner:
 				self.transition_matrix = newt
 				self.emission_matrix = newe
 		else:
-			for i in xrange(iterations):
+			for i in range(iterations):
 				for sequence in newData:
 					newp,newt,newe = baumwelchstep(	self.prior, \
 													self.transition_matrix, \

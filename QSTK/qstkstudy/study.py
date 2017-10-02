@@ -16,7 +16,7 @@ if __name__ == '__main__':
     dataobj = da.DataAccess('Yahoo')
     ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldf_data = dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
-    d_data = dict(zip(ls_keys, ldf_data))
+    d_data = dict(list(zip(ls_keys, ldf_data)))
 
     eventMatrix = ev.find_events(ls_symbols,d_data,verbose=True)
     ep.eventprofiler(eventMatrix, d_data,

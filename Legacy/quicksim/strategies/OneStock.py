@@ -24,7 +24,7 @@ Created on Jan 1, 2011
 #
 
 # python imports
-import cPickle
+import pickle
 import sys
 from pandas import DataMatrix
 import datetime as dt
@@ -35,15 +35,15 @@ import qstkutil.DataAccess as da
 import qstkutil.qsdateutil as du
 
 if __name__ == "__main__":
-    print "Running One Stock strategy from "+sys.argv[1] +" to "+sys.argv[2]
+    print("Running One Stock strategy from "+sys.argv[1] +" to "+sys.argv[2])
 
     # Use google symbol
     symbols = list(['SPY'])
 
     # Set start and end dates
-    t = map(int,sys.argv[1].split('-'))
+    t = list(map(int,sys.argv[1].split('-')))
     startday = dt.datetime(t[2],t[0],t[1])
-    t = map(int,sys.argv[2].split('-'))
+    t = list(map(int,sys.argv[2].split('-')))
     endday = dt.datetime(t[2],t[0],t[1])
 
     # Get desired timestamps
@@ -64,4 +64,4 @@ if __name__ == "__main__":
 
     # Dump to pkl file
     output=open(sys.argv[3],"wb")
-    cPickle.dump(alloc, output)
+    pickle.dump(alloc, output)

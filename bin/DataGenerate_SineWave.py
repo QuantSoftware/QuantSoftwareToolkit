@@ -38,12 +38,12 @@ def write(ls_symbols, d_data, ldt_timestamps):
 
 
 def main():
-    print "Creating Stock data from Sine Waves"
+    print("Creating Stock data from Sine Waves")
     dt_start = dt.datetime(2000, 1, 1)
     dt_end = dt.datetime(2012, 10, 31)
     ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt.timedelta(hours=16))
 
-    x = np.array(range(len(ldt_timestamps)))
+    x = np.array(list(range(len(ldt_timestamps))))
 
     ls_symbols = ['SINE_FAST', 'SINE_SLOW', 'SINE_FAST_NOISE', 'SINE_SLOW_NOISE']
     sine_fast = 10*np.sin(x/10.) + 100
@@ -52,7 +52,7 @@ def main():
     sine_fast_noise = 10*(np.sin(x/10.) + np.random.randn(x.size)) + 100
     sine_slow_noise = 10*(np.sin(x/30.) + np.random.randn(x.size)) + 100
 
-    d_data = dict(zip(ls_symbols, [sine_fast, sine_slow, sine_fast_noise, sine_slow_noise]))
+    d_data = dict(list(zip(ls_symbols, [sine_fast, sine_slow, sine_fast_noise, sine_slow_noise])))
 
     write(ls_symbols, d_data, ldt_timestamps)
 

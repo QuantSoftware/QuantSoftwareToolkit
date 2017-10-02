@@ -12,7 +12,7 @@ QuantSoftware Toolkit [![PyPI version](https://badge.fury.io/py/QSTK.png)](http:
 - scipy >= 0.9.0,
 - matplotlib >= 1.1.0,
 - pandas >= 0.7.3,
-- python-dateutil==1.5,
+- python-dateutil>=2.0,
 - cvxopt >= 1.1.3,
 - scikit-learn >= 0.11
 
